@@ -40,6 +40,7 @@
 #include "../../Gameplay/Stage.h"
 
 #include "../../Net/Packets/GameplayPackets.h"
+// Console.h not available - removed debug logging
 
 #ifdef USE_NX
 #include <nlnx/nx.hpp>
@@ -60,33 +61,116 @@ namespace ms
 		character_active = false;
 		event_active = false;
 
+		// Detect v87 vs modern client
+		bool is_v87 = nl::nx::UI["StatusBar3.img"].name().empty();
+		
 		std::string stat = "status";
 
 		if (VWIDTH == 800)
 			stat += "800";
 
-		nl::node mainBar = nl::nx::UI["StatusBar3.img"]["mainBar"];
-		nl::node status = mainBar[stat];
-		nl::node EXPBar = mainBar["EXPBar"];
-		nl::node EXPBarRes = EXPBar[VWIDTH];
-		nl::node menu = mainBar["menu"];
-		nl::node quickSlot = mainBar["quickSlot"];
-		nl::node submenu = mainBar["submenu"];
+		// Use appropriate asset paths based on version
+		nl::node mainBar;
+		nl::node status;
+		nl::node EXPBar;
+		nl::node EXPBarRes;
+		nl::node menu;
+		nl::node quickSlot;
+		nl::node submenu;
+		
+		if (!is_v87) {
+			mainBar = nl::nx::UI["StatusBar3.img"]["mainBar"];
+			status = mainBar[stat];
+			EXPBar = mainBar["EXPBar"];
+			EXPBarRes = EXPBar[VWIDTH];
+			menu = mainBar["menu"];
+			quickSlot = mainBar["quickSlot"];
+			submenu = mainBar["submenu"];
+		} else {
+			// V87: Use simplified structure
+			nl::node statusBar = nl::nx::UI["StatusBar.img"];
+			status = statusBar["base"];
+			EXPBar = statusBar; // EXP elements are directly under StatusBar
+			EXPBarRes = statusBar; // Same for resolution-specific elements
+			menu = statusBar; // Menu buttons are directly under StatusBar
+			quickSlot = statusBar; // QuickSlot elements too
+			submenu = statusBar;
+		}
 
-		exp_pos = Point<int16_t>(0, 87);
+		// Set EXP bar position based on client version
+		if (!is_v87) {
+			exp_pos = Point<int16_t>(0, 87); // Modern client position
+		} else {
+			// V87: EXP bar stretches across the bottom of the status bar
+			exp_pos = Point<int16_t>(0, 55); // Position at bottom of status bar
+		}
 
-		sprites.emplace_back(EXPBar["backgrnd"], DrawArgument(Point<int16_t>(0, 87), Point<int16_t>(VWIDTH, 0)));
-		sprites.emplace_back(EXPBarRes["layer:back"], exp_pos);
+		// Only add sprites if the nodes exist
+		if (!is_v87) {
+			sprites.emplace_back(EXPBar["backgrnd"], DrawArgument(Point<int16_t>(0, 87), Point<int16_t>(VWIDTH, 0)));
+			sprites.emplace_back(EXPBarRes["layer:back"], exp_pos);
+		} else {
+			// V87: Minimal background loading to avoid asset issues
+			nl::node statusBar = nl::nx::UI["StatusBar.img"];
+			
+			// Try different possible background locations for v87
+			nl::node background;
+			if (!statusBar["base"]["backgrnd"].name().empty()) {
+				background = statusBar["base"]["backgrnd"];
+			} else if (!statusBar["backgrnd"].name().empty()) {
+				background = statusBar["backgrnd"];
+			}
+			
+			// Only add background if found
+			if (!background.name().empty()) {
+				sprites.emplace_back(background, DrawArgument(Point<int16_t>(0, 0), Point<int16_t>(VWIDTH, 0)));
+				// V87: Loaded status bar background
+			} else {
+				// V87: No status bar background found - gauges will render without background
+			}
+		}
 
-		int16_t exp_max = VWIDTH - 16;
+		// Set appropriate width for EXP bar based on client version
+		int16_t exp_max;
+		if (!is_v87) {
+			exp_max = VWIDTH - 16; // Modern client: full width
+		} else {
+			exp_max = VWIDTH - 20; // V87: full width with small margin
+		}
 
-		expbar = Gauge(
-			Gauge::Type::DEFAULT,
-			EXPBarRes.resolve("layer:gauge"),
-			EXPBarRes.resolve("layer:cover"),
-			EXPBar.resolve("layer:effect"),
-			exp_max, 0.0f
-		);
+		// Create EXP bar gauge with v87 compatibility
+		if (!is_v87) {
+			expbar = Gauge(
+				Gauge::Type::DEFAULT,
+				EXPBarRes.resolve("layer:gauge"),
+				EXPBarRes.resolve("layer:cover"),
+				EXPBar.resolve("layer:effect"),
+				exp_max, 0.0f
+			);
+		} else {
+			// V87: Use dedicated tempExp texture for EXP gauge (yellow-gold color)
+			nl::node statusBar = nl::nx::UI["StatusBar.img"];
+			nl::node gauge = statusBar["gauge"];
+			
+			// Verify tempExp texture exists
+			if (!gauge["tempExp"].name().empty()) {
+				Texture expTexture(gauge["tempExp"]);
+				expbar = Gauge(Gauge::Type::V87_FILL, expTexture, exp_max, 0.25f); // Test with 25% for visibility
+				// Debug: Log successful EXP texture loading
+				// V87: Successfully loaded tempExp texture
+			} else if (!gauge["bar"].name().empty()) {
+				// Fallback: Use the generic bar texture for EXP if tempExp doesn't exist
+				Texture barTexture(gauge["bar"]);
+				expbar = Gauge(Gauge::Type::V87_FILL, barTexture, exp_max, 0.0f);
+				// Debug: Log fallback EXP texture usage
+				// V87: Using fallback bar texture for EXP gauge
+			} else {
+				// Final fallback: Create empty gauge if no textures exist
+				expbar = Gauge();
+				// Debug: Log missing EXP texture
+				// V87: Warning - No EXP gauge texture found, EXP gauge will not render
+			}
+		}
 
 		int16_t pos_adj = 0;
 
@@ -104,13 +188,26 @@ namespace ms
 
 		if (VWIDTH == 800)
 		{
-			hpmp_pos = Point<int16_t>(412, 40);
-			hpset_pos = Point<int16_t>(530, 70);
-			mpset_pos = Point<int16_t>(528, 86);
-			statset_pos = Point<int16_t>(427, 111);
-			levelset_pos = Point<int16_t>(461, 48);
-			namelabel_pos = Point<int16_t>(487, 40);
-			quickslot_pos = Point<int16_t>(579, 0);
+			if (!is_v87) {
+				hpmp_pos = Point<int16_t>(412, 40);
+				mp_pos = hpmp_pos; // Modern client uses same position for HP/MP
+				hpset_pos = Point<int16_t>(530, 70);
+				mpset_pos = Point<int16_t>(528, 86);
+				statset_pos = Point<int16_t>(427, 111);
+				levelset_pos = Point<int16_t>(461, 48);
+				namelabel_pos = Point<int16_t>(487, 40);
+				quickslot_pos = Point<int16_t>(579, 0);
+			} else {
+				// V87: Different layout with HP/MP on the left, full-width status bar
+				hpmp_pos = Point<int16_t>(50, 5);     // HP bar position 
+				mp_pos = Point<int16_t>(50, 35);      // MP bar position (30px below HP for very clear separation)
+				hpset_pos = Point<int16_t>(200, 25);  // HP value position (right of HP bar)
+				mpset_pos = Point<int16_t>(200, 42);  // MP value position (right of MP bar)
+				statset_pos = Point<int16_t>(VWIDTH/2, 10); // EXP text position (center top)
+				levelset_pos = Point<int16_t>(10, 5);  // Level position (top left)
+				namelabel_pos = Point<int16_t>(80, 5); // Character name position (right of level)
+				quickslot_pos = Point<int16_t>(VWIDTH - 200, 5); // Quickslot area position (right side)
+			}
 
 			// Menu
 			menu_pos = Point<int16_t>(682, -280);
@@ -122,6 +219,7 @@ namespace ms
 		else
 		{
 			hpmp_pos = Point<int16_t>(416 + pos_adj, 40);
+			mp_pos = hpmp_pos; // Modern client uses same position for HP/MP
 			hpset_pos = Point<int16_t>(550 + pos_adj, 70);
 			mpset_pos = Point<int16_t>(546 + pos_adj, 86);
 			statset_pos = Point<int16_t>(539 + pos_adj, 111);
@@ -172,30 +270,98 @@ namespace ms
 			event_pos += Point<int16_t>(272, 0);
 		}
 
-		hpmp_sprites.emplace_back(status["backgrnd"], hpmp_pos - Point<int16_t>(1, 0));
-		hpmp_sprites.emplace_back(status["layer:cover"], hpmp_pos - Point<int16_t>(1, 0));
+		// Only add HP/MP sprites if nodes exist
+		if (!is_v87) {
+			hpmp_sprites.emplace_back(status["backgrnd"], hpmp_pos - Point<int16_t>(1, 0));
+			hpmp_sprites.emplace_back(status["layer:cover"], hpmp_pos - Point<int16_t>(1, 0));
 
-		if (VWIDTH == 800)
-			hpmp_sprites.emplace_back(status["layer:Lv"], hpmp_pos);
-		else
-			hpmp_sprites.emplace_back(status["layer:Lv"], hpmp_pos - Point<int16_t>(1, 0));
+			if (VWIDTH == 800)
+				hpmp_sprites.emplace_back(status["layer:Lv"], hpmp_pos);
+			else
+				hpmp_sprites.emplace_back(status["layer:Lv"], hpmp_pos - Point<int16_t>(1, 0));
+		} else {
+			// V87: No separate HP/MP background sprites needed
+			// The base background is already drawn, gauges render directly over it
+			// Leave hpmp_sprites empty for v87
+		}
 
-		int16_t hpmp_max = 139;
+		// V87: Gauge width for v87 should be based on the actual texture size, not stretching
+		// Use a more reasonable width for v87 gauges - they should not stretch across the screen
+		int16_t hpmp_max;
+		if (!is_v87) {
+			hpmp_max = (VWIDTH > 800) ? 149 : 120; // Modern client values
+		} else {
+			hpmp_max = 120; // V87: Use a consistent, reasonable width that matches texture design
+		}
 
-		if (VWIDTH > 800)
-			hpmp_max += 30;
+		// Create HP/MP gauges with v87 compatibility
+		if (!is_v87) {
+			hpbar = Gauge(Gauge::Type::DEFAULT, status.resolve("gauge/hp/layer:0"), hpmp_max, 0.0f);
+			mpbar = Gauge(Gauge::Type::DEFAULT, status.resolve("gauge/mp/layer:0"), hpmp_max, 0.0f);
+		} else {
+			// V87: Use correct dedicated gauge textures as identified by researcher
+			nl::node statusBar = nl::nx::UI["StatusBar.img"];
+			nl::node gauge = statusBar["gauge"];
+			
+			// Verify textures exist before creating gauges
+			if (!gauge["hpFlash"]["0"].name().empty() && !gauge["mpFlash"]["0"].name().empty()) {
+				// Use frame 0 of hpFlash/mpFlash for static display (avoid blinking)
+				Texture hpTexture(gauge["hpFlash"]["0"]);
+				Texture mpTexture(gauge["mpFlash"]["0"]);
+				// Create gauges using V87_FILL type for proper single-texture rendering
+				hpbar = Gauge(Gauge::Type::V87_FILL, hpTexture, hpmp_max, 0.75f); // Test with 75% for visibility
+				mpbar = Gauge(Gauge::Type::V87_FILL, mpTexture, hpmp_max, 0.5f);  // Test with 50% for visibility
+				// Debug: Log successful texture loading
+				// V87: Successfully loaded hpFlash and mpFlash textures
+			} else if (!gauge["bar"].name().empty()) {
+				// Fallback: Use the generic bar texture for both HP and MP if flash textures don't exist
+				Texture barTexture(gauge["bar"]);
+				hpbar = Gauge(Gauge::Type::V87_FILL, barTexture, hpmp_max, 0.0f);
+				mpbar = Gauge(Gauge::Type::V87_FILL, barTexture, hpmp_max, 0.0f);
+				// Debug: Log fallback texture usage
+				// V87: Using fallback bar texture for HP/MP gauges
+			} else {
+				// Final fallback: Create empty gauges if no textures exist
+				hpbar = Gauge();
+				mpbar = Gauge();
+				// Debug: Log missing textures
+				// V87: Warning - No gauge textures found, gauges will not render
+			}
+		}
 
-		hpbar = Gauge(Gauge::Type::DEFAULT, status.resolve("gauge/hp/layer:0"), hpmp_max, 0.0f);
-		mpbar = Gauge(Gauge::Type::DEFAULT, status.resolve("gauge/mp/layer:0"), hpmp_max, 0.0f);
-
-		statset = Charset(EXPBar["number"], Charset::Alignment::RIGHT);
-		hpmpset = Charset(status["gauge"]["number"], Charset::Alignment::RIGHT);
-		levelset = Charset(status["lvNumber"], Charset::Alignment::LEFT);
+		// Create character sets with v87 compatibility
+		if (!is_v87) {
+			statset = Charset(EXPBar["number"], Charset::Alignment::RIGHT);
+			hpmpset = Charset(status["gauge"]["number"], Charset::Alignment::RIGHT);
+			levelset = Charset(status["lvNumber"], Charset::Alignment::LEFT);
+		} else {
+			// V87: Use available number textures or create default charsets
+			nl::node statusBar = nl::nx::UI["StatusBar.img"];
+			nl::node numbers = statusBar["number"];
+			
+			if (!numbers.name().empty()) {
+				statset = Charset(numbers, Charset::Alignment::RIGHT);
+				hpmpset = Charset(numbers, Charset::Alignment::RIGHT);
+				levelset = Charset(numbers, Charset::Alignment::LEFT);
+			} else {
+				// Create default charsets if no number textures exist
+				statset = Charset();
+				hpmpset = Charset();
+				levelset = Charset();
+			}
+		}
 
 		namelabel = OutlinedText(Text::Font::A13M, Text::Alignment::LEFT, Color::Name::GALLERY, Color::Name::TUNA);
 
-		quickslot[0] = quickSlot["backgrnd"];
-		quickslot[1] = quickSlot["layer:cover"];
+		// Set quickslot textures with v87 compatibility
+		if (!is_v87) {
+			quickslot[0] = quickSlot["backgrnd"];
+			quickslot[1] = quickSlot["layer:cover"];
+		} else {
+			// V87: Use empty textures to avoid wrong quickslot textures
+			quickslot[0] = Texture();
+			quickslot[1] = Texture();
+		}
 
 		Point<int16_t> buttonPos = Point<int16_t>(591 + pos_adj, 73);
 
@@ -208,21 +374,40 @@ namespace ms
 		else if (VWIDTH == 1920)
 			buttonPos += Point<int16_t>(310, 0);
 
-		buttons[Buttons::BT_CASHSHOP] = std::make_unique<MapleButton>(menu["button:CashShop"], buttonPos);
-		buttons[Buttons::BT_MENU] = std::make_unique<MapleButton>(menu["button:Menu"], buttonPos);
-		buttons[Buttons::BT_OPTIONS] = std::make_unique<MapleButton>(menu["button:Setting"], buttonPos);
-		buttons[Buttons::BT_CHARACTER] = std::make_unique<MapleButton>(menu["button:Character"], buttonPos);
-		buttons[Buttons::BT_COMMUNITY] = std::make_unique<MapleButton>(menu["button:Community"], buttonPos);
-		buttons[Buttons::BT_EVENT] = std::make_unique<MapleButton>(menu["button:Event"], buttonPos);
+		// Only create buttons if the nodes exist
+		if (!is_v87) {
+			buttons[Buttons::BT_CASHSHOP] = std::make_unique<MapleButton>(menu["button:CashShop"], buttonPos);
+			buttons[Buttons::BT_MENU] = std::make_unique<MapleButton>(menu["button:Menu"], buttonPos);
+			buttons[Buttons::BT_OPTIONS] = std::make_unique<MapleButton>(menu["button:Setting"], buttonPos);
+			buttons[Buttons::BT_CHARACTER] = std::make_unique<MapleButton>(menu["button:Character"], buttonPos);
+			buttons[Buttons::BT_COMMUNITY] = std::make_unique<MapleButton>(menu["button:Community"], buttonPos);
+			buttons[Buttons::BT_EVENT] = std::make_unique<MapleButton>(menu["button:Event"], buttonPos);
+		} else {
+			// V87: Create buttons from available assets with proper spacing
+			nl::node statusBar = nl::nx::UI["StatusBar.img"];
+			// Position buttons with proper spacing on the right side
+			Point<int16_t> v87ButtonPos = Point<int16_t>(VWIDTH - 200, 10); // Start further left
+			
+			if (!statusBar["BtMenu"].name().empty()) {
+				buttons[Buttons::BT_MENU] = std::make_unique<MapleButton>(statusBar["BtMenu"], v87ButtonPos);
+			}
+			if (!statusBar["BtShop"].name().empty()) {
+				buttons[Buttons::BT_CASHSHOP] = std::make_unique<MapleButton>(statusBar["BtShop"], v87ButtonPos + Point<int16_t>(60, 0));
+			}
+			// Add other v87 buttons if they exist
+			if (!statusBar["BtClaim"].name().empty()) {
+				buttons[Buttons::BT_EVENT] = std::make_unique<MapleButton>(statusBar["BtClaim"], v87ButtonPos + Point<int16_t>(120, 0));
+			}
+		}
 
 		if (quickslot_active && VWIDTH > 800)
 		{
-			buttons[Buttons::BT_CASHSHOP]->set_active(false);
-			buttons[Buttons::BT_MENU]->set_active(false);
-			buttons[Buttons::BT_OPTIONS]->set_active(false);
-			buttons[Buttons::BT_CHARACTER]->set_active(false);
-			buttons[Buttons::BT_COMMUNITY]->set_active(false);
-			buttons[Buttons::BT_EVENT]->set_active(false);
+			if (buttons[Buttons::BT_CASHSHOP]) buttons[Buttons::BT_CASHSHOP]->set_active(false);
+			if (buttons[Buttons::BT_MENU]) buttons[Buttons::BT_MENU]->set_active(false);
+			if (buttons[Buttons::BT_OPTIONS]) buttons[Buttons::BT_OPTIONS]->set_active(false);
+			if (buttons[Buttons::BT_CHARACTER]) buttons[Buttons::BT_CHARACTER]->set_active(false);
+			if (buttons[Buttons::BT_COMMUNITY]) buttons[Buttons::BT_COMMUNITY]->set_active(false);
+			if (buttons[Buttons::BT_EVENT]) buttons[Buttons::BT_EVENT]->set_active(false);
 		}
 
 		std::string fold = "button:Fold";
@@ -243,124 +428,197 @@ namespace ms
 		{
 			Point<int16_t> quickslot_qs = Point<int16_t>(579, 0);
 
-			buttons[Buttons::BT_FOLD_QS] = std::make_unique<MapleButton>(quickSlot[fold], quickslot_qs);
-			buttons[Buttons::BT_EXTEND_QS] = std::make_unique<MapleButton>(quickSlot[extend], quickslot_qs + quickslot_qs_adj);
+			// Only create quickslot buttons if nodes exist
+			if (!is_v87) {
+				buttons[Buttons::BT_FOLD_QS] = std::make_unique<MapleButton>(quickSlot[fold], quickslot_qs);
+				buttons[Buttons::BT_EXTEND_QS] = std::make_unique<MapleButton>(quickSlot[extend], quickslot_qs + quickslot_qs_adj);
+			}
 		}
 		else if (VWIDTH == 1024)
 		{
 			Point<int16_t> quickslot_qs = Point<int16_t>(627 + pos_adj, 37);
 
-			buttons[Buttons::BT_FOLD_QS] = std::make_unique<MapleButton>(quickSlot[fold], quickslot_qs);
-			buttons[Buttons::BT_EXTEND_QS] = std::make_unique<MapleButton>(quickSlot[extend], quickslot_qs + quickslot_qs_adj);
+			// Only create quickslot buttons if nodes exist
+			if (!is_v87) {
+				buttons[Buttons::BT_FOLD_QS] = std::make_unique<MapleButton>(quickSlot[fold], quickslot_qs);
+				buttons[Buttons::BT_EXTEND_QS] = std::make_unique<MapleButton>(quickSlot[extend], quickslot_qs + quickslot_qs_adj);
+			}
 		}
 		else if (VWIDTH == 1280)
 		{
 			Point<int16_t> quickslot_qs = Point<int16_t>(621 + pos_adj, 37);
 
-			buttons[Buttons::BT_FOLD_QS] = std::make_unique<MapleButton>(quickSlot[fold], quickslot_qs);
-			buttons[Buttons::BT_EXTEND_QS] = std::make_unique<MapleButton>(quickSlot[extend], quickslot_qs + quickslot_qs_adj);
+			// Only create quickslot buttons if nodes exist
+			if (!is_v87) {
+				buttons[Buttons::BT_FOLD_QS] = std::make_unique<MapleButton>(quickSlot[fold], quickslot_qs);
+				buttons[Buttons::BT_EXTEND_QS] = std::make_unique<MapleButton>(quickSlot[extend], quickslot_qs + quickslot_qs_adj);
+			}
 		}
 		else if (VWIDTH == 1366)
 		{
 			Point<int16_t> quickslot_qs = Point<int16_t>(623 + pos_adj, 37);
 
-			buttons[Buttons::BT_FOLD_QS] = std::make_unique<MapleButton>(quickSlot[fold], quickslot_qs);
-			buttons[Buttons::BT_EXTEND_QS] = std::make_unique<MapleButton>(quickSlot[extend], quickslot_qs + quickslot_qs_adj);
+			// Only create quickslot buttons if nodes exist
+			if (!is_v87) {
+				buttons[Buttons::BT_FOLD_QS] = std::make_unique<MapleButton>(quickSlot[fold], quickslot_qs);
+				buttons[Buttons::BT_EXTEND_QS] = std::make_unique<MapleButton>(quickSlot[extend], quickslot_qs + quickslot_qs_adj);
+			}
 		}
 		else if (VWIDTH == 1920)
 		{
 			Point<int16_t> quickslot_qs = Point<int16_t>(900 + pos_adj, 37);
 
-			buttons[Buttons::BT_FOLD_QS] = std::make_unique<MapleButton>(quickSlot[fold], quickslot_qs);
-			buttons[Buttons::BT_EXTEND_QS] = std::make_unique<MapleButton>(quickSlot[extend], quickslot_qs + quickslot_qs_adj);
+			// Only create quickslot buttons if nodes exist
+			if (!is_v87) {
+				buttons[Buttons::BT_FOLD_QS] = std::make_unique<MapleButton>(quickSlot[fold], quickslot_qs);
+				buttons[Buttons::BT_EXTEND_QS] = std::make_unique<MapleButton>(quickSlot[extend], quickslot_qs + quickslot_qs_adj);
+			}
 		}
 
-		if (quickslot_active)
-			buttons[Buttons::BT_EXTEND_QS]->set_active(false);
-		else
-			buttons[Buttons::BT_FOLD_QS]->set_active(false);
+		// Only manage quickslot button states if buttons exist
+		if (!is_v87) {
+			if (quickslot_active)
+				buttons[Buttons::BT_EXTEND_QS]->set_active(false);
+			else
+				buttons[Buttons::BT_FOLD_QS]->set_active(false);
+		}
 
 #pragma region Menu
-		menubackground[0] = submenu["backgrnd"]["0"];
-		menubackground[1] = submenu["backgrnd"]["1"];
-		menubackground[2] = submenu["backgrnd"]["2"];
+		// Set menu backgrounds with v87 compatibility
+		if (!is_v87) {
+			menubackground[0] = submenu["backgrnd"]["0"];
+			menubackground[1] = submenu["backgrnd"]["1"];
+			menubackground[2] = submenu["backgrnd"]["2"];
+		} else {
+			// V87: Create empty textures for menu backgrounds
+			menubackground[0] = Texture();
+			menubackground[1] = Texture();
+			menubackground[2] = Texture();
+		}
 
-		buttons[Buttons::BT_MENU_ACHIEVEMENT] = std::make_unique<MapleButton>(submenu["menu"]["button:achievement"], menu_pos);
-		buttons[Buttons::BT_MENU_AUCTION] = std::make_unique<MapleButton>(submenu["menu"]["button:auction"], menu_pos);
-		buttons[Buttons::BT_MENU_BATTLE] = std::make_unique<MapleButton>(submenu["menu"]["button:battleStats"], menu_pos);
-		buttons[Buttons::BT_MENU_CLAIM] = std::make_unique<MapleButton>(submenu["menu"]["button:Claim"], menu_pos);
-		buttons[Buttons::BT_MENU_FISHING] = std::make_unique<MapleButton>(submenu["menu"]["button:Fishing"], menu_pos + Point<int16_t>(3, 1));
-		buttons[Buttons::BT_MENU_HELP] = std::make_unique<MapleButton>(submenu["menu"]["button:Help"], menu_pos);
-		buttons[Buttons::BT_MENU_MEDAL] = std::make_unique<MapleButton>(submenu["menu"]["button:medal"], menu_pos);
-		buttons[Buttons::BT_MENU_MONSTER_COLLECTION] = std::make_unique<MapleButton>(submenu["menu"]["button:monsterCollection"], menu_pos);
-		buttons[Buttons::BT_MENU_MONSTER_LIFE] = std::make_unique<MapleButton>(submenu["menu"]["button:monsterLife"], menu_pos);
-		buttons[Buttons::BT_MENU_QUEST] = std::make_unique<MapleButton>(submenu["menu"]["button:quest"], menu_pos);
-		buttons[Buttons::BT_MENU_UNION] = std::make_unique<MapleButton>(submenu["menu"]["button:union"], menu_pos);
+		// Only create menu buttons if not v87
+		if (!is_v87) {
+			buttons[Buttons::BT_MENU_ACHIEVEMENT] = std::make_unique<MapleButton>(submenu["menu"]["button:achievement"], menu_pos);
+			buttons[Buttons::BT_MENU_AUCTION] = std::make_unique<MapleButton>(submenu["menu"]["button:auction"], menu_pos);
+			buttons[Buttons::BT_MENU_BATTLE] = std::make_unique<MapleButton>(submenu["menu"]["button:battleStats"], menu_pos);
+			buttons[Buttons::BT_MENU_CLAIM] = std::make_unique<MapleButton>(submenu["menu"]["button:Claim"], menu_pos);
+			buttons[Buttons::BT_MENU_FISHING] = std::make_unique<MapleButton>(submenu["menu"]["button:Fishing"], menu_pos + Point<int16_t>(3, 1));
+			buttons[Buttons::BT_MENU_HELP] = std::make_unique<MapleButton>(submenu["menu"]["button:Help"], menu_pos);
+			buttons[Buttons::BT_MENU_MEDAL] = std::make_unique<MapleButton>(submenu["menu"]["button:medal"], menu_pos);
+			buttons[Buttons::BT_MENU_MONSTER_COLLECTION] = std::make_unique<MapleButton>(submenu["menu"]["button:monsterCollection"], menu_pos);
+			buttons[Buttons::BT_MENU_MONSTER_LIFE] = std::make_unique<MapleButton>(submenu["menu"]["button:monsterLife"], menu_pos);
+			buttons[Buttons::BT_MENU_QUEST] = std::make_unique<MapleButton>(submenu["menu"]["button:quest"], menu_pos);
+			buttons[Buttons::BT_MENU_UNION] = std::make_unique<MapleButton>(submenu["menu"]["button:union"], menu_pos);
 
-		buttons[Buttons::BT_SETTING_CHANNEL] = std::make_unique<MapleButton>(submenu["setting"]["button:channel"], setting_pos);
-		buttons[Buttons::BT_SETTING_QUIT] = std::make_unique<MapleButton>(submenu["setting"]["button:GameQuit"], setting_pos);
-		buttons[Buttons::BT_SETTING_JOYPAD] = std::make_unique<MapleButton>(submenu["setting"]["button:JoyPad"], setting_pos);
-		buttons[Buttons::BT_SETTING_KEYS] = std::make_unique<MapleButton>(submenu["setting"]["button:keySetting"], setting_pos);
-		buttons[Buttons::BT_SETTING_OPTION] = std::make_unique<MapleButton>(submenu["setting"]["button:option"], setting_pos);
+			buttons[Buttons::BT_SETTING_CHANNEL] = std::make_unique<MapleButton>(submenu["setting"]["button:channel"], setting_pos);
+			buttons[Buttons::BT_SETTING_QUIT] = std::make_unique<MapleButton>(submenu["setting"]["button:GameQuit"], setting_pos);
+			buttons[Buttons::BT_SETTING_JOYPAD] = std::make_unique<MapleButton>(submenu["setting"]["button:JoyPad"], setting_pos);
+			buttons[Buttons::BT_SETTING_KEYS] = std::make_unique<MapleButton>(submenu["setting"]["button:keySetting"], setting_pos);
+			buttons[Buttons::BT_SETTING_OPTION] = std::make_unique<MapleButton>(submenu["setting"]["button:option"], setting_pos);
 
-		buttons[Buttons::BT_COMMUNITY_PARTY] = std::make_unique<MapleButton>(submenu["community"]["button:bossParty"], community_pos);
-		buttons[Buttons::BT_COMMUNITY_FRIENDS] = std::make_unique<MapleButton>(submenu["community"]["button:friends"], community_pos);
-		buttons[Buttons::BT_COMMUNITY_GUILD] = std::make_unique<MapleButton>(submenu["community"]["button:guild"], community_pos);
-		buttons[Buttons::BT_COMMUNITY_MAPLECHAT] = std::make_unique<MapleButton>(submenu["community"]["button:mapleChat"], community_pos);
+			buttons[Buttons::BT_COMMUNITY_PARTY] = std::make_unique<MapleButton>(submenu["community"]["button:bossParty"], community_pos);
+			buttons[Buttons::BT_COMMUNITY_FRIENDS] = std::make_unique<MapleButton>(submenu["community"]["button:friends"], community_pos);
+			buttons[Buttons::BT_COMMUNITY_GUILD] = std::make_unique<MapleButton>(submenu["community"]["button:guild"], community_pos);
+			buttons[Buttons::BT_COMMUNITY_MAPLECHAT] = std::make_unique<MapleButton>(submenu["community"]["button:mapleChat"], community_pos);
 
-		buttons[Buttons::BT_CHARACTER_INFO] = std::make_unique<MapleButton>(submenu["character"]["button:character"], character_pos);
-		buttons[Buttons::BT_CHARACTER_EQUIP] = std::make_unique<MapleButton>(submenu["character"]["button:Equip"], character_pos);
-		buttons[Buttons::BT_CHARACTER_ITEM] = std::make_unique<MapleButton>(submenu["character"]["button:Item"], character_pos);
-		buttons[Buttons::BT_CHARACTER_SKILL] = std::make_unique<MapleButton>(submenu["character"]["button:Skill"], character_pos);
-		buttons[Buttons::BT_CHARACTER_STAT] = std::make_unique<MapleButton>(submenu["character"]["button:Stat"], character_pos);
+			buttons[Buttons::BT_CHARACTER_INFO] = std::make_unique<MapleButton>(submenu["character"]["button:character"], character_pos);
+			buttons[Buttons::BT_CHARACTER_EQUIP] = std::make_unique<MapleButton>(submenu["character"]["button:Equip"], character_pos);
+			buttons[Buttons::BT_CHARACTER_ITEM] = std::make_unique<MapleButton>(submenu["character"]["button:Item"], character_pos);
+			buttons[Buttons::BT_CHARACTER_SKILL] = std::make_unique<MapleButton>(submenu["character"]["button:Skill"], character_pos);
+			buttons[Buttons::BT_CHARACTER_STAT] = std::make_unique<MapleButton>(submenu["character"]["button:Stat"], character_pos);
 
-		buttons[Buttons::BT_EVENT_DAILY] = std::make_unique<MapleButton>(submenu["event"]["button:dailyGift"], event_pos);
-		buttons[Buttons::BT_EVENT_SCHEDULE] = std::make_unique<MapleButton>(submenu["event"]["button:schedule"], event_pos);
+			buttons[Buttons::BT_EVENT_DAILY] = std::make_unique<MapleButton>(submenu["event"]["button:dailyGift"], event_pos);
+			buttons[Buttons::BT_EVENT_SCHEDULE] = std::make_unique<MapleButton>(submenu["event"]["button:schedule"], event_pos);
 
-		for (size_t i = Buttons::BT_MENU_QUEST; i <= Buttons::BT_EVENT_DAILY; i++)
-			buttons[i]->set_active(false);
+			for (size_t i = Buttons::BT_MENU_QUEST; i <= Buttons::BT_EVENT_DAILY; i++)
+				buttons[i]->set_active(false);
 
-		menutitle[0] = submenu["title"]["character"];
-		menutitle[1] = submenu["title"]["community"];
-		menutitle[2] = submenu["title"]["event"];
-		menutitle[3] = submenu["title"]["menu"];
-		menutitle[4] = submenu["title"]["setting"];
+			menutitle[0] = submenu["title"]["character"];
+			menutitle[1] = submenu["title"]["community"];
+			menutitle[2] = submenu["title"]["event"];
+			menutitle[3] = submenu["title"]["menu"];
+			menutitle[4] = submenu["title"]["setting"];
+		} else {
+			// V87: Create empty textures for menu titles
+			menutitle[0] = Texture();
+			menutitle[1] = Texture();
+			menutitle[2] = Texture();
+			menutitle[3] = Texture();
+			menutitle[4] = Texture();
+		}
 #pragma endregion
 
 		if (VWIDTH == 800)
 		{
-			position = Point<int16_t>(0, 480);
-			position_x = 410;
-			position_y = position.y();
-			dimension = Point<int16_t>(VWIDTH - position_x, 140);
+			if (!is_v87) {
+				position = Point<int16_t>(0, 480);
+				position_x = 410;
+				position_y = position.y();
+				dimension = Point<int16_t>(VWIDTH - position_x, 140);
+			} else {
+				// V87: Status bar stretches across bottom of screen - positioned higher
+				position = Point<int16_t>(0, VHEIGHT - 75);
+				position_x = 0;
+				position_y = position.y();
+				dimension = Point<int16_t>(VWIDTH, 75);
+			}
 		}
 		else if (VWIDTH == 1024)
 		{
-			position = Point<int16_t>(0, 648);
-			position_x = 410;
-			position_y = position.y() + 42;
-			dimension = Point<int16_t>(VWIDTH - position_x, 75);
+			if (!is_v87) {
+				position = Point<int16_t>(0, 648);
+				position_x = 410;
+				position_y = position.y() + 42;
+				dimension = Point<int16_t>(VWIDTH - position_x, 75);
+			} else {
+				// V87: Status bar stretches across bottom of screen - positioned higher
+				position = Point<int16_t>(0, VHEIGHT - 75);
+				position_x = 0;
+				position_y = position.y();
+				dimension = Point<int16_t>(VWIDTH, 75);
+			}
 		}
 		else if (VWIDTH == 1280)
 		{
-			position = Point<int16_t>(0, 600);
-			position_x = 500;
-			position_y = position.y() + 42;
-			dimension = Point<int16_t>(VWIDTH - position_x, 75);
+			if (!is_v87) {
+				position = Point<int16_t>(0, 600);
+				position_x = 500;
+				position_y = position.y() + 42;
+				dimension = Point<int16_t>(VWIDTH - position_x, 75);
+			} else {
+				position = Point<int16_t>(0, VHEIGHT - 80);
+				position_x = 0;
+				position_y = position.y();
+				dimension = Point<int16_t>(VWIDTH, 80);
+			}
 		}
 		else if (VWIDTH == 1366)
 		{
-			position = Point<int16_t>(0, 648);
-			position_x = 585;
-			position_y = position.y() + 42;
-			dimension = Point<int16_t>(VWIDTH - position_x, 75);
+			if (!is_v87) {
+				position = Point<int16_t>(0, 648);
+				position_x = 585;
+				position_y = position.y() + 42;
+				dimension = Point<int16_t>(VWIDTH - position_x, 75);
+			} else {
+				position = Point<int16_t>(0, VHEIGHT - 80);
+				position_x = 0;
+				position_y = position.y();
+				dimension = Point<int16_t>(VWIDTH, 80);
+			}
 		}
 		else if (VWIDTH == 1920)
 		{
-			position = Point<int16_t>(0, 960 + (VHEIGHT - 1080));
-			position_x = 860;
-			position_y = position.y() + 40;
-			dimension = Point<int16_t>(VWIDTH - position_x, 80);
+			if (!is_v87) {
+				position = Point<int16_t>(0, 960 + (VHEIGHT - 1080));
+				position_x = 860;
+				position_y = position.y() + 40;
+				dimension = Point<int16_t>(VWIDTH - position_x, 80);
+			} else {
+				position = Point<int16_t>(0, VHEIGHT - 80);
+				position_x = 0;
+				position_y = position.y();
+				dimension = Point<int16_t>(VWIDTH, 80);
+			}
 		}
 	}
 
@@ -369,16 +627,29 @@ namespace ms
 		UIElement::draw_sprites(alpha);
 
 		for (size_t i = 0; i <= Buttons::BT_EVENT; i++)
-			buttons.at(i)->draw(position);
+			if (buttons.find(i) != buttons.end() && buttons.at(i))
+				buttons.at(i)->draw(position);
 
-		hpmp_sprites[0].draw(position, alpha);
+		// Detect v87 vs modern client
+		bool is_v87 = nl::nx::UI["StatusBar3.img"].name().empty();
 
-		expbar.draw(position + exp_pos);
-		hpbar.draw(position + hpmp_pos);
-		mpbar.draw(position + hpmp_pos);
+		// Only draw HP/MP background sprites for modern client
+		if (!is_v87) {
+			if (hpmp_sprites.size() > 0)
+				hpmp_sprites[0].draw(position, alpha);
+			if (hpmp_sprites.size() > 1)
+				hpmp_sprites[1].draw(position, alpha);
+			if (hpmp_sprites.size() > 2)
+				hpmp_sprites[2].draw(position, alpha);
+		}
 
-		hpmp_sprites[1].draw(position, alpha);
-		hpmp_sprites[2].draw(position, alpha);
+		// Draw gauges (both v87 and modern) - only if they're valid
+		if (expbar.is_valid())
+			expbar.draw(position + exp_pos);
+		if (hpbar.is_valid())
+			hpbar.draw(position + hpmp_pos);
+		if (mpbar.is_valid())
+			mpbar.draw(position + mp_pos);
 
 		int16_t level = stats.get_stat(MapleStat::Id::LEVEL);
 		int16_t hp = stats.get_stat(MapleStat::Id::HP);
@@ -411,8 +682,11 @@ namespace ms
 
 		namelabel.draw(position + namelabel_pos);
 
-		buttons.at(Buttons::BT_FOLD_QS)->draw(position + quickslot_adj);
-		buttons.at(Buttons::BT_EXTEND_QS)->draw(position + quickslot_adj - quickslot_qs_adj);
+		// Draw quickslot buttons only if they exist (not v87)
+		if (buttons.find(Buttons::BT_FOLD_QS) != buttons.end() && buttons.at(Buttons::BT_FOLD_QS))
+			buttons.at(Buttons::BT_FOLD_QS)->draw(position + quickslot_adj);
+		if (buttons.find(Buttons::BT_EXTEND_QS) != buttons.end() && buttons.at(Buttons::BT_EXTEND_QS))
+			buttons.at(Buttons::BT_EXTEND_QS)->draw(position + quickslot_adj - quickslot_qs_adj);
 
 		if (VWIDTH > 800 && VWIDTH < 1366)
 		{
@@ -490,7 +764,8 @@ namespace ms
 		menutitle[menutitle_index].draw(position + pos + pos_adj);
 
 		for (size_t i = Buttons::BT_MENU_QUEST; i <= Buttons::BT_EVENT_DAILY; i++)
-			buttons.at(i)->draw(position);
+			if (buttons.find(i) != buttons.end() && buttons.at(i))
+				buttons.at(i)->draw(position);
 #pragma endregion
 	}
 
@@ -501,9 +776,13 @@ namespace ms
 		for (Sprite sprite : hpmp_sprites)
 			sprite.update();
 
-		expbar.update(getexppercent());
-		hpbar.update(gethppercent());
-		mpbar.update(getmppercent());
+		// Only update valid gauges
+		if (expbar.is_valid())
+			expbar.update(getexppercent());
+		if (hpbar.is_valid())
+			hpbar.update(gethppercent());
+		if (mpbar.is_valid())
+			mpbar.update(getmppercent());
 
 		namelabel.change_text(stats.get_name());
 
@@ -536,25 +815,32 @@ namespace ms
 
 		for (size_t i = Buttons::BT_MENU_QUEST; i <= Buttons::BT_MENU_CLAIM; i++)
 		{
-			Point<int16_t> menu_adj = Point<int16_t>(0, 0);
+			if (buttons.find(i) != buttons.end() && buttons[i])
+			{
+				Point<int16_t> menu_adj = Point<int16_t>(0, 0);
 
-			if (i == Buttons::BT_MENU_FISHING)
-				menu_adj = Point<int16_t>(3, 1);
+				if (i == Buttons::BT_MENU_FISHING)
+					menu_adj = Point<int16_t>(3, 1);
 
-			buttons[i]->set_position(menu_pos + menu_adj + pos_adj);
+				buttons[i]->set_position(menu_pos + menu_adj + pos_adj);
+			}
 		}
 
 		for (size_t i = Buttons::BT_SETTING_CHANNEL; i <= Buttons::BT_SETTING_QUIT; i++)
-			buttons[i]->set_position(setting_pos + pos_adj);
+			if (buttons.find(i) != buttons.end() && buttons[i])
+				buttons[i]->set_position(setting_pos + pos_adj);
 
 		for (size_t i = Buttons::BT_COMMUNITY_FRIENDS; i <= Buttons::BT_COMMUNITY_MAPLECHAT; i++)
-			buttons[i]->set_position(community_pos + pos_adj);
+			if (buttons.find(i) != buttons.end() && buttons[i])
+				buttons[i]->set_position(community_pos + pos_adj);
 
 		for (size_t i = Buttons::BT_CHARACTER_INFO; i <= Buttons::BT_CHARACTER_ITEM; i++)
-			buttons[i]->set_position(character_pos + pos_adj);
+			if (buttons.find(i) != buttons.end() && buttons[i])
+				buttons[i]->set_position(character_pos + pos_adj);
 
 		for (size_t i = Buttons::BT_EVENT_SCHEDULE; i <= Buttons::BT_EVENT_DAILY; i++)
-			buttons[i]->set_position(event_pos + pos_adj);
+			if (buttons.find(i) != buttons.end() && buttons[i])
+				buttons[i]->set_position(event_pos + pos_adj);
 	}
 
 	Button::State UIStatusBar::button_pressed(uint16_t id)
@@ -785,7 +1071,7 @@ namespace ms
 			else if (keycode == KeyAction::Id::RETURN)
 			{
 				for (size_t i = Buttons::BT_MENU_QUEST; i <= Buttons::BT_EVENT_DAILY; i++)
-					if (buttons[i]->get_state() == Button::State::MOUSEOVER)
+					if (buttons.find(i) != buttons.end() && buttons[i] && buttons[i]->get_state() == Button::State::MOUSEOVER)
 						button_pressed(i);
 			}
 			else if (keycode == KeyAction::Id::UP || keycode == KeyAction::Id::DOWN)
@@ -822,7 +1108,7 @@ namespace ms
 
 				for (size_t i = min_id; i <= max_id; i++)
 				{
-					if (buttons[i]->get_state() != Button::State::NORMAL)
+					if (buttons.find(i) != buttons.end() && buttons[i] && buttons[i]->get_state() != Button::State::NORMAL)
 					{
 						id = i;
 
@@ -846,7 +1132,8 @@ namespace ms
 						id = max_id;
 				}
 
-				buttons[id]->set_state(Button::State::MOUSEOVER);
+				if (buttons.find(id) != buttons.end() && buttons[id])
+					buttons[id]->set_state(Button::State::MOUSEOVER);
 			}
 		}
 	}
@@ -927,17 +1214,27 @@ namespace ms
 			return;
 
 		quickslot_active = quick_slot_active;
-		buttons[Buttons::BT_FOLD_QS]->set_active(quickslot_active);
-		buttons[Buttons::BT_EXTEND_QS]->set_active(!quickslot_active);
+		
+		// Only manage buttons if they exist (not v87)
+		if (buttons.find(Buttons::BT_FOLD_QS) != buttons.end())
+			buttons[Buttons::BT_FOLD_QS]->set_active(quickslot_active);
+		if (buttons.find(Buttons::BT_EXTEND_QS) != buttons.end())
+			buttons[Buttons::BT_EXTEND_QS]->set_active(!quickslot_active);
 
 		if (VWIDTH > 800)
 		{
-			buttons[Buttons::BT_CASHSHOP]->set_active(!quickslot_active);
-			buttons[Buttons::BT_MENU]->set_active(!quickslot_active);
-			buttons[Buttons::BT_OPTIONS]->set_active(!quickslot_active);
-			buttons[Buttons::BT_CHARACTER]->set_active(!quickslot_active);
-			buttons[Buttons::BT_COMMUNITY]->set_active(!quickslot_active);
-			buttons[Buttons::BT_EVENT]->set_active(!quickslot_active);
+			if (buttons.find(Buttons::BT_CASHSHOP) != buttons.end())
+				buttons[Buttons::BT_CASHSHOP]->set_active(!quickslot_active);
+			if (buttons.find(Buttons::BT_MENU) != buttons.end())
+				buttons[Buttons::BT_MENU]->set_active(!quickslot_active);
+			if (buttons.find(Buttons::BT_OPTIONS) != buttons.end())
+				buttons[Buttons::BT_OPTIONS]->set_active(!quickslot_active);
+			if (buttons.find(Buttons::BT_CHARACTER) != buttons.end())
+				buttons[Buttons::BT_CHARACTER]->set_active(!quickslot_active);
+			if (buttons.find(Buttons::BT_COMMUNITY) != buttons.end())
+				buttons[Buttons::BT_COMMUNITY]->set_active(!quickslot_active);
+			if (buttons.find(Buttons::BT_EVENT) != buttons.end())
+				buttons[Buttons::BT_EVENT]->set_active(!quickslot_active);
 		}
 	}
 
@@ -947,21 +1244,34 @@ namespace ms
 
 		menu_active = !menu_active;
 
-		buttons[Buttons::BT_MENU_ACHIEVEMENT]->set_active(menu_active);
-		buttons[Buttons::BT_MENU_AUCTION]->set_active(menu_active);
-		buttons[Buttons::BT_MENU_BATTLE]->set_active(menu_active);
-		buttons[Buttons::BT_MENU_CLAIM]->set_active(menu_active);
-		buttons[Buttons::BT_MENU_FISHING]->set_active(menu_active);
-		buttons[Buttons::BT_MENU_HELP]->set_active(menu_active);
-		buttons[Buttons::BT_MENU_MEDAL]->set_active(menu_active);
-		buttons[Buttons::BT_MENU_MONSTER_COLLECTION]->set_active(menu_active);
-		buttons[Buttons::BT_MENU_MONSTER_LIFE]->set_active(menu_active);
-		buttons[Buttons::BT_MENU_QUEST]->set_active(menu_active);
-		buttons[Buttons::BT_MENU_UNION]->set_active(menu_active);
+		// Only manage menu buttons if they exist (not v87)
+		if (buttons.find(Buttons::BT_MENU_ACHIEVEMENT) != buttons.end())
+			buttons[Buttons::BT_MENU_ACHIEVEMENT]->set_active(menu_active);
+		if (buttons.find(Buttons::BT_MENU_AUCTION) != buttons.end())
+			buttons[Buttons::BT_MENU_AUCTION]->set_active(menu_active);
+		if (buttons.find(Buttons::BT_MENU_BATTLE) != buttons.end())
+			buttons[Buttons::BT_MENU_BATTLE]->set_active(menu_active);
+		if (buttons.find(Buttons::BT_MENU_CLAIM) != buttons.end())
+			buttons[Buttons::BT_MENU_CLAIM]->set_active(menu_active);
+		if (buttons.find(Buttons::BT_MENU_FISHING) != buttons.end())
+			buttons[Buttons::BT_MENU_FISHING]->set_active(menu_active);
+		if (buttons.find(Buttons::BT_MENU_HELP) != buttons.end())
+			buttons[Buttons::BT_MENU_HELP]->set_active(menu_active);
+		if (buttons.find(Buttons::BT_MENU_MEDAL) != buttons.end())
+			buttons[Buttons::BT_MENU_MEDAL]->set_active(menu_active);
+		if (buttons.find(Buttons::BT_MENU_MONSTER_COLLECTION) != buttons.end())
+			buttons[Buttons::BT_MENU_MONSTER_COLLECTION]->set_active(menu_active);
+		if (buttons.find(Buttons::BT_MENU_MONSTER_LIFE) != buttons.end())
+			buttons[Buttons::BT_MENU_MONSTER_LIFE]->set_active(menu_active);
+		if (buttons.find(Buttons::BT_MENU_QUEST) != buttons.end())
+			buttons[Buttons::BT_MENU_QUEST]->set_active(menu_active);
+		if (buttons.find(Buttons::BT_MENU_UNION) != buttons.end())
+			buttons[Buttons::BT_MENU_UNION]->set_active(menu_active);
 
 		if (menu_active)
 		{
-			buttons[Buttons::BT_MENU_QUEST]->set_state(Button::State::MOUSEOVER);
+			if (buttons.find(Buttons::BT_MENU_QUEST) != buttons.end())
+				buttons[Buttons::BT_MENU_QUEST]->set_state(Button::State::MOUSEOVER);
 
 			Sound(Sound::Name::DLGNOTICE).play();
 		}
@@ -973,15 +1283,22 @@ namespace ms
 
 		setting_active = !setting_active;
 
-		buttons[Buttons::BT_SETTING_CHANNEL]->set_active(setting_active);
-		buttons[Buttons::BT_SETTING_QUIT]->set_active(setting_active);
-		buttons[Buttons::BT_SETTING_JOYPAD]->set_active(setting_active);
-		buttons[Buttons::BT_SETTING_KEYS]->set_active(setting_active);
-		buttons[Buttons::BT_SETTING_OPTION]->set_active(setting_active);
+		// Only manage setting buttons if they exist (not v87)
+		if (buttons.find(Buttons::BT_SETTING_CHANNEL) != buttons.end())
+			buttons[Buttons::BT_SETTING_CHANNEL]->set_active(setting_active);
+		if (buttons.find(Buttons::BT_SETTING_QUIT) != buttons.end())
+			buttons[Buttons::BT_SETTING_QUIT]->set_active(setting_active);
+		if (buttons.find(Buttons::BT_SETTING_JOYPAD) != buttons.end())
+			buttons[Buttons::BT_SETTING_JOYPAD]->set_active(setting_active);
+		if (buttons.find(Buttons::BT_SETTING_KEYS) != buttons.end())
+			buttons[Buttons::BT_SETTING_KEYS]->set_active(setting_active);
+		if (buttons.find(Buttons::BT_SETTING_OPTION) != buttons.end())
+			buttons[Buttons::BT_SETTING_OPTION]->set_active(setting_active);
 
 		if (setting_active)
 		{
-			buttons[Buttons::BT_SETTING_CHANNEL]->set_state(Button::State::MOUSEOVER);
+			if (buttons.find(Buttons::BT_SETTING_CHANNEL) != buttons.end())
+				buttons[Buttons::BT_SETTING_CHANNEL]->set_state(Button::State::MOUSEOVER);
 
 			Sound(Sound::Name::DLGNOTICE).play();
 		}
@@ -993,14 +1310,20 @@ namespace ms
 
 		community_active = !community_active;
 
-		buttons[Buttons::BT_COMMUNITY_PARTY]->set_active(community_active);
-		buttons[Buttons::BT_COMMUNITY_FRIENDS]->set_active(community_active);
-		buttons[Buttons::BT_COMMUNITY_GUILD]->set_active(community_active);
-		buttons[Buttons::BT_COMMUNITY_MAPLECHAT]->set_active(community_active);
+		// Only manage community buttons if they exist (not v87)
+		if (buttons.find(Buttons::BT_COMMUNITY_PARTY) != buttons.end())
+			buttons[Buttons::BT_COMMUNITY_PARTY]->set_active(community_active);
+		if (buttons.find(Buttons::BT_COMMUNITY_FRIENDS) != buttons.end())
+			buttons[Buttons::BT_COMMUNITY_FRIENDS]->set_active(community_active);
+		if (buttons.find(Buttons::BT_COMMUNITY_GUILD) != buttons.end())
+			buttons[Buttons::BT_COMMUNITY_GUILD]->set_active(community_active);
+		if (buttons.find(Buttons::BT_COMMUNITY_MAPLECHAT) != buttons.end())
+			buttons[Buttons::BT_COMMUNITY_MAPLECHAT]->set_active(community_active);
 
 		if (community_active)
 		{
-			buttons[Buttons::BT_COMMUNITY_FRIENDS]->set_state(Button::State::MOUSEOVER);
+			if (buttons.find(Buttons::BT_COMMUNITY_FRIENDS) != buttons.end())
+				buttons[Buttons::BT_COMMUNITY_FRIENDS]->set_state(Button::State::MOUSEOVER);
 
 			Sound(Sound::Name::DLGNOTICE).play();
 		}
@@ -1012,15 +1335,22 @@ namespace ms
 
 		character_active = !character_active;
 
-		buttons[Buttons::BT_CHARACTER_INFO]->set_active(character_active);
-		buttons[Buttons::BT_CHARACTER_EQUIP]->set_active(character_active);
-		buttons[Buttons::BT_CHARACTER_ITEM]->set_active(character_active);
-		buttons[Buttons::BT_CHARACTER_SKILL]->set_active(character_active);
-		buttons[Buttons::BT_CHARACTER_STAT]->set_active(character_active);
+		// Only manage character buttons if they exist (not v87)
+		if (buttons.find(Buttons::BT_CHARACTER_INFO) != buttons.end())
+			buttons[Buttons::BT_CHARACTER_INFO]->set_active(character_active);
+		if (buttons.find(Buttons::BT_CHARACTER_EQUIP) != buttons.end())
+			buttons[Buttons::BT_CHARACTER_EQUIP]->set_active(character_active);
+		if (buttons.find(Buttons::BT_CHARACTER_ITEM) != buttons.end())
+			buttons[Buttons::BT_CHARACTER_ITEM]->set_active(character_active);
+		if (buttons.find(Buttons::BT_CHARACTER_SKILL) != buttons.end())
+			buttons[Buttons::BT_CHARACTER_SKILL]->set_active(character_active);
+		if (buttons.find(Buttons::BT_CHARACTER_STAT) != buttons.end())
+			buttons[Buttons::BT_CHARACTER_STAT]->set_active(character_active);
 
 		if (character_active)
 		{
-			buttons[Buttons::BT_CHARACTER_INFO]->set_state(Button::State::MOUSEOVER);
+			if (buttons.find(Buttons::BT_CHARACTER_INFO) != buttons.end())
+				buttons[Buttons::BT_CHARACTER_INFO]->set_state(Button::State::MOUSEOVER);
 
 			Sound(Sound::Name::DLGNOTICE).play();
 		}
@@ -1032,12 +1362,16 @@ namespace ms
 
 		event_active = !event_active;
 
-		buttons[Buttons::BT_EVENT_DAILY]->set_active(event_active);
-		buttons[Buttons::BT_EVENT_SCHEDULE]->set_active(event_active);
+		// Only manage event buttons if they exist (not v87)
+		if (buttons.find(Buttons::BT_EVENT_DAILY) != buttons.end())
+			buttons[Buttons::BT_EVENT_DAILY]->set_active(event_active);
+		if (buttons.find(Buttons::BT_EVENT_SCHEDULE) != buttons.end())
+			buttons[Buttons::BT_EVENT_SCHEDULE]->set_active(event_active);
 
 		if (event_active)
 		{
-			buttons[Buttons::BT_EVENT_SCHEDULE]->set_state(Button::State::MOUSEOVER);
+			if (buttons.find(Buttons::BT_EVENT_SCHEDULE) != buttons.end())
+				buttons[Buttons::BT_EVENT_SCHEDULE]->set_state(Button::State::MOUSEOVER);
 
 			Sound(Sound::Name::DLGNOTICE).play();
 		}
@@ -1060,7 +1394,8 @@ namespace ms
 	void UIStatusBar::remove_active_menu(MenuType type)
 	{
 		for (size_t i = Buttons::BT_MENU_QUEST; i <= Buttons::BT_EVENT_DAILY; i++)
-			buttons[i]->set_state(Button::State::NORMAL);
+			if (buttons.find(i) != buttons.end() && buttons[i])
+				buttons[i]->set_state(Button::State::NORMAL);
 
 		if (menu_active && type != MenuType::MENU)
 			toggle_menu();

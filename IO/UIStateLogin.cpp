@@ -17,13 +17,14 @@
 //////////////////////////////////////////////////////////////////////////////////
 #include "UIStateLogin.h"
 
-#include "UITypes/UICharSelect.h"
+#include "UITypes/UICharSelect_Legacy.h"
 #include "UITypes/UILogin.h"
 #include "UITypes/UILoginNotice.h"
 #include "UITypes/UILogo.h"
 #include "UITypes/UIRegion.h"
 
 #include "../Configuration.h"
+#include <iostream>
 
 namespace ms
 {
@@ -33,20 +34,29 @@ namespace ms
 
 		bool start_shown = Configuration::get().get_start_shown();
 
-		if (!start_shown)
-			emplace<UILogo>();
-		else
+		// Skip logo for faster testing
+		//if (!start_shown)
+		//	emplace<UILogo>();
+		//else
 			emplace<UILogin>();
 	}
 
 	void UIStateLogin::draw(float inter, Point<int16_t> cursor) const
 	{
+		// Drawing UI elements
 		for (auto iter : elements)
 		{
 			UIElement* element = iter.second.get();
 
 			if (element && element->is_active())
+			{
+				// Drawing active element
 				element->draw(inter);
+			}
+			else if (element)
+			{
+				// Skipping inactive element
+			}
 		}
 
 		if (tooltip)
@@ -66,7 +76,7 @@ namespace ms
 
 	void UIStateLogin::doubleclick(Point<int16_t> pos)
 	{
-		if (auto charselect = UI::get().get_element<UICharSelect>())
+		if (auto charselect = UI::get().get_element<UICharSelect_Legacy>())
 			charselect->doubleclick(pos);
 	}
 

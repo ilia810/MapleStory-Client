@@ -19,6 +19,8 @@
 #include "bitmap.hpp"
 #include <lz4.h>
 #include <vector>
+#include <fstream>
+#include <iostream>
 
 namespace nl {
     bitmap::bitmap(void const * d, uint16_t w, uint16_t h) :
@@ -39,8 +41,12 @@ namespace nl {
         auto const l = length();
         if (l + 0x20 > bitmap_buf.size())
             bitmap_buf.resize(l + 0x20);
-        ::LZ4_decompress_fast(4 + reinterpret_cast<char const *>(m_data),
+        
+        // Decompress the data
+        int result = ::LZ4_decompress_fast(4 + reinterpret_cast<char const *>(m_data),
             bitmap_buf.data(), static_cast<int>(l));
+            
+            
         return bitmap_buf.data();
     }
     uint16_t bitmap::width() const {

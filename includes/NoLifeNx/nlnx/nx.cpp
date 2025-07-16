@@ -23,6 +23,7 @@
 #include <vector>
 #include <memory>
 #include <stdexcept>
+#include <iostream>
 
 namespace nl
 {
@@ -37,12 +38,16 @@ namespace nl
 
 		node add_file(std::string name)
 		{
-			if (!exists(name))
+			if (!exists(name)) {
 				return {};
+			}
 
-			files.emplace_back(new file(name));
-
-			return *files.back();
+			try {
+				files.emplace_back(new file(name));
+				return *files.back();
+			} catch (const std::exception& e) {
+				return {};
+			}
 		}
 
 		node Base, Character, Effect, Etc, Item, Map, Map001, Map002, Map2, Mob, Mob001, Mob002, Mob2, Morph, Npc, Quest, Reactor, Skill, Skill001, Skill002, Skill003, Sound, Sound001, Sound002, Sound2, String, TamingMob, UI;

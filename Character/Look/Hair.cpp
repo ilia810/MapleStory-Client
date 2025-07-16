@@ -27,7 +27,30 @@ namespace ms
 {
 	Hair::Hair(int32_t hairid, const BodyDrawInfo& drawinfo)
 	{
-		nl::node hairnode = nl::nx::Character["Hair"]["000" + std::to_string(hairid) + ".img"];
+		try {
+			std::string hairpath = "000" + std::to_string(hairid) + ".img";
+			nl::node character_node = nl::nx::Character;
+			if (!character_node) {
+				throw std::runtime_error("Character node not available");
+			}
+			nl::node hair_dir = character_node["Hair"];
+			if (!hair_dir) {
+				throw std::runtime_error("Hair directory not found");
+			}
+			
+			nl::node hairnode = nl::nx::Character["Hair"]["000" + std::to_string(hairid) + ".img"];
+			if (!hairnode) {
+				// Try fallback to a default hair (30000 - basic black hair)
+				if (hairid != 30000) {
+					hairnode = nl::nx::Character["Hair"]["00030000.img"];
+				}
+				
+				if (!hairnode) {
+					name = "Missing Hair";
+					color = "None";
+					return;
+				}
+			}
 
 		for (auto stance_iter : Stance::names)
 		{
@@ -36,8 +59,9 @@ namespace ms
 
 			nl::node stancenode = hairnode[stancename];
 
-			if (!stancenode)
+			if (!stancenode) {
 				continue;
+			}
 
 			for (uint8_t frame = 0; nl::node framenode = stancenode[frame]; ++frame)
 			{
@@ -53,16 +77,30 @@ namespace ms
 					}
 
 					Layer layer = layer_iter->second;
-
-					Point<int16_t> brow = layernode["map"]["brow"];
+					Point<int16_t> brow;
+					try {
+						brow = layernode["map"]["brow"];
+					} catch (const std::exception& e) {
+						brow = Point<int16_t>(0, 0); // Use default
+					}
 					Point<int16_t> shift = drawinfo.gethairpos(stance, frame) - brow;
 
-					if (Texture(layernode).is_valid())
+					bool texture_valid = false;
+					try {
+						texture_valid = Texture(layernode).is_valid();
+					} catch (const std::exception& e) {
+						texture_valid = false;
+					}
+					
+					if (texture_valid)
 					{
-						stances[stance][layer]
-							.emplace(frame, layernode)
-							.first->second.shift(shift);
-
+						try {
+							stances[stance][layer]
+								.emplace(frame, layernode)
+								.first->second.shift(shift);
+						} catch (const std::exception& e) {
+							// Error during texture emplace/shift
+						}
 						continue;
 					}
 
@@ -70,27 +108,32 @@ namespace ms
 
 					if (layername.substr(0, 4) == "back")
 						defaultstancename = "backDefault";
-
 					nl::node defaultnode = hairnode[defaultstancename][layername];
 
-					if (Texture(defaultnode).is_valid())
-					{
-						stances[stance][layer]
-							.emplace(frame, defaultnode)
-							.first->second.shift(shift);
-
-						continue;
+					try {
+						if (Texture(defaultnode).is_valid())
+						{
+							stances[stance][layer]
+								.emplace(frame, defaultnode)
+								.first->second.shift(shift);
+							continue;
+						}
+					} catch (const std::exception& e) {
+						// Error with default texture
 					}
 
 					nl::node defaultnode2 = defaultnode["0"];
 
-					if (Texture(defaultnode2).is_valid())
-					{
-						stances[stance][layer]
-							.emplace(frame, defaultnode2)
-							.first->second.shift(shift);
-
-						continue;
+					try {
+						if (Texture(defaultnode2).is_valid())
+						{
+							stances[stance][layer]
+								.emplace(frame, defaultnode2)
+								.first->second.shift(shift);
+							continue;
+						}
+					} catch (const std::exception& e) {
+						// Error with default texture [0]
 					}
 
 					LOG(LOG_DEBUG, "Invalid Hair::Layer texture\tName: [" << layername << "]\tLocation: [" << hairnode.name() << "][" << stancename << "][" << frame << "]");
@@ -98,7 +141,11 @@ namespace ms
 			}
 		}
 
-		name = nl::nx::String["Eqp.img"]["Eqp"]["Hair"][std::to_string(hairid)]["name"];
+		try {
+			name = nl::nx::String["Eqp.img"]["Eqp"]["Hair"][std::to_string(hairid)]["name"];
+		} catch (const std::exception& e) {
+			name = "Hair " + std::to_string(hairid); // Use fallback name
+		}
 
 		constexpr size_t NUM_COLORS = 8;
 
@@ -109,15 +156,26 @@ namespace ms
 
 		size_t index = hairid % 10;
 		color = (index < NUM_COLORS) ? haircolors[index] : "";
+		
+		} catch (const std::exception& e) {
+			// Don't re-throw, create empty hair instead
+			name = "Error Hair";
+			color = "Error";
+			return;
+		}
 	}
 
 	void Hair::draw(Layer layer, Stance::Id stance, uint8_t frame, const DrawArgument& args) const
 	{
+		
 		auto frameit = stances[stance][layer].find(frame);
 
-		if (frameit == stances[stance][layer].end())
+		if (frameit == stances[stance][layer].end()) {
 			return;
+		}
 
+		// Removed spam logging
+		
 		frameit->second.draw(args);
 	}
 

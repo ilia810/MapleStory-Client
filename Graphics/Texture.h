@@ -43,10 +43,12 @@ namespace ms
 		int16_t height() const;
 		Point<int16_t> get_origin() const;
 		Point<int16_t> get_dimensions() const;
+		int get_z_index() const;
 
 	private:
 		nl::bitmap bitmap;
 		Point<int16_t> origin;
 		Point<int16_t> dimensions;
+		int z_index;
 	};
 }

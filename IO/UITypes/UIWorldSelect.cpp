@@ -28,6 +28,8 @@
 
 #include "../../Audio/Audio.h"
 #include "../../Util/Randomizer.h"
+#include "../../Util/Misc.h"
+#include "../../Util/V83UIAssets.h"
 
 #include "../../Net/Packets/LoginPackets.h"
 
@@ -52,55 +54,127 @@ namespace ms
 		nl::node Login = nl::nx::UI["Login.img"];
 		nl::node Common = Login["Common"];
 		nl::node WorldSelect = Login["WorldSelect"];
-		worldsrc = WorldSelect["BtWorld"]["release"];
+		
+		// Use V83 compatibility layer
+		worldsrc = V83UIAssets::getWorldButton();
 		channelsrc = WorldSelect["BtChannel"];
+		
+		if (!worldsrc) {
+			LOG(LOG_ERROR, "[UIWorldSelect] World button not found");
+		}
+		
+		if (!channelsrc) {
+			LOG(LOG_DEBUG, "[UIWorldSelect] Channel buttons not found (v83 mode)");
+		}
 
 		uint8_t regionid = Setting<DefaultRegion>::get().load();
 		set_region(regionid);
 
-		nl::node WorldSelectMap = nl::nx::Map["Obj"]["login.img"]["WorldSelect"];
-		sprites.emplace_back(WorldSelectMap["default"]["0"], background_pos);
-
-		std::vector<std::string> backgrounds = { "MapleLive" };
-		size_t backgrounds_size = backgrounds.size();
-
-		if (backgrounds_size > 0)
+		// Use V83 compatibility layer for background
+		nl::node bg_node = V83UIAssets::getWorldSelectBackground();
+		if (bg_node)
 		{
-			if (backgrounds_size > 1)
-			{
-				Randomizer randomizer = Randomizer();
-				size_t index = randomizer.next_int(backgrounds_size);
+			sprites.emplace_back(bg_node, background_pos);
 
-				sprites.emplace_back(WorldSelectMap[backgrounds[index]]["0"], background_pos);
-			}
-			else
+			std::vector<std::string> backgrounds = { "MapleLive" };
+			size_t backgrounds_size = backgrounds.size();
+
+			if (backgrounds_size > 0)
 			{
-				sprites.emplace_back(WorldSelectMap[backgrounds[0]]["0"], background_pos);
+				// Try to load additional background variants
+				nl::node WorldSelectMap = nl::nx::Map["Obj"]["login.img"]["WorldSelect"];
+				if (WorldSelectMap)
+				{
+					if (backgrounds_size > 1)
+					{
+						Randomizer randomizer = Randomizer();
+						size_t index = randomizer.next_int(backgrounds_size);
+
+						if (WorldSelectMap[backgrounds[index]]["0"])
+							sprites.emplace_back(WorldSelectMap[backgrounds[index]]["0"], background_pos);
+					}
+					else
+					{
+						if (WorldSelectMap[backgrounds[0]]["0"])
+							sprites.emplace_back(WorldSelectMap[backgrounds[0]]["0"], background_pos);
+					}
+				}
 			}
 		}
+		else
+		{
+			// v87 fallback: try to find background in UI data
+			nl::node uiBackground = WorldSelect["background"];
+			if (!uiBackground)
+				uiBackground = Login["background"];
+			
+			if (uiBackground)
+				sprites.emplace_back(uiBackground, background_pos);
+			// If no background found, continue without one (better than crashing)
+		}
 
-		buttons[Buttons::BtRegion] = std::make_unique<MapleButton>(WorldSelect["BtRegion"], Point<int16_t>(0, 1));
+		// Only create region button if it exists (might not be in v87)
+		if (WorldSelect["BtRegion"])
+			buttons[Buttons::BtRegion] = std::make_unique<MapleButton>(WorldSelect["BtRegion"], Point<int16_t>(0, 1));
+		
 		buttons[Buttons::BtExit] = std::make_unique<MapleButton>(Common["BtExit"]);
 
-		for (uint16_t i = 0; i < Buttons::BtGoWorld - Buttons::BtChannel0; i++)
+		// Setup channel buttons with V83 compatibility
+		if (channelsrc)
 		{
-			std::string channel = std::to_string(i);
+			for (uint16_t i = 0; i < Buttons::BtGoWorld - Buttons::BtChannel0; i++)
+			{
+				nl::node channelBtn = V83UIAssets::getChannelButton(i);
+				if (!channelBtn) {
+					// Try alternative path
+					channelBtn = channelsrc["button:" + std::to_string(i)];
+				}
+				
+				if (channelBtn)
+				{
+					// Check for modern structure
+					if (channelBtn["normal"]["0"])
+					{
+						nl::node focusedBtn = channelBtn["keyFocused"]["0"];
+						if (!focusedBtn) 
+							focusedBtn = channelBtn["normal"]["0"]; // fallback to normal if focused missing
 
-			buttons[Buttons::BtChannel0 + i] = std::make_unique<TwoSpriteButton>(channelsrc["button:" + channel]["normal"]["0"], channelsrc["button:" + channel]["keyFocused"]["0"], channelsrc_pos);
-			buttons[Buttons::BtChannel0 + i]->set_active(false);
+						buttons[Buttons::BtChannel0 + i] = std::make_unique<TwoSpriteButton>(channelBtn["normal"]["0"], focusedBtn, channelsrc_pos);
+						buttons[Buttons::BtChannel0 + i]->set_active(false);
+					}
+					// Check for v83 simple structure
+					else if (channelBtn["0"] && channelBtn["1"])
+					{
+						buttons[Buttons::BtChannel0 + i] = std::make_unique<TwoSpriteButton>(channelBtn["0"], channelBtn["1"], channelsrc_pos);
+						buttons[Buttons::BtChannel0 + i]->set_active(false);
+					}
+				}
 
-			channel_gauge[i] = Gauge(
-				Gauge::Type::WORLDSELECT,
-				channelsrc["gauge"],
-				CHANNEL_LOAD,
-				0.0f
-			);
+				nl::node gaugeNode = channelsrc["gauge"];
+				if (gaugeNode)
+				{
+					channel_gauge[i] = Gauge(
+						Gauge::Type::WORLDSELECT,
+						gaugeNode,
+						CHANNEL_LOAD,
+						0.0f
+					);
+				}
+			}
+
+			channels_background = channelsrc["layer:bg"];
+
+			nl::node goWorldBtn = channelsrc["button:GoWorld"];
+			if (goWorldBtn)
+			{
+				buttons[Buttons::BtGoWorld] = std::make_unique<MapleButton>(goWorldBtn, channelsrc_pos);
+				buttons[Buttons::BtGoWorld]->set_active(false);
+			}
 		}
-
-		channels_background = channelsrc["layer:bg"];
-
-		buttons[Buttons::BtGoWorld] = std::make_unique<MapleButton>(channelsrc["button:GoWorld"], channelsrc_pos);
-		buttons[Buttons::BtGoWorld]->set_active(false);
+		else
+		{
+			LOG(LOG_DEBUG, "[UIWorldSelect] No channel UI in v83 mode - will auto-select channel");
+		}
 
 		chatballoon.change_text("Please select the World you would like to play in.");
 
@@ -111,45 +185,40 @@ namespace ms
 		rebootNotice = WorldSelect["worldNotice"]["reboot"];
 		worldNoticeMessage = Text(Text::Font::A12B, Text::Alignment::LEFT, Color::Name::MINESHAFT);
 
-		if (Configuration::get().get_auto_login())
-		{
-			uint8_t world = Configuration::get().get_auto_world();
-			uint8_t channel = Configuration::get().get_auto_channel();
-
-			Configuration::get().set_worldid(world);
-			Configuration::get().set_channelid(channel);
-
-			UI::get().emplace<UILoginWait>();
-
-			auto loginwait = UI::get().get_element<UILoginWait>();
-
-			if (loginwait && loginwait->is_active())
-				CharlistRequestPacket(world, channel).dispatch();
-		}
+		// Don't auto-enter world in constructor - wait for draw_world() to be called
+		// when the server list is received
 	}
 
 	void UIWorldSelect::draw(float alpha) const
 	{
 		UIElement::draw_sprites(alpha);
 
-		worlds_background.draw(position + worldsrc_pos);
+		// Only draw worlds background if it exists
+		if (worlds_background.is_valid())
+			worlds_background.draw(position + worldsrc_pos);
 
 		for (size_t i = 0; i < worlds.size(); i++)
 		{
 			World world = worlds[i];
 
-			if (world.flag > 0 && world.flag <= FLAG_SIZE)
+			if (world.flag > 0 && world.flag <= FLAG_SIZE && i < flag_sprites.size())
 				flag_sprites[world.flag - 1].draw(position + worldsrc_pos + Point<int16_t>(1, 25 + 33 * i), alpha);
 		}
 
 		if (world_selected)
 		{
-			channels_background.draw(position + channelsrc_pos);
-			world_textures[worldid].draw(position + channelsrc_pos);
+			// Only draw channel UI if it exists (not in v87)
+			if (channels_background.is_valid())
+				channels_background.draw(position + channelsrc_pos);
+			
+			// Only draw world texture if available
+			if (worldid < world_textures.size() && world_textures[worldid].is_valid())
+				world_textures[worldid].draw(position + channelsrc_pos);
 
 			uint16_t worldEnum = world_map.find(worldid)->second;
 
-			if (worldEnum == Worlds::REBOOT0)
+			// Skip Reboot notice for v87 (no Reboot worlds)
+			if (worldEnum == Worlds::REBOOT0 && rebootNotice.is_valid())
 			{
 				rebootNotice.draw(position);
 			}
@@ -420,6 +489,46 @@ namespace ms
 			if (channelid >= world.channel_count)
 				channelid = 0;
 		}
+
+		// Auto-select world if enabled
+		if (Configuration::get().get_auto_login())
+		{
+			LOG(LOG_DEBUG, "[UIWorldSelect] Auto-login enabled, attempting auto-world selection");
+			
+			uint8_t auto_world_id = Configuration::get().get_auto_world();
+			uint8_t auto_channel_id = Configuration::get().get_auto_channel();
+			
+			LOG(LOG_DEBUG, "[UIWorldSelect] Auto-world ID: " + std::to_string(auto_world_id));
+			LOG(LOG_DEBUG, "[UIWorldSelect] Auto-channel ID: " + std::to_string(auto_channel_id));
+			LOG(LOG_DEBUG, "[UIWorldSelect] Number of worlds: " + std::to_string(worlds.size()));
+			
+			// Check if the auto world exists
+			bool world_exists = false;
+			for (auto world : worlds)
+			{
+				LOG(LOG_DEBUG, "[UIWorldSelect] Checking world ID: " + std::to_string(world.id) + " Name: " + world.name);
+				if (world.id == auto_world_id)
+				{
+					world_exists = true;
+					break;
+				}
+			}
+			
+			if (world_exists)
+			{
+				LOG(LOG_DEBUG, "[UIWorldSelect] Auto-world found, selecting world " + std::to_string(auto_world_id) + " channel " + std::to_string(auto_channel_id));
+				worldid = auto_world_id;
+				channelid = auto_channel_id;
+				
+				// Auto-enter world
+				LOG(LOG_DEBUG, "[UIWorldSelect] Calling enter_world() for auto-login");
+				enter_world();
+			}
+			else
+			{
+				LOG(LOG_ERROR, "[UIWorldSelect] Auto-world ID " + std::to_string(auto_world_id) + " not found in world list");
+			}
+		}
 	}
 
 	void UIWorldSelect::add_world(World world)
@@ -460,24 +569,100 @@ namespace ms
 
 	void UIWorldSelect::set_region(uint8_t regionid)
 	{
-		world_map[Buttons::BtWorld0] = regionid == 5 ? Worlds::SCANIA : Worlds::LUNA;
+		// Set up v87-compatible world mapping (no Reboot worlds in v87)
+		world_map[Buttons::BtWorld0] = Worlds::SCANIA;
 		world_map[Buttons::BtWorld1] = Worlds::BERA;
-		world_map[Buttons::BtWorld2] = Worlds::AURORA;
-		world_map[Buttons::BtWorld3] = Worlds::ELYSIUM;
-		world_map[Buttons::BtWorld4] = Worlds::REBOOT0;
+		world_map[Buttons::BtWorld2] = Worlds::BROA;
+		world_map[Buttons::BtWorld3] = Worlds::WINDIA;
+		world_map[Buttons::BtWorld4] = Worlds::KHAINI;
 
+		// Try modern UI structure first
 		nl::node region = worldsrc["index"][regionid];
-		worlds_background = region["layer:bg"];
-		worldsrc_pos = region["pos"];
-
-		for (uint16_t i = Buttons::BtWorld0; i < Buttons::BtChannel0; i++)
+		if (region && region["layer:bg"])
 		{
-			std::string world = std::to_string(world_map[i]);
-			world_textures.emplace_back(channelsrc["release"]["layer:" + world]);
+			// Modern UI with region support
+			worlds_background = region["layer:bg"];
+			worldsrc_pos = region["pos"];
 
-			nl::node worldbtn = worldsrc["button:" + world];
-			buttons[Buttons::BtWorld0 + i] = std::make_unique<TwoSpriteButton>(worldbtn["normal"]["0"], worldbtn["keyFocused"]["0"], worldsrc_pos + Point<int16_t>(region["origin"][i + 1]));
-			buttons[Buttons::BtWorld0 + i]->set_active(false);
+			for (uint16_t i = Buttons::BtWorld0; i < Buttons::BtChannel0; i++)
+			{
+				std::string world = std::to_string(world_map[i]);
+				
+				// v92 doesn't have release/layer structure for selected worlds
+				// Try different paths for selected world textures
+				if (V83UIAssets::isV92Mode()) {
+					// v92 structure: scroll animations for selected world
+					nl::node scrollNode = nl::nx::UI["Login.img"]["WorldSelect"]["scroll"];
+					if (scrollNode && scrollNode[world]) {
+						nl::node worldScroll = scrollNode[world];
+						if (worldScroll["0"]) {
+							// Use the first frame of the scroll animation
+							world_textures.emplace_back(worldScroll["0"]);
+							LOG(LOG_DEBUG, "[UIWorldSelect] Found v92 world texture at scroll/" << world << "/0");
+						} else {
+							// No animation frame found
+							world_textures.emplace_back();
+							LOG(LOG_DEBUG, "[UIWorldSelect] No v92 world texture found for world " << world);
+						}
+					} else {
+						world_textures.emplace_back();
+					}
+				} else if (channelsrc) {
+					// Non-v92 structure
+					if (channelsrc["release"] && channelsrc["release"]["layer:" + world]) {
+						// Modern structure
+						world_textures.emplace_back(channelsrc["release"]["layer:" + world]);
+					} else {
+						// No selected world texture - use empty texture
+						world_textures.emplace_back();
+					}
+				} else {
+					world_textures.emplace_back();
+				}
+
+				nl::node worldbtn = worldsrc["button:" + world];
+				if (worldbtn && worldbtn["normal"]["0"])
+				{
+					nl::node focusedBtn = worldbtn["keyFocused"]["0"];
+					if (!focusedBtn) focusedBtn = worldbtn["normal"]["0"];
+
+					buttons[Buttons::BtWorld0 + i] = std::make_unique<TwoSpriteButton>(worldbtn["normal"]["0"], focusedBtn, worldsrc_pos + Point<int16_t>(region["origin"][i + 1]));
+					buttons[Buttons::BtWorld0 + i]->set_active(false);
+				}
+			}
+		}
+		else
+		{
+			// v87 fallback: simpler world structure
+			if (worldsrc && worldsrc["layer:bg"])
+				worlds_background = worldsrc["layer:bg"];
+			
+			worldsrc_pos = Point<int16_t>(50, 150); // Default position for v87
+
+			// v87 likely has direct world buttons (world0, world1, etc.)
+			for (uint16_t i = Buttons::BtWorld0; i < Buttons::BtChannel0; i++)
+			{
+				std::string worldIndex = std::to_string(i);
+				nl::node worldbtn = worldsrc[worldIndex]; // Try indexed access
+				
+				if (!worldbtn) // Try named access
+				{
+					std::string worldName = std::to_string(world_map[i]);
+					worldbtn = worldsrc[worldName];
+				}
+				
+				if (worldbtn && worldbtn["normal"])
+				{
+					nl::node normalBtn = worldbtn["normal"][0] ? worldbtn["normal"][0] : worldbtn["normal"];
+					nl::node focusedBtn = worldbtn["mouseOver"] ? worldbtn["mouseOver"][0] : normalBtn;
+					if (!focusedBtn) focusedBtn = normalBtn;
+
+					// Position worlds vertically for v87
+					Point<int16_t> worldPos = worldsrc_pos + Point<int16_t>(0, i * 35);
+					buttons[Buttons::BtWorld0 + i] = std::make_unique<TwoSpriteButton>(normalBtn, focusedBtn, worldPos);
+					buttons[Buttons::BtWorld0 + i]->set_active(false);
+				}
+			}
 		}
 	}
 
@@ -516,6 +701,14 @@ namespace ms
 
 			ServerStatusRequestPacket(worldid).dispatch();
 
+			// If no modern channel UI exists (v87), auto-enter world with channel 1
+			if (!channelsrc || !buttons[Buttons::BtGoWorld])
+			{
+				channelid = 1; // Default to channel 1 for v87
+				enter_world(); // Enter immediately without channel selection
+				return Button::State::NORMAL;
+			}
+
 			world_selected = true;
 			clear_selected_world();
 			change_world(worlds[worldid]);
@@ -548,33 +741,52 @@ namespace ms
 
 	void UIWorldSelect::enter_world()
 	{
+		LOG(LOG_DEBUG, "[UIWorldSelect] enter_world() called");
+		LOG(LOG_DEBUG, "[UIWorldSelect] Setting world ID: " + std::to_string(worldid) + " channel ID: " + std::to_string(channelid));
+		
 		Configuration::get().set_worldid(worldid);
 		Configuration::get().set_channelid(channelid);
 
+		LOG(LOG_DEBUG, "[UIWorldSelect] Creating UILoginWait");
 		UI::get().emplace<UILoginWait>();
 		auto loginwait = UI::get().get_element<UILoginWait>();
 
 		if (loginwait && loginwait->is_active())
+		{
+			LOG(LOG_DEBUG, "[UIWorldSelect] Sending CharlistRequestPacket");
 			CharlistRequestPacket(worldid, channelid).dispatch();
+		}
+		else
+		{
+			LOG(LOG_ERROR, "[UIWorldSelect] UILoginWait not active or not found");
+		}
 	}
 
 	void UIWorldSelect::clear_selected_world()
 	{
 		channelid = 0;
 
+		// Only clear channel buttons if they exist (v83 compatibility)
 		for (size_t i = Buttons::BtChannel0; i < Buttons::BtGoWorld; i++)
-			buttons[i]->set_state(Button::State::NORMAL);
+		{
+			if (buttons[i])
+				buttons[i]->set_state(Button::State::NORMAL);
+		}
 
-		buttons[Buttons::BtChannel0]->set_state(Button::State::PRESSED);
+		if (buttons[Buttons::BtChannel0])
+			buttons[Buttons::BtChannel0]->set_state(Button::State::PRESSED);
 
 		for (size_t i = 0; i < Buttons::BtGoWorld - Buttons::BtChannel0; i++)
 		{
-			buttons[Buttons::BtChannel0 + i]->set_active(false);
-
-			channel_gauge[i].update(0);
+			if (buttons[Buttons::BtChannel0 + i])
+			{
+				buttons[Buttons::BtChannel0 + i]->set_active(false);
+				channel_gauge[i].update(0);
+			}
 		}
 
-		buttons[Buttons::BtGoWorld]->set_active(false);
+		if (buttons[Buttons::BtGoWorld])
+			buttons[Buttons::BtGoWorld]->set_active(false);
 
 		worldNoticeMessage.change_text("");
 	}

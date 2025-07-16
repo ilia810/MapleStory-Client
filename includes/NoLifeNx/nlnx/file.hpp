@@ -67,6 +67,8 @@ namespace nl {
         std::string get_string(uint32_t) const;
     private:
         data * m_data = nullptr;
+        //v92 compatibility: builds synthetic bitmap table for files with bitmap_count=0
+        void build_synthetic_bitmap_table(const std::string& filename);
         friend node;
         friend bitmap;
         friend audio;

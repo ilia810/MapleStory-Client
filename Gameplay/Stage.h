@@ -94,6 +94,12 @@ namespace ms
 
 		// Notify the server that the player has moved maps
 		void transfer_player();
+		
+		// Check if we're currently transitioning between maps
+		bool is_transitioning() const;
+		
+		// Get the current map ID being loaded/active
+		int32_t get_current_mapid() const;
 
 	private:
 		void load_map(int32_t mapid);

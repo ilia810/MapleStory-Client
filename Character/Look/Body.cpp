@@ -28,8 +28,34 @@ namespace ms
 	Body::Body(int32_t skin, const BodyDrawInfo& drawinfo)
 	{
 		std::string strid = string_format::extend_id(skin, 2);
-		nl::node bodynode = nl::nx::Character["000020" + strid + ".img"];
-		nl::node headnode = nl::nx::Character["000120" + strid + ".img"];
+		std::string bodypath = "000020" + strid + ".img";
+		std::string headpath = "000120" + strid + ".img";
+		
+		try {
+			nl::node bodynode = nl::nx::Character[bodypath];
+			nl::node headnode = nl::nx::Character[headpath];
+			
+			if (!bodynode) {
+				// Try default body skin (skin 0)
+				if (skin != 0) {
+					std::string fallback_bodypath = "00002000.img";
+					bodynode = nl::nx::Character[fallback_bodypath];
+				}
+				
+				if (!bodynode) {
+					// Create empty body to prevent crash
+					name = "Missing Body";
+					return;
+				}
+			}
+			
+			if (!headnode) {
+				// Try default head skin (skin 0)
+				if (skin != 0) {
+					std::string fallback_headpath = "00012000.img";
+					headnode = nl::nx::Character[fallback_headpath];
+				}
+			}
 
 		for (auto iter : Stance::names)
 		{
@@ -49,7 +75,12 @@ namespace ms
 
 					if (part != "delay" && part != "face")
 					{
-						std::string z = partnode["z"];
+						std::string z;
+						try {
+							z = partnode["z"];
+						} catch (const std::exception& e) {
+							continue; // Skip this part
+						}
 						Body::Layer layer = layer_by_name(z);
 
 						if (layer == Body::Layer::NONE)
@@ -75,21 +106,30 @@ namespace ms
 					}
 				}
 
-				for (nl::node partnode : headnode[stancename][frame])
-				{
-					std::string part = partnode.name();
-					Body::Layer layer = layer_by_name(part);
+				// Only process head assets if head node is available
+				if (headnode) {
+					for (nl::node partnode : headnode[stancename][frame])
+					{
+						std::string part = partnode.name();
+						Body::Layer layer = layer_by_name(part);
 
-					if (layer == Body::Layer::NONE)
-						continue;
+						if (layer == Body::Layer::NONE)
+							continue;
 
-					Point<int16_t> shift = drawinfo.get_head_position(stance, frame);
+						Point<int16_t> shift = drawinfo.get_head_position(stance, frame);
 
-					stances[stance][layer]
-						.emplace(frame, partnode)
-						.first->second.shift(shift);
+						stances[stance][layer]
+							.emplace(frame, partnode)
+							.first->second.shift(shift);
+					}
 				}
 			}
+		}
+		
+		} catch (const std::exception& e) {
+			// Don't re-throw, create empty body instead
+			name = "Error Body";
+			return;
 		}
 
 		constexpr size_t NUM_SKINTYPES = 13;
@@ -118,7 +158,11 @@ namespace ms
 		{
 			LOG(LOG_DEBUG, "Skin [" << skin << "] is using the default value.");
 
-			name = nl::nx::String["Eqp.img"]["Eqp"]["Skin"][skin]["name"];
+			try {
+				name = nl::nx::String["Eqp.img"]["Eqp"]["Skin"][skin]["name"];
+			} catch (const std::exception& e) {
+				name = "Skin " + std::to_string(skin); // Use fallback name
+			}
 		}
 	}
 

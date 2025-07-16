@@ -22,6 +22,22 @@
 #include <iostream>
 #include <unordered_map>
 
+// Graphics Debug System
+#define GRAPHICS_DEBUG 0
+#if GRAPHICS_DEBUG
+#define GDEBUG(msg) std::cout << "[GFX] " << msg << std::endl
+#else
+#define GDEBUG(msg)
+#endif
+
+// Network Debug System
+#define NETWORK_DEBUG 1
+#if NETWORK_DEBUG
+#define NDEBUG(msg) std::cout << "[NET] " << msg << std::endl
+#else
+#define NDEBUG(msg)
+#endif
+
 namespace ms
 {
 	namespace string_conversion

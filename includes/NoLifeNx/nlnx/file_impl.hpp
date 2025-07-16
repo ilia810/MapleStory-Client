@@ -1,6 +1,6 @@
 //////////////////////////////////////////////////////////////////////////////
 // NoLifeNx - Part of the NoLifeStory project                               //
-// Copyright © 2013 Peter Atashian                                          //
+// Copyright ï¿½ 2013 Peter Atashian                                          //
 //                                                                          //
 // This program is free software: you can redistribute it and/or modify     //
 // it under the terms of the GNU Affero General Public License as           //
@@ -19,6 +19,7 @@
 #pragma once
 #include "file.hpp"
 #include "node_impl.hpp"
+#include <vector>
 
 namespace nl {
 #pragma pack(push, 1)
@@ -41,6 +42,9 @@ namespace nl {
         uint64_t const * bitmap_table = nullptr;
         uint64_t const * audio_table = nullptr;
         file::header const * header = nullptr;
+        // v92 compatibility: synthetic bitmap table for files with bitmap_count=0
+        std::vector<uint64_t> synthetic_bitmap_table;
+        bool v92_mode = false;
 #ifdef _WIN32
         void * file_handle = nullptr;
         void * map = nullptr;

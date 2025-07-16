@@ -25,6 +25,7 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb_image.h>
 #include <Windows.h>
+#include <iostream>
 
 namespace ms
 {
@@ -228,6 +229,8 @@ namespace ms
 		if (opcstep != 0.0f)
 		{
 			opacity += opcstep;
+			
+			static bool opacity_logged = false;
 
 			if (opacity >= 1.0f)
 			{
@@ -253,6 +256,13 @@ namespace ms
 
 		if (width != new_width || height != new_height)
 		{
+			
+			// Prevent extreme window sizes
+			if (new_width > 1920 || new_height > 1080) {
+				glfwPollEvents();
+				return;
+			}
+			
 			width = new_width;
 			height = new_height;
 
@@ -274,6 +284,7 @@ namespace ms
 	{
 		GraphicsGL::get().flush(opacity);
 		glfwSwapBuffers(glwnd);
+
 	}
 
 	void Window::fadeout(float step, std::function<void()> fadeproc)

@@ -30,6 +30,7 @@ namespace ms
 
 		UILoginWait();
 		UILoginWait(std::function<void()> okhandler);
+		~UILoginWait();
 
 		UIElement::Type get_type() const override;
 

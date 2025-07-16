@@ -22,6 +22,7 @@
 #include "../Configuration.h"
 
 #include "../Util/Randomizer.h"
+#include "../Util/Misc.h"
 
 #include <chrono>
 
@@ -34,6 +35,12 @@ namespace ms
 
 	void OutPacket::dispatch()
 	{
+		// Always log LOGIN packets for debugging
+		if (opcode == Opcode::LOGIN)
+		{
+			LOG(LOG_DEBUG, "[OutPacket] Dispatching LOGIN packet (opcode: " + std::to_string(opcode) + ")");
+		}
+		
 		Session::get().write(bytes.data(), bytes.size());
 
 		if (Configuration::get().get_show_packets())

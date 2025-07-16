@@ -18,6 +18,7 @@
 #include "FootholdTree.h"
 
 #include <iostream>
+#include "../../Util/Misc.h"
 
 namespace ms
 {
@@ -88,8 +89,51 @@ namespace ms
 			}
 		}
 
+		// Validate foothold data and provide safe defaults
+		bool hasValidFootholds = !footholds.empty();
+		
+		if (!hasValidFootholds) {
+			std::cout << "[FOOTHOLD] WARNING: Map has no foothold data! Using safe defaults." << std::endl;
+			// Use safe default bounds when no footholds exist
+			leftw = -1000;
+			rightw = 1000;
+			topb = -1000;
+			botb = 0;  // Ground level at Y=0
+		} else {
+			// Validate computed bounds - ensure they make sense
+			if (topb >= botb) {
+				std::cout << "[FOOTHOLD] WARNING: Invalid foothold bounds (top=" << topb << " >= bottom=" << botb 
+				          << "), using safe defaults." << std::endl;
+				topb = -1000;
+				botb = 0;
+			}
+			if (leftw >= rightw) {
+				std::cout << "[FOOTHOLD] WARNING: Invalid wall bounds (left=" << leftw << " >= right=" << rightw 
+				          << "), using safe defaults." << std::endl;
+				leftw = -1000;
+				rightw = 1000;
+			}
+		}
+		
+		// Log raw foothold bounds before processing
+		LOG(LOG_DEBUG, "[FootholdTree] Raw foothold bounds - Left: " << leftw << ", Right: " << rightw 
+			<< ", Top: " << topb << ", Bottom: " << botb);
+		
+		// Use conservative bounds for physics (player movement constraints)
+		// The camera will use VR bounds from MapInfo instead
 		walls = { leftw + 25, rightw - 25 };
 		borders = { topb - 300, botb + 100 };
+		
+		LOG(LOG_DEBUG, "[FootholdTree] Physics bounds - Walls: [" << walls.first() << "," << walls.second() 
+			<< "], Borders: [" << borders.first() << "," << borders.second() << "]");
+		
+		// Final sanity check - ensure borders are not inverted
+		if (borders.first() >= borders.second()) {
+			LOG(LOG_ERROR, "[FootholdTree] CRITICAL: Computed borders are inverted! (" 
+			          << borders.first() << ", " << borders.second() << "), forcing safe range.");
+			borders = { -1300, 100 };  // Safe default: ceiling at -1300, floor at 100
+		}
+		
 	}
 
 	FootholdTree::FootholdTree() {}

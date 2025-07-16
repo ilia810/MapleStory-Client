@@ -57,6 +57,13 @@ namespace ms
 	class MapInfo
 	{
 	public:
+		// Camera rectangle for v83/v87 compatibility
+		struct CameraRect {
+			int16_t left, top, right, bottom;
+			int16_t width() const { return right - left; }
+			int16_t height() const { return bottom - top; }
+		};
+		
 		MapInfo(nl::node src, Range<int16_t> walls, Range<int16_t> borders);
 		MapInfo();
 
@@ -70,8 +77,14 @@ namespace ms
 		// Find a ladder at the player's position
 		// !upwards - implies downwards
 		Optional<const Ladder> findladder(Point<int16_t> position, bool upwards) const;
+		
+		// Camera rect derivation for v83/v87 compatibility
+		CameraRect derive_camera_rect(nl::node src, Range<int16_t> physWalls, Range<int16_t> physBorders, int16_t viewW, int16_t viewH) const;
 
 	private:
+		// V83/V87 helper functions to calculate VR bounds from foothold data
+		Range<int16_t> calculate_vr_from_footholds(nl::node src, Range<int16_t> fallback_walls) const;
+		Range<int16_t> calculate_vr_borders_from_footholds(nl::node src, Range<int16_t> fallback_borders) const;
 		int32_t fieldlimit;
 		bool cloud;
 		std::string bgm;

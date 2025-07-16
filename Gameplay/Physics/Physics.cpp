@@ -16,6 +16,8 @@
 //	along with this program.  If not, see <https://www.gnu.org/licenses/>.		//
 //////////////////////////////////////////////////////////////////////////////////
 #include "Physics.h"
+#include <iostream>
+#include <unordered_map>
 
 namespace ms
 {
@@ -36,6 +38,13 @@ namespace ms
 
 	void Physics::move_object(PhysicsObject& phobj) const
 	{
+		// Store previous position for oscillation detection
+		static std::unordered_map<void*, double> lastYPositions;
+		static std::unordered_map<void*, int> oscillationCounters;
+		
+		double prevY = lastYPositions[&phobj];
+		double currentY = phobj.crnt_y();
+		
 		// Determine which platform the object is currently on
 		fht.update_fh(phobj);
 
@@ -59,8 +68,52 @@ namespace ms
 			break;
 		}
 
+		// Clamp extreme positions as safety net
+		const double MAX_SAFE_Y = 5000.0;
+		const double MIN_SAFE_Y = -5000.0;
+		
+		double next_y = phobj.next_y();
+		if (next_y > MAX_SAFE_Y) {
+			phobj.limity(MAX_SAFE_Y);
+			phobj.vspeed = 0.0;  // Stop vertical movement
+		} else if (next_y < MIN_SAFE_Y) {
+			phobj.limity(MIN_SAFE_Y);
+			phobj.vspeed = 0.0;  // Stop vertical movement
+		}
+
 		// Move the object forward
 		phobj.move();
+		
+		// Oscillation detection after movement
+		double newY = phobj.crnt_y();
+		double yDelta = std::abs(newY - prevY);
+		
+		// Detect large position changes (potential oscillation)
+		if (yDelta > 1000.0) {
+			oscillationCounters[&phobj]++;
+			
+			if (oscillationCounters[&phobj] >= 2) {
+				// Emergency stabilization
+				double midY = (prevY + newY) / 2.0;
+				if (std::abs(midY) > 2000.0) {
+					midY = 0.0;  // Reset to origin if midpoint is also extreme
+				}
+				
+				phobj.limity(midY);
+				phobj.vspeed = 0.0;
+				phobj.hspeed = 0.0;
+				phobj.onground = true;  // Force ground state to stop gravity
+				
+				// Reset counter after fixing
+				oscillationCounters[&phobj] = 0;
+			}
+		} else {
+			// Reset counter if movement is normal
+			oscillationCounters[&phobj] = 0;
+		}
+		
+		// Update position history
+		lastYPositions[&phobj] = newY;
 	}
 
 	void Physics::move_normal(PhysicsObject& phobj) const
@@ -148,6 +201,15 @@ namespace ms
 	Point<int16_t> Physics::get_y_below(Point<int16_t> position) const
 	{
 		int16_t ground = fht.get_y_below(position);
+		
+		
+		// Validate ground result - if extreme, use fallback
+		const int16_t MIN_VALID_Y = -2000;  // Reasonable minimum Y position
+		const int16_t MAX_VALID_Y = 3000;   // Reasonable maximum Y position
+		
+		if (ground < MIN_VALID_Y || ground > MAX_VALID_Y) {
+			ground = position.y();  // Use input Y as fallback
+		}
 
 		return Point<int16_t>(position.x(), ground - 1);
 	}

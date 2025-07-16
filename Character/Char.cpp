@@ -18,6 +18,7 @@
 #include "Char.h"
 
 #include "../Data/WeaponData.h"
+#include <iostream>
 
 #ifdef USE_NX
 #include <nlnx/nx.hpp>
@@ -30,6 +31,7 @@ namespace ms
 	void Char::draw(double viewx, double viewy, float alpha) const
 	{
 		Point<int16_t> absp = phobj.get_absolute(viewx, viewy, alpha);
+		
 
 		effects.drawbelow(absp, alpha);
 

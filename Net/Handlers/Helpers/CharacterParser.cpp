@@ -18,17 +18,23 @@
 #include "CharacterParser.h"
 
 #include "ItemParser.h"
+#include "../../../Util/Misc.h"
 
 namespace ms
 {
 	void CharacterParser::parse_inventory(InPacket& recv, Inventory& invent)
 	{
+		LOG(LOG_DEBUG, "[CharacterParser] Starting inventory parsing");
+		
 		invent.set_meso(recv.read_int());
+		LOG(LOG_DEBUG, "[CharacterParser] Meso set");
+		
 		invent.set_slotmax(InventoryType::EQUIP, recv.read_byte());
 		invent.set_slotmax(InventoryType::USE, recv.read_byte());
 		invent.set_slotmax(InventoryType::SETUP, recv.read_byte());
 		invent.set_slotmax(InventoryType::ETC, recv.read_byte());
 		invent.set_slotmax(InventoryType::CASH, recv.read_byte());
+		LOG(LOG_DEBUG, "[CharacterParser] Slot maxes set");
 
 		recv.skip(8);
 
@@ -36,13 +42,26 @@ namespace ms
 		{
 			InventoryType::Id inv = (i == 0) ? InventoryType::EQUIPPED : InventoryType::EQUIP;
 			int16_t pos = recv.read_short();
+			LOG(LOG_DEBUG, "[CharacterParser] Reading inventory section " << i << ", first pos: " << pos);
 
-			while (pos != 0)
+			int safety_counter = 0;
+			const int MAX_ITEMS_PER_SECTION = 500; // Safety limit
+			
+			while (pos != 0 && safety_counter < MAX_ITEMS_PER_SECTION)
 			{
 				int16_t slot = (i == 1) ? -pos : pos;
+				LOG(LOG_DEBUG, "[CharacterParser] Parsing item at slot " << slot);
 				ItemParser::parse_item(recv, inv, slot, invent);
 				pos = recv.read_short();
+				safety_counter++;
 			}
+			
+			if (safety_counter >= MAX_ITEMS_PER_SECTION) {
+				LOG(LOG_ERROR, "[CharacterParser] Hit safety limit in inventory section " << i << ", breaking loop");
+				break;
+			}
+			
+			LOG(LOG_DEBUG, "[CharacterParser] Finished inventory section " << i << " with " << safety_counter << " items");
 		}
 
 		recv.skip(2);
@@ -56,13 +75,40 @@ namespace ms
 		{
 			InventoryType::Id inv = toparse[i];
 			int8_t pos = recv.read_byte();
+			LOG(LOG_DEBUG, "[CharacterParser] Reading inventory type " << i << ", first pos: " << (int)pos);
 
-			while (pos != 0)
+			int safety_counter = 0;
+			const int MAX_ITEMS_PER_TYPE = 200; // Safety limit
+			
+			while (pos != 0 && safety_counter < MAX_ITEMS_PER_TYPE)
 			{
-				ItemParser::parse_item(recv, inv, pos, invent);
+				// Check for obviously corrupted position values
+				if (pos < 0 || pos > 100) {
+					LOG(LOG_ERROR, "[CharacterParser] Invalid position " << (int)pos << " detected, breaking inventory parsing");
+					break;
+				}
+				
+				LOG(LOG_DEBUG, "[CharacterParser] Parsing item at pos " << (int)pos);
+				try {
+					ItemParser::parse_item(recv, inv, pos, invent);
+				} catch (...) {
+					LOG(LOG_ERROR, "[CharacterParser] Failed to parse item at pos " << (int)pos << ", breaking inventory parsing");
+					break;
+				}
+				
 				pos = recv.read_byte();
+				safety_counter++;
 			}
+			
+			if (safety_counter >= MAX_ITEMS_PER_TYPE) {
+				LOG(LOG_ERROR, "[CharacterParser] Hit safety limit in inventory type " << i << ", breaking loop");
+				break;
+			}
+			
+			LOG(LOG_DEBUG, "[CharacterParser] Finished inventory type " << i << " with " << safety_counter << " items");
 		}
+		
+		LOG(LOG_DEBUG, "[CharacterParser] Inventory parsing completed");
 	}
 
 	void CharacterParser::parse_skillbook(InPacket& recv, SkillBook& skills)
@@ -82,14 +128,25 @@ namespace ms
 
 	void CharacterParser::parse_cooldowns(InPacket& recv, Player& player)
 	{
+		LOG(LOG_DEBUG, "[CharacterParser] Starting cooldowns parsing");
 		int16_t size = recv.read_short();
+		LOG(LOG_DEBUG, "[CharacterParser] Cooldowns size: " << size);
+
+		// Add safety check for size
+		if (size > 1000 || size < 0) {
+			LOG(LOG_ERROR, "[CharacterParser] Invalid cooldowns size " << size << ", skipping");
+			return;
+		}
 
 		for (int16_t i = 0; i < size; i++)
 		{
+			LOG(LOG_DEBUG, "[CharacterParser] Parsing cooldown " << i << " of " << size);
 			int32_t skill_id = recv.read_int();
 			int32_t cooltime = recv.read_short();
+			LOG(LOG_DEBUG, "[CharacterParser] Cooldown - skill_id: " << skill_id << ", cooltime: " << cooltime);
 			player.add_cooldown(skill_id, cooltime);
 		}
+		LOG(LOG_DEBUG, "[CharacterParser] Cooldowns parsing completed");
 	}
 
 	void CharacterParser::parse_questlog(InPacket& recv, QuestLog& quests)
@@ -179,19 +236,44 @@ namespace ms
 
 	void CharacterParser::parse_monsterbook(InPacket& recv, MonsterBook& monsterbook)
 	{
-		monsterbook.set_cover(recv.read_int());
+		LOG(LOG_DEBUG, "[CharacterParser] Starting monsterbook parsing");
+		LOG(LOG_DEBUG, "[CharacterParser] Remaining bytes before monsterbook: " << recv.length());
+		
+		int32_t cover = recv.read_int();
+		LOG(LOG_DEBUG, "[CharacterParser] Monsterbook cover: " << cover);
+		monsterbook.set_cover(cover);
 
 		recv.skip(1);
 
 		int16_t size = recv.read_short();
+		LOG(LOG_DEBUG, "[CharacterParser] Monsterbook size: " << size);
+		
+		// Sanity check - monsterbook shouldn't have more than 1000 entries
+		if (size < 0 || size > 1000) {
+			LOG(LOG_ERROR, "[CharacterParser] Invalid monsterbook size " << size << ", skipping");
+			return;
+		}
+		
+		// Check if we have enough data for all entries
+		size_t required_bytes = size * 3;
+		if (recv.length() < required_bytes) {
+			LOG(LOG_DEBUG, "[CharacterParser] Not enough data for monsterbook (need " << required_bytes << ", have " << recv.length() << "), adjusting size");
+			size = static_cast<int16_t>(recv.length() / 3);
+		}
 
 		for (int16_t i = 0; i < size; i++)
 		{
+			if (recv.length() < 3) {
+				LOG(LOG_ERROR, "[CharacterParser] Not enough bytes for monsterbook entry " << i << " (need 3, have " << recv.length() << ")");
+				break;
+			}
 			int16_t cid = recv.read_short();
 			int8_t mblv = recv.read_byte();
 
 			monsterbook.add_card(cid, mblv);
 		}
+		
+		LOG(LOG_DEBUG, "[CharacterParser] Monsterbook parsing completed");
 	}
 
 	void CharacterParser::parse_teleportrock(InPacket& recv, TeleportRock& teleportrock)

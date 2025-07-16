@@ -31,14 +31,31 @@
 #include "../../IO/UITypes/UITermsOfService.h"
 #include "../../IO/UITypes/UIWorldSelect.h"
 
+#include "../../Util/Misc.h"
+
 namespace ms
 {
 	void LoginResultHandler::handle(InPacket& recv) const
 	{
+		LOG(LOG_DEBUG, "[LoginResultHandler] Login result received");
+		
 		auto loginwait = UI::get().get_element<UILoginWait>();
+		
+		if (!loginwait)
+		{
+			LOG(LOG_ERROR, "[LoginResultHandler] No UILoginWait found!");
+			return;
+		}
+		
+		if (!loginwait->is_active())
+		{
+			LOG(LOG_ERROR, "[LoginResultHandler] UILoginWait is not active!");
+			return;
+		}
 
 		if (loginwait && loginwait->is_active())
 		{
+			LOG(LOG_DEBUG, "[LoginResultHandler] Processing login result with active UILoginWait");
 			// Remove previous UIs
 			UI::get().remove(UIElement::Type::LOGINNOTICE);
 			UI::get().remove(UIElement::Type::LOGINWAIT);
@@ -48,7 +65,10 @@ namespace ms
 			std::function<void()> okhandler = loginwait->get_handler();
 
 			// The packet should contain a 'reason' integer which can signify various things
-			if (int32_t reason = recv.read_int())
+			int32_t reason = recv.read_int();
+			LOG(LOG_DEBUG, "[LoginResultHandler] Login reason code: " + std::to_string(reason));
+			
+			if (reason)
 			{
 				// Login unsuccessful
 				// The LoginNotice displayed will contain the specific information
@@ -95,6 +115,7 @@ namespace ms
 			}
 			else
 			{
+				LOG(LOG_DEBUG, "[LoginResultHandler] Login successful!");
 				// Login successful
 				// The packet contains information on the account, so we initialize the account with it.
 				Account account = LoginParser::parse_account(recv);
@@ -103,6 +124,7 @@ namespace ms
 
 				if (account.female == 10)
 				{
+					LOG(LOG_DEBUG, "[LoginResultHandler] Gender selection required");
 					UI::get().emplace<UIGender>(okhandler);
 				}
 				else
@@ -111,6 +133,7 @@ namespace ms
 					if (Setting<SaveLogin>::get().load())
 						Setting<DefaultAccount>::get().save(account.name);
 
+					LOG(LOG_DEBUG, "[LoginResultHandler] Requesting server list...");
 					// Request the list of worlds and channels online
 					ServerRequestPacket().dispatch();
 				}
@@ -183,6 +206,7 @@ namespace ms
 
 	void ServerlistHandler::handle(InPacket& recv) const
 	{
+		LOG(LOG_DEBUG, "[ServerlistHandler] Received server list");
 		auto worldselect = UI::get().get_element<UIWorldSelect>();
 
 		if (!worldselect)
@@ -195,10 +219,12 @@ namespace ms
 
 			if (world.id != -1)
 			{
+				LOG(LOG_DEBUG, "[ServerlistHandler] Adding world: " + std::to_string(world.id) + " - " + world.name);
 				worldselect->add_world(world);
 			}
 			else
 			{
+				LOG(LOG_DEBUG, "[ServerlistHandler] End of world list, showing world select screen");
 				// Remove previous UIs
 				UI::get().remove(UIElement::Type::LOGIN);
 
@@ -213,21 +239,38 @@ namespace ms
 
 	void CharlistHandler::handle(InPacket& recv) const
 	{
+		LOG(LOG_DEBUG, "[CharlistHandler] Received character list");
 		auto loginwait = UI::get().get_element<UILoginWait>();
 
 		if (loginwait && loginwait->is_active())
 		{
 			uint8_t channel_id = recv.read_byte();
+			LOG(LOG_DEBUG, "[CharlistHandler] Channel ID: " + std::to_string(channel_id));
 
 			// Parse all characters
 			std::vector<CharEntry> characters;
 			int8_t charcount = recv.read_byte();
+			LOG(LOG_DEBUG, "[CharlistHandler] Character count: " + std::to_string(charcount));
 
-			for (uint8_t i = 0; i < charcount; ++i)
-				characters.emplace_back(LoginParser::parse_charentry(recv));
+			try {
+				for (uint8_t i = 0; i < charcount; ++i)
+				{
+						characters.emplace_back(LoginParser::parse_charentry(recv));
+					}
+			}
+			catch (const std::exception& e) {
+					LOG(LOG_ERROR, "[CharlistHandler] Exception parsing characters: " + std::string(e.what()));
+					return;
+			}
+			catch (...) {
+					LOG(LOG_ERROR, "[CharlistHandler] Unknown exception parsing characters");
+					return;
+			}
 
 			int8_t pic = recv.read_byte();
 			int32_t slots = recv.read_int();
+
+			LOG(LOG_DEBUG, "[CharlistHandler] PIC required: " + std::to_string(pic) + ", Slots: " + std::to_string(slots));
 
 			// Remove previous UIs
 			UI::get().remove(UIElement::Type::LOGINNOTICE);
@@ -235,10 +278,21 @@ namespace ms
 
 			// Remove the world selection screen
 			if (auto worldselect = UI::get().get_element<UIWorldSelect>())
+			{
 				worldselect->remove_selected();
+			}
+			else
+			{
+			}
 
+			LOG(LOG_DEBUG, "[CharlistHandler] Creating character select screen");
 			// Add the character selection screen
+			
 			UI::get().emplace<UICharSelect>(characters, charcount, slots, pic);
+		}
+		else
+		{
+			LOG(LOG_DEBUG, "[CharlistHandler] No active LoginWait, ignoring character list");
 		}
 	}
 

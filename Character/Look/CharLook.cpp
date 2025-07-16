@@ -18,6 +18,8 @@
 #include "CharLook.h"
 
 #include "../../Data/WeaponData.h"
+#include <iostream>
+#include "../../Util/Misc.h"
 
 namespace ms
 {
@@ -29,11 +31,21 @@ namespace ms
 		set_hair(entry.hairid);
 		set_face(entry.faceid);
 
-		add_equip(Clothing::TOP_DEFAULT_ID);
-		add_equip(Clothing::BOTTOM_DEFAULT_ID);
+		try {
+			add_equip(Clothing::TOP_DEFAULT_ID);
+			add_equip(Clothing::BOTTOM_DEFAULT_ID);
+		} catch (const std::exception& e) {
+			// Failed to load default clothing
+		}
 
-		for (auto& equip : entry.equips)
-			add_equip(equip.second);
+		for (auto& equip : entry.equips) {
+			try {
+				add_equip(equip.second);
+			} catch (const std::exception& e) {
+				// Handle v83/v87 equipment compatibility issues
+				// Failed to load equipment
+			}
+		}
 	}
 
 	CharLook::CharLook()
@@ -64,6 +76,7 @@ namespace ms
 
 	void CharLook::draw(const DrawArgument& args, Stance::Id interstance, Expression::Id interexpression, uint8_t interframe, uint8_t interexpframe) const
 	{
+		
 		Point<int16_t> faceshift = drawinfo.getfacepos(interstance, interframe);
 		DrawArgument faceargs = args + DrawArgument{ faceshift, false, Point<int16_t>(0, 0) };
 
@@ -104,12 +117,16 @@ namespace ms
 		}
 		else
 		{
-			hair->draw(Hair::Layer::BELOWBODY, interstance, interframe, args);
+			if (hair) {
+				hair->draw(Hair::Layer::BELOWBODY, interstance, interframe, args);
+			}
 			equips.draw(EquipSlot::Id::CAPE, interstance, Clothing::Layer::CAPE, interframe, args);
 			equips.draw(EquipSlot::Id::SHIELD, interstance, Clothing::Layer::SHIELD_BELOW_BODY, interframe, args);
 			equips.draw(EquipSlot::Id::WEAPON, interstance, Clothing::Layer::WEAPON_BELOW_BODY, interframe, args);
 			equips.draw(EquipSlot::Id::HAT, interstance, Clothing::Layer::CAP_BELOW_BODY, interframe, args);
-			body->draw(Body::Layer::BODY, interstance, interframe, args);
+			if (body) {
+				body->draw(Body::Layer::BODY, interstance, interframe, args);
+			}
 			equips.draw(EquipSlot::Id::GLOVES, interstance, Clothing::Layer::WRIST_OVER_BODY, interframe, args);
 			equips.draw(EquipSlot::Id::GLOVES, interstance, Clothing::Layer::GLOVE_OVER_BODY, interframe, args);
 			equips.draw(EquipSlot::Id::SHOES, interstance, Clothing::Layer::SHOES, interframe, args);
@@ -132,9 +149,15 @@ namespace ms
 			equips.draw(EquipSlot::Id::EARACC, interstance, Clothing::Layer::EARRINGS, interframe, args);
 			body->draw(Body::Layer::HEAD, interstance, interframe, args);
 			body->draw(Body::Layer::HUMAN_EAR, interstance, interframe, args + Point<int16_t>(0, 1));
-			hair->draw(Hair::Layer::SHADE, interstance, interframe, args);
-			hair->draw(Hair::Layer::DEFAULT, interstance, interframe, args);
-			face->draw(interexpression, interexpframe, faceargs);
+			if (hair) {
+				hair->draw(Hair::Layer::SHADE, interstance, interframe, args);
+			}
+			if (hair) {
+				hair->draw(Hair::Layer::DEFAULT, interstance, interframe, args);
+			}
+			if (face) {
+				face->draw(interexpression, interexpframe, faceargs);
+			}
 			equips.draw(EquipSlot::Id::FACE, interstance, Clothing::Layer::FACEACC, 0, faceargs);
 			equips.draw(EquipSlot::Id::EYEACC, interstance, Clothing::Layer::EYEACC, interframe, args);
 			equips.draw(EquipSlot::Id::SHIELD, interstance, Clothing::Layer::SHIELD, interframe, args);
@@ -305,6 +328,11 @@ namespace ms
 			}
 		}
 
+		// Add null check for face pointer to prevent crashes
+		if (!face) {
+			return false; // Skip face animation if face is not loaded
+		}
+		
 		uint16_t expdelay = face->get_delay(expression.get(), expframe.get());
 		uint16_t expdelta = expdelay - expelapsed;
 

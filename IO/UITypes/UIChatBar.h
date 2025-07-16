@@ -149,6 +149,7 @@ namespace ms
 		int16_t input_origin_x;
 		int16_t input_origin_y;
 		int16_t input_btns_x;
+		Point<int16_t> input_btns_pos;
 		Textfield input_text;
 
 		struct Message

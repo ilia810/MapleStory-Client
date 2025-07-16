@@ -28,7 +28,8 @@ namespace ms
 		{
 			DEFAULT,
 			CASHSHOP,
-			WORLDSELECT
+			WORLDSELECT,
+			V87_FILL  // New type for v87 single-texture horizontal fill
 		};
 
 		Gauge() {}
@@ -38,6 +39,7 @@ namespace ms
 
 		void draw(const DrawArgument& args) const;
 		void update(float target);
+		bool is_valid() const;
 
 	private:
 		Texture barfront;

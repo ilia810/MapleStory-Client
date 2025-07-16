@@ -62,6 +62,12 @@ namespace ms
 		// Fill the screen with the specified color
 		void drawscreenfill(float red, float green, float blue, float alpha);
 
+		// Camera controls for debugging
+		void move_camera(int16_t dx, int16_t dy);
+		void reset_camera();
+		void clear_atlas_cache();
+		void toggle_debug_mode();
+
 		// Lock the current scene
 		void lock();
 		// Unlock the scene
@@ -251,6 +257,11 @@ namespace ms
 		int16_t VWIDTH;
 		int16_t VHEIGHT;
 		Rectangle<int16_t> SCREEN;
+
+		// Camera offset for debugging
+		int16_t camera_x;
+		int16_t camera_y;
+		bool debug_mode;
 
 		static const GLshort ATLASW = 8192;
 		static const GLshort ATLASH = 8192;

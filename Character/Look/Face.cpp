@@ -67,47 +67,104 @@ namespace ms
 
 	Face::Face(int32_t faceid)
 	{
-		std::string strid = "000" + std::to_string(faceid);
-		nl::node facenode = nl::nx::Character["Face"][strid + ".img"];
-
-		for (auto iter : Expression::names)
-		{
-			Expression::Id exp = iter.first;
-
-			if (exp == Expression::Id::DEFAULT)
-			{
-				expressions[Expression::Id::DEFAULT].emplace(0, facenode["default"]);
+		try {
+			std::string strid = "000" + std::to_string(faceid);
+			std::string facepath = strid + ".img";
+			
+			nl::node facenode = nl::nx::Character["Face"][facepath];
+			
+			if (!facenode) {
+				// Try fallback to default face (20000)
+				if (faceid != 20000) {
+					facenode = nl::nx::Character["Face"]["00020000.img"];
+				}
+				
+				if (!facenode) {
+					name = "Missing Face";
+					return;
+				}
 			}
-			else
-			{
-				const std::string& expname = iter.second;
-				nl::node expnode = facenode[expname];
 
-				for (uint8_t frame = 0; nl::node framenode = expnode[frame]; ++frame)
-					expressions[exp].emplace(frame, framenode);
+			for (auto iter : Expression::names)
+			{
+				Expression::Id exp = iter.first;
+
+				if (exp == Expression::Id::DEFAULT)
+				{
+					expressions[Expression::Id::DEFAULT].emplace(0, facenode["default"]);
+				}
+				else
+				{
+					const std::string& expname = iter.second;
+					nl::node expnode = facenode[expname];
+
+					for (uint8_t frame = 0; nl::node framenode = expnode[frame]; ++frame)
+						expressions[exp].emplace(frame, framenode);
+				}
 			}
+
+			try {
+				name = nl::nx::String["Eqp.img"]["Eqp"]["Face"][std::to_string(faceid)]["name"];
+			} catch (const std::exception& e) {
+				name = "Face " + std::to_string(faceid); // Use fallback name
+			}
+			
+		} catch (const std::exception& e) {
+			// Don't re-throw, create empty face instead
+			name = "Error Face";
+			return;
 		}
-
-		name = nl::nx::String["Eqp.img"]["Eqp"]["Face"][std::to_string(faceid)]["name"];
 	}
 
 	void Face::draw(Expression::Id expression, uint8_t frame, const DrawArgument& args) const
 	{
-		auto frameit = expressions[expression].find(frame);
-
-		if (frameit != expressions[expression].end())
-			frameit->second.texture.draw(args);
+		try {
+			// Add bounds checking to prevent crashes with invalid expressions
+			if (expression < 0 || expression >= Expression::Id::LENGTH) {
+				return; // Skip drawing if expression ID is invalid
+			}
+			
+			auto frameit = expressions[expression].find(frame);
+			if (frameit != expressions[expression].end())
+				frameit->second.texture.draw(args);
+		}
+		catch (...) {
+			// Skip drawing if face data is corrupted
+			return;
+		}
 	}
 
 	uint8_t Face::nextframe(Expression::Id exp, uint8_t frame) const
 	{
-		return expressions[exp].count(frame + 1) ? frame + 1 : 0;
+		try {
+			// Add bounds checking to prevent crashes with invalid expressions
+			if (exp < 0 || exp >= Expression::Id::LENGTH) {
+				return 0; // Default frame if expression ID is invalid
+			}
+			
+			return expressions[exp].count(frame + 1) ? frame + 1 : 0;
+		}
+		catch (...) {
+			// Return default frame if face data is corrupted
+			return 0;
+		}
 	}
 
 	int16_t Face::get_delay(Expression::Id exp, uint8_t frame) const
 	{
-		auto delayit = expressions[exp].find(frame);
-		return delayit != expressions[exp].end() ? delayit->second.delay : 100;
+		try {
+			// Add bounds checking to prevent crashes with invalid expressions
+			if (exp < 0 || exp >= Expression::Id::LENGTH) {
+				return 100; // Default delay if expression ID is invalid
+			}
+			
+			auto delayit = expressions[exp].find(frame);
+			return delayit != expressions[exp].end() ? delayit->second.delay : 100;
+		}
+		catch (...) {
+			// Return default delay if face data is corrupted
+			return 100;
+		}
 	}
 
 	const std::string& Face::get_name() const

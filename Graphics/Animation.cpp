@@ -22,6 +22,7 @@
 #include "../Util/Misc.h"
 
 #include <set>
+#include <iostream>
 
 namespace ms
 {

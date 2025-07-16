@@ -18,6 +18,9 @@
 #include "GraphicsGL.h"
 
 #include "../Configuration.h"
+#include "../Util/Misc.h"
+#include <algorithm>
+#include <cmath>
 
 namespace ms
 {
@@ -28,6 +31,11 @@ namespace ms
 		VWIDTH = Constants::Constants::get().get_viewwidth();
 		VHEIGHT = Constants::Constants::get().get_viewheight();
 		SCREEN = Rectangle<int16_t>(0, VWIDTH, 0, VHEIGHT);
+
+		// Initialize camera
+		camera_x = 0;
+		camera_y = 0;
+		debug_mode = false;
 	}
 
 	Error GraphicsGL::init()
@@ -339,7 +347,7 @@ namespace ms
 
 	void GraphicsGL::clearinternal()
 	{
-		border = Point<GLshort>(0, fontymax);
+		border = Point<GLshort>(0, fontymax + 1); // Start textures below font region to avoid shader conflict
 		yrange = Range<GLshort>();
 
 		offsets.clear();
@@ -365,15 +373,16 @@ namespace ms
 	const GraphicsGL::Offset& GraphicsGL::getoffset(const nl::bitmap& bmp)
 	{
 		size_t id = bmp.id();
+		GLshort width = bmp.width();
+		GLshort height = bmp.height();
 		auto offiter = offsets.find(id);
 
-		if (offiter != offsets.end())
+		if (offiter != offsets.end()) {
 			return offiter->second;
+		}
 
 		GLshort x = 0;
 		GLshort y = 0;
-		GLshort width = bmp.width();
-		GLshort height = bmp.height();
 
 		if (width <= 0 || height <= 0)
 			return nulloffset;
@@ -481,7 +490,9 @@ namespace ms
 		LOG(LOG_TRACE, "Used: [" << usedpercent << "] Wasted: [" << wastedpercent << "]");
 #endif
 
+		
 		glTexSubImage2D(GL_TEXTURE_2D, 0, x, y, width, height, GL_BGRA, GL_UNSIGNED_BYTE, bmp.data());
+		
 
 		return offsets.emplace(
 			std::piecewise_construct,
@@ -492,16 +503,24 @@ namespace ms
 
 	void GraphicsGL::draw(const nl::bitmap& bmp, const Rectangle<int16_t>& rect, const Range<int16_t>& vertical, const Range<int16_t>& horizontal, const Color& color, float angle)
 	{
+		
 		if (locked)
 			return;
 
-		if (color.invisible())
+		if (color.invisible()) {
 			return;
+		}
 
 		if (!rect.overlaps(SCREEN))
 			return;
 
 		Offset offset = getoffset(bmp);
+
+		// In debug mode, draw red rectangles instead of textures
+		if (debug_mode && (rect.width() > 300 || rect.height() > 300)) {
+			drawrectangle(rect.left() + camera_x, rect.top() + camera_y, rect.width(), rect.height(), 1.0f, 0.0f, 0.0f, 1.0f);
+			return;
+		}
 
 		offset.top += vertical.first();
 		offset.bottom -= vertical.second();
@@ -509,10 +528,10 @@ namespace ms
 		offset.right -= horizontal.second();
 
 		quads.emplace_back(
-			rect.left() + horizontal.first(),
-			rect.right() - horizontal.second(),
-			rect.top() + vertical.first(),
-			rect.bottom() - vertical.second(),
+			rect.left() + horizontal.first() + camera_x,
+			rect.right() - horizontal.second() + camera_x,
+			rect.top() + vertical.first() + camera_y,
+			rect.bottom() - vertical.second() + camera_y,
 			offset, color, angle
 		);
 	}
@@ -1081,13 +1100,25 @@ namespace ms
 		if (coverscene)
 		{
 			float complement = 1.0f - opacity;
-			Color color = Color(0.0f, 0.0f, 0.0f, complement);
-
-			quads.emplace_back(SCREEN.left(), SCREEN.right(), SCREEN.top(), SCREEN.bottom(), nulloffset, color, 0.0f);
+			
+			// CRITICAL FIX: Don't draw fully opaque black overlay
+			// When opacity = 0, complement = 1.0 which makes everything black
+			// Instead, skip the overlay when opacity is very low
+			// Increased threshold from 0.01 to 0.1 to handle floating point precision
+			if (opacity > 0.1f) {
+				Color color = Color(0.0f, 0.0f, 0.0f, complement);
+				quads.emplace_back(SCREEN.left(), SCREEN.right(), SCREEN.top(), SCREEN.bottom(), nulloffset, color, 0.0f);
+			}
 		}
+		
 
-		glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
+		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);  // clear to black instead of white
 		glClear(GL_COLOR_BUFFER_BIT);
+
+		// Z-sorting temporarily disabled due to rendering issues
+		// std::stable_sort(quads.begin(), quads.end(), [](const Quad& a, const Quad& b) {
+		//     return a.z < b.z;
+		// });
 
 		GLsizeiptr csize = quads.size() * sizeof(Quad);
 		GLsizeiptr fsize = quads.size() * Quad::LENGTH;
@@ -1103,13 +1134,43 @@ namespace ms
 		glDisableVertexAttribArray(attribute_color);
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
 
-		if (coverscene)
+		// Only pop if we actually added the overlay
+		if (coverscene && opacity > 0.1f)
 			quads.pop_back();
+	}
+
+	void GraphicsGL::move_camera(int16_t dx, int16_t dy)
+	{
+		camera_x += dx;
+		camera_y += dy;
+	}
+
+	void GraphicsGL::reset_camera()
+	{
+		camera_x = 0;
+		camera_y = 0;
+	}
+
+	void GraphicsGL::clear_atlas_cache()
+	{
+		// Clear the actual OpenGL texture data
+		GLubyte* black_data = new GLubyte[ATLASW * ATLASH * 4]();  // All zeros (black/transparent)
+		glBindTexture(GL_TEXTURE_2D, atlas);
+		glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, ATLASW, ATLASH, GL_RGBA, GL_UNSIGNED_BYTE, black_data);
+		delete[] black_data;
+		
+		clearinternal();
+	}
+
+	void GraphicsGL::toggle_debug_mode()
+	{
+		debug_mode = !debug_mode;
 	}
 
 	void GraphicsGL::clearscene()
 	{
-		if (!locked)
+		if (!locked) {
 			quads.clear();
+		}
 	}
 }

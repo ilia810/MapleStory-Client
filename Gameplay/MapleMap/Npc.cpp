@@ -27,12 +27,38 @@ namespace ms
 {
 	Npc::Npc(int32_t id, int32_t o, bool fl, uint16_t f, bool cnt, Point<int16_t> position) : MapObject(o)
 	{
+		// printf("[Npc::Npc] Creating NPC: id=%d, oid=%d, pos=(%d,%d)\n", id, o, position.x(), position.y());
+		
 		std::string strid = std::to_string(id);
 		strid.insert(0, 7 - strid.size(), '0');
 		strid.append(".img");
 
 		nl::node src = nl::nx::Npc[strid];
 		nl::node strsrc = nl::nx::String["Npc.img"][std::to_string(id)];
+
+		if (!src)
+		{
+			// printf("[Npc::Npc] ERROR: NPC data not found for id=%d (file: %s)\n", id, strid.c_str());
+			// Use default values for missing NPCs
+			npcid = id;
+			flip = !fl;
+			control = cnt;
+			stance = "stand";
+			phobj.fhid = f;
+			set_position(position);
+			
+			// Set default appearance
+			hidename = true;
+			mouseonly = false;
+			scripted = false;
+			name = "Unknown NPC " + std::to_string(id);
+			func = "";
+			
+			namelabel = Text(Text::Font::A13B, Text::Alignment::CENTER, Color::Name::YELLOW, Text::Background::NAMETAG, name);
+			funclabel = Text(Text::Font::A13B, Text::Alignment::CENTER, Color::Name::YELLOW, Text::Background::NAMETAG, func);
+			
+			return;
+		}
 
 		std::string link = src["info"]["link"];
 
@@ -97,7 +123,15 @@ namespace ms
 		Point<int16_t> absp = phobj.get_absolute(viewx, viewy, alpha);
 
 		if (animations.count(stance))
+		{
 			animations.at(stance).draw(DrawArgument(absp, flip), alpha);
+		}
+		else
+		{
+			// Draw a placeholder for NPCs with missing graphics
+			// This helps identify where NPCs should be even if their graphics are missing
+			// You could draw a simple colored rectangle or text here if needed
+		}
 
 		if (!hidename)
 		{

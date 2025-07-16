@@ -38,9 +38,16 @@ namespace ms
 			Optional<MapObject> npc = npcs.get(oid);
 
 			if (npc)
+			{
 				npc->makeactive();
+			}
 			else
-				npcs.add(spawn.instantiate(physics));
+			{
+				auto new_npc = spawn.instantiate(physics);
+				if (new_npc) {
+					npcs.add(std::move(new_npc));
+				}
+			}
 		}
 
 		npcs.update(physics);
@@ -60,6 +67,10 @@ namespace ms
 	void MapNpcs::clear()
 	{
 		npcs.clear();
+		// Also clear any pending spawns to avoid spawning NPCs from previous maps
+		while (!spawns.empty()) {
+			spawns.pop();
+		}
 	}
 
 	MapObjects * MapNpcs::get_npcs()

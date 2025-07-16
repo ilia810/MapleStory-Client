@@ -17,6 +17,8 @@
 //////////////////////////////////////////////////////////////////////////////////
 #include "PacketSwitch.h"
 
+#include <chrono>
+
 #include "Handlers/AttackHandlers.h"
 #include "Handlers/CashShopHandlers.h"
 #include "Handlers/CommonHandlers.h"
@@ -31,6 +33,7 @@
 #include "Handlers/TestingHandlers.h"
 
 #include "../Configuration.h"
+#include "../Util/Misc.h"
 
 namespace ms
 {
@@ -221,6 +224,46 @@ namespace ms
 
 		// Read the opcode to determine handler responsible
 		uint16_t opcode = recv.read_short();
+
+		// Debug log received packets
+		if (opcode == SPAWN_NPC || opcode == SPAWN_NPC_C)
+		{
+			static int npc_packet_count = 0;
+			static auto start_time = std::chrono::steady_clock::now();
+			auto now = std::chrono::steady_clock::now();
+			auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(now - start_time).count();
+			printf("[PacketSwitch] T=%lld Received NPC packet #%d: opcode=%d (%s)\n", 
+			       elapsed, ++npc_packet_count, opcode, opcode == SPAWN_NPC ? "SPAWN_NPC" : "SPAWN_NPC_C");
+		}
+		
+		// Log the first few packets after entering a map
+		static int packet_count = 0;
+		static bool log_packets = false;
+		
+		if (opcode == SET_FIELD) {
+			log_packets = true;
+			packet_count = 0;
+			printf("[PacketSwitch] SET_FIELD received - starting packet logging\n");
+		}
+		
+		if (log_packets && packet_count < 50) {
+			const char* opcode_name = "UNKNOWN";
+			switch(opcode) {
+				case 257: opcode_name = "SPAWN_NPC"; break;
+				case 259: opcode_name = "SPAWN_NPC_C"; break;
+				case 236: opcode_name = "SPAWN_MOB"; break;
+				case 238: opcode_name = "SPAWN_MOB_C"; break;
+				case 125: opcode_name = "SET_FIELD"; break;
+				case 196: opcode_name = "SPAWN_CHAR"; break;
+				case 268: opcode_name = "DROP_LOOT"; break;
+				case 279: opcode_name = "SPAWN_REACTOR"; break;
+			}
+			printf("[PacketSwitch] Packet #%d: opcode=%d (0x%X) %s\n", packet_count, opcode, opcode, opcode_name);
+			packet_count++;
+			if (packet_count >= 50) {
+				log_packets = false;
+			}
+		}
 
 		bool opcode_error = false;
 

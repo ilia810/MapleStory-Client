@@ -24,6 +24,10 @@
 #include <stdexcept>
 #include <vector>
 #include <sstream>
+#include <iostream>
+#include <fstream>
+#include <iomanip>
+#include <algorithm>
 
 namespace nl {
     node::node(node const & o) :
@@ -215,9 +219,68 @@ namespace nl {
         return def;
     }
     bitmap node::get_bitmap() const {
-        if (m_data && m_data->type == type::bitmap && m_file->header->bitmap_count)
+        if (!m_data || m_data->type != type::bitmap) {
+            return {nullptr, 0, 0};
+        }
+        
+        // Handle hybrid bitmap nodes (bitmap nodes with children) - common in v83/v92
+        if (m_data->num > 0) {
+            
+            // In v83, hybrid bitmaps often have the actual image data in a child named "_inlink" or "_outlink"
+            // Let's check for these special children first
+            const char* special_names[] = {"_inlink", "_outlink", "source", "src", "_"};
+            for (const char* special_name : special_names) {
+                node special_child = operator[](special_name);
+                if (special_child) {
+                    // If it's a string, it might be a path reference
+                    if (special_child.data_type() == type::string) {
+                        std::string path = special_child.get_string();
+                        // TODO: Resolve path reference
+                    }
+                    // If it's a bitmap, use it directly
+                    else if (special_child.data_type() == type::bitmap) {
+                        bitmap child_bmp = special_child.get_bitmap();
+                        if (child_bmp) {
+                            return child_bmp;
+                        }
+                    }
+                }
+            }
+            
+            // Check if this node actually contains bitmap data despite having children
+            // In v83/v92 files, the bitmap data is stored directly in the parent node
+            if (m_data->type == type::bitmap) {
+                // For v92 files with bitmap_count=0, we need to use the synthetic bitmap table
+                if (m_file->header->bitmap_count == 0) {
+                    if (m_file->v92_mode && !m_file->synthetic_bitmap_table.empty()) {
+                        bitmap result = to_bitmap();
+                        if (result) {
+                            return result;
+                        }
+                    }
+                }
+                // For normal files with bitmap_count > 0
+                else if (m_data->bitmap.index < m_file->header->bitmap_count) {
+                    bitmap result = to_bitmap();
+                    if (result) {
+                        return result;
+                    }
+                }
+            }
+        }
+        
+        // Handle v92 NX files with synthetic bitmap table
+        if (m_file->header->bitmap_count == 0) {
+            // Check if we're in v92 mode with synthetic table
+            if (m_file->v92_mode && !m_file->synthetic_bitmap_table.empty()) {
+                return to_bitmap();
+            } else {
+                return {nullptr, 0, 0};
+            }
+        } else {
+            // Normal case - bitmap_count > 0
             return to_bitmap();
-        return {nullptr, 0, 0};
+        }
     }
     audio node::get_audio() const {
         if (m_data && m_data->type == type::audio && m_file->header->audio_count)
@@ -304,6 +367,7 @@ namespace nl {
         return {m_data->vector[0], m_data->vector[1]};
     }
     bitmap node::to_bitmap() const {
+        
         return {reinterpret_cast<char const *>(m_file->base)
             + m_file->bitmap_table[m_data->bitmap.index],
             m_data->bitmap.width, m_data->bitmap.height};

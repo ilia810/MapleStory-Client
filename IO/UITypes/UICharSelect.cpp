@@ -33,6 +33,8 @@
 #include "../../Character/Job.h"
 
 #include "../../Net/Packets/SelectCharPackets.h"
+#include "../../Util/Misc.h"
+#include "../../Util/V83UIAssets.h"
 
 #define NOMINMAX
 #include <windows.h>
@@ -44,51 +46,113 @@
 namespace ms
 {
 	UICharSelect::UICharSelect(std::vector<CharEntry> characters, int8_t characters_count, int32_t slots, int8_t require_pic) : UIElement(Point<int16_t>(0, 0), Point<int16_t>(800, 600)),
-		characters(characters), characters_count(characters_count), slots(slots), require_pic(require_pic), tab_index(0), tab_active(false), tab_move(false), charslot_y(0), use_timestamp(false), burning_character(true), show_pic_btns(false)
+		characters(characters), characters_count(characters_count), slots(slots), require_pic(require_pic), tab_index(0), tab_active(false), tab_move(false), charslot_y(0), use_timestamp(false), burning_character(true), show_pic_btns(false), perform_auto_character_select(false)
 	{
-		std::string version_text = Configuration::get().get_version();
-		version = Text(Text::Font::A12B, Text::Alignment::LEFT, Color::Name::LEMONGRASS, "Ver. " + version_text);
+		LOG(LOG_DEBUG, "[UICharSelect] Constructor called with " + std::to_string(characters_count) + " characters");
+		
+		// Set auto-login flag early
+		if (Configuration::get().get_auto_login())
+		{
+			perform_auto_character_select = true;
+			LOG(LOG_DEBUG, "[UICharSelect] Auto-login is enabled, will auto-select character");
+		}
+		
+		try {
+			std::string version_text = Configuration::get().get_version();
+			version = Text(Text::Font::A12B, Text::Alignment::LEFT, Color::Name::LEMONGRASS, "Ver. " + version_text);
 
-		nl::node Login = nl::nx::UI["Login.img"];
-		nl::node Common = Login["Common"];
-		version_pos = Common["version"]["pos"];
+			nl::node Login = nl::nx::UI["Login.img"];
+			nl::node Common = Login["Common"];
+			version_pos = Common["version"]["pos"];
 
-		selected_character = Setting<DefaultCharacter>::get().load();
-		selected_page = selected_character / PAGESIZE;
-		page_count = std::ceil((double)slots / (double)PAGESIZE);
+			selected_character = Setting<DefaultCharacter>::get().load();
+			selected_page = selected_character / PAGESIZE;
+			page_count = std::ceil((double)slots / (double)PAGESIZE);
 
-		tab = nl::nx::UI["Basic.img"]["Cursor"]["18"]["0"];
-		tab_move_pos = 0;
+			tab = nl::nx::UI["Basic.img"]["Cursor"]["18"]["0"];
+			tab_move_pos = 0;
 
-		tab_map[0] = Buttons::BtSelect;
-		tab_map[1] = Buttons::BtNew;
-		tab_map[2] = Buttons::BtDelete;
+			tab_map[0] = Buttons::BtSelect;
+			tab_map[1] = Buttons::BtNew;
+			tab_map[2] = Buttons::BtDelete;
 
-		nl::node CharSelect = Login["CharSelect"];
-		nl::node selectedWorld = CharSelect["selectedWorld"];
-		nl::node pageNew = CharSelect["pageNew"];
+			nl::node CharSelect = Login["CharSelect"];
+			nl::node selectedWorld = CharSelect["selectedWorld"];
+			nl::node pageNew = CharSelect["pageNew"];
 
-		uint16_t world;
-		uint8_t world_id = Configuration::get().get_worldid();
-		uint8_t channel_id = Configuration::get().get_channelid();
+			uint16_t world;
+			uint8_t world_id = Configuration::get().get_worldid();
+			uint8_t channel_id = Configuration::get().get_channelid();
 
-		if (auto worldselect = UI::get().get_element<UIWorldSelect>())
-			world = worldselect->get_worldbyid(world_id);
+			if (auto worldselect = UI::get().get_element<UIWorldSelect>())
+				world = worldselect->get_worldbyid(world_id);
 
-		world_sprites.emplace_back(Common["selectWorld"]);
-		world_sprites.emplace_back(selectedWorld["icon"][world]);
-		world_sprites.emplace_back(selectedWorld["name"][world]);
-		world_sprites.emplace_back(selectedWorld["ch"][channel_id]);
+			// Safely add world sprites with null checks
+			nl::node selectWorldNode = Common["selectWorld"];
+			if (selectWorldNode) {
+				world_sprites.emplace_back(selectWorldNode);
+			} else {
+				LOG(LOG_DEBUG, "[UICharSelect] Common/selectWorld not found");
+			}
+			
+			nl::node iconNode = selectedWorld["icon"][world];
+			if (iconNode) {
+				world_sprites.emplace_back(iconNode);
+			} else {
+				LOG(LOG_DEBUG, "[UICharSelect] selectedWorld/icon/" << world << " not found");
+			}
+			
+			nl::node nameNode = selectedWorld["name"][world];
+			if (nameNode) {
+				world_sprites.emplace_back(nameNode);
+			} else {
+				LOG(LOG_DEBUG, "[UICharSelect] selectedWorld/name/" << world << " not found");
+			}
+			
+			nl::node chNode = selectedWorld["ch"][channel_id];
+			if (chNode) {
+				world_sprites.emplace_back(chNode);
+			} else {
+				LOG(LOG_DEBUG, "[UICharSelect] selectedWorld/ch/" << channel_id << " not found");
+			}
 
+		// Use V83 compatibility layer for background
+		nl::node bg_node = V83UIAssets::getCharSelectBackground();
+		if (bg_node) {
+			sprites.emplace_back(bg_node, Point<int16_t>(512, 384));
+		} else {
+			LOG(LOG_ERROR, "[UICharSelect] Failed to load character select background");
+			// Try fallback paths
+			nl::node map = nl::nx::Map001["Back"]["UI_login.img"];
+			if (map.name().empty()) {
+				map = nl::nx::Map["Back"]["UI_login.img"];
+			}
+			if (map.name().empty()) {
+				map = nl::nx::UI["Login.img"];
+			}
+			nl::node back = map["back"];
+			if (back && back["1"]) {
+				sprites.emplace_back(back["1"], Point<int16_t>(512, 384));
+			}
+		}
+		
+		// Get the map node for animations
 		nl::node map = nl::nx::Map001["Back"]["UI_login.img"];
-		nl::node back = map["back"];
-
-		sprites.emplace_back(back["1"], Point<int16_t>(512, 384));
+		if (map.name().empty()) {
+			map = nl::nx::Map["Back"]["UI_login.img"];
+		}
+		if (map.name().empty()) {
+			map = nl::nx::UI["Login.img"];
+		}
 
 		for (nl::node node : map["ani"])
 			sprites.emplace_back(node, Point<int16_t>(0, -2));
 
-		sprites.emplace_back(back["2"], Point<int16_t>(512, 384));
+		// Try to add additional background layer
+		nl::node back = map["back"];
+		if (back && back["2"]) {
+			sprites.emplace_back(back["2"], Point<int16_t>(512, 384));
+		}
 
 		nl::node BurningNotice = Common["Burning"]["BurningNotice"];
 		burning_notice = BurningNotice;
@@ -112,6 +176,9 @@ namespace ms
 		signpost[2] = CharSelect["aran"]["0"];
 
 		nametag = CharSelect["nameTag"];
+		if (nametag) {
+		} else {
+		}
 
 		nl::node BtNew = CharSelect["BtNew"];
 		Texture BtNewTexture = Texture(BtNew["normal"]["0"]);
@@ -178,8 +245,29 @@ namespace ms
 
 		for (CharEntry& entry : characters)
 		{
-			charlooks.emplace_back(entry.look);
-			nametags.emplace_back(nametag, Text::Font::A12M, entry.stats.name);
+			
+			try {
+				charlooks.emplace_back(entry.look);
+			}
+			catch (const std::invalid_argument& e) {
+			}
+			catch (const std::exception& e) {
+			}
+			catch (...) {
+			}
+			
+			// Only create nametag if the nameTag node exists
+			if (nametag) {
+				// Try to create nametag and catch any exception
+				try {
+					nametags.emplace_back(nametag, Text::Font::A12M, entry.stats.name);
+				}
+				catch (const std::exception& e) {
+				}
+				catch (...) {
+				}
+			} else {
+			}
 		}
 
 		emptyslot_effect = CharSelect["character"]["0"];
@@ -201,12 +289,14 @@ namespace ms
 				select_last_slot();
 		}
 
-		if (Configuration::get().get_auto_login())
-		{
-			SelectCharPicPacket(
-				Configuration::get().get_auto_pic(),
-				Configuration::get().get_auto_cid()
-			).dispatch();
+		// Auto-character selection flag is already set at the beginning of constructor
+		
+		}
+		catch (const std::exception& e) {
+			throw;
+		}
+		catch (...) {
+			throw;
 		}
 	}
 
@@ -238,7 +328,10 @@ namespace ms
 				Point<int16_t> charpos = get_character_slot_pos(i);
 				DrawArgument chararg = DrawArgument(charpos, flip_character);
 
-				nametags[index].draw(charpos + Point<int16_t>(2, 1));
+				// Only draw nametag if it exists
+				if (index < nametags.size()) {
+					nametags[index].draw(charpos + Point<int16_t>(2, 1));
+				}
 
 				const StatsEntry& character_stats = characters[index].stats;
 
@@ -274,7 +367,11 @@ namespace ms
 					j = 0;
 
 				signpost[j].draw(chararg);
-				charlooks[index].draw(chararg, inter);
+				
+				// Only draw character look if it exists
+				if (index < charlooks.size()) {
+					charlooks[index].draw(chararg, inter);
+				}
 
 				if (selectedslot)
 					selectedslot_effect[0].draw(charpos + Point<int16_t>(-5, -298), inter);
@@ -309,6 +406,66 @@ namespace ms
 	void UICharSelect::update()
 	{
 		UIElement::update();
+		
+		static bool first_update = true;
+		if (first_update)
+		{
+			LOG(LOG_DEBUG, "[UICharSelect] First update() call");
+			first_update = false;
+		}
+		
+		// Perform auto-character selection on first update
+		if (perform_auto_character_select)
+		{
+			perform_auto_character_select = false;  // Only do this once
+			
+			LOG(LOG_DEBUG, "[UICharSelect] Performing auto-character selection...");
+			
+			// AutoCharacter=0 means select the first character (slot 0)
+			int32_t auto_slot = Configuration::get().get_auto_cid();  // This returns the slot index from settings
+			LOG(LOG_DEBUG, "[UICharSelect] Auto-character slot: " + std::to_string(auto_slot));
+			LOG(LOG_DEBUG, "[UICharSelect] Characters count: " + std::to_string(characters_count));
+			
+			if (auto_slot < characters_count && auto_slot >= 0)
+			{
+				// Select the character
+				selected_character = static_cast<uint8_t>(auto_slot);
+				selected_page = selected_character / PAGESIZE;
+				update_selected_character();
+				
+				// Get the character ID
+				int32_t char_id = characters[auto_slot].id;
+				LOG(LOG_DEBUG, "[UICharSelect] Auto-selecting character ID: " + std::to_string(char_id));
+				
+				// Auto-select the character based on PIC requirement
+				switch (require_pic)
+				{
+					case 0:
+					{
+						LOG(LOG_DEBUG, "[UICharSelect] No PIC required, selecting character directly");
+						SelectCharPacket(char_id).dispatch();
+						break;
+					}
+					case 1:
+					{
+						std::string auto_pic = Configuration::get().get_auto_pic();
+						LOG(LOG_DEBUG, "[UICharSelect] PIC required, sending with selection");
+						SelectCharPicPacket(auto_pic, char_id).dispatch();
+						break;
+					}
+					case 2:
+					{
+						LOG(LOG_DEBUG, "[UICharSelect] Selecting character (case 2)");
+						SelectCharPacket(char_id).dispatch();
+						break;
+					}
+				}
+			}
+			else
+			{
+				LOG(LOG_ERROR, "[UICharSelect] Invalid auto-character slot: " + std::to_string(auto_slot));
+			}
+		}
 
 		int16_t timestep_max = CHARSLOT_Y_MAX * Constants::TIMESTEP;
 
@@ -918,7 +1075,11 @@ namespace ms
 	std::string UICharSelect::pad_number_with_leading_zero(uint8_t value) const
 	{
 		std::string return_val = std::to_string(value);
-		return_val.insert(return_val.begin(), 2 - return_val.length(), '0');
+		
+		// Only pad if the string is shorter than 2 characters
+		if (return_val.length() < 2) {
+			return_val.insert(return_val.begin(), 2 - return_val.length(), '0');
+		}
 
 		return return_val;
 	}

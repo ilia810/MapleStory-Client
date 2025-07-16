@@ -72,22 +72,22 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <OutDir>$(SolutionDir)$(PlatformTarget)\$(Configuration)\</OutDir>
+    <OutDir>C:\Users\me\Downloads\PERISH\MapleStory\</OutDir>
     <IntDir>$(PlatformTarget)\obj-$(Configuration)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
-    <OutDir>$(SolutionDir)$(PlatformTarget)\$(Configuration)\</OutDir>
+    <OutDir>C:\Users\me\Downloads\PERISH\MapleStory\</OutDir>
     <IntDir>$(PlatformTarget)\obj-$(Configuration)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
-    <OutDir>$(SolutionDir)$(PlatformTarget)\$(Configuration)\</OutDir>
+    <OutDir>C:\Users\me\Downloads\PERISH\MapleStory\</OutDir>
     <IntDir>$(PlatformTarget)\obj-$(Configuration)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
-    <OutDir>$(SolutionDir)$(PlatformTarget)\$(Configuration)\</OutDir>
+    <OutDir>C:\Users\me\Downloads\PERISH\MapleStory\</OutDir>
     <IntDir>$(PlatformTarget)\obj-$(Configuration)\</IntDir>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
@@ -96,15 +96,15 @@
       </PrecompiledHeader>
       <WarningLevel>Level4</WarningLevel>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;USE_NX;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(ProjectDir)includes\glew-2.1.0\include\GL;$(ProjectDir)includes\freetype\include;$(ProjectDir)includes\glfw-3.3.2.bin.WIN$(PlatformArchitecture)\include\GLFW;$(ProjectDir)includes\stb;$(ProjectDir)includes\bass24\c;$(ProjectDir)includes\NoLifeNx;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)includes\glew-2.1.0\include\GL;$(ProjectDir)includes\freetype\include;$(ProjectDir)includes\glfw-3.3.2.bin.WIN$(PlatformArchitecture)\include\GLFW;$(ProjectDir)includes\stb;$(ProjectDir)includes\bass24\c;$(ProjectDir)includes\NoLifeNx;$(ProjectDir)includes\NoLifeNx\nlnx\includes\lz4_v1_8_2_win$(PlatformArchitecture)\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>glew32s.lib;freetype.lib;glfw3.lib;bass.lib;OpenGL32.lib;Iphlpapi.lib;NoLifeNx.lib;WzLib.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>$(ProjectDir)includes\glew-2.1.0\lib\Release\$(Platform);$(ProjectDir)includes\freetype\win$(PlatformArchitecture);$(ProjectDir)includes\glfw-3.3.2.bin.WIN$(PlatformArchitecture)\lib-vc2015;$(ProjectDir)includes\bass24\c\$(PlatformTarget);$(ProjectDir)includes\NoLifeNx\nlnx\$(PlatformTarget)\$(Configuration);$(ProjectDir)includes\WzLib\bin\Win32Release;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>glew32s.lib;freetype.lib;glfw3.lib;bass.lib;OpenGL32.lib;Iphlpapi.lib;WzLib.lib;liblz4.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(ProjectDir)includes\glew-2.1.0\lib\Release\$(Platform);$(ProjectDir)includes\freetype\win$(PlatformArchitecture);$(ProjectDir)includes\glfw-3.3.2.bin.WIN$(PlatformArchitecture)\lib-vc2015;$(ProjectDir)includes\bass24\c\$(PlatformTarget);$(ProjectDir)includes\WzLib\bin\Win32Release;$(ProjectDir)includes\NoLifeNx\nlnx\includes\lz4_v1_8_2_win$(PlatformArchitecture)\dll;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent>
       <Command>copy /y /d "$(ProjectDir)includes\freetype\win$(PlatformArchitecture)\freetype.dll" "$(OutDir)"
@@ -118,15 +118,15 @@ copy /y /d "$(ProjectDir)includes\NoLifeNx\nlnx\includes\lz4_v1_8_2_win$(Platfor
       </PrecompiledHeader>
       <WarningLevel>Level4</WarningLevel>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_DEBUG;_CONSOLE;USE_NX;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(ProjectDir)includes\glew-2.1.0\include\GL;$(ProjectDir)includes\freetype\include;$(ProjectDir)includes\glfw-3.3.2.bin.WIN$(PlatformArchitecture)\include\GLFW;$(ProjectDir)includes\stb;$(ProjectDir)includes\bass24\c;$(ProjectDir)includes\NoLifeNx;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)includes\glew-2.1.0\include\GL;$(ProjectDir)includes\freetype\include;$(ProjectDir)includes\glfw-3.3.2.bin.WIN$(PlatformArchitecture)\include\GLFW;$(ProjectDir)includes\stb;$(ProjectDir)includes\bass24\c;$(ProjectDir)includes\NoLifeNx;$(ProjectDir)includes\NoLifeNx\nlnx\includes\lz4_v1_8_2_win$(PlatformArchitecture)\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>glew32s.lib;freetype.lib;glfw3.lib;bass.lib;OpenGL32.lib;Iphlpapi.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>$(ProjectDir)includes\glew-2.1.0\lib\Release\$(Platform);$(ProjectDir)includes\freetype\win$(PlatformArchitecture);$(ProjectDir)includes\glfw-3.3.2.bin.WIN$(PlatformArchitecture)\lib-vc2015;$(ProjectDir)includes\bass24\c\$(PlatformTarget);$(ProjectDir)includes\NoLifeNx\nlnx\$(PlatformTarget)\$(Configuration);$(ProjectDir)includes\WzLib\bin\Win32Release;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>glew32s.lib;freetype.lib;glfw3.lib;bass.lib;OpenGL32.lib;Iphlpapi.lib;liblz4.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(ProjectDir)includes\glew-2.1.0\lib\Release\$(Platform);$(ProjectDir)includes\freetype\win$(PlatformArchitecture);$(ProjectDir)includes\glfw-3.3.2.bin.WIN$(PlatformArchitecture)\lib-vc2015;$(ProjectDir)includes\bass24\c\$(PlatformTarget);$(ProjectDir)includes\WzLib\bin\Win32Release;$(ProjectDir)includes\NoLifeNx\nlnx\includes\lz4_v1_8_2_win$(PlatformArchitecture)\dll;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent>
       <Command>copy /y /d "$(ProjectDir)includes\freetype\win$(PlatformArchitecture)\freetype.dll" "$(OutDir)"
@@ -142,22 +142,28 @@ copy /y /d "$(ProjectDir)includes\NoLifeNx\nlnx\includes\lz4_v1_8_2_win$(Platfor
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;USE_NX;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(ProjectDir)includes\glew-2.1.0\include\GL;$(ProjectDir)includes\freetype\include;$(ProjectDir)includes\glfw-3.3.2.bin.WIN$(PlatformArchitecture)\include\GLFW;$(ProjectDir)includes\stb;$(ProjectDir)includes\bass24\c;$(ProjectDir)includes\NoLifeNx;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)includes\glew-2.1.0\include\GL;$(ProjectDir)includes\freetype\include;$(ProjectDir)includes\glfw-3.3.2.bin.WIN$(PlatformArchitecture)\include\GLFW;$(ProjectDir)includes\stb;$(ProjectDir)includes\bass24\c;$(ProjectDir)includes\NoLifeNx;$(ProjectDir)includes\NoLifeNx\nlnx\includes\lz4_v1_8_2_win$(PlatformArchitecture)\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>glew32s.lib;freetype.lib;glfw3.lib;bass.lib;OpenGL32.lib;Iphlpapi.lib;NoLifeNx.lib;WzLib.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>$(ProjectDir)includes\glew-2.1.0\lib\Release\$(Platform);$(ProjectDir)includes\freetype\win$(PlatformArchitecture);$(ProjectDir)includes\glfw-3.3.2.bin.WIN$(PlatformArchitecture)\lib-vc2015;$(ProjectDir)includes\bass24\c\$(PlatformTarget);$(ProjectDir)includes\NoLifeNx\nlnx\$(PlatformTarget)\$(Configuration);$(ProjectDir)includes\WzLib\bin\Win32Release;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>glew32s.lib;freetype.lib;glfw3.lib;bass.lib;OpenGL32.lib;Iphlpapi.lib;WzLib.lib;liblz4.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(ProjectDir)includes\glew-2.1.0\lib\Release\$(Platform);$(ProjectDir)includes\freetype\win$(PlatformArchitecture);$(ProjectDir)includes\glfw-3.3.2.bin.WIN$(PlatformArchitecture)\lib-vc2015;$(ProjectDir)includes\bass24\c\$(PlatformTarget);$(ProjectDir)includes\WzLib\bin\Win32Release;$(ProjectDir)includes\NoLifeNx\nlnx\includes\lz4_v1_8_2_win$(PlatformArchitecture)\dll;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent>
       <Command>copy /y /d "$(ProjectDir)includes\freetype\win$(PlatformArchitecture)\freetype.dll" "$(OutDir)"
 copy /y /d "$(ProjectDir)includes\bass24\$(PlatformTarget)\bass.dll" "$(OutDir)"
-copy /y /d "$(ProjectDir)includes\NoLifeNx\nlnx\includes\lz4_v1_8_2_win$(PlatformArchitecture)\dll\liblz4.so.1.8.2.dll" "$(OutDir)liblz4.dll"</Command>
+copy /y /d "$(ProjectDir)includes\NoLifeNx\nlnx\includes\lz4_v1_8_2_win$(PlatformArchitecture)\dll\liblz4.so.1.8.2.dll" "$(OutDir)liblz4.dll"
+echo Copying Debug output to MapleStory directory...
+if not exist "C:\Users\me\Downloads\PERISH\MapleStory\" mkdir "C:\Users\me\Downloads\PERISH\MapleStory\"
+copy /y "$(OutDir)MapleStory.exe" "C:\Users\me\Downloads\PERISH\MapleStory\"
+copy /y "$(OutDir)*.dll" "C:\Users\me\Downloads\PERISH\MapleStory\"
+copy /y "$(OutDir)MapleStory.pdb" "C:\Users\me\Downloads\PERISH\MapleStory\"
+echo Copy completed.</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -168,17 +174,17 @@ copy /y /d "$(ProjectDir)includes\NoLifeNx\nlnx\includes\lz4_v1_8_2_win$(Platfor
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>NDEBUG;_CONSOLE;USE_NX;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(ProjectDir)includes\glew-2.1.0\include\GL;$(ProjectDir)includes\freetype\include;$(ProjectDir)includes\glfw-3.3.2.bin.WIN$(PlatformArchitecture)\include\GLFW;$(ProjectDir)includes\stb;$(ProjectDir)includes\bass24\c;$(ProjectDir)includes\NoLifeNx;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)includes\glew-2.1.0\include\GL;$(ProjectDir)includes\freetype\include;$(ProjectDir)includes\glfw-3.3.2.bin.WIN$(PlatformArchitecture)\include\GLFW;$(ProjectDir)includes\stb;$(ProjectDir)includes\bass24\c;$(ProjectDir)includes\NoLifeNx;$(ProjectDir)includes\NoLifeNx\nlnx\includes\lz4_v1_8_2_win$(PlatformArchitecture)\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>glew32s.lib;freetype.lib;glfw3.lib;bass.lib;OpenGL32.lib;Iphlpapi.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>$(ProjectDir)includes\glew-2.1.0\lib\Release\$(Platform);$(ProjectDir)includes\freetype\win$(PlatformArchitecture);$(ProjectDir)includes\glfw-3.3.2.bin.WIN$(PlatformArchitecture)\lib-vc2015;$(ProjectDir)includes\bass24\c\$(PlatformTarget);$(ProjectDir)includes\NoLifeNx\nlnx\$(PlatformTarget)\$(Configuration);$(ProjectDir)includes\WzLib\bin\Win32Release;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>glew32s.lib;freetype.lib;glfw3.lib;bass.lib;OpenGL32.lib;Iphlpapi.lib;liblz4.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(ProjectDir)includes\glew-2.1.0\lib\Release\$(Platform);$(ProjectDir)includes\freetype\win$(PlatformArchitecture);$(ProjectDir)includes\glfw-3.3.2.bin.WIN$(PlatformArchitecture)\lib-vc2015;$(ProjectDir)includes\bass24\c\$(PlatformTarget);$(ProjectDir)includes\WzLib\bin\Win32Release;$(ProjectDir)includes\NoLifeNx\nlnx\includes\lz4_v1_8_2_win$(PlatformArchitecture)\dll;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent>
       <Command>copy /y /d "$(ProjectDir)includes\freetype\win$(PlatformArchitecture)\freetype.dll" "$(OutDir)"
@@ -310,9 +316,11 @@ copy /y /d "$(ProjectDir)includes\NoLifeNx\nlnx\includes\lz4_v1_8_2_win$(Platfor
     <ClCompile Include="IO\UITypes\UIChannel.cpp" />
     <ClCompile Include="IO\UITypes\UICharInfo.cpp" />
     <ClCompile Include="IO\UITypes\UICharSelect.cpp" />
+    <ClCompile Include="IO\UITypes\UICharSelect_Legacy.cpp" />
     <ClCompile Include="IO\UITypes\UIChat.cpp" />
     <ClCompile Include="IO\UITypes\UIChatBar.cpp" />
     <ClCompile Include="IO\UITypes\UICommonCreation.cpp" />
+    <ClCompile Include="IO\UITypes\UIExplorerCreation_Legacy.cpp" />
     <ClCompile Include="IO\UITypes\UIEquipInventory.cpp" />
     <ClCompile Include="IO\UITypes\UIEvent.cpp" />
     <ClCompile Include="IO\UITypes\UIGender.cpp" />
@@ -367,9 +375,25 @@ copy /y /d "$(ProjectDir)includes\NoLifeNx\nlnx\includes\lz4_v1_8_2_win$(Platfor
     <ClCompile Include="Net\Session.cpp" />
     <ClCompile Include="Net\SocketAsio.cpp" />
     <ClCompile Include="Net\SocketWinsock.cpp" />
+    <ClCompile Include="Util\AssetRegistry.cpp" />
+    <ClCompile Include="Util\AssetRegistryTest.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="Util\LegacyUI.cpp" />
     <ClCompile Include="Util\Misc.cpp" />
     <ClCompile Include="Util\NxFiles.cpp" />
     <ClCompile Include="Util\WzFiles.cpp" />
+    <ClCompile Include="includes\NoLifeNx\nlnx\audio.cpp">
+      <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(IntDir)nlnx_audio.obj</ObjectFileName>
+      <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(IntDir)nlnx_audio.obj</ObjectFileName>
+      <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(IntDir)nlnx_audio.obj</ObjectFileName>
+      <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(IntDir)nlnx_audio.obj</ObjectFileName>
+    </ClCompile>
+    <ClCompile Include="includes\NoLifeNx\nlnx\bitmap.cpp" />
+    <ClCompile Include="includes\NoLifeNx\nlnx\file.cpp" />
+    <ClCompile Include="includes\NoLifeNx\nlnx\node.cpp" />
+    <ClCompile Include="includes\NoLifeNx\nlnx\nx.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Audio\Audio.h" />
@@ -513,9 +537,11 @@ copy /y /d "$(ProjectDir)includes\NoLifeNx\nlnx\includes\lz4_v1_8_2_win$(Platfor
     <ClInclude Include="IO\UITypes\UIChannel.h" />
     <ClInclude Include="IO\UITypes\UICharInfo.h" />
     <ClInclude Include="IO\UITypes\UICharSelect.h" />
+    <ClInclude Include="IO\UITypes\UICharSelect_Legacy.h" />
     <ClInclude Include="IO\UITypes\UIChat.h" />
     <ClInclude Include="IO\UITypes\UIChatBar.h" />
     <ClInclude Include="IO\UITypes\UICommonCreation.h" />
+    <ClInclude Include="IO\UITypes\UIExplorerCreation_Legacy.h" />
     <ClInclude Include="IO\UITypes\UICygnusCreation.h" />
     <ClInclude Include="IO\UITypes\UIEquipInventory.h" />
     <ClInclude Include="IO\UITypes\UIEvent.h" />
@@ -602,8 +628,11 @@ copy /y /d "$(ProjectDir)includes\NoLifeNx\nlnx\includes\lz4_v1_8_2_win$(Platfor
     <ClInclude Include="Template\TimedQueue.h" />
     <ClInclude Include="Template\TypeMap.h" />
     <ClInclude Include="Timer.h" />
+    <ClInclude Include="Util\AssetRegistry.h" />
+    <ClInclude Include="Util\Assets.h" />
     <ClInclude Include="Util\HardwareInfo.h" />
     <ClInclude Include="Util\Lerp.h" />
+    <ClInclude Include="Util\LegacyUI.h" />
     <ClInclude Include="Util\Misc.h" />
     <ClInclude Include="Util\NxFiles.h" />
     <ClInclude Include="Util\QuadTree.h" />
@@ -611,6 +640,14 @@ copy /y /d "$(ProjectDir)includes\NoLifeNx\nlnx\includes\lz4_v1_8_2_win$(Platfor
     <ClInclude Include="Util\ScreenResolution.h" />
     <ClInclude Include="Util\TimedBool.h" />
     <ClInclude Include="Util\WzFiles.h" />
+    <ClInclude Include="includes\NoLifeNx\nlnx\audio.hpp" />
+    <ClInclude Include="includes\NoLifeNx\nlnx\bitmap.hpp" />
+    <ClInclude Include="includes\NoLifeNx\nlnx\file.hpp" />
+    <ClInclude Include="includes\NoLifeNx\nlnx\file_impl.hpp" />
+    <ClInclude Include="includes\NoLifeNx\nlnx\node.hpp" />
+    <ClInclude Include="includes\NoLifeNx\nlnx\node_impl.hpp" />
+    <ClInclude Include="includes\NoLifeNx\nlnx\nx.hpp" />
+    <ClInclude Include="includes\NoLifeNx\nlnx\nxfwd.hpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="MapleStory.rc" />

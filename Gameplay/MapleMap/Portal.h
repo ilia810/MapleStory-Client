@@ -58,7 +58,9 @@ namespace ms
 
 			WarpInfo(int32_t m, bool i, std::string tn, std::string n) : mapid(m), intramap(i), toname(tn), name(n)
 			{
-				valid = mapid < 999999999;
+				// v83/v87 compatibility: Some maps use 999999999 as placeholder
+				// Valid if: intramap portal OR valid map ID
+				valid = intramap || (mapid > 0 && mapid < 999999999);
 			}
 
 			WarpInfo() : WarpInfo(999999999, false, {}, {}) {}

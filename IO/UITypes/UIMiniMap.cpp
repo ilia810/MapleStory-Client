@@ -39,30 +39,54 @@ namespace ms
 		listNpc_dimensions = Point<int16_t>(150, 170);
 		listNpc_offset = 0;
 		selected = -1;
+		
+		// Initialize border widths with defaults
+		left_border_width = 64;
+		right_border_width = 64;
+		total_border_width = 128;
 
 		type = Setting<MiniMapType>::get().load();
 		user_type = type;
 		simpleMode = Setting<MiniMapSimpleMode>::get().load();
 
-		nl::node UIWindow2 = nl::nx::UI["UIWindow2.img"];
-
+		// Always use UIWindow2.img for MiniMap - this is the correct location
+		nl::node UIWindow = nl::nx::UI["UIWindow2.img"];
+		
 		std::string node = simpleMode ? "MiniMapSimpleMode" : "MiniMap";
-		MiniMap = UIWindow2[node];
-		listNpc = UIWindow2["MiniMap"]["ListNpc"];
+		MiniMap = UIWindow[node];
+		listNpc = UIWindow["MiniMap"]["ListNpc"];
+		
+		// V87 compatibility: If UIWindow2.img doesn't exist, try UIWindow.img as fallback
+		if (MiniMap.name().empty()) {
+			UIWindow = nl::nx::UI["UIWindow.img"];
+			if (!UIWindow.name().empty()) {
+				MiniMap = UIWindow[node];
+				listNpc = UIWindow["MiniMap"]["ListNpc"];
+			}
+		}
+		
 		MapHelper = nl::nx::Map["MapHelper.img"];
 
-		buttons[Buttons::BT_MIN] = std::make_unique<MapleButton>(MiniMap["BtMin"], Point<int16_t>(195, -6));
-		buttons[Buttons::BT_MAX] = std::make_unique<MapleButton>(MiniMap["BtMax"], Point<int16_t>(209, -6));
-		buttons[Buttons::BT_SMALL] = std::make_unique<MapleButton>(MiniMap["BtSmall"], Point<int16_t>(223, -6));
-		buttons[Buttons::BT_BIG] = std::make_unique<MapleButton>(MiniMap["BtBig"], Point<int16_t>(223, -6));
-		buttons[Buttons::BT_MAP] = std::make_unique<MapleButton>(MiniMap["BtMap"], Point<int16_t>(237, -6));
-		buttons[Buttons::BT_NPC] = std::make_unique<MapleButton>(MiniMap["BtNpc"], Point<int16_t>(276, -6));
+		// Only create buttons if the nodes exist
+		if (!MiniMap.name().empty()) {
+			buttons[Buttons::BT_MIN] = std::make_unique<MapleButton>(MiniMap["BtMin"], Point<int16_t>(195, -6));
+			buttons[Buttons::BT_MAX] = std::make_unique<MapleButton>(MiniMap["BtMax"], Point<int16_t>(209, -6));
+			buttons[Buttons::BT_SMALL] = std::make_unique<MapleButton>(MiniMap["BtSmall"], Point<int16_t>(223, -6));
+			buttons[Buttons::BT_BIG] = std::make_unique<MapleButton>(MiniMap["BtBig"], Point<int16_t>(223, -6));
+			buttons[Buttons::BT_MAP] = std::make_unique<MapleButton>(MiniMap["BtMap"], Point<int16_t>(237, -6));
+			buttons[Buttons::BT_NPC] = std::make_unique<MapleButton>(MiniMap["BtNpc"], Point<int16_t>(276, -6));
+		}
 
 		region_text = Text(Text::Font::A12B, Text::Alignment::LEFT, Color::Name::WHITE);
 		town_text = Text(Text::Font::A12B, Text::Alignment::LEFT, Color::Name::WHITE);
 		combined_text = Text(Text::Font::A12M, Text::Alignment::LEFT, Color::Name::WHITE);
 
-		marker = Setting<MiniMapDefaultHelpers>::get().load() ? UIWindow2["MiniMapSimpleMode"]["DefaultHelper"] : MapHelper["minimap"];
+		// Use the correct UIWindow reference for marker
+		nl::node markerWindow = nl::nx::UI["UIWindow2.img"];
+		if (markerWindow.name().empty()) {
+			markerWindow = nl::nx::UI["UIWindow.img"];
+		}
+		marker = Setting<MiniMapDefaultHelpers>::get().load() ? markerWindow["MiniMapSimpleMode"]["DefaultHelper"] : MapHelper["minimap"];
 
 		player_marker = Animation(marker["user"]);
 		selected_marker = Animation(MiniMap["iconNpc"]);
@@ -417,7 +441,13 @@ namespace ms
 
 			buttons[Buttons::BT_MIN]->set_state(Button::State::NORMAL);
 
-			bt_min_x = middle_right_x - (bt_min_width + buttons[Buttons::BT_SMALL]->width() + 1 + bt_max_width + bt_map_width + (has_npcs ? buttons[Buttons::BT_NPC]->width() : 0));
+			// Calculate total button width needed
+			int16_t total_button_width = bt_min_width + buttons[Buttons::BT_SMALL]->width() + 1 + bt_max_width + bt_map_width + (has_npcs ? buttons[Buttons::BT_NPC]->width() : 0);
+			
+			// Position buttons to fit within the window dimensions, leaving some margin
+			// Use the window width from normal_dimensions if available, otherwise use middle_right_x
+			int16_t window_width = (type == Type::NORMAL && normal_dimensions.x() > 0) ? normal_dimensions.x() : middle_right_x + 55;
+			bt_min_x = window_width - total_button_width - 10;
 
 			buttons[Buttons::BT_MIN]->set_position(Point<int16_t>(bt_min_x, BTN_MIN_Y));
 
@@ -478,32 +508,84 @@ namespace ms
 			Max = MiniMap["MaxMap"];
 		}
 
-		map_sprite = Texture(Map["miniMap"]["canvas"]);
+		// Load minimap data from the NX file
+		nl::node miniMapNode = Map["miniMap"];
+		map_sprite = Texture(miniMapNode["canvas"]);
+		
+		// Get canvas dimensions first
 		Point<int16_t> map_dimensions = map_sprite.get_dimensions();
+		
+		// Check if width/height are specified in the minimap node
+		int16_t minimap_width = miniMapNode["width"];
+		int16_t minimap_height = miniMapNode["height"];
+		
+		// The width/height in the minimap node might be world coordinates, not pixel dimensions
+		// If they're unreasonably large or not specified, use canvas dimensions
+		if (minimap_width <= 0 || minimap_width > 500) {
+			minimap_width = map_dimensions.x();
+		}
+		if (minimap_height <= 0 || minimap_height > 500) {
+			minimap_height = map_dimensions.y();
+		}
+		
+		// Get actual border sprite dimensions instead of using hardcoded values
+		Texture leftBorder(Normal[simpleMode ? "UpLeft" : "nw"]);
+		Texture rightBorder(Normal[simpleMode ? "UpRight" : "ne"]);
+		
+		// Update member variables with actual border dimensions
+		left_border_width = leftBorder.width();
+		right_border_width = rightBorder.width();
+		total_border_width = left_border_width + right_border_width;
+		
+		// If we couldn't get border dimensions, fall back to defaults
+		if (total_border_width <= 0) {
+			left_border_width = 64;
+			right_border_width = 64;
+			total_border_width = 128;
+		}
 
 		// 48 (offset for text) + longer text's width + 10 (space for right side border)
-		int16_t mark_text_width = 48 + std::max(region_text.width(), town_text.width()) + 10;
+		int16_t mark_text_width = 48 + std::max<int16_t>(region_text.width(), town_text.width()) + 10;
 		int16_t c_stretch, ur_x_offset, m_stretch, down_y_offset;
-		int16_t window_width = std::max(178, std::max((int)mark_text_width, map_dimensions.x() + 20));
+		
+		// Calculate window width to fit the minimap canvas plus borders
+		int16_t content_width = std::max<int16_t>(mark_text_width, minimap_width);
+		int16_t window_width = std::max<int16_t>(178, content_width + total_border_width);
 
-		c_stretch = std::max(0, window_width - 128);
-		ur_x_offset = CENTER_START_X + c_stretch;
-		map_draw_origin_x = std::max(10, window_width / 2 - map_dimensions.x() / 2);
+		c_stretch = std::max<int16_t>(0, window_width - total_border_width);
+		ur_x_offset = left_border_width + c_stretch;
+		map_draw_origin_x = std::max<int16_t>(10, left_border_width + (c_stretch / 2) - (minimap_width / 2));
 
-		if (map_dimensions.y() <= 20)
-		{
-			m_stretch = 5;
-			down_y_offset = 17 + m_stretch;
-			map_draw_origin_y = 10 + m_stretch - map_dimensions.y();
-		}
-		else
-		{
-			m_stretch = map_dimensions.y() - 17;
-			down_y_offset = 17 + m_stretch;
-			map_draw_origin_y = 20;
-		}
+		// Get actual top and bottom border heights
+		Texture topBorder(Normal[simpleMode ? "UpCenter" : "n"]);
+		Texture bottomBorder(Normal[simpleMode ? "DownCenter" : "s"]);
+		int16_t top_border_height = topBorder.height();
+		int16_t bottom_border_height = bottomBorder.height();
+		if (top_border_height <= 0) top_border_height = 25; // fallback
+		if (bottom_border_height <= 0) bottom_border_height = 27; // fallback
+		
+		// Calculate the middle section stretch to accommodate the minimap
+		// We need the canvas to fit within the border area
+		// The content area starts at ML_MR_Y and we need space for the actual canvas
+		int16_t canvas_height = map_dimensions.y(); // Use actual canvas height
+		int16_t padding = 10; // Padding above and below the canvas
+		int16_t required_middle_height = canvas_height + padding - (ML_MR_Y - top_border_height);
+		m_stretch = std::max<int16_t>(required_middle_height, 5);
+		
+		// Calculate where the bottom border should be positioned
+		// It should connect exactly where the middle borders end
+		down_y_offset = ML_MR_Y + m_stretch;
+		
+		// Position minimap canvas within the window borders
+		// Place it so it doesn't overflow the bottom
+		map_draw_origin_y = down_y_offset - canvas_height - 5; // 5 pixels padding from bottom
 
-		middle_right_x = ur_x_offset + 55;
+		// Get the actual middle right border width
+		Texture middleRightBorder(Normal[simpleMode ? "MiddleRight" : "e"]);
+		int16_t middle_right_width = middleRightBorder.width();
+		if (middle_right_width <= 0) middle_right_width = 7; // fallback
+		
+		middle_right_x = ur_x_offset + right_border_width - middle_right_width;
 
 		std::string Left = simpleMode ? "Left" : "w";
 		std::string Center = simpleMode ? "Center" : "c";
@@ -522,48 +604,48 @@ namespace ms
 		// UI.wz v208 has normal center sprite in-linked to bottom right window frame, not sure why.
 		nl::node MiddleCenter = simpleMode ? MiniMap["Window"]["Max"]["MiddleCenter"] : MiniMap["MaxMap"]["c"];
 
-		int16_t dl_dr_y = std::max(map_dimensions.y(), (int16_t)10);
+		int16_t dl_dr_y = std::max(minimap_height, (int16_t)10);
 
-		// combined_text_width + 14 (7px buffer on both sides) + 4 (buffer between name and buttons) + 3 buttons' widths - 128 (length of left and right window borders)
-		int16_t min_c_stretch = combined_text_width + 18 + bt_min_width + bt_max_width + bt_map_width - 128;
+		// combined_text_width + 14 (7px buffer on both sides) + 4 (buffer between name and buttons) + 3 buttons' widths - total border width
+		int16_t min_c_stretch = combined_text_width + 18 + bt_min_width + bt_max_width + bt_map_width - total_border_width;
 
 		// Min sprites queue
-		min_sprites.emplace_back(Min[Center], DrawArgument(WINDOW_UL_POS + Point<int16_t>(CENTER_START_X, 0), Point<int16_t>(min_c_stretch, 0)));
+		min_sprites.emplace_back(Min[Center], DrawArgument(WINDOW_UL_POS + Point<int16_t>(left_border_width, 0), Point<int16_t>(min_c_stretch, 0)));
 		min_sprites.emplace_back(Min[Left], DrawArgument(WINDOW_UL_POS));
-		min_sprites.emplace_back(Min[Right], DrawArgument(WINDOW_UL_POS + Point<int16_t>(min_c_stretch + CENTER_START_X, 0)));
+		min_sprites.emplace_back(Min[Right], DrawArgument(WINDOW_UL_POS + Point<int16_t>(min_c_stretch + left_border_width, 0)));
 
 		// Normal sprites queue
 		// (7, 10) is the top left corner of the inner window
-		// 114 = 128 (width of left and right borders) - 14 (width of middle borders * 2).
+		// The middle content width is c_stretch + total_border_width - 14 (width of middle borders * 2)
 		// 27 = height of inner frame drawn on up and down borders
-		normal_sprites.emplace_back(MiddleCenter, DrawArgument(Point<int16_t>(7, 10), Point<int16_t>(c_stretch + 114, m_stretch + 27)));
+		normal_sprites.emplace_back(MiddleCenter, DrawArgument(Point<int16_t>(7, 10), Point<int16_t>(c_stretch + total_border_width - 14, m_stretch + 27)));
 
 		if (has_map)
 			normal_sprites.emplace_back(Map["miniMap"]["canvas"], DrawArgument(Point<int16_t>(map_draw_origin_x, map_draw_origin_y)));
 
 		normal_sprites.emplace_back(Normal[MiddleLeft], DrawArgument(Point<int16_t>(0, ML_MR_Y), Point<int16_t>(0, m_stretch)));
 		normal_sprites.emplace_back(Normal[MiddleRight], DrawArgument(Point<int16_t>(middle_right_x, ML_MR_Y), Point<int16_t>(0, m_stretch)));
-		normal_sprites.emplace_back(Normal[UpCenter], DrawArgument(Point<int16_t>(CENTER_START_X, 0) + WINDOW_UL_POS, Point<int16_t>(c_stretch, 0)));
+		normal_sprites.emplace_back(Normal[UpCenter], DrawArgument(Point<int16_t>(left_border_width, 0) + WINDOW_UL_POS, Point<int16_t>(c_stretch, 0)));
 		normal_sprites.emplace_back(Normal[UpLeft], WINDOW_UL_POS);
 		normal_sprites.emplace_back(Normal[UpRight], DrawArgument(Point<int16_t>(ur_x_offset, 0) + WINDOW_UL_POS));
-		normal_sprites.emplace_back(Normal[DownCenter], DrawArgument(Point<int16_t>(CENTER_START_X, down_y_offset + 18), Point<int16_t>(c_stretch, 0)));
+		normal_sprites.emplace_back(Normal[DownCenter], DrawArgument(Point<int16_t>(left_border_width, down_y_offset), Point<int16_t>(c_stretch, 0)));
 		normal_sprites.emplace_back(Normal[DownLeft], Point<int16_t>(0, down_y_offset));
 		normal_sprites.emplace_back(Normal[DownRight], Point<int16_t>(ur_x_offset, down_y_offset));
 
-		normal_dimensions = Point<int16_t>(ur_x_offset + 64, down_y_offset + 27);
+		normal_dimensions = Point<int16_t>(ur_x_offset + right_border_width, down_y_offset + bottom_border_height);
 
 		// Max sprites queue
-		max_sprites.emplace_back(MiddleCenter, DrawArgument(Point<int16_t>(7, 50), Point<int16_t>(c_stretch + 114, m_stretch + 27)));
+		max_sprites.emplace_back(MiddleCenter, DrawArgument(Point<int16_t>(7, 50), Point<int16_t>(c_stretch + total_border_width - 14, m_stretch + 27)));
 
 		if (has_map)
 			max_sprites.emplace_back(Map["miniMap"]["canvas"], DrawArgument(Point<int16_t>(map_draw_origin_x, map_draw_origin_y + MAX_ADJ)));
 
 		max_sprites.emplace_back(Max[MiddleLeft], DrawArgument(Point<int16_t>(0, ML_MR_Y + MAX_ADJ), Point<int16_t>(0, m_stretch)));
 		max_sprites.emplace_back(Max[MiddleRight], DrawArgument(Point<int16_t>(middle_right_x, ML_MR_Y + MAX_ADJ), Point<int16_t>(0, m_stretch)));
-		max_sprites.emplace_back(Max[UpCenter], DrawArgument(Point<int16_t>(CENTER_START_X, 0) + WINDOW_UL_POS, Point<int16_t>(c_stretch, 0)));
+		max_sprites.emplace_back(Max[UpCenter], DrawArgument(Point<int16_t>(left_border_width, 0) + WINDOW_UL_POS, Point<int16_t>(c_stretch, 0)));
 		max_sprites.emplace_back(Max[UpLeft], WINDOW_UL_POS);
 		max_sprites.emplace_back(Max[UpRight], DrawArgument(Point<int16_t>(ur_x_offset, 0) + WINDOW_UL_POS));
-		max_sprites.emplace_back(Max[DownCenter], DrawArgument(Point<int16_t>(CENTER_START_X, down_y_offset + MAX_ADJ + 18), Point<int16_t>(c_stretch, 0)));
+		max_sprites.emplace_back(Max[DownCenter], DrawArgument(Point<int16_t>(left_border_width, down_y_offset + MAX_ADJ), Point<int16_t>(c_stretch, 0)));
 		max_sprites.emplace_back(Max[DownLeft], Point<int16_t>(0, down_y_offset + MAX_ADJ));
 		max_sprites.emplace_back(Max[DownRight], Point<int16_t>(ur_x_offset, down_y_offset + MAX_ADJ));
 		max_sprites.emplace_back(MapHelper["mark"][Map["info"]["mapMark"]], DrawArgument(Point<int16_t>(7, 17)));

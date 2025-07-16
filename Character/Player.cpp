@@ -18,6 +18,7 @@
 #include "Player.h"
 
 #include "PlayerStates.h"
+#include <iostream>
 
 #include "../Data/WeaponData.h"
 #include "../IO/UI.h"
@@ -157,8 +158,33 @@ namespace ms
 
 		if (pst)
 		{
+			// Store position before physics update for watchdog detection
+			static int16_t lastPlayerY = 0;
+			static bool firstUpdate = true;
+			
+			int16_t prevY = firstUpdate ? phobj.get_y() : lastPlayerY;
+			
 			pst->update(*this);
 			physics.move_object(phobj);
+			
+			// Player-level oscillation watchdog (final safety net)
+			int16_t currentY = phobj.get_y();
+			int16_t yDelta = std::abs(currentY - prevY);
+			
+			if (!firstUpdate) {
+				if (yDelta > 5000) {
+					// Emergency player stabilization
+					if (std::abs(currentY) > 10000) {
+						set_position(0, 300);  // Reset to safe position near origin
+						phobj.vspeed = 0.0;
+						phobj.hspeed = 0.0;
+						phobj.onground = true;
+					}
+				}
+			}
+			
+			lastPlayerY = phobj.get_y();
+			firstUpdate = false;
 
 			bool aniend = Char::update(physics, get_stancespeed());
 

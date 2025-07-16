@@ -36,6 +36,7 @@ namespace ms
 
 	std::unique_ptr<MapObject> NpcSpawn::instantiate(const Physics& physics) const
 	{
+		printf("[NpcSpawn::instantiate] Instantiating NPC: id=%d, oid=%d\n", id, oid);
 		auto spawnposition = physics.get_y_below(position);
 		return std::make_unique<Npc>(id, oid, flip, fh, false, spawnposition);
 	}

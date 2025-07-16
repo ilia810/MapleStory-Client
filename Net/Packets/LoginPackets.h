@@ -20,6 +20,7 @@
 #include "../OutPacket.h"
 
 #include "../../Configuration.h"
+#include "../../Util/Misc.h"
 
 namespace ms
 {
@@ -30,6 +31,7 @@ namespace ms
 		// Request to be logged-in to an account
 		LoginPacket(const std::string& acc, const std::string& pass) : OutPacket(OutPacket::Opcode::LOGIN)
 		{
+			LOG(LOG_DEBUG, "[LoginPacket] Creating login packet for account: " + acc);
 			std::string volumeSerialNumber = Configuration::get().get_vol_serial_num();
 
 			std::string part1 = volumeSerialNumber.substr(0, 2);

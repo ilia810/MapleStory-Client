@@ -18,6 +18,7 @@
 #include "Session.h"
 
 #include "../Configuration.h"
+#include "../Util/Misc.h"
 
 namespace ms
 {
@@ -65,9 +66,13 @@ namespace ms
 		bool success = socket.close();
 
 		if (success)
+		{
 			init(address, port);
+		}
 		else
+		{
 			connected = false;
+		}
 	}
 
 	void Session::process(const int8_t* bytes, size_t available)

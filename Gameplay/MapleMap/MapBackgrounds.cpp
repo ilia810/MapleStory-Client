@@ -32,7 +32,12 @@ namespace ms
 		WOFFSET = VWIDTH / 2;
 		HOFFSET = VHEIGHT / 2;
 
+		// Try multiple paths for v83 compatibility
 		nl::node backsrc = nl::nx::Map001["Back"];
+		if (backsrc.name().empty()) {
+			// Try direct Map path (v83)
+			backsrc = nl::nx::Map["Back"];
+		}
 
 		animated = src["ani"].get_bool();
 		animation = backsrc[src["bS"] + ".img"][animated ? "ani" : "back"][src["no"]];

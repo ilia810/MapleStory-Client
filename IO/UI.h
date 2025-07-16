@@ -73,6 +73,7 @@ namespace ms
 		void show_map(Tooltip::Parent parent, std::string title, std::string description, int32_t mapid, bool bolded, bool portal);
 
 		Keyboard& get_keyboard();
+		Point<int16_t> get_cursor_position() const;
 
 		template <class T, typename...Args>
 		Optional<T> emplace(Args&& ...args)

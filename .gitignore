@@ -11,4 +11,5 @@
 *.wz
 Settings
 
-/includes/WzLib
+/includes/WzLibNoLifeNx_build/
+nul

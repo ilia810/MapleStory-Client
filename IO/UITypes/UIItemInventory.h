@@ -152,6 +152,7 @@ namespace ms
 
 		bool sort_enabled;
 		bool full_enabled;
+		bool needs_init;
 		Texture backgrnd;
 		Texture backgrnd2;
 		Texture backgrnd3;

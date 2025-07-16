@@ -24,7 +24,9 @@
 #define USE_CRYPTO
 
 // If defined use NX, otherwise use WZ.
+#ifndef USE_NX
 #define USE_NX
+#endif
 
 // Debug options
 #define LOG_ERROR	1
@@ -39,7 +41,8 @@
 #ifdef _DEBUG
 	#define LOG_LEVEL LOG_DEBUG
 #else
-	#define LOG_LEVEL LOG_WARN
+	// Set to LOG_DEBUG to see all asset loading messages
+	#define LOG_LEVEL LOG_DEBUG
 #endif
 
 // Log Text

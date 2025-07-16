@@ -24,6 +24,16 @@
 
 namespace ms
 {
+	// Temporary storage for NPCs received during map transitions
+	struct PendingNpc {
+		int32_t oid;
+		int32_t id;
+		Point<int16_t> position;
+		bool flip;
+		uint16_t fh;
+		int32_t mapid;
+	};
+	static std::vector<PendingNpc> pending_npcs;
 	void SpawnCharHandler::handle(InPacket& recv) const
 	{
 		int32_t cid = recv.read_int();
@@ -327,6 +337,7 @@ namespace ms
 
 		recv.read_short(); // 'rx'
 		recv.read_short(); // 'ry'
+		recv.read_byte();  // Extra byte sent by v83 server
 
 		Stage::get().get_npcs().spawn(
 			{ oid, id, position, flip, fh }

@@ -10,7 +10,7 @@
 //	This program is distributed in the hope that it will be useful,				//
 //	but WITHOUT ANY WARRANTY; without even the implied warranty of				//
 //	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the				//
-//	GNU Affero General Public License for more details.							//
+//	GNU Affero General Public License for more details.						//
 //																				//
 //	You should have received a copy of the GNU Affero General Public License	//
 //	along with this program.  If not, see <https://www.gnu.org/licenses/>.		//
@@ -25,7 +25,7 @@
 
 namespace ms
 {
-	// Race selection screen
+	// Race selection screen - v83/v87 implementation
 	class UIRaceSelect : public UIElement
 	{
 	public:
@@ -50,103 +50,35 @@ namespace ms
 		Button::State button_pressed(uint16_t buttonid) override;
 
 	private:
-		void select_class(uint16_t index);
 		void show_charselect();
 		void show_worldselect();
-		Point<int16_t> get_class_pos(size_t index) const;
 		std::string to_lower(std::string value) const;
-		uint16_t get_corrected_class_index(uint16_t index) const;
-
-		static constexpr uint16_t INDEX_COUNT = 6;
-		static constexpr uint16_t SELECTED_LIST = 35;
 
 		enum Buttons : uint16_t
 		{
 			BtStart,
 			BtPreview,
-			BtMake,
-			BtLeftArrow,
-			BtRightArrow,
-			CLASS0,
-			CLASS1,
-			CLASS2,
-			CLASS3,
-			CLASS4
+			CLASS0,    // Explorer
+			CLASS1,    // Cygnus Knight
+			CLASS2     // Aran
 		};
 
-		enum Classes : uint16_t
-		{
-			RESISTANCE,
-			EXPLORERS,
-			CYGNUSKNIGHTS,
-			ARAN,
-			EVAN,
-			MERCEDES,
-			DEMON,
-			PHANTOM,
-			DUALBLADE,
-			MIHILE,
-			LUMINOUS,
-			KAISER,
-			ANGELICBUSTER,
-			CANNONEER,
-			XENON,
-			ZERO,
-			SHADE,
-			PINKBEAN,
-			KINESIS,
-			CADENA,
-			ILLIUM,
-			ARK,
-			PATHFINDER,
-			HOYOUNG,
-			ADELE,
-			KAIN,
-			YETI,
-			LARA,
-			JETT = 1000,
-			HAYATO,
-			KANNA,
-			CHASE
-		};
-
+		// v83/v87 UI elements
 		Text version;
 		Point<int16_t> version_pos;
-		Point<int16_t> pos;
-		Point<int16_t> posZero;
-		std::vector<uint16_t> order;
-		nl::node hotlist;
-		nl::node newlist;
-		nl::node bgm;
-		nl::node Back2;
-		Sprite hotlabel;
-		Sprite hotlabelZero;
-		Sprite newlabel;
-		Point<int16_t> newlabelPos;
-		Sprite hotbtn;
-		Point<int16_t> hotbtnPos;
-		Sprite newbtn;
-		Point<int16_t> newbtnPos;
-		uint16_t class_index[INDEX_COUNT];
-		bool mouseover[INDEX_COUNT];
+		
+		// Class icon textures (normal, hover, pressed)
+		Texture explorerN, explorerH, explorerP;
+		Texture knightN, knightH, knightP;
+		Texture aranN, aranH, aranP;
+		
+		// Class icon positions
+		Point<int16_t> explorerPos;
+		Point<int16_t> knightPos;
+		Point<int16_t> aranPos;
+		
+		// UI state
 		uint16_t selected_class;
-		uint16_t index_shift;
-		uint16_t selected_index;
-		uint16_t class_count;
-		std::vector<bool> class_isdisabled;
-		std::vector<BoolPair<Texture>> class_disabled;
-		std::vector<BoolPair<Texture>> class_normal;
-		std::vector<Texture> class_background;
-		std::vector<Texture> class_details;
-		std::vector<Texture> class_title;
-		std::vector<uint16_t> class_map;
-		Texture back;
-		Texture backZero;
-		Sprite back_ani;
-		Texture class_details_background;
-		Texture class_details_backgroundZero;
-		Texture dot;
-		int16_t buttonIntervalX;
-		Point<int16_t> buttonPos;
+		bool mouseover[3]; // [Explorer, Knight, Aran]
 	};
 }

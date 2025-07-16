@@ -16,11 +16,30 @@
 //	along with this program.  If not, see <https://www.gnu.org/licenses/>.		//
 //////////////////////////////////////////////////////////////////////////////////
 #include "Sprite.h"
+#include "../Constants.h"
+#include "../MapleStory.h"
+#include <iostream>
 
 namespace ms
 {
 	Sprite::Sprite(const Animation& a, const DrawArgument& args) : animation(a), stateargs(args) {}
-	Sprite::Sprite(nl::node src, const DrawArgument& args) : animation(src), stateargs(args) {}
+	
+	Sprite::Sprite(nl::node src, const DrawArgument& args) : animation(src), stateargs(args) 
+	{
+		// Add diagnostic logging for v83 debugging
+		if (src) {
+			auto dims = get_dimensions();
+			auto origin = get_origin();
+			if (dims.x() > 0 && dims.y() > 0) {
+				// LOG(LOG_DEBUG, "[Sprite] Created sprite from node '" << src.name() << "' - dimensions: " << dims.x() << "x" << dims.y() << ", origin: " << origin.x() << "," << origin.y());
+			} else {
+				LOG(LOG_ERROR, "[Sprite] Failed to create sprite from node '" << src.name() << "' - invalid dimensions");
+			}
+		} else {
+			LOG(LOG_ERROR, "[Sprite] Failed to create sprite - null node");
+		}
+	}
+	
 	Sprite::Sprite(nl::node src) : Sprite(src, {}) {}
 	Sprite::Sprite() {}
 

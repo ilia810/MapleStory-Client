@@ -39,7 +39,10 @@ namespace ms
 		keyboard = &UI::get().get_keyboard();
 		staged_mappings = keyboard->get_maplekeys();
 
-		nl::node KeyConfig = nl::nx::UI["StatusBar3.img"]["KeyConfig"];
+		// V87 compatibility: Check which StatusBar version exists
+		bool is_v87 = nl::nx::UI["StatusBar3.img"].name().empty();
+		nl::node statusBarRoot = is_v87 ? nl::nx::UI["StatusBar.img"] : nl::nx::UI["StatusBar3.img"];
+		nl::node KeyConfig = is_v87 ? statusBarRoot : statusBarRoot["KeyConfig"];
 
 		icon = KeyConfig["icon"];
 		key = KeyConfig["key"];
@@ -384,7 +387,8 @@ namespace ms
 			Keyboard::Mapping mapping = it.second;
 			int32_t id = mapping.action;
 
-			if (mapping.type == KeyType::Id::ITEM)
+			// Fix: Skip item ID 0 to prevent freezes
+			if (mapping.type == KeyType::Id::ITEM && id > 0)
 			{
 				int16_t count = inventory.get_total_item_count(id);
 

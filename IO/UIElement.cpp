@@ -18,6 +18,7 @@
 #include "UIElement.h"
 
 #include "../Audio/Audio.h"
+#include <iostream>
 
 namespace ms
 {
@@ -33,8 +34,12 @@ namespace ms
 
 	void UIElement::draw_sprites(float alpha) const
 	{
+		// Drawing sprites
 		for (const Sprite& sprite : sprites)
+		{
+			// Drawing sprite
 			sprite.draw(position, alpha);
+		}
 	}
 
 	void UIElement::draw_buttons(float) const
@@ -90,7 +95,7 @@ namespace ms
 		{
 			auto button = btit.second.get();
 
-			if (button->get_state() == Button::State::MOUSEOVER)
+			if (button && button->get_state() == Button::State::MOUSEOVER)
 				button->set_state(Button::State::NORMAL);
 		}
 	}
@@ -101,7 +106,7 @@ namespace ms
 
 		for (auto& btit : buttons)
 		{
-			if (btit.second->is_active() && btit.second->bounds(position).contains(cursor_position))
+			if (btit.second && btit.second->is_active() && btit.second->bounds(position).contains(cursor_position))
 			{
 				if (btit.second->get_state() == Button::State::NORMAL)
 				{
@@ -126,7 +131,7 @@ namespace ms
 					}
 				}
 			}
-			else if (btit.second->get_state() == Button::State::MOUSEOVER)
+			else if (btit.second && btit.second->get_state() == Button::State::MOUSEOVER)
 			{
 				btit.second->set_state(Button::State::NORMAL);
 			}

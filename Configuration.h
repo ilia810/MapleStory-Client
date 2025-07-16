@@ -241,13 +241,13 @@ namespace ms
 		const char* CHARGENX = "https://billing.nexon.net/PurchaseNX";
 		const bool SHOW_FPS = false;
 		const bool SHOW_PACKETS = false;
-		const bool AUTO_LOGIN = false;
-		const uint8_t auto_world = 0;
-		const uint8_t auto_channel = 0;
-		const std::string auto_acc = "";
-		const std::string auto_pass = "";
-		const std::string auto_pic = "";
-		const int32_t auto_cid = 0;
+		bool AUTO_LOGIN = false;
+		uint8_t auto_world = 0;
+		uint8_t auto_channel = 0;
+		std::string auto_acc = "";
+		std::string auto_pass = "";
+		std::string auto_pic = "";
+		int32_t auto_cid = 0;
 		bool rightclicksell = false;
 		bool show_weekly = true;
 		bool start_shown = false;
@@ -359,6 +359,42 @@ namespace ms
 	struct DefaultCharacter : public Configuration::ByteEntry
 	{
 		DefaultCharacter() : ByteEntry("Character", "0") {}
+	};
+
+	// Auto-login settings
+	struct AutoLogin : public Configuration::BoolEntry
+	{
+		AutoLogin() : BoolEntry("AutoLogin", "false") {}
+	};
+
+	struct AutoAccount : public Configuration::StringEntry
+	{
+		AutoAccount() : StringEntry("AutoAccount", "") {}
+	};
+
+	struct AutoPassword : public Configuration::StringEntry
+	{
+		AutoPassword() : StringEntry("AutoPassword", "") {}
+	};
+
+	struct AutoWorld : public Configuration::ByteEntry
+	{
+		AutoWorld() : ByteEntry("AutoWorld", "0") {}
+	};
+
+	struct AutoChannel : public Configuration::ByteEntry
+	{
+		AutoChannel() : ByteEntry("AutoChannel", "0") {}
+	};
+
+	struct AutoCharacter : public Configuration::IntEntry
+	{
+		AutoCharacter() : IntEntry("AutoCharacter", "0") {}
+	};
+
+	struct AutoPIC : public Configuration::StringEntry
+	{
+		AutoPIC() : StringEntry("AutoPIC", "") {}
 	};
 
 	// Whether the UIChatBar is expanded or not

@@ -22,6 +22,7 @@
 #include "../Components/Textfield.h"
 
 #include "../../Graphics/Geometry.h"
+#include "../../Graphics/Text.h"
 #include "../../Template/BoolPair.h"
 
 namespace ms
@@ -34,6 +35,7 @@ namespace ms
 		static constexpr bool TOGGLED = false;
 
 		UILogin();
+		~UILogin();
 
 		void draw(float alpha) const override;
 		void update() override;
@@ -80,5 +82,12 @@ namespace ms
 
 		bool saveid;
 		bool nexon;
+		
+		// Text for when buttons are missing
+		Text loginButtonMissingText;
+		bool showLoginHelpText;
+		
+		// Auto-login flag
+		bool perform_auto_login;
 	};
 }

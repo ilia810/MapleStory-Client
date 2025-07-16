@@ -27,7 +27,11 @@ namespace ms
 {
 	MapEffect::MapEffect(std::string path) : active(false)
 	{
+		// Try Map002 fallback, then direct Map (v83)
 		nl::node Effect = nl::nx::Map002["Effect.img"];
+		if (Effect.name().empty()) {
+			Effect = nl::nx::Map["Effect.img"];
+		}
 
 		effect = Effect.resolve(path);
 

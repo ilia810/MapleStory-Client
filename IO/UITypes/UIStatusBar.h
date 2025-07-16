@@ -132,6 +132,7 @@ namespace ms
 
 		Point<int16_t> exp_pos;
 		Point<int16_t> hpmp_pos;
+		Point<int16_t> mp_pos;
 		Point<int16_t> hpset_pos;
 		Point<int16_t> mpset_pos;
 		Point<int16_t> statset_pos;

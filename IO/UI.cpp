@@ -21,6 +21,9 @@
 #include "UIStateGame.h"
 #include "UIStateLogin.h"
 #include "Window.h"
+#include "../Graphics/GraphicsGL.h"
+
+#include <iostream>
 
 #include "UITypes/UIChannel.h"
 #include "UITypes/UIChat.h"
@@ -52,6 +55,7 @@ namespace ms
 
 	void UI::draw(float alpha) const
 	{
+		// Drawing UI
 		state->draw(alpha, cursor.get_position());
 
 		scrollingnotice.draw(alpha);
@@ -233,6 +237,33 @@ namespace ms
 		else
 		{
 			Keyboard::Mapping mapping = keyboard.get_mapping(keycode);
+
+			// Debug camera controls (WASD + R for reset)
+			if (pressed) {
+				switch (keycode) {
+					case GLFW_KEY_W:
+						GraphicsGL::get().move_camera(0, -20);
+						return;
+					case GLFW_KEY_A:
+						GraphicsGL::get().move_camera(-20, 0);
+						return;
+					case GLFW_KEY_S:
+						GraphicsGL::get().move_camera(0, 20);
+						return;
+					case GLFW_KEY_D:
+						GraphicsGL::get().move_camera(20, 0);
+						return;
+					case GLFW_KEY_R:
+						GraphicsGL::get().reset_camera();
+						return;
+					case GLFW_KEY_C:
+						GraphicsGL::get().clear_atlas_cache();
+						return;
+					case GLFW_KEY_T:
+						GraphicsGL::get().toggle_debug_mode();
+						return;
+				}
+			}
 
 			bool sent = false;
 			std::list<UIElement::Type> types;
@@ -452,6 +483,11 @@ namespace ms
 	Keyboard& UI::get_keyboard()
 	{
 		return keyboard;
+	}
+
+	Point<int16_t> UI::get_cursor_position() const
+	{
+		return cursor.get_position();
 	}
 
 	void UI::remove(UIElement::Type type)

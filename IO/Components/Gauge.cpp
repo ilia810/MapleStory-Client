@@ -47,11 +47,35 @@ namespace ms
 			{
 				barfront.draw(args, {}, Range<int16_t>(0, barfront.width() - length));
 			}
+			else if (type == Type::V87_FILL)
+			{
+				// V87: Draw texture clipped to the fill length, no stretching
+				// Use Range to clip the texture to the desired width
+				if (length <= barfront.width())
+				{
+					// Normal case: clip texture to show only the filled portion
+					barfront.draw(args, {}, Range<int16_t>(0, length));
+				}
+				else
+				{
+					// Edge case: if length exceeds texture width, tile the texture
+					int16_t remaining = length;
+					int16_t offset = 0;
+					while (remaining > 0)
+					{
+						int16_t tile_width = (remaining >= barfront.width()) ? barfront.width() : remaining;
+						barfront.draw(args + Point<int16_t>(offset, 0), {}, Range<int16_t>(0, tile_width));
+						offset += tile_width;
+						remaining -= tile_width;
+					}
+				}
+			}
 		}
 		else
 		{
 			if (type == Type::WORLDSELECT)
 				barfront.draw(args, {}, Range<int16_t>(0, barfront.width() - 1));
+			// V87_FILL: Draw nothing when length is 0 (empty gauge)
 		}
 	}
 
@@ -78,5 +102,11 @@ namespace ms
 					percentage = target;
 			}
 		}
+	}
+
+	bool Gauge::is_valid() const
+	{
+		// A gauge is valid if it has a valid front texture and a positive maximum
+		return barfront.is_valid() && maximum > 0;
 	}
 }

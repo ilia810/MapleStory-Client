@@ -31,40 +31,98 @@ namespace ms
 {
 	UIChatBar::UIChatBar() : temp_view_x(0), temp_view_y(0), drag_direction(DragDirection::NONE), view_input(false), view_adjusted(false), position_adjusted(false)
 	{
-		nl::node ingame = nl::nx::UI["StatusBar3.img"]["chat"]["ingame"];
-		nl::node input = ingame["input"];
+		// V87 compatibility: Check which StatusBar version exists
+		bool is_v87 = nl::nx::UI["StatusBar3.img"].name().empty();
+		
+		nl::node input, view;
+		
+		if (is_v87) {
+			// V87: Chat assets are minimal - most UI elements might not exist
+			// We'll need to create a simplified chat bar
+			nl::node statusBar = nl::nx::UI["StatusBar.img"];
+			
+			// V87 doesn't have the complex chat structure
+			// Create empty nodes to prevent crashes
+			input = nl::node();
+			view = nl::node();
+		} else {
+			// Modern versions: StatusBar3.img with chat/ingame structure
+			nl::node statusBar3 = nl::nx::UI["StatusBar3.img"];
+			nl::node chat = statusBar3["chat"];
+			nl::node ingame = chat["ingame"];
+			
+			input = ingame["input"];
+			view = ingame["view"];
+		}
+		if (!is_v87) {
+			// Modern versions have the full chat UI structure
+			nl::node max = view["max"];
+			nl::node min = view["min"];
 
-		nl::node view = ingame["view"];
-		nl::node max = view["max"];
-		nl::node min = view["min"];
+			drag = view["drag"];
 
-		drag = view["drag"];
+			max_textures.emplace_back(max["top"]);
+			max_textures.emplace_back(max["center"]);
+			max_textures.emplace_back(max["bottom"]);
 
-		max_textures.emplace_back(max["top"]);
-		max_textures.emplace_back(max["center"]);
-		max_textures.emplace_back(max["bottom"]);
+			min_textures.emplace_back(min["top"]);
+			min_textures.emplace_back(min["center"]);
+			min_textures.emplace_back(min["bottom"]);
+		} else {
+			// V87: Create placeholder textures to prevent crashes
+			// The chat UI will be very basic
+			drag = Texture();
+			
+			// Add empty textures
+			max_textures.emplace_back(Texture());
+			max_textures.emplace_back(Texture());
+			max_textures.emplace_back(Texture());
+			
+			min_textures.emplace_back(Texture());
+			min_textures.emplace_back(Texture());
+			min_textures.emplace_back(Texture());
+		}
 
-		min_textures.emplace_back(min["top"]);
-		min_textures.emplace_back(min["center"]);
-		min_textures.emplace_back(min["bottom"]);
+		if (!is_v87) {
+			min_x = min_textures[0].width();
+			max_x = max_textures[0].width();
+			top_y = min_textures[0].height();
+			center_y = min_textures[1].height();
+			bottom_y = min_textures[2].height();
+			btMin_x = Texture(view["btMin"]["normal"]["0"]).width();
 
-		min_x = min_textures[0].width();
-		max_x = max_textures[0].width();
-		top_y = min_textures[0].height();
-		center_y = min_textures[1].height();
-		bottom_y = min_textures[2].height();
-		btMin_x = Texture(view["btMin"]["normal"]["0"]).width();
+			input_textures.emplace_back(input["layer:backgrnd"]);
+			input_textures.emplace_back(input["layer:chatEnter"]);
+		} else {
+			// V87: Use default dimensions
+			min_x = 200;  // Default width
+			max_x = 400;  // Default expanded width
+			top_y = 20;   // Default heights
+			center_y = 60;
+			bottom_y = 20;
+			btMin_x = 16;
+			
+			// Add empty textures
+			input_textures.emplace_back(Texture());
+			input_textures.emplace_back(Texture());
+		}
 
-		input_textures.emplace_back(input["layer:backgrnd"]);
-		input_textures.emplace_back(input["layer:chatEnter"]);
+		if (!is_v87) {
+			input_bg_x = input_textures[0].width();
+			input_bg_y = input_textures[0].height();
+			input_max_x = input_textures[1].width();
 
-		input_bg_x = input_textures[0].width();
-		input_bg_y = input_textures[0].height();
-		input_max_x = input_textures[1].width();
-
-		Point<int16_t> input_origin = input_textures[1].get_origin().abs();
-		input_origin_x = input_origin.x();
-		input_origin_y = input_origin.y();
+			Point<int16_t> input_origin = input_textures[1].get_origin().abs();
+			input_origin_x = input_origin.x();
+			input_origin_y = input_origin.y();
+		} else {
+			// V87: Use default dimensions
+			input_bg_x = 500;
+			input_bg_y = 60;
+			input_max_x = 500;
+			input_origin_x = 0;
+			input_origin_y = 0;
+		}
 
 		min_view_y = Constants::Constants::get().get_viewheight() - input_bg_y;
 		user_view_x = Setting<ChatViewX>::get().load();
@@ -80,27 +138,58 @@ namespace ms
 			user_view_y = top_y + center_y + bottom_y + 20;
 		}
 
-		int16_t btMax_x = Texture(view["btMax"]["normal"]["0"]).width();
+		if (!is_v87) {
+			int16_t btMax_x = Texture(view["btMax"]["normal"]["0"]).width();
 
-		// Five pixels left and seven pixels up for padding
-		buttons[Buttons::BtMax] = std::make_unique<MapleButton>(view["btMax"], Point<int16_t>(min_x - btMax_x - 5, -7));
-		buttons[Buttons::BtMin] = std::make_unique<MapleButton>(view["btMin"]);
+			// Five pixels left and seven pixels up for padding
+			buttons[Buttons::BtMax] = std::make_unique<MapleButton>(view["btMax"], Point<int16_t>(min_x - btMax_x - 5, -7));
+			buttons[Buttons::BtMin] = std::make_unique<MapleButton>(view["btMin"]);
 
-		Point<int16_t> input_btns_pos = Point<int16_t>(input_max_x - (input_bg_x - user_view_x) + input_origin_x - 17, 15 + input_origin_y + 1);
-		int16_t input_btns_padding = 3;
-		input_btns_x = Texture(input["button:chat"]["normal"]["0"]).width() + input_btns_padding;
+			input_btns_pos = Point<int16_t>(input_max_x - (input_bg_x - user_view_x) + input_origin_x - 17, 15 + input_origin_y + 1);
+			int16_t input_btns_padding = 3;
+			input_btns_x = Texture(input["button:chat"]["normal"]["0"]).width() + input_btns_padding;
 
-		buttons[Buttons::BtChat] = std::make_unique<MapleButton>(input["button:chat"], input_btns_pos + Point<int16_t>(input_btns_x * 0, 0));
-		buttons[Buttons::BtItemLink] = std::make_unique<MapleButton>(input["button:itemLink"], input_btns_pos + Point<int16_t>(input_btns_x * 1, 0));
-		buttons[Buttons::BtChatEmoticon] = std::make_unique<MapleButton>(input["button:chatEmoticon"], input_btns_pos + Point<int16_t>(input_btns_x * 2, 0));
-		buttons[Buttons::BtHelp] = std::make_unique<MapleButton>(input["button:help"], input_btns_pos + Point<int16_t>(input_btns_x * 3, 0));
-		buttons[Buttons::BtOutChat] = std::make_unique<MapleButton>(input["button:outChat"], input_btns_pos + Point<int16_t>(input_btns_x * 4, 0));
+			// Create basic chat button
+			buttons[Buttons::BtChat] = std::make_unique<MapleButton>(input["button:chat"], input_btns_pos + Point<int16_t>(input_btns_x * 0, 0));
+		} else {
+			// V87: No chat UI buttons exist
+			input_btns_pos = Point<int16_t>(0, 0);
+			input_btns_x = 20; // Default button width
+		}
+		
+		// v87 compatibility: only create buttons if they exist
+		int16_t button_index = 1;
+		
+		if (input["button:itemLink"])
+		{
+			buttons[Buttons::BtItemLink] = std::make_unique<MapleButton>(input["button:itemLink"], input_btns_pos + Point<int16_t>(input_btns_x * button_index, 0));
+			buttons[Buttons::BtItemLink]->set_active(false);
+			button_index++;
+		}
+		
+		if (input["button:chatEmoticon"])
+		{
+			buttons[Buttons::BtChatEmoticon] = std::make_unique<MapleButton>(input["button:chatEmoticon"], input_btns_pos + Point<int16_t>(input_btns_x * button_index, 0));
+			buttons[Buttons::BtChatEmoticon]->set_active(false);
+			button_index++;
+		}
+		
+		if (input["button:help"])
+		{
+			buttons[Buttons::BtHelp] = std::make_unique<MapleButton>(input["button:help"], input_btns_pos + Point<int16_t>(input_btns_x * button_index, 0));
+			buttons[Buttons::BtHelp]->set_active(false);
+			button_index++;
+		}
+		
+		if (input["button:outChat"])
+		{
+			buttons[Buttons::BtOutChat] = std::make_unique<MapleButton>(input["button:outChat"], input_btns_pos + Point<int16_t>(input_btns_x * button_index, 0));
+			buttons[Buttons::BtOutChat]->set_active(false);
+		}
 
-		buttons[Buttons::BtChat]->set_active(false);
-		buttons[Buttons::BtItemLink]->set_active(false);
-		buttons[Buttons::BtChatEmoticon]->set_active(false);
-		buttons[Buttons::BtHelp]->set_active(false);
-		buttons[Buttons::BtOutChat]->set_active(false);
+		if (buttons[Buttons::BtChat]) {
+			buttons[Buttons::BtChat]->set_active(false);
+		}
 
 		int16_t input_text_limit = 70;
 		int16_t input_text_marker_height = 11;
@@ -1018,11 +1107,11 @@ namespace ms
 			}
 		}
 
-		buttons[Buttons::BtChat]->set_active(view_input);
-		buttons[Buttons::BtItemLink]->set_active(view_input);
-		buttons[Buttons::BtChatEmoticon]->set_active(view_input);
-		buttons[Buttons::BtHelp]->set_active(view_input);
-		buttons[Buttons::BtOutChat]->set_active(view_input);
+		if (buttons[Buttons::BtChat]) buttons[Buttons::BtChat]->set_active(view_input);
+		if (buttons[Buttons::BtItemLink]) buttons[Buttons::BtItemLink]->set_active(view_input);
+		if (buttons[Buttons::BtChatEmoticon]) buttons[Buttons::BtChatEmoticon]->set_active(view_input);
+		if (buttons[Buttons::BtHelp]) buttons[Buttons::BtHelp]->set_active(view_input);
+		if (buttons[Buttons::BtOutChat]) buttons[Buttons::BtOutChat]->set_active(view_input);
 	}
 
 	void UIChatBar::toggle_view(bool max, bool pressed)
@@ -1034,17 +1123,17 @@ namespace ms
 			view_input = false;
 			view_adjusted = false;
 
-			buttons[Buttons::BtChat]->set_active(view_input);
-			buttons[Buttons::BtItemLink]->set_active(view_input);
-			buttons[Buttons::BtChatEmoticon]->set_active(view_input);
-			buttons[Buttons::BtHelp]->set_active(view_input);
-			buttons[Buttons::BtOutChat]->set_active(view_input);
+			if (buttons[Buttons::BtChat]) buttons[Buttons::BtChat]->set_active(view_input);
+			if (buttons[Buttons::BtItemLink]) buttons[Buttons::BtItemLink]->set_active(view_input);
+			if (buttons[Buttons::BtChatEmoticon]) buttons[Buttons::BtChatEmoticon]->set_active(view_input);
+			if (buttons[Buttons::BtHelp]) buttons[Buttons::BtHelp]->set_active(view_input);
+			if (buttons[Buttons::BtOutChat]) buttons[Buttons::BtOutChat]->set_active(view_input);
 		}
 
 		Setting<ChatViewMax>::get().save(view_max);
 
-		buttons[Buttons::BtMax]->set_active(!view_max);
-		buttons[Buttons::BtMin]->set_active(view_max);
+		if (buttons[Buttons::BtMax]) buttons[Buttons::BtMax]->set_active(!view_max);
+		if (buttons[Buttons::BtMin]) buttons[Buttons::BtMin]->set_active(view_max);
 
 		update_view(pressed);
 	}
@@ -1089,21 +1178,21 @@ namespace ms
 		{
 			dimension = Point<int16_t>(user_view_x, top_y + center_y + bottom_y) + Point<int16_t>(0, user_view_y);
 
-			buttons[Buttons::BtMin]->set_position(Point<int16_t>(user_view_x - btMin_x, -top_y - center_y - user_view_y) + btMin_padding);
+			if (buttons[Buttons::BtMin]) buttons[Buttons::BtMin]->set_position(Point<int16_t>(user_view_x - btMin_x, -top_y - center_y - user_view_y) + btMin_padding);
 
-			Point<int16_t> input_btns_pos = Point<int16_t>(input_max_x - (input_bg_x - user_view_x) + input_origin_x - 17, 15 + input_origin_y + 1);
+			input_btns_pos = Point<int16_t>(input_max_x - (input_bg_x - user_view_x) + input_origin_x - 17, 15 + input_origin_y + 1);
 
-			buttons[Buttons::BtChat]->set_position(input_btns_pos + Point<int16_t>(input_btns_x * 0, 0));
-			buttons[Buttons::BtItemLink]->set_position(input_btns_pos + Point<int16_t>(input_btns_x * 1, 0));
-			buttons[Buttons::BtChatEmoticon]->set_position(input_btns_pos + Point<int16_t>(input_btns_x * 2, 0));
-			buttons[Buttons::BtHelp]->set_position(input_btns_pos + Point<int16_t>(input_btns_x * 3, 0));
-			buttons[Buttons::BtOutChat]->set_position(input_btns_pos + Point<int16_t>(input_btns_x * 4, 0));
+			if (buttons[Buttons::BtChat]) buttons[Buttons::BtChat]->set_position(input_btns_pos + Point<int16_t>(input_btns_x * 0, 0));
+			if (buttons[Buttons::BtItemLink]) buttons[Buttons::BtItemLink]->set_position(input_btns_pos + Point<int16_t>(input_btns_x * 1, 0));
+			if (buttons[Buttons::BtChatEmoticon]) buttons[Buttons::BtChatEmoticon]->set_position(input_btns_pos + Point<int16_t>(input_btns_x * 2, 0));
+			if (buttons[Buttons::BtHelp]) buttons[Buttons::BtHelp]->set_position(input_btns_pos + Point<int16_t>(input_btns_x * 3, 0));
+			if (buttons[Buttons::BtOutChat]) buttons[Buttons::BtOutChat]->set_position(input_btns_pos + Point<int16_t>(input_btns_x * 4, 0));
 		}
 		else
 		{
 			dimension = Point<int16_t>(min_x, top_y + center_y + bottom_y);
 
-			buttons[Buttons::BtMin]->set_position(Point<int16_t>(min_x - btMin_x, -top_y - center_y - user_view_y) + btMin_padding);
+			if (buttons[Buttons::BtMin]) buttons[Buttons::BtMin]->set_position(Point<int16_t>(min_x - btMin_x, -top_y - center_y - user_view_y) + btMin_padding);
 		}
 
 #if LOG_LEVEL >= LOG_UI

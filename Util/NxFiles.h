@@ -20,7 +20,7 @@
 #include "../MapleStory.h"
 
 #ifdef USE_NX
-#pragma comment(lib, "NoLifeNx")
+// NoLifeNx is now compiled from source, no need for pragma comment
 
 #include "../Error.h"
 
@@ -30,10 +30,10 @@ namespace ms
 {
 	namespace NxFiles
 	{
-		// Number of needed files
-		constexpr uint8_t NUM_FILES = 28;
+		// Number of needed files (v83 consolidated files only)
+		constexpr uint8_t NUM_FILES = 18;
 
-		// Names of the needed game files
+		// Names of the needed game files (v83 consolidated versions)
 		constexpr std::array<const char*, NUM_FILES> filenames =
 		{
 			"Base.nx",
@@ -42,28 +42,29 @@ namespace ms
 			"Etc.nx",
 			"Item.nx",
 			"Map.nx",
-			"Map001.nx",
-			"Map002.nx",
+			//"Map001.nx",    // v83: consolidated in Map.nx
+			//"Map002.nx",    // v83: consolidated in Map.nx  
 			"Map2.nx",
 			"Mob.nx",
-			"Mob001.nx",
-			"Mob002.nx",
-			"Mob2.nx",
+			//"Mob001.nx",    // v83: consolidated in Mob.nx
+			//"Mob002.nx",    // v83: consolidated in Mob.nx
+			//"Mob2.nx",      // v83: consolidated in Mob.nx
 			"Morph.nx",
 			"Npc.nx",
 			"Quest.nx",
 			"Reactor.nx",
 			"Skill.nx",
-			"Skill001.nx",
-			"Skill002.nx",
-			"Skill003.nx",
+			//"Skill001.nx",  // v83: consolidated in Skill.nx
+			//"Skill002.nx",  // v83: consolidated in Skill.nx
+			//"Skill003.nx",  // v83: consolidated in Skill.nx
 			"Sound.nx",
-			"Sound001.nx",
-			"Sound002.nx",
+			//"Sound001.nx",  // v83: consolidated in Sound.nx
+			//"Sound002.nx",  // v83: consolidated in Sound.nx or Sound2.nx
 			"Sound2.nx",
 			"String.nx",
 			"TamingMob.nx",
 			"UI.nx"
+			//"UI_000.nx"     // v83: not present
 		};
 
 		// Initialize NX

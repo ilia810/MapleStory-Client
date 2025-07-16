@@ -48,7 +48,10 @@ namespace ms
 			// Set the window and screen width
 			void set_viewwidth(int16_t width)
 			{
-				VIEWWIDTH = width;
+				// Clamp to reasonable values to prevent window resize issues
+				if (width > 0 && width <= 1920) {
+					VIEWWIDTH = width;
+				}
 			}
 
 			// Get the window and screen height
@@ -60,7 +63,10 @@ namespace ms
 			// Set the window and screen height
 			void set_viewheight(int16_t height)
 			{
-				VIEWHEIGHT = height;
+				// Clamp to reasonable values to prevent window resize issues
+				if (height > 0 && height <= 1080) {
+					VIEWHEIGHT = height;
+				}
 			}
 
 		private:

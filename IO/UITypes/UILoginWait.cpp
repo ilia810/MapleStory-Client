@@ -20,6 +20,7 @@
 #include "../Components/MapleButton.h"
 
 #include "../../Net/Session.h"
+#include "../../Util/Misc.h"
 
 #ifdef USE_NX
 #include <nlnx/nx.hpp>
@@ -31,6 +32,7 @@ namespace ms
 
 	UILoginWait::UILoginWait(std::function<void()> okhandler) : okhandler(okhandler)
 	{
+		LOG(LOG_DEBUG, "[UILoginWait] Constructor called");
 		nl::node Loading = nl::nx::UI["Login.img"]["Notice"]["Loading"];
 		nl::node backgrnd = Loading["backgrnd"];
 
@@ -41,6 +43,12 @@ namespace ms
 
 		position = Point<int16_t>(276, 229);
 		dimension = Texture(backgrnd).get_dimensions();
+		LOG(LOG_DEBUG, "[UILoginWait] Constructor completed successfully");
+	}
+	
+	UILoginWait::~UILoginWait()
+	{
+		LOG(LOG_DEBUG, "[UILoginWait] Destructor called");
 	}
 
 	UIElement::Type UILoginWait::get_type() const

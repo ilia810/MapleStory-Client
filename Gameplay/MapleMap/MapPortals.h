@@ -41,6 +41,7 @@ namespace ms
 
 		Point<int16_t> get_portal_by_id(uint8_t id) const;
 		Point<int16_t> get_portal_by_name(const std::string& name) const;
+		size_t get_portal_count() const { return portals_by_id.size(); }
 
 	private:
 		static std::unordered_map<Portal::Type, Animation> animations;

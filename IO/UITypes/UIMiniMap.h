@@ -114,6 +114,9 @@ namespace ms
 		Point<int16_t> min_dimensions;
 		Point<int16_t> normal_dimensions;
 		Point<int16_t> max_dimensions;
+		int16_t left_border_width;
+		int16_t right_border_width;
+		int16_t total_border_width;
 		Text combined_text;
 		Text region_text;
 		Text town_text;

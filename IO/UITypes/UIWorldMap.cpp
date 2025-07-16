@@ -43,12 +43,16 @@ namespace ms
 		for (size_t i = 0; i < MAPSPOT_TYPE_MAX; i++)
 			npc_pos[i] = MapHelper["npcPos" + std::to_string(i)];
 
-		sprites.emplace_back(Border);
+		if (Border && Border.data_type() == nl::node::type::bitmap) {
+			sprites.emplace_back(Border);
+			bg_dimensions = Texture(Border).get_dimensions();
+		} else {
+			// Invalid border texture, use default dimensions
+			bg_dimensions = Point<int16_t>(400, 300);
+		}
 
 		search_background = backgrnd;
 		search_notice = WorldMapSearch["notice"];
-
-		bg_dimensions = Texture(Border).get_dimensions();
 		bg_search_dimensions = search_background.get_dimensions();
 
 		int16_t bg_dimensions_x = bg_dimensions.x();
@@ -89,7 +93,9 @@ namespace ms
 			search_text.draw(Point<int16_t>(1, -5));
 		}
 
-		base_img.draw(position + base_position);
+		if (base_img.is_valid()) {
+			base_img.draw(position + base_position);
+		}
 
 		if (link_images.size() > 0)
 		{
@@ -293,7 +299,13 @@ namespace ms
 		if (!WorldMap)
 			WorldMap = nl::nx::Map["WorldMap"]["WorldMap.img"];
 
-		base_img = WorldMap["BaseImg"][0];
+		nl::node baseImgNode = WorldMap["BaseImg"][0];
+		if (baseImgNode && baseImgNode.data_type() == nl::node::type::bitmap) {
+			base_img = baseImgNode;
+		} else {
+			// Invalid base image, create empty texture
+			base_img = Texture();
+		}
 		parent_map = WorldMap["info"]["parentMap"];
 
 		link_images.clear();

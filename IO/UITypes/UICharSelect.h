@@ -137,6 +137,7 @@ namespace ms
 		bool show_timestamp;
 		bool burning_character;
 		bool show_pic_btns;
+		bool perform_auto_character_select;
 
 		enum InfoLabel : uint8_t
 		{

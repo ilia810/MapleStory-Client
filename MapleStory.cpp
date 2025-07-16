@@ -18,9 +18,13 @@
 #include "Gameplay/Stage.h"
 #include "IO/UI.h"
 #include "IO/Window.h"
+#include "quick_nx_test.cpp"
 #include "Net/Session.h"
 #include "Util/HardwareInfo.h"
 #include "Util/ScreenResolution.h"
+
+#include <iostream>
+#include <fstream>
 
 #ifdef USE_NX
 #include "Util/NxFiles.h"
@@ -80,9 +84,16 @@ namespace ms
 
 	bool running()
 	{
-		return Session::get().is_connected()
-			&& UI::get().not_quitted()
-			&& Window::get().not_closed();
+		bool session_connected = Session::get().is_connected();
+		bool ui_not_quitted = UI::get().not_quitted();
+		bool window_not_closed = Window::get().not_closed();
+		
+		// Allow running during login screen even without session connection
+		bool should_run = ui_not_quitted && window_not_closed;
+		
+		// Main loop state check
+		
+		return should_run;
 	}
 
 	void loop()
@@ -146,7 +157,7 @@ namespace ms
 				LOG(LOG_ERROR, message);
 
 			if (can_retry)
-				LOG(LOG_INFO, "Enter 'retry' to try again.");
+				LOG(LOG_INFO, "Enter 'retry' to try agC:\HeavenClient\NoLifeWzToNxain.");
 
 			std::string command;
 			std::cin >> command;
@@ -167,9 +178,22 @@ int main()
 int APIENTRY WinMain(HINSTANCE hInst, HINSTANCE hInstPrev, PSTR cmdline, int cmdshow)
 #endif
 {
+	// Redirect stdout and stderr to debug_output.txt, clearing it on each run
+	//static std::ofstream debug_file("debug_output.txt", std::ios::trunc);
+	//static std::streambuf* orig_cout = std::cout.rdbuf();
+	//static std::streambuf* orig_cerr = std::cerr.rdbuf();
+	
+	//std::cout.rdbuf(debug_file.rdbuf());
+	//std::cerr.rdbuf(debug_file.rdbuf());
+	
 	ms::HardwareInfo();
 	ms::ScreenResolution();
 	ms::start();
+
+	// Restore original streams before exit
+	//std::cout.rdbuf(orig_cout);
+	//std::cerr.rdbuf(orig_cerr);
+	//debug_file.close();
 
 	return 0;
 }

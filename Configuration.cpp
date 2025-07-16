@@ -41,6 +41,13 @@ namespace ms
 		settings.emplace<DefaultChannel>();
 		settings.emplace<DefaultRegion>();
 		settings.emplace<DefaultCharacter>();
+		settings.emplace<AutoLogin>();
+		settings.emplace<AutoAccount>();
+		settings.emplace<AutoPassword>();
+		settings.emplace<AutoWorld>();
+		settings.emplace<AutoChannel>();
+		settings.emplace<AutoCharacter>();
+		settings.emplace<AutoPIC>();
 		settings.emplace<ChatViewMax>();
 		settings.emplace<ChatViewX>();
 		settings.emplace<ChatViewY>();
@@ -81,6 +88,8 @@ namespace ms
 		std::unordered_map<std::string, std::string> rawsettings;
 		std::ifstream file(FILENAME);
 
+		LOG(LOG_DEBUG, "[Configuration] Loading settings from: " + std::string(FILENAME));
+
 		if (file.is_open())
 		{
 			// Go through the file line by line
@@ -91,14 +100,31 @@ namespace ms
 				// If the setting is not empty, load the value.
 				size_t split = line.find('=');
 
-				if (split != std::string::npos && split + 2 < line.size())
+				if (split != std::string::npos && split + 1 < line.size())
 				{
-					rawsettings.emplace(
-						line.substr(0, split - 1),
-						line.substr(split + 2)
-					);
+					std::string key = line.substr(0, split);
+					std::string value = line.substr(split + 1);
+					
+					// Trim whitespace from key and value
+					key.erase(key.find_last_not_of(" \t\r\n") + 1);
+					key.erase(0, key.find_first_not_of(" \t\r\n"));
+					value.erase(value.find_last_not_of(" \t\r\n") + 1);
+					value.erase(0, value.find_first_not_of(" \t\r\n"));
+					
+					rawsettings.emplace(key, value);
+					
+					// Log auto-login related settings
+					if (key == "AutoLogin" || key == "AutoAccount" || key == "AutoPassword" || 
+					    key == "AutoWorld" || key == "AutoChannel" || key == "AutoCharacter")
+					{
+						LOG(LOG_DEBUG, "[Configuration] Loaded setting: " + key + " = " + value);
+					}
 				}
 			}
+		}
+		else
+		{
+			LOG(LOG_ERROR, "[Configuration] Failed to open settings file: " + std::string(FILENAME));
 		}
 
 		// Replace default values with loaded values
@@ -107,8 +133,18 @@ namespace ms
 			auto rsiter = rawsettings.find(setting.second->name);
 
 			if (rsiter != rawsettings.end())
+			{
 				setting.second->value = rsiter->second;
+			}
 		}
+		
+		// Verify auto-login settings were loaded
+		LOG(LOG_DEBUG, "[Configuration] Auto-login settings after load:");
+		LOG(LOG_DEBUG, "  AutoLogin = " + Setting<AutoLogin>::get().value);
+		LOG(LOG_DEBUG, "  AutoAccount = " + Setting<AutoAccount>::get().value);
+		LOG(LOG_DEBUG, "  AutoWorld = " + Setting<AutoWorld>::get().value);
+		LOG(LOG_DEBUG, "  AutoChannel = " + Setting<AutoChannel>::get().value);
+		LOG(LOG_DEBUG, "  AutoCharacter = " + Setting<AutoCharacter>::get().value);
 	}
 
 	void Configuration::save() const
@@ -172,41 +208,40 @@ namespace ms
 
 	bool Configuration::get_auto_login() const
 	{
-#ifdef NDEBUG
-		return false;
-#endif
-
-		return AUTO_LOGIN;
+		bool auto_login = Setting<AutoLogin>::get().load();
+		LOG(LOG_DEBUG, "[Configuration] get_auto_login() returning: " + std::string(auto_login ? "true" : "false"));
+		LOG(LOG_DEBUG, "[Configuration] AutoLogin raw value: " + Setting<AutoLogin>::get().value);
+		return auto_login;
 	}
 
 	uint8_t Configuration::get_auto_world()
 	{
-		return auto_world;
+		return Setting<AutoWorld>::get().load();
 	}
 
 	uint8_t Configuration::get_auto_channel()
 	{
-		return auto_channel;
+		return Setting<AutoChannel>::get().load();
 	}
 
 	std::string Configuration::get_auto_acc()
 	{
-		return auto_acc;
+		return Setting<AutoAccount>::get().load();
 	}
 
 	std::string Configuration::get_auto_pass()
 	{
-		return auto_pass;
+		return Setting<AutoPassword>::get().load();
 	}
 
 	std::string Configuration::get_auto_pic()
 	{
-		return auto_pic;
+		return Setting<AutoPIC>::get().load();
 	}
 
 	int32_t Configuration::get_auto_cid()
 	{
-		return auto_cid;
+		return Setting<AutoCharacter>::get().load();
 	}
 
 	std::string Configuration::get_title() const
