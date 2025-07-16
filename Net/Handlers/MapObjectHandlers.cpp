@@ -209,6 +209,8 @@ namespace ms
 
 	void SpawnMobHandler::handle(InPacket& recv) const
 	{
+		std::cout << "[DEBUG] SpawnMobHandler::handle() called" << std::endl;
+		
 		int32_t oid = recv.read_int();
 		recv.read_byte(); // 5 if controller == null
 		int32_t id = recv.read_int();
@@ -236,9 +238,15 @@ namespace ms
 
 		recv.skip(4);
 
+		std::cout << "[DEBUG] Spawning mob: OID=" << oid << ", ID=" << id 
+				  << ", pos=(" << position.x() << "," << position.y() << ")" 
+				  << ", stance=" << (int)stance << ", fh=" << fh << std::endl;
+
 		Stage::get().get_mobs().spawn(
 			{ oid, id, 0, stance, fh, effect == -2, team, position }
 		);
+		
+		std::cout << "[DEBUG] Mob spawn queued successfully" << std::endl;
 	}
 
 	void KillMobHandler::handle(InPacket& recv) const

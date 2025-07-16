@@ -31,13 +31,24 @@ namespace ms
 
 	void MapMobs::update(const Physics& physics)
 	{
+		static int update_count = 0;
+		update_count++;
+		
+		if (update_count % 60 == 0) { // Log every 60 updates (roughly every second)
+			std::cout << "[DEBUG] MapMobs::update() called, spawns queue size: " << spawns.size() << std::endl;
+		}
+		
 		for (; !spawns.empty(); spawns.pop())
 		{
 			const MobSpawn& spawn = spawns.front();
+			
+			std::cout << "[DEBUG] Processing spawn from queue: OID=" << spawn.get_oid() << std::endl;
 
 			if (Optional<Mob> mob = mobs.get(spawn.get_oid()))
 			{
 				int8_t mode = spawn.get_mode();
+				
+				std::cout << "[DEBUG] Found existing mob, updating mode: " << (int)mode << std::endl;
 
 				if (mode > 0)
 					mob->set_control(mode);
@@ -46,7 +57,9 @@ namespace ms
 			}
 			else
 			{
+				std::cout << "[DEBUG] Creating new mob from spawn" << std::endl;
 				mobs.add(spawn.instantiate());
+				std::cout << "[DEBUG] New mob added to map" << std::endl;
 			}
 		}
 
@@ -55,7 +68,9 @@ namespace ms
 
 	void MapMobs::spawn(MobSpawn&& spawn)
 	{
+		std::cout << "[DEBUG] MapMobs::spawn() called, adding to queue. Queue size before: " << spawns.size() << std::endl;
 		spawns.emplace(std::move(spawn));
+		std::cout << "[DEBUG] Spawn added to queue. Queue size after: " << spawns.size() << std::endl;
 	}
 
 	void MapMobs::remove(int32_t oid, int8_t animation)
