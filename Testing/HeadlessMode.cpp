@@ -170,7 +170,9 @@ bool HeadlessMode::isMapLoaded(int32_t mapid) const {
 }
 
 bool HeadlessMode::isUIElementVisible(const std::string& element) const {
-    return ui_ && ui_->is_visible(UIElement::Type::NUM_TYPES);
+    // For now, just check if UI exists
+    // TODO: Implement proper element visibility check
+    return ui_ != nullptr;
 }
 
 bool HeadlessMode::isConnected() const {

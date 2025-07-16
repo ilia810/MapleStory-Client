@@ -23,6 +23,7 @@
 #include <string>
 #include <vector>
 #include <algorithm>
+#include <map>
 
 void printUsage() {
     std::cout << "MapleStory Client Test Runner" << std::endl;
@@ -66,7 +67,7 @@ int runTests(int argc, char* argv[]) {
     using namespace ms;
     using namespace ms::Testing;
     
-    Configuration& config = Configuration::getInstance();
+    Configuration& config = Configuration::get();
     TestRunner runner;
     HeadlessMode& headless = HeadlessMode::getInstance();
     
