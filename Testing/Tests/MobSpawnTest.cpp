@@ -44,15 +44,8 @@ TEST(MobSpawning, SpawnSingleMob) {
     bool newSpawn = true;
     int8_t team = -1;
     
-    // Create MobSpawn struct
-    MobSpawn spawn;
-    spawn.oid = oid;
-    spawn.id = mobId;
-    spawn.position = position;
-    spawn.stance = stance;
-    spawn.fh = fh;
-    spawn.newspawn = newSpawn;
-    spawn.team = team;
+    // Create MobSpawn using constructor
+    MobSpawn spawn(oid, mobId, 0, stance, fh, newSpawn, team, position);
     
     stage->get_mobs().spawn(std::move(spawn));
     
@@ -76,15 +69,7 @@ TEST(MobSpawning, SpawnMultipleMobs) {
     stage->get_mobs().clear();
     
     for (int i = 0; i < 5; i++) {
-        MobSpawn spawn;
-        spawn.oid = 1000 + i;
-        spawn.id = 100100 + i;
-        spawn.position = Point<int16_t>(400 + i * 100, 300);
-        spawn.stance = 0;
-        spawn.fh = 1;
-        spawn.newspawn = true;
-        spawn.team = -1;
-        
+        MobSpawn spawn(1000 + i, 100100 + i, 0, 0, 1, true, -1, Point<int16_t>(400 + i * 100, 300));
         stage->get_mobs().spawn(std::move(spawn));
     }
     
@@ -105,15 +90,7 @@ TEST(MobSpawning, RemoveMob) {
     stage->loadmap(100000000);
     headless.waitForMapLoad(100000000, 5000);
     
-    MobSpawn spawn;
-    spawn.oid = 2000;
-    spawn.id = 100100;
-    spawn.position = Point<int16_t>(500, 300);
-    spawn.stance = 0;
-    spawn.fh = 1;
-    spawn.newspawn = true;
-    spawn.team = -1;
-    
+    MobSpawn spawn(2000, 100100, 0, 0, 1, true, -1, Point<int16_t>(500, 300));
     stage->get_mobs().spawn(std::move(spawn));
     
     headless.waitForCondition([]() { return true; }, 100);
@@ -136,15 +113,7 @@ TEST(MobSpawning, MobMovement) {
     stage->loadmap(100000000);
     headless.waitForMapLoad(100000000, 5000);
     
-    MobSpawn spawn;
-    spawn.oid = 3000;
-    spawn.id = 100100;
-    spawn.position = Point<int16_t>(500, 300);
-    spawn.stance = 0;
-    spawn.fh = 1;
-    spawn.newspawn = true;
-    spawn.team = -1;
-    
+    MobSpawn spawn(3000, 100100, 0, 0, 1, true, -1, Point<int16_t>(500, 300));
     stage->get_mobs().spawn(std::move(spawn));
     
     headless.waitForCondition([]() { return true; }, 100);
@@ -163,15 +132,7 @@ TEST(MobSpawning, MobControl) {
     stage->loadmap(100000000);
     headless.waitForMapLoad(100000000, 5000);
     
-    MobSpawn spawn;
-    spawn.oid = 4000;
-    spawn.id = 100100;
-    spawn.position = Point<int16_t>(500, 300);
-    spawn.stance = 0;
-    spawn.fh = 1;
-    spawn.newspawn = true;
-    spawn.team = -1;
-    
+    MobSpawn spawn(4000, 100100, 0, 0, 1, true, -1, Point<int16_t>(500, 300));
     stage->get_mobs().spawn(std::move(spawn));
     headless.waitForCondition([]() { return true; }, 100);
     
@@ -196,15 +157,7 @@ TEST(MobSpawning, ClearAllMobs) {
     headless.waitForMapLoad(100000000, 5000);
     
     for (int i = 0; i < 3; i++) {
-        MobSpawn spawn;
-        spawn.oid = 5000 + i;
-        spawn.id = 100100;
-        spawn.position = Point<int16_t>(400 + i * 100, 300);
-        spawn.stance = 0;
-        spawn.fh = 1;
-        spawn.newspawn = true;
-        spawn.team = -1;
-        
+        MobSpawn spawn(5000 + i, 100100, 0, 0, 1, true, -1, Point<int16_t>(400 + i * 100, 300));
         stage->get_mobs().spawn(std::move(spawn));
     }
     
