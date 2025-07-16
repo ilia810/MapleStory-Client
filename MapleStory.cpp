@@ -32,6 +32,8 @@
 #include "Util/WzFiles.h"
 #endif
 
+#include "Testing/TestMain.cpp"
+
 namespace ms
 {
 	Error init()
@@ -173,11 +175,28 @@ namespace ms
 }
 
 #ifdef _DEBUG
-int main()
+int main(int argc, char* argv[])
 #else
 int APIENTRY WinMain(HINSTANCE hInst, HINSTANCE hInstPrev, PSTR cmdline, int cmdshow)
 #endif
 {
+#ifdef _DEBUG
+	// Check if running in test mode
+	if (ms::Testing::isTestMode(argc, argv))
+	{
+		return runTests(argc, argv);
+	}
+#else
+	// Parse command line in release mode
+	int argc = __argc;
+	char** argv = __argv;
+	
+	if (ms::Testing::isTestMode(argc, argv))
+	{
+		return runTests(argc, argv);
+	}
+#endif
+
 	// Redirect stdout and stderr to debug_output.txt, clearing it on each run
 	//static std::ofstream debug_file("debug_output.txt", std::ios::trunc);
 	//static std::streambuf* orig_cout = std::cout.rdbuf();
