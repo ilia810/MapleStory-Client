@@ -1,0 +1,24 @@
+Compressed NX Structure
+Generated: 2025-07-14 12:21:51
+Note: Use states & frames to expand back to original structure
+
+0002000.img
+0002001.img
+0002002.img
+0002003.img
+0002004.img
+0002005.img
+0002006.img
+0002007.img
+0002100.img
+0002101.img
+0002102.img
+0002103.img
+0010000.img
+0010200.img
+0010201.img
+0010202.img
+0010203.img
+0010204.img
+0011000.img
+0011100.img

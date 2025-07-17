@@ -238,32 +238,6 @@ namespace ms
 		{
 			Keyboard::Mapping mapping = keyboard.get_mapping(keycode);
 
-			// Debug camera controls (WASD + R for reset)
-			if (pressed) {
-				switch (keycode) {
-					case GLFW_KEY_W:
-						GraphicsGL::get().move_camera(0, -20);
-						return;
-					case GLFW_KEY_A:
-						GraphicsGL::get().move_camera(-20, 0);
-						return;
-					case GLFW_KEY_S:
-						GraphicsGL::get().move_camera(0, 20);
-						return;
-					case GLFW_KEY_D:
-						GraphicsGL::get().move_camera(20, 0);
-						return;
-					case GLFW_KEY_R:
-						GraphicsGL::get().reset_camera();
-						return;
-					case GLFW_KEY_C:
-						GraphicsGL::get().clear_atlas_cache();
-						return;
-					case GLFW_KEY_T:
-						GraphicsGL::get().toggle_debug_mode();
-						return;
-				}
-			}
 
 			bool sent = false;
 			std::list<UIElement::Type> types;

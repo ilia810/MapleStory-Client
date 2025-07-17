@@ -49,7 +49,7 @@ namespace ms
 
 		int8_t get_mode() const;
 		int32_t get_oid() const;
-		std::unique_ptr<MapObject> instantiate() const;
+		std::unique_ptr<MapObject> instantiate(const Physics& physics) const;
 
 	private:
 		int32_t oid;

@@ -17,16 +17,20 @@
 //////////////////////////////////////////////////////////////////////////////////
 #include "MapObjects.h"
 
+#include <iostream>
+
 namespace ms
 {
 	void MapObjects::draw(Layer::Id layer, double viewx, double viewy, float alpha) const
 	{
+		
 		for (auto& oid : layers[layer])
 		{
 			auto mmo = get(oid);
 
-			if (mmo && mmo->is_active())
+			if (mmo && mmo->is_active()) {
 				mmo->draw(viewx, viewy, alpha);
+			}
 		}
 	}
 
@@ -43,13 +47,16 @@ namespace ms
 
 				if (newlayer == -1)
 				{
-					remove_mob = true;
+						remove_mob = true;
 				}
 				else if (newlayer != oldlayer)
 				{
 					int32_t oid = iter->first;
-					layers[oldlayer].erase(oid);
-					layers[newlayer].insert(oid);
+					
+					if (oldlayer >= 0 && oldlayer < Layer::LENGTH)
+						layers[oldlayer].erase(oid);
+					if (newlayer >= 0 && newlayer < Layer::LENGTH)
+						layers[newlayer].insert(oid);
 				}
 			}
 			else
@@ -81,6 +88,14 @@ namespace ms
 	{
 		int32_t oid = toadd->get_oid();
 		int8_t layer = toadd->get_layer();
+		
+		
+		// Validate layer
+		if (layer < 0 || layer >= Layer::LENGTH) {
+			std::cout << "[ERROR] MapObjects::add invalid layer " << (int)layer << " for OID " << oid << ", defaulting to layer 0" << std::endl;
+			layer = 0;
+		}
+		
 		objects[oid] = std::move(toadd);
 		layers[layer].insert(oid);
 	}

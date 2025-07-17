@@ -36,6 +36,7 @@ namespace ms
 		if (!animation || (type == HIDDEN && !touched))
 			return;
 
+
 		animation->draw(position + viewpos, inter);
 	}
 

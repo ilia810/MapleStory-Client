@@ -91,6 +91,15 @@ namespace ms
 		textactions[GLFW_KEY_HOME] = KeyAction::Id::HOME;
 		textactions[GLFW_KEY_END] = KeyAction::Id::END;
 		textactions[GLFW_KEY_DELETE] = KeyAction::Id::DELETE;
+		
+		// Initialize default maplekeys to ensure K maps to SKILLS and Q maps to QUESTLOG
+		// K key is at position 37 in the Keytable
+		maplekeys[37] = Mapping(KeyType::Id::ACTION, KeyAction::Id::SKILLS);
+		keymap[GLFW_KEY_K] = Mapping(KeyType::Id::ACTION, KeyAction::Id::SKILLS);
+		
+		// Q key is at position 16 in the Keytable  
+		maplekeys[16] = Mapping(KeyType::Id::ACTION, KeyAction::Id::QUESTLOG);
+		keymap[GLFW_KEY_Q] = Mapping(KeyType::Id::ACTION, KeyAction::Id::QUESTLOG);
 	}
 
 	int32_t Keyboard::leftshiftcode() const

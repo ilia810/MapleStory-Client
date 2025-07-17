@@ -158,16 +158,46 @@ namespace ms
 		if (glwnd)
 			glfwDestroyWindow(glwnd);
 
+		// Get the selected monitor
+		uint8_t monitor_index = Setting<Monitor>::get().load();
+		int monitor_count;
+		GLFWmonitor** monitors = glfwGetMonitors(&monitor_count);
+		GLFWmonitor* selected_monitor = nullptr;
+		
+		if (monitor_index < monitor_count) {
+			selected_monitor = monitors[monitor_index];
+			LOG(LOG_DEBUG, "[Window] Using monitor " << (int)monitor_index << " of " << monitor_count);
+		} else {
+			selected_monitor = glfwGetPrimaryMonitor();
+			LOG(LOG_DEBUG, "[Window] Monitor " << (int)monitor_index << " not found, using primary monitor");
+		}
+		
+		// Use selected monitor only for fullscreen
+		GLFWmonitor* window_monitor = fullscreen ? selected_monitor : nullptr;
+		
 		glwnd = glfwCreateWindow(
 			width,
 			height,
 			Configuration::get().get_title().c_str(),
-			fullscreen ? glfwGetPrimaryMonitor() : nullptr,
+			window_monitor,
 			context
 		);
 
 		if (!glwnd)
 			return Error::Code::WINDOW;
+
+		// Position windowed mode on selected monitor
+		if (!fullscreen) {
+			int monitor_x, monitor_y;
+			glfwGetMonitorPos(selected_monitor, &monitor_x, &monitor_y);
+			
+			const GLFWvidmode* mode = glfwGetVideoMode(selected_monitor);
+			int window_x = monitor_x + (mode->width - width) / 2;
+			int window_y = monitor_y + (mode->height - height) / 2;
+			
+			glfwSetWindowPos(glwnd, window_x, window_y);
+			LOG(LOG_DEBUG, "[Window] Positioned windowed mode on monitor " << (int)monitor_index << " at (" << window_x << "," << window_y << ")");
+		}
 
 		glfwMakeContextCurrent(glwnd);
 

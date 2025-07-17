@@ -1,0 +1,612 @@
+STATUSBAR V87 RESEARCH - COMPLETE REPOMIX
+===========================================
+
+PROBLEM STATEMENT:
+We are working on HeavenClient compatibility with v87 GMS data. The status bar HP/MP/EXP gauges are not displaying correctly despite multiple fix attempts. The v87 StatusBar.img structure is fundamentally different from modern clients and we need expert analysis to determine the correct asset mapping and implementation.
+
+CURRENT STATUS:
+- HP/MP/EXP bars still not showing correctly
+- May be showing "double bars" or "wrong bars" 
+- Multiple texture assignment attempts have failed
+- Using v87 StatusBar.img which has flat structure vs modern hierarchical
+
+================================================================================
+FILE: UIStatusBar.cpp (COMPLETE RELEVANT SECTIONS)
+================================================================================
+
+//////////////////////////////////////////////////////////////////////////////////
+//	This file is part of the continued Journey MMORPG client					//
+//	Copyright (C) 2015-2019  Daniel Allendorf, Ryan Payton						//
+//////////////////////////////////////////////////////////////////////////////////
+#include "UIStatusBar.h"
+
+#include "UIChannel.h"
+#include "UICharInfo.h"
+#include "UIChat.h"
+#include "UIEquipInventory.h"
+#include "UIEvent.h"
+#include "UIItemInventory.h"
+#include "UIJoypad.h"
+#include "UIKeyConfig.h"
+#include "UIOptionMenu.h"
+#include "UIQuestLog.h"
+#include "UIQuit.h"
+#include "UISkillBook.h"
+#include "UIStatsInfo.h"
+#include "UIUserList.h"
+
+#include "../UI.h"
+#include "../Components/MapleButton.h"
+#include "../../Character/ExpTable.h"
+#include "../../Gameplay/Stage.h"
+#include "../../Net/Packets/GameplayPackets.h"
+
+#ifdef USE_NX
+#include <nlnx/nx.hpp>
+#endif
+
+namespace ms
+{
+	UIStatusBar::UIStatusBar(const CharStats& st) : stats(st)
+	{
+		quickslot_active = false;
+		quickslot_adj = Point<int16_t>(QUICKSLOT_MAX, 0);
+		VWIDTH = Constants::Constants::get().get_viewwidth();
+		VHEIGHT = Constants::Constants::get().get_viewheight();
+
+		menu_active = false;
+		setting_active = false;
+		community_active = false;
+		character_active = false;
+		event_active = false;
+
+		// Detect v87 vs modern client
+		bool is_v87 = nl::nx::UI["StatusBar3.img"].name().empty();
+		
+		std::string stat = "status";
+
+		if (VWIDTH == 800)
+			stat += "800";
+
+		// Use appropriate asset paths based on version
+		nl::node mainBar;
+		nl::node status;
+		nl::node EXPBar;
+		nl::node EXPBarRes;
+		nl::node menu;
+		nl::node quickSlot;
+		nl::node submenu;
+		
+		if (!is_v87) {
+			mainBar = nl::nx::UI["StatusBar3.img"]["mainBar"];
+			status = mainBar[stat];
+			EXPBar = mainBar["EXPBar"];
+			EXPBarRes = EXPBar[VWIDTH];
+			menu = mainBar["menu"];
+			quickSlot = mainBar["quickSlot"];
+			submenu = mainBar["submenu"];
+		} else {
+			// V87: Use simplified structure
+			nl::node statusBar = nl::nx::UI["StatusBar.img"];
+			status = statusBar["base"];
+			EXPBar = statusBar; // EXP elements are directly under StatusBar
+			EXPBarRes = statusBar; // Same for resolution-specific elements
+			menu = statusBar; // Menu buttons are directly under StatusBar
+			quickSlot = statusBar; // QuickSlot elements too
+			submenu = statusBar;
+		}
+
+		// Set EXP bar position based on client version
+		if (!is_v87) {
+			exp_pos = Point<int16_t>(0, 87); // Modern client position
+		} else {
+			// V87: EXP bar stretches across the bottom of the status bar
+			exp_pos = Point<int16_t>(0, 65); // Position at bottom of status bar
+		}
+
+		// Only add sprites if the nodes exist
+		if (!is_v87) {
+			sprites.emplace_back(EXPBar["backgrnd"], DrawArgument(Point<int16_t>(0, 87), Point<int16_t>(VWIDTH, 0)));
+			sprites.emplace_back(EXPBarRes["layer:back"], exp_pos);
+		} else {
+			// V87: Load only the main background to avoid stretched assets
+			nl::node statusBar = nl::nx::UI["StatusBar.img"];
+			nl::node base = statusBar["base"];
+			
+			// Only add the main background texture, stretched to full width
+			if (!base["backgrnd"].name().empty()) {
+				sprites.emplace_back(base["backgrnd"], DrawArgument(Point<int16_t>(0, 0), Point<int16_t>(VWIDTH, 0)));
+			}
+			
+			// Skip other elements that might cause stretching issues
+		}
+
+		// Set appropriate width for EXP bar based on client version
+		int16_t exp_max;
+		if (!is_v87) {
+			exp_max = VWIDTH - 16; // Modern client: full width
+		} else {
+			exp_max = VWIDTH - 20; // V87: full width with small margin
+		}
+
+		// Create EXP bar gauge with v87 compatibility
+		if (!is_v87) {
+			expbar = Gauge(
+				Gauge::Type::DEFAULT,
+				EXPBarRes.resolve("layer:gauge"),
+				EXPBarRes.resolve("layer:cover"),
+				EXPBar.resolve("layer:effect"),
+				exp_max, 0.0f
+			);
+		} else {
+			// V87: Use dedicated EXP gauge texture if available
+			nl::node statusBar = nl::nx::UI["StatusBar.img"];
+			nl::node gauge = statusBar["gauge"];
+			
+			// Try to use tempExp texture first, fallback to bar
+			if (!gauge["tempExp"].name().empty()) {
+				Texture expTexture(gauge["tempExp"]);
+				expbar = Gauge(
+					Gauge::Type::DEFAULT,
+					expTexture,
+					exp_max, 0.0f
+				);
+			} else if (!gauge["bar"].name().empty()) {
+				Texture expTexture(gauge["bar"]);
+				expbar = Gauge(
+					Gauge::Type::DEFAULT,
+					expTexture,
+					exp_max, 0.0f
+				);
+			} else {
+				// Create an empty gauge
+				expbar = Gauge();
+			}
+		}
+
+		int16_t pos_adj = 0;
+
+		if (VWIDTH == 1280)
+			pos_adj = 87;
+		else if (VWIDTH == 1366)
+			pos_adj = 171;
+		else if (VWIDTH == 1920)
+			pos_adj = 448;
+
+		if (VWIDTH == 1024)
+			quickslot_min = 1;
+		else
+			quickslot_min = 0;
+
+		if (VWIDTH == 800)
+		{
+			if (!is_v87) {
+				hpmp_pos = Point<int16_t>(412, 40);
+				mp_pos = hpmp_pos; // Modern client uses same position for HP/MP
+				hpset_pos = Point<int16_t>(530, 70);
+				mpset_pos = Point<int16_t>(530, 83);
+				statset_pos = Point<int16_t>(666, 74);
+				levelset_pos = Point<int16_t>(46, 43);
+				namelabel_pos = Point<int16_t>(86, 26);
+				quickslot_pos = Point<int16_t>(689, 27);
+				menu_pos = Point<int16_t>(731, 2);
+				setting_pos = Point<int16_t>(3, 2);
+				community_pos = Point<int16_t>(24, 2);
+				character_pos = Point<int16_t>(45, 2);
+				event_pos = Point<int16_t>(66, 2);
+			} else {
+				// V87: Different positioning for 800x600
+				hpmp_pos = Point<int16_t>(50, 25);
+				mp_pos = Point<int16_t>(50, 45); // V87 separates HP and MP vertically
+				hpset_pos = Point<int16_t>(150, 30);
+				mpset_pos = Point<int16_t>(150, 50);
+				statset_pos = Point<int16_t>(666, 74);
+				levelset_pos = Point<int16_t>(20, 25);
+				namelabel_pos = Point<int16_t>(60, 5);
+				quickslot_pos = Point<int16_t>(400, 25);
+				menu_pos = Point<int16_t>(VWIDTH - 200, 10);
+				setting_pos = Point<int16_t>(VWIDTH - 140, 10);
+				community_pos = Point<int16_t>(VWIDTH - 80, 10);
+				character_pos = Point<int16_t>(VWIDTH - 20, 10);
+				event_pos = Point<int16_t>(VWIDTH - 260, 10);
+			}
+		}
+		else
+		{
+			if (!is_v87) {
+				hpmp_pos = Point<int16_t>(412, 40);
+				mp_pos = hpmp_pos;
+				hpset_pos = Point<int16_t>(530, 70);
+				mpset_pos = Point<int16_t>(530, 83);
+				statset_pos = Point<int16_t>(666, 74);
+				levelset_pos = Point<int16_t>(46, 43);
+				namelabel_pos = Point<int16_t>(86, 26);
+				quickslot_pos = Point<int16_t>(565 + pos_adj, 27);
+				menu_pos = Point<int16_t>(607 + pos_adj, 2);
+				setting_pos = Point<int16_t>(3, 2);
+				community_pos = Point<int16_t>(24, 2);
+				character_pos = Point<int16_t>(45, 2);
+				event_pos = Point<int16_t>(66, 2);
+			} else {
+				// V87: Positioning for other resolutions
+				hpmp_pos = Point<int16_t>(50, 25);
+				mp_pos = Point<int16_t>(50, 45);
+				hpset_pos = Point<int16_t>(150, 30);
+				mpset_pos = Point<int16_t>(150, 50);
+				statset_pos = Point<int16_t>(VWIDTH - 150, 74);
+				levelset_pos = Point<int16_t>(20, 25);
+				namelabel_pos = Point<int16_t>(60, 5);
+				quickslot_pos = Point<int16_t>(400, 25);
+				menu_pos = Point<int16_t>(VWIDTH - 200, 10);
+				setting_pos = Point<int16_t>(VWIDTH - 140, 10);
+				community_pos = Point<int16_t>(VWIDTH - 80, 10);
+				character_pos = Point<int16_t>(VWIDTH - 20, 10);
+				event_pos = Point<int16_t>(VWIDTH - 260, 10);
+			}
+		}
+
+		// V87: Status bar stretches across bottom of screen
+		if (is_v87) {
+			position = Point<int16_t>(0, VHEIGHT - 80);
+			position_x = 0;
+			position_y = position.y();
+			dimension = Point<int16_t>(VWIDTH, 80);
+		} else {
+			// Modern positioning logic would go here
+			position = Point<int16_t>(0, VHEIGHT - 117);
+			position_x = 0;
+			position_y = position.y();
+			dimension = Point<int16_t>(VWIDTH, 117);
+		}
+
+		// Only add HP/MP sprites if nodes exist
+		if (!is_v87) {
+			hpmp_sprites.emplace_back(status["backgrnd"], hpmp_pos - Point<int16_t>(1, 0));
+			hpmp_sprites.emplace_back(status["layer:cover"], hpmp_pos - Point<int16_t>(1, 0));
+
+			if (VWIDTH == 800)
+				hpmp_sprites.emplace_back(status["layer:Lv"], hpmp_pos);
+			else
+				hpmp_sprites.emplace_back(status["layer:Lv"], hpmp_pos - Point<int16_t>(1, 0));
+		} else {
+			// V87: Adjust HP/MP position for v87 layout
+			hpmp_pos = Point<int16_t>(50, 25); // V87 has HP/MP bars starting at x=50
+			
+			// V87 doesn't have separate HP/MP background sprites
+			// The backgrounds are already added in the main sprites section
+			// Add empty sprites to maintain index consistency
+			hpmp_sprites.emplace_back(); // Empty sprite (index 0)
+			hpmp_sprites.emplace_back(); // Empty sprite (index 1)
+			hpmp_sprites.emplace_back(); // Empty sprite (index 2)
+		}
+
+		int16_t hpmp_max = 139;
+
+		if (VWIDTH > 800)
+			hpmp_max += 30;
+
+		// Create HP/MP gauges with v87 compatibility
+		if (!is_v87) {
+			hpbar = Gauge(Gauge::Type::DEFAULT, status.resolve("gauge/hp/layer:0"), hpmp_max, 0.0f);
+			mpbar = Gauge(Gauge::Type::DEFAULT, status.resolve("gauge/mp/layer:0"), hpmp_max, 0.0f);
+		} else {
+			// V87: Use proper HP/MP gauge textures
+			nl::node statusBar = nl::nx::UI["StatusBar.img"];
+			nl::node gauge = statusBar["gauge"];
+			
+			// Use dedicated HP and MP gauge textures
+			if (!gauge["hpFlash"].name().empty() && !gauge["mpFlash"].name().empty()) {
+				Texture hpTexture(gauge["hpFlash"]["0"]); // Use first frame of HP animation
+				Texture mpTexture(gauge["mpFlash"]["0"]); // Use first frame of MP animation
+				hpbar = Gauge(Gauge::Type::DEFAULT, hpTexture, hpmp_max, 0.0f);
+				mpbar = Gauge(Gauge::Type::DEFAULT, mpTexture, hpmp_max, 0.0f);
+			} else if (!gauge["bar"].name().empty()) {
+				// Fallback to generic bar if flash textures not available
+				Texture barTexture(gauge["bar"]);
+				hpbar = Gauge(Gauge::Type::DEFAULT, barTexture, hpmp_max, 0.0f);
+				mpbar = Gauge(Gauge::Type::DEFAULT, barTexture, hpmp_max, 0.0f);
+			} else {
+				// Create empty gauges if no textures found
+				hpbar = Gauge();
+				mpbar = Gauge();
+			}
+		}
+
+		// ... rest of constructor continues with charset creation, buttons, etc.
+	}
+
+	void UIStatusBar::draw(float alpha) const
+	{
+		UIElement::draw(alpha);
+
+		expbar.draw(position + exp_pos);
+		hpbar.draw(position + hpmp_pos);
+		mpbar.draw(position + mp_pos);
+
+		for (const Sprite& sprite : hpmp_sprites)
+			sprite.draw(position, alpha);
+
+		statset.draw(std::to_string(stats.get_stat(MapleStat::Id::LEVEL)), position + statset_pos, alpha);
+
+		hpmpset.draw(std::to_string(stats.get_stat(MapleStat::Id::HP)) + "/" + std::to_string(stats.get_stat(MapleStat::Id::MAXHP)), position + hpset_pos, alpha);
+		hpmpset.draw(std::to_string(stats.get_stat(MapleStat::Id::MP)) + "/" + std::to_string(stats.get_stat(MapleStat::Id::MAXMP)), position + mpset_pos, alpha);
+
+		levelset.draw(std::to_string(stats.get_stat(MapleStat::Id::LEVEL)), position + levelset_pos, alpha);
+
+		namelabel.draw(position + namelabel_pos, alpha);
+
+		if (quickslot_active)
+		{
+			Point<int16_t> qs_pos = get_quickslot_pos();
+
+			quickslot[quickslot_min].draw(DrawArgument(position + qs_pos, Point<int16_t>(272, 0)), alpha);
+			quickslot[quickslot_min + 1].draw(position + qs_pos, alpha);
+		}
+	}
+}
+
+================================================================================
+FILE: UIStatusBar.h (CLASS DEFINITION)
+================================================================================
+
+class UIStatusBar : public UIElement
+{
+public:
+	static constexpr Type TYPE = UIElement::Type::STATUSBAR;
+	static constexpr bool FOCUSED = false;
+	static constexpr bool TOGGLED = true;
+
+	enum MenuType
+	{
+		MENU,
+		SETTING,
+		COMMUNITY,
+		CHARACTER,
+		EVENT
+	};
+
+	UIStatusBar(const CharStats& stats);
+
+	void draw(float alpha) const override;
+	void update() override;
+
+	bool is_in_range(Point<int16_t> cursor_position) const override;
+	void send_key(int32_t keycode, bool pressed, bool escape) override;
+
+	UIElement::Type get_type() const override;
+
+	void toggle_qs();
+	void toggle_menu();
+	void remove_menus();
+	bool is_menu_active();
+
+protected:
+	Button::State button_pressed(uint16_t buttonid) override;
+
+private:
+	static constexpr int16_t QUICKSLOT_MAX = 211;
+
+	float getexppercent() const;
+	float gethppercent() const;
+	float getmppercent() const;
+
+	const CharStats& stats;
+
+	Gauge expbar;
+	Gauge hpbar;
+	Gauge mpbar;
+	Charset statset;
+	Charset hpmpset;
+	Charset levelset;
+	Texture quickslot[2];
+	Texture menutitle[5];
+	Texture menubackground[3];
+	OutlinedText namelabel;
+	std::vector<Sprite> hpmp_sprites;
+
+	Point<int16_t> exp_pos;
+	Point<int16_t> hpmp_pos;
+	Point<int16_t> mp_pos;
+	Point<int16_t> hpset_pos;
+	Point<int16_t> mpset_pos;
+	Point<int16_t> statset_pos;
+	Point<int16_t> levelset_pos;
+	Point<int16_t> namelabel_pos;
+	Point<int16_t> quickslot_pos;
+	Point<int16_t> quickslot_adj;
+	Point<int16_t> quickslot_qs_adj;
+	Point<int16_t> menu_pos;
+	Point<int16_t> setting_pos;
+	Point<int16_t> community_pos;
+	Point<int16_t> character_pos;
+	Point<int16_t> event_pos;
+	int16_t quickslot_min;
+	int16_t position_x;
+	int16_t position_y;
+
+	bool quickslot_active;
+	int16_t VWIDTH;
+	int16_t VHEIGHT;
+
+	bool menu_active;
+	bool setting_active;
+	bool community_active;
+	bool character_active;
+	bool event_active;
+};
+
+================================================================================
+FILE: Gauge.h (GAUGE CLASS DEFINITION)
+================================================================================
+
+class Gauge
+{
+public:
+	enum Type : uint8_t
+	{
+		DEFAULT,
+		CASHSHOP,
+		WORLDSELECT
+	};
+
+	Gauge() {}
+	Gauge(Type type, Texture front, int16_t maximum, float percent);
+	Gauge(Type type, Texture front, Texture middle, int16_t maximum, float percent);
+	Gauge(Type type, Texture front, Texture middle, Texture end, int16_t maximum, float percentage);
+
+	void draw(const DrawArgument& args) const;
+	void update(float target);
+
+private:
+	Texture barfront;
+	Texture barmid;
+	Texture barend;
+	int16_t maximum;
+
+	float percentage;
+	float target;
+	float step;
+
+	Type type;
+};
+
+================================================================================
+V87 STATUSBAR.IMG COMPLETE STRUCTURE
+================================================================================
+
+StatusBar.img/
+├── BtClaim/                    # Claim button assets
+├── BtMenu/                     # Menu button assets  
+├── QuickSlot/                  # Quick slot UI elements
+├── QuickSlotD/                 # Quick slot (disabled?) elements
+├── gauge/                      # *** CRITICAL: All gauge textures ***
+│   ├── bar                     # Generic bar texture
+│   ├── graduation              # Gauge scale/markings
+│   ├── gray                    # Empty/gray state bar
+│   ├── hpFlash/               # HP gauge animations
+│   │   ├── 0                  # Frame 0 of HP animation
+│   │   ├── 1                  # Frame 1 of HP animation  
+│   │   ├── 2                  # Frame 2 of HP animation
+│   │   ├── 3                  # Frame 3 of HP animation
+│   │   └── 4                  # Frame 4 of HP animation
+│   ├── mpFlash/               # MP gauge animations
+│   │   ├── 0                  # Frame 0 of MP animation
+│   │   ├── 1                  # Frame 1 of MP animation
+│   │   ├── 2                  # Frame 2 of MP animation  
+│   │   ├── 3                  # Frame 3 of MP animation
+│   │   └── 4                  # Frame 4 of MP animation
+│   └── tempExp                # Temporary/EXP gauge texture
+├── chat                       # Chat UI element
+├── chatTarget                 # Chat target element
+└── quickSlot                  # Quick slot element
+
+================================================================================
+COMPARISON: MODERN VS V87 STRUCTURES
+================================================================================
+
+MODERN CLIENT (StatusBar3.img):
+StatusBar3.img/mainBar/
+├── status/
+│   ├── backgrnd               # Status background
+│   ├── layer:cover            # Cover layer
+│   ├── layer:Lv               # Level indicator  
+│   ├── gauge/
+│   │   ├── hp/layer:0         # HP gauge texture
+│   │   ├── mp/layer:0         # MP gauge texture
+│   │   └── number             # Number font
+│   └── lvNumber               # Level number font
+├── EXPBar/
+│   ├── backgrnd               # EXP background
+│   ├── [resolution]/
+│   │   ├── layer:back         # Background layer
+│   │   ├── layer:gauge        # EXP gauge texture  
+│   │   └── layer:cover        # Cover layer
+│   ├── layer:effect           # EXP effect
+│   └── number                 # Number font
+├── quickSlot/
+├── menu/
+└── submenu/
+
+V87 CLIENT (StatusBar.img):
+StatusBar.img/
+├── gauge/                     # All gauge textures in one place
+│   ├── hpFlash/[0-4]         # HP animation frames
+│   ├── mpFlash/[0-4]         # MP animation frames  
+│   └── tempExp               # EXP gauge texture
+├── BtMenu/                   # Menu buttons directly here
+├── QuickSlot/                # QuickSlot directly here
+├── chat                      # Chat directly here
+└── quickSlot                 # Another quickslot element
+
+================================================================================
+KEY RESEARCH QUESTIONS
+================================================================================
+
+1. ASSET VERIFICATION:
+   - Are hpFlash/mpFlash/tempExp the correct gauge textures?
+   - Should we use animation frames or just frame 0?
+   - Are there missing background/border elements?
+
+2. POSITIONING LOGIC:
+   - Current v87 HP/MP position: Point<int16_t>(50, 25) and Point<int16_t>(50, 45)
+   - Are these positions correct for v87 layout?
+   - Should gauges be relative to status bar background?
+
+3. GAUGE PARAMETERS:
+   - Current hpmp_max = 139 (or 169 for width > 800) 
+   - exp_max = VWIDTH - 20
+   - Are these width parameters correct for v87?
+
+4. MISSING ELEMENTS:
+   - Are we missing status bar background sprites?
+   - Should there be gauge borders/containers from StatusBar.img?
+   - Are there "base" elements that provide gauge backgrounds?
+
+5. IMPLEMENTATION APPROACH:
+   - Should we be using different Gauge constructor overloads?
+   - Is the drawing order correct (gauges drawn after backgrounds)?
+   - Are we missing sprite overlays that go on top of gauges?
+
+================================================================================
+EXPECTED BEHAVIOR
+================================================================================
+
+In working v87 client, status bar should display:
+- Red HP bar that fills proportionally with current/max HP
+- Blue MP bar that fills proportionally with current/max MP  
+- Yellow/gold EXP bar that fills proportionally with current level progress
+- All bars positioned correctly within status bar background
+- Proper visual appearance matching v87 aesthetic
+
+================================================================================
+CURRENT ISSUES
+================================================================================
+
+- HP/MP/EXP bars "not showing correctly"
+- Possible "double bars" or "wrong bars" appearing
+- Multiple texture assignment attempts have failed:
+  1. Using gauge["bar"] for all → identical generic textures
+  2. Using hpFlash["0"]/mpFlash["0"] → still incorrect display
+  3. Various positioning adjustments → bars still misaligned
+
+Potential root causes:
+- Wrong asset selection from StatusBar.img
+- Missing background/container elements  
+- Incorrect Gauge constructor usage
+- Wrong positioning calculations
+- Drawing order/layering issues
+- Gauge parameter problems (width/height/positioning)
+
+================================================================================
+REQUEST FOR RESEARCHER
+================================================================================
+
+Please analyze this complete codebase and v87 asset structure to determine:
+
+1. The correct mapping of StatusBar.img assets to HP/MP/EXP rendering
+2. Proper Gauge class usage for v87 texture structure  
+3. Any missing background, border, or container elements needed
+4. Correct positioning and sizing parameters for v87 layout
+5. Recommended implementation fixes
+
+Focus on the logical relationship between the flat v87 StatusBar.img structure and the hierarchical modern structure, and provide specific guidance on adapting the current code to work properly with v87 assets.

@@ -1,0 +1,306 @@
+# Map Persistence Issue - Focused Code Repository
+
+This repomix contains only the most relevant code sections for investigating the map persistence issue where players always return to Henesys after relogging.
+
+## CLIENT SIDE CODE
+
+### File: Gameplay/Stage.cpp (Key sections only)
+```cpp
+// Map loading logic
+void Stage::load(int32_t mapid, int8_t portalid)
+{
+    LOG(LOG_DEBUG, "[Stage] load() called - mapid: " << mapid << ", portalid: " << (int)portalid << ", current state: " << (int)state);
+    
+    bool is_new_map = (mapid != Stage::mapid);
+    
+    if (is_new_map) {
+        state = State::TRANSITION;
+    }
+    
+    switch (state)
+    {
+        case State::INACTIVE:
+            load_map(mapid);
+            respawn(portalid);
+            break;
+        case State::TRANSITION:
+            if (is_new_map) {
+                clear();
+                load_map(mapid);
+            }
+            respawn(portalid);
+            break;
+        case State::ACTIVE:
+            LOG(LOG_DEBUG, "[Stage] Already active, skipping load");
+            return;
+    }
+
+    state = State::ACTIVE;
+}
+
+void Stage::load_map(int32_t mapid)
+{
+    Stage::mapid = mapid;
+    LOG(LOG_DEBUG, "[Stage] Loading map: " << mapid);
+    // ... map loading logic ...
+}
+
+void Stage::draw(float alpha) const
+{
+    if (state != State::ACTIVE) {
+        // Stage is not active - don't draw anything during login screens
+        return;
+    }
+    // ... drawing logic ...
+}
+```
+
+### File: Net/Handlers/SetFieldHandlers.cpp (Complete handler logic)
+```cpp
+void SetFieldHandler::handle(InPacket& recv) const
+{
+    LOG(LOG_DEBUG, "[SetFieldHandler] Received SET_FIELD packet from server");
+    
+    int32_t channel = recv.read_int();
+    int8_t mode1 = recv.read_byte();
+    int8_t mode2 = recv.read_byte();
+    
+    if (mode1 == 0 && mode2 == 0) {
+        LOG(LOG_DEBUG, "[SetFieldHandler] Calling change_map()");
+        change_map(recv, channel);
+    } else {
+        LOG(LOG_DEBUG, "[SetFieldHandler] Calling set_field()");
+        set_field(recv);
+    }
+}
+
+void SetFieldHandler::change_map(InPacket& recv, int32_t) const
+{
+    recv.skip(3);
+    int32_t mapid = recv.read_int();
+    int8_t portalid = recv.read_byte();
+    
+    LOG(LOG_DEBUG, "[SetFieldHandler] change_map() - mapid: " << mapid << ", portalid: " << (int)portalid);
+    transition(mapid, portalid);
+}
+
+void SetFieldHandler::set_field(InPacket& recv) const
+{
+    // ... packet parsing ...
+    
+    uint8_t portalid = player.get_stats().get_portal();
+    int32_t mapid = player.get_stats().get_mapid();
+    
+    // TEMP FIX: If map ID is corrupted or doesn't exist, use a default map
+    if (mapid == 390625 || mapid == 67499489 || mapid > 999999999 || mapid < 0) {
+        LOG(LOG_ERROR, "[SetFieldHandler] Invalid map ID " << mapid << " detected, using default 100000000");
+        mapid = 100000000;
+        portalid = 0;
+        player.get_stats().set_mapid(mapid);
+    }
+    
+    transition(mapid, portalid);
+}
+```
+
+### File: Character/CharStats.cpp (Relevant methods)
+```cpp
+int32_t CharStats::get_mapid() const
+{
+    return mapid;
+}
+
+void CharStats::set_mapid(int32_t id)
+{
+    mapid = id;
+}
+```
+
+## SERVER SIDE CODE
+
+### File: client/Character.java (Key sections)
+```java
+// Map change logic
+private void changeMapInternal(final MapleMap to, final Point pos, Packet warpPacket) {
+    if (!canWarpMap) {
+        return;
+    }
+
+    this.mapTransitioning.set(true);
+    sendPacket(warpPacket);
+    map.removePlayer(this);
+    
+    if (client.getChannelServer().getPlayerStorage().getCharacterById(getId()) != null) {
+        map = to;
+        setMapId(to.getId()); // Fix: Update mapid field so it gets saved to DB
+        setPosition(pos);
+        map.addPlayer(this);
+        visitMap(map);
+    }
+}
+
+// Character loading from database
+public static Character loadCharFromDB(int charid, Client client, boolean channelserver) {
+    // ... loading logic ...
+    
+    if (channelserver) {
+        MapManager mapManager = client.getChannelServer().getMapFactory();
+        ret.map = mapManager.getMap(ret.mapid);
+        
+        if (ret.map == null) {
+            ret.map = mapManager.getMap(MapId.HENESYS);  // Fallback to Henesys
+        }
+    }
+    return ret;
+}
+
+// Character saving to database
+public synchronized void saveCharToDB(boolean notAutosave) {
+    // ... save preparation ...
+    
+    int mapToSave;
+    if (map == null || (cashshop != null && cashshop.isOpened())) {
+        mapToSave = mapid;
+    } else {
+        if (map.getForcedReturnId() != MapId.NONE) {
+            mapToSave = map.getForcedReturnId();
+        } else {
+            mapToSave = getHp() < 1 ? map.getReturnMapId() : map.getId();
+        }
+    }
+    
+    log.info("Saving character {} with map ID: {} (mapid field: {}, map object: {})", 
+             getName(), mapToSave, mapid, map != null ? map.getId() : "null");
+    ps.setInt(21, mapToSave);
+}
+
+// New client connection
+public void newClient(Client c) {
+    this.loggedIn = true;
+    c.setAccountName(this.client.getAccountName());
+    this.setClient(c);
+    
+    log.info("[newClient] Loading map for character {} - current mapid field: {}", getName(), getMapId());
+    this.map = c.getChannelServer().getMapFactory().getMap(getMapId());
+    
+    if (this.map == null) {
+        log.error("[newClient] Failed to load map {} for character {}. Using Henesys as fallback.", getMapId(), getName());
+        this.map = c.getChannelServer().getMapFactory().getMap(MapId.HENESYS);
+        this.mapid = MapId.HENESYS;
+    }
+}
+```
+
+### File: server/maps/MapFactory.java (Critical section)
+```java
+public static MapleMap loadMapFromWz(int mapid, int world, int channel, EventInstanceManager event) {
+    MapleMap map;
+    
+    String mapName = getMapName(mapid);
+    Data mapData = mapSource.getData(mapName); // Can return null!
+    
+    // Fix: Check if mapData is null and handle gracefully
+    if (mapData == null) {
+        log.error("Failed to load map data for map ID: {} ({}). Defaulting to Henesys.", mapid, mapName);
+        return null;
+    }
+    
+    Data infoData = mapData.getChildByPath("info");
+    // ... rest of map loading ...
+}
+
+public MapleMap getMap(int mapid) {
+    Integer omapid = Integer.valueOf(mapid);
+    MapleMap map = maps.get(omapid);
+    
+    if (map == null) {
+        // ... locking logic ...
+        map = loadMapFromWz(mapid, world, channel, null);
+        
+        if (map == null) {
+            return null;  // This causes the Henesys fallback
+        }
+        
+        maps.put(omapid, map);
+    }
+    
+    return map;
+}
+```
+
+### File: net/server/channel/handlers/ChangeMapHandler.java (Map change handling)
+```java
+public void handlePacket(InPacket p, Client c) {
+    Character chr = c.getPlayer();
+    
+    // ... packet parsing ...
+    
+    if (portal != null) {
+        portal.enterPortal(c);
+        // Save after portal warp to ensure map persistence
+        chr.saveCharToDB(false);
+    }
+}
+```
+
+### File: net/server/channel/handlers/PlayerLoggedinHandler.java (Login handling)
+```java
+private void handleLogin(Client c, Character player, boolean newcomer) {
+    // ... login validation ...
+    
+    // Initialize the map for both newcomers and returning players
+    player.newClient(c);
+    
+    // ... rest of login logic ...
+}
+```
+
+## DATABASE SCHEMA
+
+### characters table (relevant columns)
+```sql
+CREATE TABLE IF NOT EXISTS `characters` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `name` varchar(13) NOT NULL DEFAULT '',
+  `map` int(11) NOT NULL DEFAULT '0',
+  `spawnpoint` int(11) NOT NULL DEFAULT '0',
+  -- ... other columns ...
+);
+```
+
+## KEY CONSTANTS
+
+### MapId.java
+```java
+public static final int HENESYS = 100000000;
+public static final int NONE = 999999999;
+```
+
+## OBSERVED BEHAVIOR FLOW
+
+1. **Player Login**:
+   - Character loads from DB with saved mapid
+   - Server tries to load map via MapFactory
+   - If map data is null (missing WZ), returns null
+   - Character.newClient() detects null map and defaults to Henesys
+   - Player spawns in Henesys
+
+2. **Map Change**:
+   - Player uses portal
+   - Client sends change map packet
+   - Server updates map and calls setMapId()
+   - Should save to DB but timing unclear
+   - Map change appears successful
+
+3. **Player Logout/Login**:
+   - Character saved to DB (map ID should be correct)
+   - On next login, cycle repeats
+   - If saved map doesn't exist in WZ, defaults to Henesys
+
+## INVESTIGATION FOCUS AREAS
+
+1. Why are invalid map IDs (390625, 67499489) being saved?
+2. Is saveCharToDB actually being called after map changes?
+3. Are there race conditions in the save logic?
+4. Which maps are missing from WZ files?
+5. Is there any code that resets maps to Henesys during login?

@@ -115,7 +115,8 @@ namespace ms
 		bool hasLoginButton = false;
 		nl::node btnLogin = V83UIAssets::getLoginButton("Login");
 		if (btnLogin) {
-			buttons[Buttons::BtLogin] = std::make_unique<MapleButton>(btnLogin, title_pos);
+			// Login button is centered below the password field
+			buttons[Buttons::BtLogin] = std::make_unique<MapleButton>(btnLogin, title_pos + Point<int16_t>(27, 115));
 			hasLoginButton = true;
 		} else {
 			LOG(LOG_ERROR, "[UILogin] Login button not found - login via Enter key only");
@@ -125,12 +126,14 @@ namespace ms
 		
 		nl::node btnNew = V83UIAssets::getLoginButton("New");
 		if (btnNew) {
-			buttons[Buttons::BtNew] = std::make_unique<MapleButton>(btnNew, title_pos);
+			// New button is to the left of Login button
+			buttons[Buttons::BtNew] = std::make_unique<MapleButton>(btnNew, title_pos + Point<int16_t>(-50, 115));
 		}
 		
 		nl::node btnQuit = V83UIAssets::getLoginButton("Quit");
 		if (btnQuit) {
-			buttons[Buttons::BtQuit] = std::make_unique<MapleButton>(btnQuit, title_pos);
+			// Quit button is to the right of Login button
+			buttons[Buttons::BtQuit] = std::make_unique<MapleButton>(btnQuit, title_pos + Point<int16_t>(110, 115));
 		} else {
 			// No quit button - user can use Alt+F4 or close window
 		}
@@ -138,23 +141,27 @@ namespace ms
 		// v83 might not have these buttons
 		nl::node btnHomePage = V83UIAssets::getLoginButton("HomePage");
 		if (btnHomePage) {
-			buttons[Buttons::BtHomePage] = std::make_unique<MapleButton>(btnHomePage, title_pos);
+			// HomePage button in bottom row
+			buttons[Buttons::BtHomePage] = std::make_unique<MapleButton>(btnHomePage, title_pos + Point<int16_t>(-85, 155));
 		}
 		
 		// Email/Password buttons might not exist in v83
 		nl::node btnPasswdLost = V83UIAssets::getLoginButton("PasswdLost");
 		if (btnPasswdLost) {
-			buttons[Buttons::BtPasswdLost] = std::make_unique<MapleButton>(btnPasswdLost, title_pos);
+			// Password Lost button in bottom row
+			buttons[Buttons::BtPasswdLost] = std::make_unique<MapleButton>(btnPasswdLost, title_pos + Point<int16_t>(-15, 155));
 		}
 		
 		nl::node btnEmailLost = V83UIAssets::getLoginButton("EmailLost");
 		if (btnEmailLost) {
-			buttons[Buttons::BtEmailLost] = std::make_unique<MapleButton>(btnEmailLost, title_pos);
+			// Email Lost button in bottom row
+			buttons[Buttons::BtEmailLost] = std::make_unique<MapleButton>(btnEmailLost, title_pos + Point<int16_t>(55, 155));
 		}
 		
 		nl::node btnEmailSave = V83UIAssets::getLoginButton("EmailSave");
 		if (btnEmailSave) {
-			buttons[Buttons::BtEmailSave] = std::make_unique<MapleButton>(btnEmailSave, title_pos);
+			// Email Save button in bottom row
+			buttons[Buttons::BtEmailSave] = std::make_unique<MapleButton>(btnEmailSave, title_pos + Point<int16_t>(125, 155));
 		}
 		
 		// Tab buttons - only create if tabs exist

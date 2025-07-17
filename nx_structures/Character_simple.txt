@@ -1,0 +1,8 @@
+NX Structure - Simple Compressed Format
+Generated: 2025-07-14 12:30:19
+Notation: name[N]=N items, {0-9}=range, {a,b}=list
+
+📁[35]:
+  {00002000.img[158],00002001.img[43],00002002.img[43],00002003.img[43],00002004.img[43],00002005.img[44],00002009.img[107],00002010.img[104]}
+  {00002011.img[43],00012000.img[36],00012001.img[36],00012002.img[36],00012003.img[36],00012004.img[36],00012005.img[37],00012009.img[36]}
+  {00012010.img[36],00012011.img[36],Accessory[500],Afterimage[15],... (15 more items)}

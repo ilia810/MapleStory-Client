@@ -1,0 +1,97 @@
+Got it. I’ll investigate the white screen issue during the Login → Game World transition by focusing on `SetFieldHandler::transition()`, `Stage::load()`, `GraphicsGL` state, and `Window::fadeout()`. I’ll identify the root cause and propose concrete code-level fixes.
+
+I’ll get back to you with a detailed analysis shortly.
+
+
+# Investigation of White Screen on Character→World Transition
+
+The transition code (`SetFieldHandler::transition`) fades out the old screen and then loads the new map. In the original code, this sequence is:
+
+```cpp
+Window::get().fadeout(fadestep, [mapid, portalid]() {
+    GraphicsGL::get().clear();
+    Stage::get().load(mapid, portalid);
+    UI::get().enable();
+    Timer::get().start();
+    GraphicsGL::get().unlock();
+    Stage::get().transfer_player();
+});
+GraphicsGL::get().lock();
+Stage::get().clear();
+Timer::get().start();
+```
+
+In other words, **immediately after scheduling the fade**, the code locks the graphics (`GraphicsGL::lock()`) and clears the previous stage, and only *after the fade completes* (in the callback) does it unlock and load the new stage. During the fade-out frames, because `GraphicsGL` is locked, the old frame’s quads are not cleared, and any new drawing is held back until `unlock()`. After fade-out completes, `Stage::load(...)` is called and `unlock()` is issued, so the new map should then draw on the next frames.
+
+**Root Cause:** This lock/clear pattern means that at the very start of drawing the new world, the old scene has been erased (state set to INACTIVE), but new drawing only begins after the first `flush()`.  In practice we saw *no world geometry drawn* on that first visible frame – the screen was just the GL clear color (white) plus any UI quads. Concretely, `GraphicsGL::flush()` does:
+
+```cpp
+glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
+glClear(GL_COLOR_BUFFER_BIT);
+// ... draw all queued quads ...
+```
+
+Thus if no new map quads are submitted, the screen appears solid white. In our case, it seems the new map’s draw calls were not happening early enough. Possible contributing factors:
+
+* **Stage State Timing:** `Stage::clear()` sets the state to INACTIVE, and only in the fade callback does `Stage::load()` set it back to ACTIVE. If the drawing loop ran one frame before `Stage::load` finished, then `Stage::state` was INACTIVE and `Stage::draw()` would skip rendering altogether.
+* **GL Locking:** By locking GL before fade and unlocking only after map load, the first post-fade frame may have an empty scene. The leftover white background is due to the default clear color (1,1,1).
+
+These combine to produce a white “flash” instead of the new world.
+
+# Proposed Fixes
+
+To ensure the new map is drawn correctly and remove the white gap, we can simplify the transition sequence. One approach is to **move the stage clear into the fade callback** and remove the manual lock/unlock, relying on the window’s fade logic alone. For example:
+
+```diff
+void SetFieldHandler::transition(int32_t mapid, uint8_t portalid) const
+{
+    float fadestep = 0.025f;
+    Window::get().fadeout(fadestep,
+                          [mapid, portalid]() {
+-        GraphicsGL::get().clear();
+-        Stage::get().load(mapid, portalid);
+-        UI::get().enable();
+-        Timer::get().start();
+-        GraphicsGL::get().unlock();
+-        Stage::get().transfer_player();
++        // Clear old stage and graphics before loading new map
++        Stage::get().clear();
++        GraphicsGL::get().clear();
++        Stage::get().load(mapid, portalid);
++        UI::get().enable();
++        Timer::get().start();
++        Stage::get().transfer_player();
+    });
+-   GraphicsGL::get().lock();
+-   Stage::get().clear();
+-   Timer::get().start();
++   // No need to lock GL or clear stage here;
++   // the fade callback does the cleanup.
+}
+```
+
+With this change:
+
+* **`Stage::clear()` is done inside the fade callback**, so the map is cleared right before loading the new one, not leaving an empty scene prematurely.
+* We **remove `GraphicsGL::lock()/unlock()`** entirely. The window’s fade mechanism already renders a covering black quad (for fade-out/in) and clears the previous frame each loop. We then let `Stage::load()` run during the fade, and on the next frame the new map draws normally.
+* We ensure `Stage::load()` sees `state=INACTIVE` (from the clear) and performs `load_map()` and `respawn()` as intended.
+
+Another minor tweak is to ensure the GL clear color is black (to match the fade). The code currently does:
+
+```cpp
+glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
+glClear(GL_COLOR_BUFFER_BIT);
+```
+
+forcing a white background. Changing to black avoids any white flash:
+
+```cpp
+glClearColor(0.0f, 0.0f, 0.0f, 1.0f);  // clear to black
+glClear(GL_COLOR_BUFFER_BIT);
+```
+
+This way, even if nothing is drawn for one frame, the screen goes from black-to-black during fade, not white. (In code terms, this is in `GraphicsGL::flush`.)
+
+By making these adjustments, the game world will be properly initialized *before* the fade-in completes, eliminating the intermediate white screen. The new map’s graphics will then appear immediately after the fade, as desired.
+
+**Sources:** The analysis is based on the transition and rendering code in *repomix\_transition\_debug.txt*. For example, note how the fadeout callback loads the map and unlocks graphics, and how `GraphicsGL::flush` clears to white. The suggested patch above aligns with these snippets to fix the timing of `Stage::clear` and remove unnecessary locks.

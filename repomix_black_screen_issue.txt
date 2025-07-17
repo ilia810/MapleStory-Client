@@ -1,0 +1,4708 @@
+This file is a merged representation of a subset of the codebase, containing specifically included files, combined into a single document by Repomix.
+
+================================================================
+File Summary
+================================================================
+
+Purpose:
+--------
+This file contains a packed representation of the entire repository's contents.
+It is designed to be easily consumable by AI systems for analysis, code review,
+or other automated processes.
+
+File Format:
+------------
+The content is organized as follows:
+1. This summary section
+2. Repository information
+3. Directory structure
+4. Multiple file entries, each consisting of:
+  a. A separator line (================)
+  b. The file path (File: path/to/file)
+  c. Another separator line
+  d. The full contents of the file
+  e. A blank line
+
+Usage Guidelines:
+-----------------
+- This file should be treated as read-only. Any changes should be made to the
+  original repository files, not this packed version.
+- When processing this file, use the file path to distinguish
+  between different files in the repository.
+- Be aware that this file may contain sensitive information. Handle it with
+  the same level of security as you would the original repository.
+
+Notes:
+------
+- Some files may have been excluded based on .gitignore rules and Repomix's configuration
+- Binary files are not included in this packed representation. Please refer to the Repository Structure section for a complete list of file paths, including binary files
+- Only files matching these patterns are included: IO/UIStateGame.cpp, IO/UIStateGame.h, Gameplay/Stage.cpp, Gameplay/Stage.h, Graphics/GraphicsGL.cpp, Graphics/GraphicsGL.h, IO/Window.cpp, IO/Window.h, Character/Char.cpp, Character/Char.h, Gameplay/Camera.cpp, Gameplay/Camera.h, MapleStory.cpp, Net/Handlers/SetFieldHandlers.cpp, Net/Handlers/SetFieldHandlers.h
+- Files matching patterns in .gitignore are excluded
+- Files matching default ignore patterns are excluded
+
+Additional Info:
+----------------
+
+================================================================
+Directory Structure
+================================================================
+Character/Char.cpp
+Character/Char.h
+Gameplay/Camera.cpp
+Gameplay/Camera.h
+Gameplay/Stage.cpp
+Gameplay/Stage.h
+Graphics/GraphicsGL.cpp
+Graphics/GraphicsGL.h
+IO/UIStateGame.cpp
+IO/UIStateGame.h
+IO/Window.cpp
+IO/Window.h
+MapleStory.cpp
+Net/Handlers/SetFieldHandlers.cpp
+Net/Handlers/SetFieldHandlers.h
+
+================================================================
+Files
+================================================================
+
+================
+File: Character/Char.cpp
+================
+//////////////////////////////////////////////////////////////////////////////////
+//	This file is part of the continued Journey MMORPG client					//
+//	Copyright (C) 2015-2019  Daniel Allendorf, Ryan Payton						//
+//																				//
+//	This program is free software: you can redistribute it and/or modify		//
+//	it under the terms of the GNU Affero General Public License as published by	//
+//	the Free Software Foundation, either version 3 of the License, or			//
+//	(at your option) any later version.											//
+//																				//
+//	This program is distributed in the hope that it will be useful,				//
+//	but WITHOUT ANY WARRANTY; without even the implied warranty of				//
+//	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the				//
+//	GNU Affero General Public License for more details.							//
+//																				//
+//	You should have received a copy of the GNU Affero General Public License	//
+//	along with this program.  If not, see <https://www.gnu.org/licenses/>.		//
+//////////////////////////////////////////////////////////////////////////////////
+#include "Char.h"
+
+#include "../Data/WeaponData.h"
+#include <iostream>
+
+#ifdef USE_NX
+#include <nlnx/nx.hpp>
+#endif
+
+namespace ms
+{
+	Char::Char(int32_t o, const CharLook& lk, const std::string& name) : MapObject(o), look(lk), look_preview(lk), namelabel(Text(Text::Font::A13M, Text::Alignment::CENTER, Color::Name::WHITE, Text::Background::NAMETAG, name)) {}
+
+	void Char::draw(double viewx, double viewy, float alpha) const
+	{
+		Point<int16_t> absp = phobj.get_absolute(viewx, viewy, alpha);
+		
+		// One-time position debug
+		static bool pos_logged = false;
+		if (!pos_logged) {
+			pos_logged = true;
+			std::cout << "[STATETRANS] Char::draw first call - Character is being rendered!" << std::endl;
+			std::cout << "[STATETRANS] View position: (" << viewx << ", " << viewy << ")" << std::endl;
+			std::cout << "[STATETRANS] Physics position: (" << phobj.get_x() << ", " << phobj.get_y() << ")" << std::endl;
+			std::cout << "[STATETRANS] Absolute position: (" << absp.x() << ", " << absp.y() << ")" << std::endl;
+		}
+
+		effects.drawbelow(absp, alpha);
+
+		Color color;
+
+		if (invincible)
+		{
+			float phi = invincible.alpha() * 30;
+			float rgb = 0.9f - 0.5f * std::abs(std::sinf(phi));
+
+			color = Color(rgb, rgb, rgb, 1.0f);
+		}
+		else
+		{
+			color = Color::Code::CWHITE;
+		}
+
+		look.draw(DrawArgument(absp, color), alpha);
+
+		afterimage.draw(look.get_frame(), DrawArgument(absp, facing_right), alpha);
+
+		if (ironbody)
+		{
+			float ibalpha = ironbody.alpha();
+			float scale = 1.0f + ibalpha;
+			float opacity = 1.0f - ibalpha;
+
+			look.draw(DrawArgument(absp, scale, scale, opacity), alpha);
+		}
+
+		for (auto& pet : pets)
+			if (pet.get_itemid())
+				pet.draw(viewx, viewy, alpha);
+
+		// If ever changing code for namelabel confirm placements with map 10000
+		namelabel.draw(absp + Point<int16_t>(0, -4));
+		chatballoon.draw(absp - Point<int16_t>(0, 85));
+
+		effects.drawabove(absp, alpha);
+
+		for (auto& number : damagenumbers)
+			number.draw(viewx, viewy, alpha);
+	}
+
+	void Char::draw_preview(Point<int16_t> position, float alpha) const
+	{
+		look_preview.draw(position, false, Stance::Id::STAND1, Expression::Id::DEFAULT);
+	}
+
+	bool Char::update(const Physics& physics, float speed)
+	{
+		damagenumbers.remove_if(
+			[](DamageNumber& number)
+			{
+				return number.update();
+			}
+		);
+
+		effects.update();
+		chatballoon.update();
+		invincible.update();
+		ironbody.update();
+
+		for (auto& pet : pets)
+		{
+			if (pet.get_itemid())
+			{
+				switch (state)
+				{
+				case State::LADDER:
+				case State::ROPE:
+					pet.set_stance(PetLook::Stance::HANG);
+					break;
+				case State::SWIM:
+					pet.set_stance(PetLook::Stance::FLY);
+					break;
+				default:
+					if (pet.get_stance() == PetLook::Stance::HANG || pet.get_stance() == PetLook::Stance::FLY)
+						pet.set_stance(PetLook::Stance::STAND);
+
+					break;
+				}
+
+				pet.update(physics, get_position());
+			}
+		}
+
+		uint16_t stancespeed = 0;
+
+		if (speed >= 1.0f / Constants::TIMESTEP)
+			stancespeed = static_cast<uint16_t>(Constants::TIMESTEP * speed);
+
+		afterimage.update(look.get_frame(), stancespeed);
+
+		return look.update(stancespeed);
+	}
+
+	float Char::get_stancespeed() const
+	{
+		if (attacking)
+			return get_real_attackspeed();
+
+		switch (state)
+		{
+		case State::WALK:
+			return static_cast<float>(std::abs(phobj.hspeed));
+		case State::LADDER:
+		case State::ROPE:
+			return static_cast<float>(std::abs(phobj.vspeed));
+		default:
+			return 1.0f;
+		}
+	}
+
+	float Char::get_real_attackspeed() const
+	{
+		int8_t speed = get_integer_attackspeed();
+
+		return 1.7f - static_cast<float>(speed) / 10;
+	}
+
+	uint16_t Char::get_attackdelay(size_t no) const
+	{
+		uint8_t first_frame = afterimage.get_first_frame();
+		uint16_t delay = look.get_attackdelay(no, first_frame);
+		float fspeed = get_real_attackspeed();
+
+		return static_cast<uint16_t>(delay / fspeed);
+	}
+
+	int8_t Char::update(const Physics& physics)
+	{
+		update(physics, 1.0f);
+
+		return get_layer();
+	}
+
+	int8_t Char::get_layer() const
+	{
+		return is_climbing() ? 7 : phobj.fhlayer;
+	}
+
+	void Char::show_attack_effect(Animation toshow, int8_t z)
+	{
+		float attackspeed = get_real_attackspeed();
+
+		effects.add(toshow, DrawArgument(facing_right), z, attackspeed);
+	}
+
+	void Char::show_effect_id(CharEffect::Id toshow)
+	{
+		effects.add(chareffects[toshow]);
+	}
+
+	void Char::show_iron_body()
+	{
+		ironbody.set_for(500);
+	}
+
+	void Char::show_damage(int32_t damage)
+	{
+		int16_t start_y = phobj.get_y() - 60;
+		int16_t x = phobj.get_x() - 10;
+
+		damagenumbers.emplace_back(DamageNumber::Type::TOPLAYER, damage, start_y, x);
+
+		look.set_alerted(5000);
+		invincible.set_for(2000);
+	}
+
+	void Char::speak(const std::string& line)
+	{
+		chatballoon.change_text(line);
+	}
+
+	void Char::change_look(MapleStat::Id stat, int32_t id)
+	{
+		switch (stat)
+		{
+		case MapleStat::Id::SKIN:
+			look.set_body(id);
+			break;
+		case MapleStat::Id::FACE:
+			look.set_face(id);
+			break;
+		case MapleStat::Id::HAIR:
+			look.set_hair(id);
+			break;
+		}
+	}
+
+	void Char::set_state(uint8_t statebyte)
+	{
+		if (statebyte % 2 == 1)
+		{
+			set_direction(false);
+
+			statebyte -= 1;
+		}
+		else
+		{
+			set_direction(true);
+		}
+
+		Char::State newstate = by_value(statebyte);
+		set_state(newstate);
+	}
+
+	void Char::set_expression(int32_t expid)
+	{
+		Expression::Id expression = Expression::byaction(expid);
+		look.set_expression(expression);
+	}
+
+	void Char::attack(const std::string& action)
+	{
+		look.set_action(action);
+
+		attacking = true;
+		look.set_alerted(5000);
+	}
+
+	void Char::attack(Stance::Id stance)
+	{
+		look.attack(stance);
+
+		attacking = true;
+		look.set_alerted(5000);
+	}
+
+	void Char::attack(bool degenerate)
+	{
+		look.attack(degenerate);
+
+		attacking = true;
+		look.set_alerted(5000);
+	}
+
+	void Char::set_afterimage(int32_t skill_id)
+	{
+		int32_t weapon_id = look.get_equips().get_weapon();
+
+		if (weapon_id <= 0)
+			return;
+
+		const WeaponData& weapon = WeaponData::get(weapon_id);
+
+		std::string stance_name = Stance::names[look.get_stance()];
+		int16_t weapon_level = weapon.get_equipdata().get_reqstat(MapleStat::Id::LEVEL);
+		const std::string& ai_name = weapon.get_afterimage();
+
+		afterimage = Afterimage(skill_id, ai_name, stance_name, weapon_level);
+	}
+
+	const Afterimage& Char::get_afterimage() const
+	{
+		return afterimage;
+	}
+
+	void Char::set_direction(bool f)
+	{
+		facing_right = f;
+		look.set_direction(f);
+	}
+
+	void Char::set_state(State st)
+	{
+		state = st;
+
+		Stance::Id stance = Stance::by_state(state);
+		look.set_stance(stance);
+	}
+
+	void Char::add_pet(uint8_t index, int32_t iid, const std::string& name, int32_t uniqueid, Point<int16_t> pos, uint8_t stance, int32_t fhid)
+	{
+		if (index > 2)
+			return;
+
+		pets[index] = PetLook(iid, name, uniqueid, pos, stance, fhid);
+	}
+
+	void Char::remove_pet(uint8_t index, bool hunger)
+	{
+		if (index > 2)
+			return;
+
+		pets[index] = PetLook();
+
+		if (hunger)
+		{
+			// TODO: Empty
+		}
+	}
+
+	bool Char::is_invincible() const
+	{
+		return invincible == true;
+	}
+
+	bool Char::is_sitting() const
+	{
+		return state == State::SIT;
+	}
+
+	bool Char::is_climbing() const
+	{
+		return state == State::LADDER || state == State::ROPE;
+	}
+
+	bool Char::is_twohanded() const
+	{
+		return look.get_equips().is_twohanded();
+	}
+
+	Weapon::Type Char::get_weapontype() const
+	{
+		int32_t weapon_id = look.get_equips().get_weapon();
+
+		if (weapon_id <= 0)
+			return Weapon::Type::NONE;
+
+		return WeaponData::get(weapon_id).get_type();
+	}
+
+	bool Char::getflip() const
+	{
+		return facing_right;
+	}
+
+	std::string Char::get_name() const
+	{
+		return namelabel.get_text();
+	}
+
+	CharLook& Char::get_look()
+	{
+		return look;
+	}
+
+	const CharLook& Char::get_look() const
+	{
+		return look;
+	}
+
+	PhysicsObject& Char::get_phobj()
+	{
+		return phobj;
+	}
+
+	void Char::init()
+	{
+		CharLook::init();
+
+		nl::node src = nl::nx::Effect["BasicEff.img"];
+
+		for (auto iter : CharEffect::PATHS)
+			chareffects.emplace(iter.first, src.resolve(iter.second));
+	}
+
+	EnumMap<CharEffect::Id, Animation> Char::chareffects;
+}
+
+================
+File: Character/Char.h
+================
+//////////////////////////////////////////////////////////////////////////////////
+//	This file is part of the continued Journey MMORPG client					//
+//	Copyright (C) 2015-2019  Daniel Allendorf, Ryan Payton						//
+//																				//
+//	This program is free software: you can redistribute it and/or modify		//
+//	it under the terms of the GNU Affero General Public License as published by	//
+//	the Free Software Foundation, either version 3 of the License, or			//
+//	(at your option) any later version.											//
+//																				//
+//	This program is distributed in the hope that it will be useful,				//
+//	but WITHOUT ANY WARRANTY; without even the implied warranty of				//
+//	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the				//
+//	GNU Affero General Public License for more details.							//
+//																				//
+//	You should have received a copy of the GNU Affero General Public License	//
+//	along with this program.  If not, see <https://www.gnu.org/licenses/>.		//
+//////////////////////////////////////////////////////////////////////////////////
+#pragma once
+
+#include "CharEffect.h"
+
+#include "Inventory/Weapon.h"
+#include "Look/Afterimage.h"
+#include "Look/CharLook.h"
+#include "Look/PetLook.h"
+
+#include "../Graphics/EffectLayer.h"
+
+#include "../Gameplay/Combat/DamageNumber.h"
+#include "../Gameplay/MapleMap/MapObject.h"
+#include "../IO/Components/ChatBalloon.h"
+
+namespace ms
+{
+	// Base for characters, e.g. the player and other clients on the same map.
+	class Char : public MapObject
+	{
+	public:
+		// Player states which determine animation and state 
+		// Values are used in movement packets (Add one if facing left)
+		enum State : int8_t
+		{
+			WALK = 2,
+			STAND = 4,
+			FALL = 6,
+			ALERT = 8,
+			PRONE = 10,
+			SWIM = 12,
+			LADDER = 14,
+			ROPE = 16,
+			DIED = 18,
+			SIT = 20
+		};
+
+		static State by_value(int8_t value)
+		{
+			return static_cast<State>(value);
+		}
+
+		// Draw look, NameTag, effects and chat bubble.
+		void draw(double viewx, double viewy, float alpha) const override;
+		// Draw look
+		void draw_preview(Point<int16_t> position, float alpha) const;
+		// Update look and movements
+		int8_t update(const Physics& physics) override;
+		// Return the current map layer, or seven if on a ladder or rope.
+		int8_t get_layer() const override;
+
+		// Check whether the character is invincible
+		virtual bool is_invincible() const;
+		// Return the character's level
+		virtual uint16_t get_level() const = 0;
+		// Return the a skill's level from the character
+		virtual int32_t get_skilllevel(int32_t skillid) const = 0;
+		// Return the character's base attacking speed
+		virtual int8_t get_integer_attackspeed() const = 0;
+
+		// Return the attack speed as a multiplier
+		float get_real_attackspeed() const;
+		// Return the delay until applying an attack
+		uint16_t get_attackdelay(size_t no) const;
+
+		// Set if the character sprite is mirrored (true = facing right)
+		virtual void set_direction(bool flipped);
+		// Change the character's state
+		virtual void set_state(State newstate);
+		// Change the character's stance to an attack action
+		void attack(const std::string& action);
+		// Change the character's stance to an attack stance
+		void attack(Stance::Id stance);
+		// Change the character's stance to it's regular attack
+		void attack(bool degenerate);
+		// Set the afterimage for an attack
+		void set_afterimage(int32_t skill_id);
+		// Return the current afterimage
+		const Afterimage& get_afterimage() const;
+
+		// Display an animation as an effect with the character
+		void show_attack_effect(Animation animation, int8_t z);
+		// Display an animation as an effect on top of the character
+		void show_effect_id(CharEffect::Id toshow);
+		// Display the iron body skill animation
+		void show_iron_body();
+		// Display damage over the characters head
+		void show_damage(int32_t damage);
+		// Display a chat bubble with the specified line in it
+		void speak(const std::string& line);
+		// Change a part of the character's look
+		void change_look(MapleStat::Id stat, int32_t id);
+		// Change the character's state by id
+		void set_state(uint8_t statebyte);
+		// Change the character's face expression by id
+		void set_expression(int32_t expression);
+
+		// Add a pet with the specified stats
+		void add_pet(uint8_t index, int32_t iid, const std::string& name, int32_t uniqueid, Point<int16_t> pos, uint8_t stance, int32_t fhid);
+		// Remove a pet with the specified index and reason
+		void remove_pet(uint8_t index, bool hunger);
+
+		// Return if the character is facing left
+		bool getflip() const;
+		// Return the name of this character
+		std::string get_name() const;
+
+		// Return if the char is in the Char::State::SIT state
+		bool is_sitting() const;
+		// Return if the char is in the Char::State::LADDER or Char::State::ROPE state
+		bool is_climbing() const;
+		// Return whether the character sprite uses stances for two-handed weapons
+		bool is_twohanded() const;
+		// Return the type of the currently equipped weapon
+		Weapon::Type get_weapontype() const;
+
+		// Obtain a reference to this character's look
+		CharLook& get_look();
+		// Obtain a constant reference to this character's look
+		const CharLook& get_look() const;
+		// Return a reference to this characters's physics
+		PhysicsObject& get_phobj();
+
+		// Initialize character effects
+		static void init();
+
+	protected:
+		Char(int32_t oid, const CharLook& look, const std::string& name);
+
+		// Update the character's animation with the given speed
+		bool update(const Physics& physics, float speed);
+		// Get a speed modifier for the current stance
+		float get_stancespeed() const;
+
+		CharLook look;
+		CharLook look_preview;
+		PetLook pets[3];
+
+		State state;
+		bool attacking;
+		bool facing_right;
+
+	private:
+		Text namelabel;
+		ChatBalloon chatballoon;
+		EffectLayer effects;
+		Afterimage afterimage;
+		TimedBool invincible;
+		TimedBool ironbody;
+		std::list<DamageNumber> damagenumbers;
+
+		static EnumMap<CharEffect::Id, Animation> chareffects;
+	};
+}
+
+================
+File: Gameplay/Camera.cpp
+================
+//////////////////////////////////////////////////////////////////////////////////
+//	This file is part of the continued Journey MMORPG client					//
+//	Copyright (C) 2015-2019  Daniel Allendorf, Ryan Payton						//
+//																				//
+//	This program is free software: you can redistribute it and/or modify		//
+//	it under the terms of the GNU Affero General Public License as published by	//
+//	the Free Software Foundation, either version 3 of the License, or			//
+//	(at your option) any later version.											//
+//																				//
+//	This program is distributed in the hope that it will be useful,				//
+//	but WITHOUT ANY WARRANTY; without even the implied warranty of				//
+//	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the				//
+//	GNU Affero General Public License for more details.							//
+//																				//
+//	You should have received a copy of the GNU Affero General Public License	//
+//	along with this program.  If not, see <https://www.gnu.org/licenses/>.		//
+//////////////////////////////////////////////////////////////////////////////////
+#include "Camera.h"
+
+#include "../Constants.h"
+
+namespace ms
+{
+	Camera::Camera()
+	{
+		x.set(0.0);
+		y.set(0.0);
+
+		VWIDTH = Constants::Constants::get().get_viewwidth();
+		VHEIGHT = Constants::Constants::get().get_viewheight();
+	}
+
+	void Camera::update(Point<int16_t> position)
+	{
+		int32_t new_width = Constants::Constants::get().get_viewwidth();
+		int32_t new_height = Constants::Constants::get().get_viewheight();
+
+		if (VWIDTH != new_width || VHEIGHT != new_height)
+		{
+			VWIDTH = new_width;
+			VHEIGHT = new_height;
+		}
+
+		double next_x = x.get();
+		double hdelta = VWIDTH / 2 - position.x() - next_x;
+
+		if (std::abs(hdelta) >= 5.0)
+			next_x += hdelta * (12.0 / VWIDTH);
+
+		double next_y = y.get();
+		double vdelta = VHEIGHT / 2 - position.y() - next_y;
+
+		if (std::abs(vdelta) >= 5.0)
+			next_y += vdelta * (12.0 / VHEIGHT);
+
+		if (next_x > hbounds.first() || hbounds.length() < VWIDTH)
+			next_x = hbounds.first();
+		else if (next_x < hbounds.second() + VWIDTH)
+			next_x = hbounds.second() + VWIDTH;
+
+		if (next_y > vbounds.first() || vbounds.length() < VHEIGHT)
+			next_y = vbounds.first();
+		else if (next_y < vbounds.second() + VHEIGHT)
+			next_y = vbounds.second() + VHEIGHT;
+
+		x = next_x;
+		y = next_y;
+	}
+
+	void Camera::set_position(Point<int16_t> position)
+	{
+		int32_t new_width = Constants::Constants::get().get_viewwidth();
+		int32_t new_height = Constants::Constants::get().get_viewheight();
+
+		if (VWIDTH != new_width || VHEIGHT != new_height)
+		{
+			VWIDTH = new_width;
+			VHEIGHT = new_height;
+		}
+
+		x.set(VWIDTH / 2 - position.x());
+		y.set(VHEIGHT / 2 - position.y());
+	}
+
+	void Camera::set_view(Range<int16_t> mapwalls, Range<int16_t> mapborders)
+	{
+		hbounds = -mapwalls;
+		vbounds = -mapborders;
+	}
+
+	Point<int16_t> Camera::position() const
+	{
+		auto shortx = static_cast<int16_t>(std::round(x.get()));
+		auto shorty = static_cast<int16_t>(std::round(y.get()));
+
+		return { shortx, shorty };
+	}
+
+	Point<int16_t> Camera::position(float alpha) const
+	{
+		auto interx = static_cast<int16_t>(std::round(x.get(alpha)));
+		auto intery = static_cast<int16_t>(std::round(y.get(alpha)));
+
+		return { interx, intery };
+	}
+
+	Point<double> Camera::realposition(float alpha) const
+	{
+		return { x.get(alpha), y.get(alpha) };
+	}
+}
+
+================
+File: Gameplay/Camera.h
+================
+//////////////////////////////////////////////////////////////////////////////////
+//	This file is part of the continued Journey MMORPG client					//
+//	Copyright (C) 2015-2019  Daniel Allendorf, Ryan Payton						//
+//																				//
+//	This program is free software: you can redistribute it and/or modify		//
+//	it under the terms of the GNU Affero General Public License as published by	//
+//	the Free Software Foundation, either version 3 of the License, or			//
+//	(at your option) any later version.											//
+//																				//
+//	This program is distributed in the hope that it will be useful,				//
+//	but WITHOUT ANY WARRANTY; without even the implied warranty of				//
+//	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the				//
+//	GNU Affero General Public License for more details.							//
+//																				//
+//	You should have received a copy of the GNU Affero General Public License	//
+//	along with this program.  If not, see <https://www.gnu.org/licenses/>.		//
+//////////////////////////////////////////////////////////////////////////////////
+#pragma once
+
+#include "../Template/Interpolated.h"
+#include "../Template/Point.h"
+#include "../Template/Range.h"
+
+#include <cstdint>
+
+namespace ms
+{
+	// View on stage which follows the player object.
+	class Camera
+	{
+	public:
+		// Initialize everything to 0, we need the player's spawnpoint first to properly set the position.
+		Camera();
+
+		// Update the view with the current player position. (Or any other target)
+		void update(Point<int16_t> position);
+		// Set the position, changing the view immediately.
+		void set_position(Point<int16_t> position);
+		// Updates the view's boundaries. Determined by mapinfo or footholds.
+		void set_view(Range<int16_t> hborders, Range<int16_t> vborders);
+		// Return the current position.
+		Point<int16_t> position() const;
+		// Return the interpolated position.
+		Point<int16_t> position(float alpha) const;
+		// Return the interpolated position.
+		Point<double> realposition(float alpha) const;
+
+	private:
+		// Movement variables.
+		Linear<double> x;
+		Linear<double> y;
+
+		// View limits.
+		Range<int16_t> hbounds;
+		Range<int16_t> vbounds;
+
+		int16_t VWIDTH;
+		int16_t VHEIGHT;
+	};
+}
+
+================
+File: Gameplay/Stage.cpp
+================
+//////////////////////////////////////////////////////////////////////////////////
+//	This file is part of the continued Journey MMORPG client					//
+//	Copyright (C) 2015-2019  Daniel Allendorf, Ryan Payton						//
+//																				//
+//	This program is free software: you can redistribute it and/or modify		//
+//	it under the terms of the GNU Affero General Public License as published by	//
+//	the Free Software Foundation, either version 3 of the License, or			//
+//	(at your option) any later version.											//
+//																				//
+//	This program is distributed in the hope that it will be useful,				//
+//	but WITHOUT ANY WARRANTY; without even the implied warranty of				//
+//	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the				//
+//	GNU Affero General Public License for more details.							//
+//																				//
+//	You should have received a copy of the GNU Affero General Public License	//
+//	along with this program.  If not, see <https://www.gnu.org/licenses/>.		//
+//////////////////////////////////////////////////////////////////////////////////
+#include "Stage.h"
+
+#include "../Configuration.h"
+
+#include "../IO/UI.h"
+
+#include "../IO/UITypes/UIStatusBar.h"
+#include "../Net/Packets/AttackAndSkillPackets.h"
+#include "../Net/Packets/GameplayPackets.h"
+#include "../Util/Misc.h"
+
+#ifdef USE_NX
+#include <nlnx/nx.hpp>
+#endif
+
+namespace ms
+{
+	Stage::Stage() : combat(player, chars, mobs, reactors)
+	{
+		state = State::INACTIVE;
+	}
+
+	void Stage::init()
+	{
+		drops.init();
+	}
+
+	void Stage::load(int32_t mapid, int8_t portalid)
+	{
+		std::cout << "[STATETRANS] Stage::load() called - mapid: " << mapid << ", portalid: " << (int)portalid << std::endl;
+		std::cout << "[STATETRANS] Current stage state: " << (state == State::ACTIVE ? "ACTIVE" : state == State::INACTIVE ? "INACTIVE" : "TRANSITION") << std::endl;
+		
+		// Prevent reloading if already active
+		if (state == State::ACTIVE) {
+			std::cout << "[STATETRANS] WARNING: Stage already ACTIVE, skipping reload to prevent black screen!" << std::endl;
+			return;
+		}
+		
+		switch (state)
+		{
+			case State::INACTIVE:
+				std::cout << "[STATETRANS] Loading map " << mapid << " and spawning at portal " << (int)portalid << std::endl;
+				load_map(mapid);
+				respawn(portalid);
+				break;
+			case State::TRANSITION:
+				std::cout << "[STATETRANS] Stage in TRANSITION, only respawning" << std::endl;
+				respawn(portalid);
+				break;
+		}
+
+		std::cout << "[STATETRANS] Stage::load complete - setting state to ACTIVE" << std::endl;
+		state = State::ACTIVE;
+	}
+
+	void Stage::loadplayer(const CharEntry& entry)
+	{
+		player = entry;
+		playable = player;
+
+		start = ContinuousTimer::get().start();
+
+		CharStats stats = player.get_stats();
+		levelBefore = stats.get_stat(MapleStat::Id::LEVEL);
+		expBefore = stats.get_exp();
+	}
+
+	void Stage::clear()
+	{
+		std::cout << "[STATETRANS] Stage::clear() called - setting state to INACTIVE" << std::endl;
+		std::cout << "[STATETRANS] STACK TRACE: Stage being cleared!" << std::endl;
+		state = State::INACTIVE;
+
+		chars.clear();
+		npcs.clear();
+		mobs.clear();
+		drops.clear();
+		reactors.clear();
+	}
+
+	void Stage::load_map(int32_t mapid)
+	{
+		Stage::mapid = mapid;
+
+		std::string strid = string_format::extend_id(mapid, 9);
+		std::string prefix = std::to_string(mapid / 100000000);
+
+		// Try Map002 fallback, then direct Map (v83)
+		nl::node src;
+		if (mapid == -1) {
+			src = nl::nx::UI["CashShopPreview.img"];
+		} else {
+			src = nl::nx::Map002["Map"]["Map" + prefix][strid + ".img"];
+			if (src.name().empty()) {
+				src = nl::nx::Map["Map"]["Map" + prefix][strid + ".img"];
+			}
+		}
+
+		tilesobjs = MapTilesObjs(src);
+		backgrounds = MapBackgrounds(src["back"]);
+		physics = Physics(src["foothold"]);
+		mapinfo = MapInfo(src, physics.get_fht().get_walls(), physics.get_fht().get_borders());
+		portals = MapPortals(src["portal"], mapid);
+	}
+
+	void Stage::respawn(int8_t portalid)
+	{
+		std::cout << "[STATETRANS] Stage::respawn() called with portalid: " << (int)portalid << std::endl;
+		Music(mapinfo.get_bgm()).play();
+
+		Point<int16_t> spawnpoint = portals.get_portal_by_id(portalid);
+		std::cout << "[STATETRANS] Portal spawn point: (" << spawnpoint.x() << ", " << spawnpoint.y() << ")" << std::endl;
+		Point<int16_t> startpos = physics.get_y_below(spawnpoint);
+		std::cout << "[STATETRANS] Physics y_below result: (" << startpos.x() << ", " << startpos.y() << ")" << std::endl;
+		// Fix invalid spawn position
+		if (startpos.y() < -1000 || startpos.y() > 2000) {
+			std::cout << "[STATETRANS] WARNING: Invalid Y position " << startpos.y() << ", forcing to Y=300" << std::endl;
+			startpos = Point<int16_t>(startpos.x(), 300);
+		}
+		player.respawn(startpos, mapinfo.is_underwater());
+		// Center camera on player position
+		std::cout << "[STATETRANS] Centering camera on player at: (" << startpos.x() << ", " << startpos.y() << ")" << std::endl;
+		camera.set_position(startpos);
+		Range<int16_t> walls = mapinfo.get_walls();
+		Range<int16_t> borders = mapinfo.get_borders();
+		std::cout << "[HAIRRENDER] Map walls: (" << walls.smaller() << " to " << walls.greater() << ")" << std::endl;
+		std::cout << "[HAIRRENDER] Map borders: (" << borders.smaller() << " to " << borders.greater() << ")" << std::endl;
+		
+		// Check if map bounds are invalid
+		if (borders.greater() - borders.smaller() > 10000) {
+			std::cout << "[HAIRRENDER] WARNING: Map borders too large! Height would be: " << (borders.greater() - borders.smaller()) << std::endl;
+			std::cout << "[HAIRRENDER] Using default bounds instead of map bounds" << std::endl;
+			// Use reasonable defaults instead
+			Range<int16_t> default_walls(-1000, 1000);
+			Range<int16_t> default_borders(-600, 600);
+			camera.set_view(default_walls, default_borders);
+		} else {
+			// Normal map bounds
+			camera.set_view(walls, borders);
+		}
+	}
+
+	void Stage::draw(float alpha) const
+	{
+		if (state != State::ACTIVE) {
+			static int inactive_count = 0;
+			if (inactive_count++ < 10) {
+				std::cout << "[STATETRANS] Stage::draw - WARNING: Stage not ACTIVE, skipping draw!" << std::endl;
+			}
+			return;
+		}
+
+		Point<int16_t> viewpos = camera.position(alpha);
+		Point<double> viewrpos = camera.realposition(alpha);
+		// Use actual camera position instead of hardcoded values
+		double viewx = viewrpos.x();
+		double viewy = viewrpos.y();
+		// Log periodically to check if still drawing
+		static int draw_count = 0;
+		draw_count++;
+		if (draw_count < 10 || draw_count % 100 == 0) {
+			std::cout << "[STATETRANS] Stage::draw - call #" << draw_count 
+			          << " with camera view: (" << viewx << ", " << viewy << ")"
+			          << ", viewpos: (" << viewpos.x() << ", " << viewpos.y() << ")" << std::endl;
+		}
+
+		backgrounds.drawbackgrounds(viewx, viewy, alpha);
+
+		for (auto id : Layer::IDs)
+		{
+			tilesobjs.draw(id, viewpos, alpha);
+			reactors.draw(id, viewx, viewy, alpha);
+			npcs.draw(id, viewx, viewy, alpha);
+			mobs.draw(id, viewx, viewy, alpha);
+			chars.draw(id, viewx, viewy, alpha);
+			player.draw(id, viewx, viewy, alpha);
+			drops.draw(id, viewx, viewy, alpha);
+		}
+
+		combat.draw(viewx, viewy, alpha);
+		portals.draw(viewpos, alpha);
+		backgrounds.drawforegrounds(viewx, viewy, alpha);
+		effect.draw();
+	}
+
+	void Stage::update()
+	{
+		if (state != State::ACTIVE)
+			return;
+
+		combat.update();
+		backgrounds.update();
+		effect.update();
+		tilesobjs.update();
+
+		reactors.update(physics);
+		npcs.update(physics);
+		mobs.update(physics);
+		chars.update(physics);
+		drops.update(physics);
+		player.update(physics);
+
+		portals.update(player.get_position());
+		camera.update(player.get_position());
+
+		if (!player.is_climbing() && !player.is_sitting() && !player.is_attacking())
+		{
+			if (player.is_key_down(KeyAction::Id::UP) && !player.is_key_down(KeyAction::Id::DOWN))
+				check_ladders(true);
+
+			if (player.is_key_down(KeyAction::Id::UP))
+				check_portals();
+
+			if (player.is_key_down(KeyAction::Id::DOWN))
+				check_ladders(false);
+
+			if (player.is_key_down(KeyAction::Id::SIT))
+				check_seats();
+
+			if (player.is_key_down(KeyAction::Id::ATTACK))
+				combat.use_move(0);
+
+			if (player.is_key_down(KeyAction::Id::PICKUP))
+				check_drops();
+		}
+
+		if (player.is_invincible())
+			return;
+
+		if (int32_t oid_id = mobs.find_colliding(player.get_phobj()))
+		{
+			if (MobAttack attack = mobs.create_attack(oid_id))
+			{
+				MobAttackResult result = player.damage(attack);
+				TakeDamagePacket(result, TakeDamagePacket::From::TOUCH).dispatch();
+			}
+		}
+	}
+
+	void Stage::show_character_effect(int32_t cid, CharEffect::Id effect)
+	{
+		if (auto character = get_character(cid))
+			character->show_effect_id(effect);
+	}
+
+	void Stage::check_portals()
+	{
+		if (player.is_attacking())
+			return;
+
+		Point<int16_t> playerpos = player.get_position();
+		Portal::WarpInfo warpinfo = portals.find_warp_at(playerpos);
+
+		if (warpinfo.intramap)
+		{
+			Point<int16_t> spawnpoint = portals.get_portal_by_name(warpinfo.toname);
+			Point<int16_t> startpos = physics.get_y_below(spawnpoint);
+
+			player.respawn(startpos, mapinfo.is_underwater());
+		}
+		else if (warpinfo.valid)
+		{
+			ChangeMapPacket(false, -1, warpinfo.name, false).dispatch();
+
+			CharStats& stats = Stage::get().get_player().get_stats();
+
+			stats.set_mapid(warpinfo.mapid);
+
+			Sound(Sound::Name::PORTAL).play();
+		}
+	}
+
+	void Stage::check_seats()
+	{
+		if (player.is_sitting() || player.is_attacking())
+			return;
+
+		Optional<const Seat> seat = mapinfo.findseat(player.get_position());
+		player.set_seat(seat);
+	}
+
+	void Stage::check_ladders(bool up)
+	{
+		if (!player.can_climb() || player.is_climbing() || player.is_attacking())
+			return;
+
+		Optional<const Ladder> ladder = mapinfo.findladder(player.get_position(), up);
+		player.set_ladder(ladder);
+	}
+
+	void Stage::check_drops()
+	{
+		Point<int16_t> playerpos = player.get_position();
+		MapDrops::Loot loot = drops.find_loot_at(playerpos);
+
+		if (loot.first)
+			PickupItemPacket(loot.first, loot.second).dispatch();
+	}
+
+	void Stage::send_key(KeyType::Id type, int32_t action, bool down)
+	{
+		if (state != State::ACTIVE || !playable)
+			return;
+
+		switch (type)
+		{
+			case KeyType::Id::ACTION:
+				playable->send_action(KeyAction::actionbyid(action), down);
+				break;
+			case KeyType::Id::SKILL:
+				combat.use_move(action);
+				break;
+			case KeyType::Id::ITEM:
+				player.use_item(action);
+				break;
+			case KeyType::Id::FACE:
+				player.set_expression(action);
+				break;
+		}
+	}
+
+	Cursor::State Stage::send_cursor(bool clicked, Point<int16_t> cursor_position)
+	{
+		auto statusbar = UI::get().get_element<UIStatusBar>();
+
+		if (statusbar && statusbar->is_menu_active())
+		{
+			if (clicked)
+				statusbar->remove_menus();
+
+			if (statusbar->is_in_range(cursor_position))
+				return statusbar->send_cursor(clicked, cursor_position);
+		}
+
+		return npcs.send_cursor(clicked, cursor_position, camera.position());
+	}
+
+	bool Stage::is_player(int32_t cid) const
+	{
+		return cid == player.get_oid();
+	}
+
+	MapNpcs& Stage::get_npcs()
+	{
+		return npcs;
+	}
+
+	MapChars& Stage::get_chars()
+	{
+		return chars;
+	}
+
+	MapMobs& Stage::get_mobs()
+	{
+		return mobs;
+	}
+
+	MapReactors& Stage::get_reactors()
+	{
+		return reactors;
+	}
+
+	MapDrops& Stage::get_drops()
+	{
+		return drops;
+	}
+
+	Player& Stage::get_player()
+	{
+		return player;
+	}
+
+	Combat& Stage::get_combat()
+	{
+		return combat;
+	}
+
+	Optional<Char> Stage::get_character(int32_t cid)
+	{
+		if (is_player(cid))
+			return player;
+		else
+			return chars.get_char(cid);
+	}
+
+	int Stage::get_mapid()
+	{
+		return mapid;
+	}
+
+	void Stage::add_effect(std::string path)
+	{
+		effect = MapEffect(path);
+	}
+
+	int64_t Stage::get_uptime()
+	{
+		return ContinuousTimer::get().stop(start);
+	}
+
+	uint16_t Stage::get_uplevel()
+	{
+		return levelBefore;
+	}
+
+	int64_t Stage::get_upexp()
+	{
+		return expBefore;
+	}
+
+	void Stage::transfer_player()
+	{
+		PlayerMapTransferPacket().dispatch();
+
+		if (Configuration::get().get_admin())
+			AdminEnterMapPacket(AdminEnterMapPacket::Operation::ALERT_ADMINS).dispatch();
+	}
+}
+
+================
+File: Gameplay/Stage.h
+================
+//////////////////////////////////////////////////////////////////////////////////
+//	This file is part of the continued Journey MMORPG client					//
+//	Copyright (C) 2015-2019  Daniel Allendorf, Ryan Payton						//
+//																				//
+//	This program is free software: you can redistribute it and/or modify		//
+//	it under the terms of the GNU Affero General Public License as published by	//
+//	the Free Software Foundation, either version 3 of the License, or			//
+//	(at your option) any later version.											//
+//																				//
+//	This program is distributed in the hope that it will be useful,				//
+//	but WITHOUT ANY WARRANTY; without even the implied warranty of				//
+//	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the				//
+//	GNU Affero General Public License for more details.							//
+//																				//
+//	You should have received a copy of the GNU Affero General Public License	//
+//	along with this program.  If not, see <https://www.gnu.org/licenses/>.		//
+//////////////////////////////////////////////////////////////////////////////////
+#pragma once
+
+#include "Combat/Combat.h"
+#include "MapleMap/MapBackgrounds.h"
+#include "MapleMap/MapDrops.h"
+#include "MapleMap/MapEffect.h"
+#include "MapleMap/MapNpcs.h"
+#include "MapleMap/MapPortals.h"
+#include "MapleMap/MapTilesObjs.h"
+
+#include "../Timer.h"
+
+#include "../IO/KeyType.h"
+
+namespace ms
+{
+	class Stage : public Singleton<Stage>
+	{
+	public:
+		Stage();
+
+		void init();
+
+		// Loads the map to display
+		void load(int32_t mapid, int8_t portalid);
+		// Remove all map objects and graphics
+		void clear();
+
+		// Construct the player from a character entry
+		void loadplayer(const CharEntry& entry);
+
+		// Call 'draw()' of all objects on stage
+		void draw(float alpha) const;
+		// Calls 'update()' of all objects on stage
+		void update();
+
+		// Show a character effect
+		void show_character_effect(int32_t cid, CharEffect::Id effect);
+
+		// Send key input to the stage
+		void send_key(KeyType::Id keytype, int32_t keycode, bool pressed);
+		// Send mouse input to the stage
+		Cursor::State send_cursor(bool clicked, Point<int16_t> cursor_position);
+
+		// Check if the specified id is the player's id
+		bool is_player(int32_t cid) const;
+
+		// Returns a reference to the NPCs on the current map
+		MapNpcs& get_npcs();
+		// Returns a reference to the other characters on the current map
+		MapChars& get_chars();
+		// Returns a reference to the mobs on the current map
+		MapMobs& get_mobs();
+		// Returns a reference to the reactors on the current map
+		MapReactors& get_reactors();
+		// Returns a reference to the drops on the current map
+		MapDrops& get_drops();
+		// Returns a reference to the Player
+		Player& get_player();
+		// Return a reference to the attack and buff component
+		Combat& get_combat();
+		// Returns the current map ID
+		int32_t get_mapid();
+
+		// Return a pointer to a character, possibly the player.
+		Optional<Char> get_character(int32_t cid);
+
+		// Set a map effect
+		void add_effect(std::string path);
+
+		// Get the total up time of the client
+		int64_t get_uptime();
+		// Get the level at the start of the client
+		uint16_t get_uplevel();
+		// Get the EXP at the start of the client
+		int64_t get_upexp();
+
+		// Notify the server that the player has moved maps
+		void transfer_player();
+
+	private:
+		void load_map(int32_t mapid);
+		void respawn(int8_t portalid);
+		void check_portals();
+		void check_seats();
+		void check_ladders(bool up);
+		void check_drops();
+
+		enum State
+		{
+			INACTIVE,
+			TRANSITION,
+			ACTIVE
+		};
+
+		Camera camera;
+		Physics physics;
+		Player player;
+
+		Optional<Playable> playable;
+		State state;
+		int32_t mapid;
+
+		MapInfo mapinfo;
+		MapTilesObjs tilesobjs;
+		MapBackgrounds backgrounds;
+		MapPortals portals;
+		MapReactors reactors;
+		MapNpcs npcs;
+		MapChars chars;
+		MapMobs mobs;
+		MapDrops drops;
+		MapEffect effect;
+
+		Combat combat;
+
+		std::chrono::time_point<std::chrono::steady_clock> start;
+		uint16_t levelBefore;
+		int64_t expBefore;
+	};
+}
+
+================
+File: Graphics/GraphicsGL.cpp
+================
+//////////////////////////////////////////////////////////////////////////////////
+//	This file is part of the continued Journey MMORPG client					//
+//	Copyright (C) 2015-2019  Daniel Allendorf, Ryan Payton						//
+//																				//
+//	This program is free software: you can redistribute it and/or modify		//
+//	it under the terms of the GNU Affero General Public License as published by	//
+//	the Free Software Foundation, either version 3 of the License, or			//
+//	(at your option) any later version.											//
+//																				//
+//	This program is distributed in the hope that it will be useful,				//
+//	but WITHOUT ANY WARRANTY; without even the implied warranty of				//
+//	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the				//
+//	GNU Affero General Public License for more details.							//
+//																				//
+//	You should have received a copy of the GNU Affero General Public License	//
+//	along with this program.  If not, see <https://www.gnu.org/licenses/>.		//
+//////////////////////////////////////////////////////////////////////////////////
+#include "GraphicsGL.h"
+
+#include "../Configuration.h"
+#include "../Util/Misc.h"
+#include <algorithm>
+#include <cmath>
+
+namespace ms
+{
+	GraphicsGL::GraphicsGL()
+	{
+		locked = false;
+
+		VWIDTH = Constants::Constants::get().get_viewwidth();
+		VHEIGHT = Constants::Constants::get().get_viewheight();
+		SCREEN = Rectangle<int16_t>(0, VWIDTH, 0, VHEIGHT);
+
+		// Initialize camera
+		camera_x = 0;
+		camera_y = 0;
+		debug_mode = false;
+	}
+
+	Error GraphicsGL::init()
+	{
+		// Setup parameters
+		// ----------------
+		const char* vertexShaderSource =
+			"#version 120\n"
+			"attribute vec4 coord;"
+			"attribute vec4 color;"
+			"varying vec2 texpos;"
+			"varying vec4 colormod;"
+			"uniform vec2 screensize;"
+			"uniform int yoffset;"
+
+			"void main(void)"
+			"{"
+			"	float x = -1.0 + coord.x * 2.0 / screensize.x;"
+			"	float y = 1.0 - (coord.y + yoffset) * 2.0 / screensize.y;"
+			"   gl_Position = vec4(x, y, 0.0, 1.0);"
+			"	texpos = coord.zw;"
+			"	colormod = color;"
+			"}";
+
+		const char* fragmentShaderSource =
+			"#version 120\n"
+			"varying vec2 texpos;"
+			"varying vec4 colormod;"
+			"uniform sampler2D texture;"
+			"uniform vec2 atlassize;"
+			"uniform int fontregion;"
+
+			"void main(void)"
+			"{"
+			"	if (texpos.y == 0)"
+			"	{"
+			"		gl_FragColor = colormod;"
+			"	}"
+			"	else if (texpos.y <= fontregion)"
+			"	{"
+			"		gl_FragColor = vec4(1, 1, 1, texture2D(texture, texpos / atlassize).r) * colormod;"
+			"	}"
+			"	else"
+			"	{"
+			"		gl_FragColor = texture2D(texture, texpos / atlassize) * colormod;"
+			"	}"
+			"}";
+
+		const GLsizei bufSize = 512;
+
+		GLint success;
+		GLchar infoLog[bufSize];
+
+		// Initialize and configure
+		// ------------------------
+		if (GLenum error = glewInit())
+			return Error(Error::Code::GLEW, (const char*)glewGetErrorString(error));
+
+		LOG(LOG_INFO, "Using OpenGL " << glGetString(GL_VERSION));
+		LOG(LOG_INFO, "Using GLEW " << glewGetString(GLEW_VERSION));
+
+		if (FT_Init_FreeType(&ftlibrary))
+			return Error::Code::FREETYPE;
+
+		FT_Int ftmajor;
+		FT_Int ftminor;
+		FT_Int ftpatch;
+
+		FT_Library_Version(ftlibrary, &ftmajor, &ftminor, &ftpatch);
+
+		LOG(LOG_INFO, "Using FreeType " << ftmajor << "." << ftminor << "." << ftpatch);
+
+		// Build and compile our shader program
+		// ------------------------------------
+
+		// Vertex Shader
+		GLuint vertexShader = glCreateShader(GL_VERTEX_SHADER);
+		glShaderSource(vertexShader, 1, &vertexShaderSource, NULL);
+		glCompileShader(vertexShader);
+
+		// Check for shader compile errors
+		glGetShaderiv(vertexShader, GL_COMPILE_STATUS, &success);
+
+		if (success != GL_TRUE)
+		{
+			glGetShaderInfoLog(vertexShader, bufSize, NULL, infoLog);
+
+			return Error(Error::Code::VERTEX_SHADER, infoLog);
+		}
+
+		// Fragment Shader
+		GLuint fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
+		glShaderSource(fragmentShader, 1, &fragmentShaderSource, NULL);
+		glCompileShader(fragmentShader);
+
+		// Check for shader compile errors
+		glGetShaderiv(fragmentShader, GL_COMPILE_STATUS, &success);
+
+		if (success != GL_TRUE)
+		{
+			glGetShaderInfoLog(fragmentShader, bufSize, NULL, infoLog);
+
+			return Error(Error::Code::FRAGMENT_SHADER, infoLog);
+		}
+
+		// Link Shaders
+		shaderProgram = glCreateProgram();
+		glAttachShader(shaderProgram, vertexShader);
+		glAttachShader(shaderProgram, fragmentShader);
+		glLinkProgram(shaderProgram);
+
+		// Check for linking errors
+		glGetProgramiv(shaderProgram, GL_LINK_STATUS, &success);
+
+		if (success != GL_TRUE)
+		{
+			glGetProgramInfoLog(shaderProgram, bufSize, NULL, infoLog);
+
+			return Error(Error::Code::SHADER_PROGRAM_LINK, infoLog);
+		}
+
+		// Validate Program
+		glValidateProgram(shaderProgram);
+
+		// Check for validation errors
+		glGetProgramiv(shaderProgram, GL_VALIDATE_STATUS, &success);
+
+		if (success != GL_TRUE)
+		{
+			glGetProgramInfoLog(shaderProgram, bufSize, NULL, infoLog);
+
+			return Error(Error::Code::SHADER_PROGRAM_VALID, infoLog);
+		}
+
+		glDeleteShader(vertexShader);
+		glDeleteShader(fragmentShader);
+
+		attribute_coord = glGetAttribLocation(shaderProgram, "coord");
+		attribute_color = glGetAttribLocation(shaderProgram, "color");
+		uniform_texture = glGetUniformLocation(shaderProgram, "texture");
+		uniform_atlassize = glGetUniformLocation(shaderProgram, "atlassize");
+		uniform_screensize = glGetUniformLocation(shaderProgram, "screensize");
+		uniform_yoffset = glGetUniformLocation(shaderProgram, "yoffset");
+		uniform_fontregion = glGetUniformLocation(shaderProgram, "fontregion");
+
+		if (attribute_coord == -1 || attribute_color == -1 || uniform_texture == -1 || uniform_atlassize == -1 || uniform_screensize == -1 || uniform_yoffset == -1)
+			return Error::Code::SHADER_VARS;
+
+		// Vertex Buffer Object
+		glGenBuffers(1, &VBO);
+
+		glGenTextures(1, &atlas);
+		glBindTexture(GL_TEXTURE_2D, atlas);
+		glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, ATLASW, ATLASH, 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
+
+		fontborder.set_y(1);
+
+		const std::string FONT_NORMAL = Setting<FontPathNormal>().get().load();
+		const std::string FONT_BOLD = Setting<FontPathBold>().get().load();
+
+		if (FONT_NORMAL.empty() || FONT_BOLD.empty())
+			return Error::Code::FONT_PATH;
+
+		const char* FONT_NORMAL_STR = FONT_NORMAL.c_str();
+		const char* FONT_BOLD_STR = FONT_BOLD.c_str();
+
+		addfont(FONT_NORMAL_STR, Text::Font::A11M, 0, 11);
+		addfont(FONT_BOLD_STR, Text::Font::A11B, 0, 11);
+		addfont(FONT_NORMAL_STR, Text::Font::A12M, 0, 12);
+		addfont(FONT_BOLD_STR, Text::Font::A12B, 0, 12);
+		addfont(FONT_NORMAL_STR, Text::Font::A13M, 0, 13);
+		addfont(FONT_BOLD_STR, Text::Font::A13B, 0, 13);
+		addfont(FONT_NORMAL_STR, Text::Font::A14M, 0, 14);
+		addfont(FONT_BOLD_STR, Text::Font::A14B, 0, 14);
+		addfont(FONT_NORMAL_STR, Text::Font::A15M, 0, 15);
+		addfont(FONT_BOLD_STR, Text::Font::A15B, 0, 15);
+		addfont(FONT_NORMAL_STR, Text::Font::A18M, 0, 18);
+		addfont(FONT_BOLD_STR, Text::Font::A18B, 0, 18);
+
+		fontymax += fontborder.y();
+
+		leftovers = QuadTree<size_t, Leftover>(
+			[](const Leftover& first, const Leftover& second)
+			{
+				bool width_comparison = first.width() >= second.width();
+				bool height_comparison = first.height() >= second.height();
+
+				if (width_comparison && height_comparison)
+					return QuadTree<size_t, Leftover>::Direction::RIGHT;
+				else if (width_comparison)
+					return QuadTree<size_t, Leftover>::Direction::DOWN;
+				else if (height_comparison)
+					return QuadTree<size_t, Leftover>::Direction::UP;
+				else
+					return QuadTree<size_t, Leftover>::Direction::LEFT;
+			}
+		);
+
+		return Error::Code::NONE;
+	}
+
+	bool GraphicsGL::addfont(const char* name, Text::Font id, FT_UInt pixelw, FT_UInt pixelh)
+	{
+		FT_Face face;
+
+		if (FT_New_Face(ftlibrary, name, 0, &face))
+			return false;
+
+		if (FT_Set_Pixel_Sizes(face, pixelw, pixelh))
+			return false;
+
+		FT_GlyphSlot g = face->glyph;
+
+		GLshort width = 0;
+		GLshort height = 0;
+
+		for (uint8_t c = 32; c < 128; c++)
+		{
+			if (FT_Load_Char(face, c, FT_LOAD_RENDER))
+				continue;
+
+			GLshort w = static_cast<GLshort>(g->bitmap.width);
+			GLshort h = static_cast<GLshort>(g->bitmap.rows);
+
+			width += w;
+
+			if (h > height)
+				height = h;
+		}
+
+		if (fontborder.x() + width > ATLASW)
+		{
+			fontborder.set_x(0);
+			fontborder.set_y(fontymax);
+			fontymax = 0;
+		}
+
+		GLshort x = fontborder.x();
+		GLshort y = fontborder.y();
+
+		fontborder.shift_x(width);
+
+		if (height > fontymax)
+			fontymax = height;
+
+		fonts[id] = Font(width, height);
+
+		GLshort ox = x;
+		GLshort oy = y;
+
+		for (uint8_t c = 32; c < 128; c++)
+		{
+			if (FT_Load_Char(face, c, FT_LOAD_RENDER))
+				continue;
+
+			GLshort ax = static_cast<GLshort>(g->advance.x >> 6);
+			GLshort ay = static_cast<GLshort>(g->advance.y >> 6);
+			GLshort l = static_cast<GLshort>(g->bitmap_left);
+			GLshort t = static_cast<GLshort>(g->bitmap_top);
+			GLshort w = static_cast<GLshort>(g->bitmap.width);
+			GLshort h = static_cast<GLshort>(g->bitmap.rows);
+
+			glTexSubImage2D(GL_TEXTURE_2D, 0, ox, oy, w, h, GL_RED, GL_UNSIGNED_BYTE, g->bitmap.buffer);
+
+			Offset offset = Offset(ox, oy, w, h);
+			fonts[id].chars[c] = { ax, ay, w, h, l, t, offset };
+
+			ox += w;
+		}
+
+		return true;
+	}
+
+	void GraphicsGL::reinit()
+	{
+		int32_t new_width = Constants::Constants::get().get_viewwidth();
+		int32_t new_height = Constants::Constants::get().get_viewheight();
+
+		if (VWIDTH != new_width || VHEIGHT != new_height)
+		{
+			VWIDTH = new_width;
+			VHEIGHT = new_height;
+			SCREEN = Rectangle<int16_t>(0, VWIDTH, 0, VHEIGHT);
+		}
+
+		glUseProgram(shaderProgram);
+
+		glUniform1i(uniform_fontregion, fontymax);
+		glUniform2f(uniform_atlassize, ATLASW, ATLASH);
+		glUniform2f(uniform_screensize, VWIDTH, VHEIGHT);
+
+		glBindBuffer(GL_ARRAY_BUFFER, VBO);
+		glVertexAttribPointer(attribute_coord, 4, GL_SHORT, GL_FALSE, sizeof(Quad::Vertex), 0);
+		glVertexAttribPointer(attribute_color, 4, GL_FLOAT, GL_FALSE, sizeof(Quad::Vertex), (const void*)8);
+
+		glEnable(GL_BLEND);
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+		glBindTexture(GL_TEXTURE_2D, atlas);
+		glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+
+		clearinternal();
+	}
+
+	void GraphicsGL::clearinternal()
+	{
+		border = Point<GLshort>(0, fontymax + 1); // Start textures below font region to avoid shader conflict
+		GDEBUG("Atlas cleared: border set to (0," << (fontymax + 1) << ") fontregion=" << fontymax);
+		yrange = Range<GLshort>();
+
+		offsets.clear();
+		leftovers.clear();
+		rlid = 1;
+		wasted = 0;
+	}
+
+	void GraphicsGL::clear()
+	{
+		size_t used = ATLASW * border.y() + border.x() * yrange.second();
+		double usedpercent = static_cast<double>(used) / (ATLASW * ATLASH);
+
+		if (usedpercent > 80.0)
+			clearinternal();
+	}
+
+	void GraphicsGL::addbitmap(const nl::bitmap& bmp)
+	{
+		getoffset(bmp);
+	}
+
+	const GraphicsGL::Offset& GraphicsGL::getoffset(const nl::bitmap& bmp)
+	{
+		size_t id = bmp.id();
+		GLshort width = bmp.width();
+		GLshort height = bmp.height();
+		auto offiter = offsets.find(id);
+
+		if (offiter != offsets.end()) {
+			if (width > 300 || height > 300) {
+				GDEBUG("CACHED: " << width << "x" << height << " using cached atlas position");
+			}
+			return offiter->second;
+		}
+
+		GLshort x = 0;
+		GLshort y = 0;
+
+		if (width <= 0 || height <= 0)
+			return nulloffset;
+
+		Leftover value = Leftover(x, y, width, height);
+
+		size_t lid = leftovers.findnode(
+			value,
+			[](const Leftover& val, const Leftover& leaf)
+			{
+				return val.width() <= leaf.width() && val.height() <= leaf.height();
+			}
+		);
+
+		if (lid > 0)
+		{
+			const Leftover& leftover = leftovers[lid];
+
+			x = leftover.left;
+			y = leftover.top;
+
+			GLshort width_delta = leftover.width() - width;
+			GLshort height_delta = leftover.height() - height;
+
+			leftovers.erase(lid);
+
+			wasted -= width * height;
+
+			if (width_delta >= MINLOSIZE && height_delta >= MINLOSIZE)
+			{
+				leftovers.add(rlid, Leftover(x + width, y + height, width_delta, height_delta));
+				rlid++;
+
+				if (width >= MINLOSIZE)
+				{
+					leftovers.add(rlid, Leftover(x, y + height, width, height_delta));
+					rlid++;
+				}
+
+				if (height >= MINLOSIZE)
+				{
+					leftovers.add(rlid, Leftover(x + width, y, width_delta, height));
+					rlid++;
+				}
+			}
+			else if (width_delta >= MINLOSIZE)
+			{
+				leftovers.add(rlid, Leftover(x + width, y, width_delta, height + height_delta));
+				rlid++;
+			}
+			else if (height_delta >= MINLOSIZE)
+			{
+				leftovers.add(rlid, Leftover(x, y + height, width + width_delta, height_delta));
+				rlid++;
+			}
+		}
+		else
+		{
+			if (border.x() + width > ATLASW)
+			{
+				border.set_x(0);
+				border.shift_y(yrange.second());
+
+				if (border.y() + height > ATLASH)
+					clearinternal();
+				else
+					yrange = Range<GLshort>();
+			}
+
+			x = border.x();
+			y = border.y();
+
+			border.shift_x(width);
+
+			if (height > yrange.second())
+			{
+				if (x >= MINLOSIZE && height - yrange.second() >= MINLOSIZE)
+				{
+					leftovers.add(rlid, Leftover(0, yrange.first(), x, height - yrange.second()));
+					rlid++;
+				}
+
+				wasted += x * (height - yrange.second());
+
+				yrange = Range<int16_t>(y + height, height);
+			}
+			else if (height < yrange.first() - y)
+			{
+				if (width >= MINLOSIZE && yrange.first() - y - height >= MINLOSIZE)
+				{
+					leftovers.add(rlid, Leftover(x, y + height, width, yrange.first() - y - height));
+					rlid++;
+				}
+
+				wasted += width * (yrange.first() - y - height);
+			}
+		}
+
+#if LOG_LEVEL >= LOG_TRACE
+		size_t used = ATLASW * border.y() + border.x() * yrange.second();
+
+		double usedpercent = static_cast<double>(used) / (ATLASW * ATLASH);
+		double wastedpercent = static_cast<double>(wasted) / used;
+
+		LOG(LOG_TRACE, "Used: [" << usedpercent << "] Wasted: [" << wastedpercent << "]");
+#endif
+
+		// Debug large texture uploads
+		if (width > 300 || height > 300) {
+			const char* data_ptr = reinterpret_cast<const char*>(bmp.data());
+			uint32_t checksum = 0;
+			if (data_ptr) {
+				// Simple checksum of first 16 pixels (64 bytes)
+				for (int i = 0; i < 64 && i < width * height * 4; i++) {
+					checksum += data_ptr[i];
+				}
+			}
+			GDEBUG("UPLOAD: " << width << "x" << height << " to atlas (" << x << "," << y << ") fontregion=" << fontymax << " data=" << (bmp.data() ? "valid" : "null") << " checksum=" << checksum);
+		}
+		
+		glTexSubImage2D(GL_TEXTURE_2D, 0, x, y, width, height, GL_BGRA, GL_UNSIGNED_BYTE, bmp.data());
+		
+		// Check for OpenGL errors after upload
+		if (width > 300 || height > 300) {
+			GLenum error = glGetError();
+			if (error != GL_NO_ERROR) {
+				GDEBUG("OpenGL ERROR after upload: " << error);
+			}
+		}
+
+		return offsets.emplace(
+			std::piecewise_construct,
+			std::forward_as_tuple(id),
+			std::forward_as_tuple(x, y, width, height)
+		).first->second;
+	}
+
+	void GraphicsGL::draw(const nl::bitmap& bmp, const Rectangle<int16_t>& rect, const Range<int16_t>& vertical, const Range<int16_t>& horizontal, const Color& color, float angle)
+	{
+		// Only debug large textures (likely backgrounds)
+		if (rect.width() > 300 || rect.height() > 300) {
+			GDEBUG("LARGE texture: " << rect.width() << "x" << rect.height() << " at (" << rect.left() << "," << rect.top() << ") alpha=" << color.a());
+		}
+		
+		if (locked)
+			return;
+
+		if (color.invisible()) {
+			if (rect.width() > 300 || rect.height() > 300) {
+				GDEBUG("LARGE texture INVISIBLE - alpha=" << color.a());
+			}
+			return;
+		}
+
+		if (!rect.overlaps(SCREEN))
+			return;
+
+		Offset offset = getoffset(bmp);
+
+		// Debug atlas placement for all textures
+		if (rect.width() > 300 || rect.height() > 300) {
+			GDEBUG("LARGE: " << rect.width() << "x" << rect.height() << " at atlas (" << offset.left << "," << offset.top << ")-(" << offset.right << "," << offset.bottom << ") fontregion=" << fontymax);
+			
+			// In debug mode, draw red rectangles instead of textures
+			if (debug_mode) {
+				drawrectangle(rect.left() + camera_x, rect.top() + camera_y, rect.width(), rect.height(), 1.0f, 0.0f, 0.0f, 1.0f);
+				return;
+			}
+		} else if (rect.width() > 20) { // Log medium-sized textures too
+			GDEBUG("SMALL: " << rect.width() << "x" << rect.height() << " at atlas (" << offset.left << "," << offset.top << ")-(" << offset.right << "," << offset.bottom << ") fontregion=" << fontymax);
+		}
+
+		offset.top += vertical.first();
+		offset.bottom -= vertical.second();
+		offset.left += horizontal.first();
+		offset.right -= horizontal.second();
+
+		quads.emplace_back(
+			rect.left() + horizontal.first() + camera_x,
+			rect.right() - horizontal.second() + camera_x,
+			rect.top() + vertical.first() + camera_y,
+			rect.bottom() - vertical.second() + camera_y,
+			offset, color, angle
+		);
+	}
+
+	Text::Layout GraphicsGL::createlayout(const std::string& text, Text::Font id, Text::Alignment alignment, Color::Name color, int16_t maxwidth, bool formatted, int16_t line_adj)
+	{
+		size_t length = text.length();
+
+		if (length == 0)
+			return Text::Layout();
+
+		LayoutBuilder builder(id, fonts[id], alignment, color, maxwidth, formatted, line_adj);
+
+		const char* p_text = text.c_str();
+
+		size_t first = 0;
+		size_t offset = 0;
+
+		while (offset < length)
+		{
+			size_t last = text.find_first_of(" \\#\t", offset + 1);
+
+			if (last == std::string::npos)
+				last = length;
+
+			first = builder.add(p_text, first, offset, last);
+			offset = last;
+		}
+
+		return builder.finish(first, offset);
+	}
+
+	GraphicsGL::LayoutBuilder::LayoutBuilder(Text::Font id, const Font& f, Text::Alignment a, Color::Name c, int16_t mw, bool fm, int16_t la) : fontid(id), font(f), alignment(a), color(c), maxwidth(mw), formatted(fm), line_adj(la)
+	{
+		ax = 0;
+		ay = font.linespace();
+		width = 0;
+		endy = 0;
+
+		if (maxwidth == 0)
+			maxwidth = 800;
+	}
+
+	size_t GraphicsGL::LayoutBuilder::add(const char* text, size_t prev, size_t first, size_t last)
+	{
+		if (first == last)
+			return prev;
+
+		Text::Font last_font = fontid;
+		Color::Name last_color = color;
+		size_t skip = 0;
+		bool linebreak = false;
+
+		if (formatted)
+		{
+			size_t next_char = first + 1;
+			char c = text[next_char];
+
+			switch (text[first])
+			{
+				case '\\':
+				{
+					if (next_char < last)
+					{
+						switch (c)
+						{
+							// \r\n - Moves down a line
+							case 'rn':
+							case 'RN':
+							{
+								// TODO: How is this treated differently than the single versions?
+								skip += 4;
+								break;
+							}
+							// \n - New line
+							case 'n':
+							case 'N':
+							{
+								linebreak = true;
+								skip += 2;
+								break;
+							}
+							// \r - Return carriage
+							case 'r':
+							case 'R':
+							{
+								linebreak = ax > 0;
+								skip += 2;
+								break;
+							}
+							// \b - Backwards
+							case 'b':
+							{
+								// TODO: What is this?
+								skip += 2;
+								break;
+							}
+							default:
+							{
+								single_console::log_message("[GraphicsGL::LayoutBuilder::add] Unknown format: [" + std::to_string(c) + "]");
+								break;
+							}
+						}
+					}
+
+					break;
+				}
+				case '#':
+				{
+					if (next_char < last)
+					{
+						switch (c)
+						{
+							// #b - Blue text
+							case 'b':
+							{
+								color = Color::Name::PERSIANGREEN;
+								skip += 2;
+								break;
+							}
+							// #B[%]# - Shows a progress bar
+							case 'B':
+							{
+								// TODO: Needs implemented
+								skip += 2;
+								break;
+							}
+							// #c[id]# - Show how many of a given item are in the player's inventory in an orange color
+							case 'c':
+							{
+								// TODO: Show the number of items
+								color = Color::Name::ORANGE;
+								skip += 2;
+								break;
+							}
+							// #d - Purple text
+							case 'd':
+							{
+								// TODO: Need to get the proper color
+								skip += 2;
+								break;
+							}
+							// #e - Bold text
+							case 'e':
+							case 'E':
+							{
+								switch (last_font)
+								{
+									case Text::Font::A11M:
+										fontid = Text::Font::A11B;
+										break;
+									case Text::Font::A12M:
+										fontid = Text::Font::A12B;
+										break;
+									case Text::Font::A13M:
+										fontid = Text::Font::A13B;
+										break;
+									case Text::Font::A18M:
+										fontid = Text::Font::A18B;
+										break;
+									default:
+										single_console::log_message("[GraphicsGL::LayoutBuilder::add] Unknown Text::Font: [" + std::to_string(last_font) + "]");
+										break;
+								}
+
+								skip += 2;
+								break;
+							}
+							// #f[path]# - Shows an image within the WZ file
+							case 'f':
+							{
+								// TODO: Needs implemented
+								skip += 2;
+								break;
+							}
+							// #g - Green text
+							case 'g':
+							{
+								// TODO: Need to get the proper color
+								skip += 2;
+								break;
+							}
+							// TODO: Is there a space between the h and ending # or not?
+							// #h # - Shows the name of the player
+							case 'h':
+							{
+								// TODO: Needs implemented
+								skip += 2;
+								break;
+							}
+							// #i[id]# - Shows a picture of the given item
+							case 'i':
+							{
+								// TODO: Needs implemented
+								skip += 2;
+								break;
+							}
+							// #k - Black text
+							case 'k':
+							{
+								color = Color::Name::DARKGREY;
+								skip += 2;
+								break;
+							}
+							// #l - Ends the list of items in the selection
+							case 'l':
+							{
+								// TODO: Needs implemented
+								skip += 2;
+								break;
+							}
+							// #L[number]# - Starts a selection for the number of items given
+							case 'L':
+							{
+								// TODO: Needs implemented
+								skip += 2;
+								break;
+							}
+							// #m[id]# - Shows the name of the given map
+							case 'm':
+							{
+								// TODO: Needs implemented
+								skip += 2;
+								break;
+							}
+							// #n - Normal text (Removes bold)
+							case 'n':
+							case 'N':
+							{
+								switch (last_font)
+								{
+									case Text::Font::A11B:
+										fontid = Text::Font::A11M;
+										break;
+									case Text::Font::A12B:
+										fontid = Text::Font::A12M;
+										break;
+									case Text::Font::A13B:
+										fontid = Text::Font::A13M;
+										break;
+									case Text::Font::A18B:
+										fontid = Text::Font::A18M;
+										break;
+									default:
+										single_console::log_message("[GraphicsGL::LayoutBuilder::add] Unknown Text::Font: [" + std::to_string(last_font) + "]");
+										break;
+								}
+
+								skip += 2;
+								break;
+							}
+							// #o[id]# - Shows the name of the given monster
+							case 'o':
+							{
+								// TODO: Needs implemented
+								skip += 2;
+								break;
+							}
+							// #p[id]# - Shows the name of the given NPC
+							case 'p':
+							{
+								// TODO: Needs implemented
+								skip += 2;
+								break;
+							}
+							// #q[id]# - Shows the name of the given skill
+							case 'q':
+							{
+								// TODO: Needs implemented
+								skip += 2;
+								break;
+							}
+							// #r - Red text
+							case 'r':
+							{
+								color = Color::Name::RED;
+								skip += 2;
+								break;
+							}
+							// #s[id]# - Shows the image of the given skill
+							case 's':
+							{
+								// TODO: Needs implemented
+								skip += 2;
+								break;
+							}
+							// #t[id]#
+							// #z[id]#
+							// Shows the name of the given item
+							// TODO: Are these the same?
+							case 't':
+							case 'z':
+							{
+								// TODO: Needs implemented
+								skip += 2;
+								break;
+							}
+							// #v[id]# - Shows a picture of the given item
+							case 'v':
+							{
+								// TODO: Needs implemented
+								skip += 2;
+								break;
+							}
+							// #x - Returns "0%" (Need more information on this)
+							case 'x':
+							{
+								// TODO: Needs implemented
+								skip += 2;
+								break;
+							}
+							default:
+							{
+								single_console::log_message("[GraphicsGL::LayoutBuilder::add] Unknown format: [" + std::to_string(c) + "]");
+								break;
+							}
+						}
+					}
+
+					break;
+				}
+				// \t - Tab (4 spaces)
+				case '\t':
+				{
+					ax = font.chars[' '].ax * 4;
+					skip++;
+					break;
+				}
+			}
+		}
+
+		int16_t wordwidth = 0;
+
+		if (!linebreak)
+		{
+			for (size_t i = first; i < last; i++)
+			{
+				char c = text[i];
+
+				if (c == '\t')
+					wordwidth += ax;
+				else
+					wordwidth += font.chars[c].ax;
+
+				if (wordwidth > maxwidth)
+				{
+					if (last - first == 1)
+					{
+						return last;
+					}
+					else
+					{
+						prev = add(text, prev, first, i);
+						return add(text, prev, i, last);
+					}
+				}
+			}
+		}
+
+		bool newword = skip > 0;
+		bool newline = linebreak || ax + wordwidth > maxwidth;
+
+		if (newword || newline)
+			add_word(prev, first, last_font, last_color);
+
+		if (newline)
+		{
+			add_line();
+
+			endy = ay;
+			ax = 0;
+			ay += font.linespace();
+
+			if (lines.size() > 0)
+				ay -= line_adj;
+		}
+
+		for (size_t pos = first; pos < last; pos++)
+		{
+			char c = text[pos];
+			const Font::Char& ch = font.chars[c];
+
+			advances.push_back(ax);
+
+			if (pos < first + skip || newline && c == ' ')
+				continue;
+
+			ax += ch.ax;
+
+			if (width < ax)
+				width = ax;
+		}
+
+		if (newword || newline)
+			return first + skip;
+		else
+			return prev;
+	}
+
+	Text::Layout GraphicsGL::LayoutBuilder::finish(size_t first, size_t last)
+	{
+		add_word(first, last, fontid, color);
+		add_line();
+
+		advances.push_back(ax);
+
+		return Text::Layout(lines, advances, width, ay, ax, endy);
+	}
+
+	void GraphicsGL::LayoutBuilder::add_word(size_t word_first, size_t word_last, Text::Font word_font, Color::Name word_color)
+	{
+		words.push_back({ word_first, word_last, word_font, word_color });
+	}
+
+	void GraphicsGL::LayoutBuilder::add_line()
+	{
+		int16_t line_x = 0;
+		int16_t line_y = ay;
+
+		switch (alignment)
+		{
+			case Text::Alignment::CENTER:
+				line_x -= ax / 2;
+				break;
+			case Text::Alignment::RIGHT:
+				line_x -= ax;
+				break;
+		}
+
+		lines.push_back({ words, { line_x, line_y } });
+		words.clear();
+	}
+
+	void GraphicsGL::drawtext(const DrawArgument& args, const Range<int16_t>& vertical, const std::string& text, const Text::Layout& layout, Text::Font id, Color::Name colorid, Text::Background background)
+	{
+		if (locked)
+			return;
+
+		const Color& color = args.get_color();
+
+		if (text.empty() || color.invisible())
+			return;
+
+		const Font& font = fonts[id];
+
+		GLshort x = args.getpos().x();
+		GLshort y = args.getpos().y();
+		GLshort w = layout.width();
+		GLshort h = layout.height();
+		GLshort minheight = vertical.first() > 0 ? vertical.first() : SCREEN.top();
+		GLshort maxheight = vertical.second() > 0 ? vertical.second() : SCREEN.bottom();
+
+		switch (background)
+		{
+			case Text::Background::NAMETAG:
+			{
+				// If ever changing code in here confirm placements with map 10000
+				for (const Text::Layout::Line& line : layout)
+				{
+					GLshort left = x + line.position.x() - 1;
+					GLshort right = left + w + 3;
+					GLshort top = y + line.position.y() - font.linespace() + 6;
+					GLshort bottom = top + h - 2;
+					Color ntcolor = Color(0.0f, 0.0f, 0.0f, 0.6f);
+
+					quads.emplace_back(left, right, top, bottom, nulloffset, ntcolor, 0.0f);
+					quads.emplace_back(left - 1, left, top + 1, bottom - 1, nulloffset, ntcolor, 0.0f);
+					quads.emplace_back(right, right + 1, top + 1, bottom - 1, nulloffset, ntcolor, 0.0f);
+				}
+
+				break;
+			}
+		}
+
+		for (const Text::Layout::Line& line : layout)
+		{
+			Point<int16_t> position = line.position;
+
+			for (const Text::Layout::Word& word : line.words)
+			{
+				GLshort ax = position.x() + layout.advance(word.first);
+				GLshort ay = position.y();
+
+				const GLfloat* wordcolor;
+
+				if (word.color < Color::Name::NUM_COLORS)
+					wordcolor = Color::colors[word.color];
+				else
+					wordcolor = Color::colors[colorid];
+
+				Color abscolor = color * Color(wordcolor[0], wordcolor[1], wordcolor[2], 1.0f);
+
+				for (size_t pos = word.first; pos < word.last; ++pos)
+				{
+					const char c = text[pos];
+					const Font& word_font = fonts[word.font];
+					const Font::Char& ch = word_font.chars[c];
+
+					GLshort char_x = x + ax + ch.bl;
+					GLshort char_y = y + ay - ch.bt;
+					GLshort char_width = ch.bw;
+					GLshort char_height = ch.bh;
+					GLshort char_bottom = char_y + char_height;
+
+					Offset offset = ch.offset;
+
+					if (char_bottom > maxheight)
+					{
+						GLshort bottom_adjust = char_bottom - maxheight;
+
+						if (bottom_adjust < 10)
+						{
+							offset.bottom -= bottom_adjust;
+							char_bottom -= bottom_adjust;
+						}
+						else
+						{
+							continue;
+						}
+					}
+
+					if (char_y < minheight)
+						continue;
+
+					if (ax == 0 && c == ' ')
+						continue;
+
+					ax += ch.ax;
+
+					if (char_width <= 0 || char_height <= 0)
+						continue;
+
+					quads.emplace_back(char_x, char_x + char_width, char_y, char_bottom, offset, abscolor, 0.0f);
+				}
+			}
+		}
+	}
+
+	void GraphicsGL::drawrectangle(int16_t x, int16_t y, int16_t width, int16_t height, float red, float green, float blue, float alpha)
+	{
+		if (locked)
+			return;
+
+		quads.emplace_back(x, x + width, y, y + height, nulloffset, Color(red, green, blue, alpha), 0.0f);
+	}
+
+	void GraphicsGL::drawscreenfill(float red, float green, float blue, float alpha)
+	{
+		drawrectangle(0, 0, VWIDTH, VHEIGHT, red, green, blue, alpha);
+	}
+
+	void GraphicsGL::lock()
+	{
+		locked = true;
+	}
+
+	void GraphicsGL::unlock()
+	{
+		locked = false;
+	}
+
+	void GraphicsGL::flush(float opacity)
+	{
+		bool coverscene = opacity != 1.0f;
+		
+		static int flush_count = 0;
+		flush_count++;
+
+		if (coverscene)
+		{
+			float complement = 1.0f - opacity;
+			
+			// Debug opacity transitions
+			static float last_opacity = 1.0f;
+			if (std::abs(opacity - last_opacity) > 0.1f) {
+				std::cout << "[STATETRANS] GraphicsGL::flush - opacity: " << opacity 
+				          << ", black overlay alpha: " << complement << std::endl;
+				last_opacity = opacity;
+			}
+			
+			// CRITICAL FIX: Don't draw fully opaque black overlay
+			// When opacity = 0, complement = 1.0 which makes everything black
+			// Instead, skip the overlay when opacity is very low
+			// Increased threshold from 0.01 to 0.1 to handle floating point precision
+			if (opacity > 0.1f) {
+				Color color = Color(0.0f, 0.0f, 0.0f, complement);
+				quads.emplace_back(SCREEN.left(), SCREEN.right(), SCREEN.top(), SCREEN.bottom(), nulloffset, color, 0.0f);
+			}
+		}
+		
+		// Check quads count after fade complete
+		if (flush_count > 50 && flush_count < 60) {
+			std::cout << "[STATETRANS] GraphicsGL::flush #" << flush_count 
+			          << " - opacity: " << opacity << ", quads.size(): " << quads.size() << std::endl;
+		}
+		
+		// Debug what's being drawn after fade
+		static bool content_logged = false;
+		if (!content_logged && opacity == 1.0f && quads.size() > 90) {
+			content_logged = true;
+			std::cout << "[STATETRANS] Post-fade content check - " << quads.size() << " quads being drawn" << std::endl;
+			// The quads should contain character textures, UI elements, etc.
+		}
+
+		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);  // clear to black instead of white
+		glClear(GL_COLOR_BUFFER_BIT);
+
+		// Z-sorting temporarily disabled due to rendering issues
+		// std::stable_sort(quads.begin(), quads.end(), [](const Quad& a, const Quad& b) {
+		//     return a.z < b.z;
+		// });
+
+		GLsizeiptr csize = quads.size() * sizeof(Quad);
+		GLsizeiptr fsize = quads.size() * Quad::LENGTH;
+
+		glEnableVertexAttribArray(attribute_coord);
+		glEnableVertexAttribArray(attribute_color);
+		glBindBuffer(GL_ARRAY_BUFFER, VBO);
+		glBufferData(GL_ARRAY_BUFFER, csize, quads.data(), GL_STREAM_DRAW);
+
+		glDrawArrays(GL_QUADS, 0, fsize);
+
+		glDisableVertexAttribArray(attribute_coord);
+		glDisableVertexAttribArray(attribute_color);
+		glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+		// Only pop if we actually added the overlay
+		if (coverscene && opacity > 0.1f)
+			quads.pop_back();
+	}
+
+	void GraphicsGL::move_camera(int16_t dx, int16_t dy)
+	{
+		camera_x += dx;
+		camera_y += dy;
+		GDEBUG("Camera moved to (" << camera_x << "," << camera_y << ")");
+	}
+
+	void GraphicsGL::reset_camera()
+	{
+		camera_x = 0;
+		camera_y = 0;
+		GDEBUG("Camera reset to (0,0)");
+	}
+
+	void GraphicsGL::clear_atlas_cache()
+	{
+		// Clear the actual OpenGL texture data
+		GLubyte* black_data = new GLubyte[ATLASW * ATLASH * 4]();  // All zeros (black/transparent)
+		glBindTexture(GL_TEXTURE_2D, atlas);
+		glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, ATLASW, ATLASH, GL_RGBA, GL_UNSIGNED_BYTE, black_data);
+		delete[] black_data;
+		
+		clearinternal();
+		GDEBUG("Atlas cache and texture data cleared - textures will be re-uploaded");
+	}
+
+	void GraphicsGL::toggle_debug_mode()
+	{
+		debug_mode = !debug_mode;
+		GDEBUG("Debug mode " << (debug_mode ? "ENABLED - large textures will draw as RED" : "DISABLED"));
+	}
+
+	void GraphicsGL::clearscene()
+	{
+		if (!locked) {
+			static int clear_count = 0;
+			clear_count++;
+			if (clear_count < 10 || clear_count % 50 == 0) {
+				std::cout << "[STATETRANS] GraphicsGL::clearscene #" << clear_count 
+				          << " - clearing " << quads.size() << " quads, locked: " << locked << std::endl;
+			}
+			quads.clear();
+		}
+	}
+}
+
+================
+File: Graphics/GraphicsGL.h
+================
+//////////////////////////////////////////////////////////////////////////////////
+//	This file is part of the continued Journey MMORPG client					//
+//	Copyright (C) 2015-2019  Daniel Allendorf, Ryan Payton						//
+//																				//
+//	This program is free software: you can redistribute it and/or modify		//
+//	it under the terms of the GNU Affero General Public License as published by	//
+//	the Free Software Foundation, either version 3 of the License, or			//
+//	(at your option) any later version.											//
+//																				//
+//	This program is distributed in the hope that it will be useful,				//
+//	but WITHOUT ANY WARRANTY; without even the implied warranty of				//
+//	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the				//
+//	GNU Affero General Public License for more details.							//
+//																				//
+//	You should have received a copy of the GNU Affero General Public License	//
+//	along with this program.  If not, see <https://www.gnu.org/licenses/>.		//
+//////////////////////////////////////////////////////////////////////////////////
+#pragma once
+
+#include "Text.h"
+
+#include "../Constants.h"
+#include "../Error.h"
+
+#include "../Util/QuadTree.h"
+
+#include <ft2build.h>
+#include FT_FREETYPE_H
+
+#ifdef USE_NX
+#include <nlnx/bitmap.hpp>
+#endif
+
+namespace ms
+{
+	// Graphics engine which uses OpenGL
+	class GraphicsGL : public Singleton<GraphicsGL>
+	{
+	public:
+		GraphicsGL();
+
+		// Initialize all resources
+		Error init();
+		// Re-initialize after changing screen modes
+		void reinit();
+
+		// Clear all bitmaps if most of the space is used up
+		void clear();
+
+		// Add a bitmap to the available resources
+		void addbitmap(const nl::bitmap& bmp);
+		// Draw the bitmap with the given parameters
+		void draw(const nl::bitmap& bmp, const Rectangle<int16_t>& rect, const Range<int16_t>& vertical, const Range<int16_t>& horizontal, const Color& color, float angle);
+
+		// Create a layout for the text with the parameters specified
+		Text::Layout createlayout(const std::string& text, Text::Font font, Text::Alignment alignment, Color::Name color, int16_t maxwidth, bool formatted, int16_t line_adj);
+		// Draw a text with the given parameters
+		void drawtext(const DrawArgument& args, const Range<int16_t>& vertical, const std::string& text, const Text::Layout& layout, Text::Font font, Color::Name color, Text::Background back);
+
+		// Draw a rectangle filled with the specified color
+		void drawrectangle(int16_t x, int16_t y, int16_t width, int16_t height, float red, float green, float blue, float alpha);
+		// Fill the screen with the specified color
+		void drawscreenfill(float red, float green, float blue, float alpha);
+
+		// Camera controls for debugging
+		void move_camera(int16_t dx, int16_t dy);
+		void reset_camera();
+		void clear_atlas_cache();
+		void toggle_debug_mode();
+
+		// Lock the current scene
+		void lock();
+		// Unlock the scene
+		void unlock();
+
+		// Draw the buffer contents with the specified scene opacity
+		void flush(float opacity);
+		// Clear the buffer contents
+		void clearscene();
+
+	private:
+		void clearinternal();
+		bool addfont(const char* name, Text::Font id, FT_UInt width, FT_UInt height);
+
+		struct Offset
+		{
+			GLshort left;
+			GLshort right;
+			GLshort top;
+			GLshort bottom;
+
+			Offset(GLshort x, GLshort y, GLshort width, GLshort height)
+			{
+				left = x;
+				right = x + width;
+				top = y;
+				bottom = y + height;
+			}
+
+			Offset()
+			{
+				left = 0;
+				right = 0;
+				top = 0;
+				bottom = 0;
+			}
+		};
+
+		// Add a bitmap to the available resources
+		const Offset& getoffset(const nl::bitmap& bmp);
+
+		struct Leftover
+		{
+			GLshort left;
+			GLshort right;
+			GLshort top;
+			GLshort bottom;
+
+			Leftover(GLshort x, GLshort y, GLshort width, GLshort height)
+			{
+				left = x;
+				right = x + width;
+				top = y;
+				bottom = y + height;
+			}
+
+			Leftover()
+			{
+				left = 0;
+				right = 0;
+				top = 0;
+				bottom = 0;
+			}
+
+			GLshort width() const
+			{
+				return right - left;
+			}
+
+			GLshort height() const
+			{
+				return bottom - top;
+			}
+		};
+
+		struct Quad
+		{
+			struct Vertex
+			{
+				// Local Space Position
+				GLshort localcoord_x;
+				GLshort localcoord_y;
+
+				// Texture Coordinates
+				GLshort texcoord_x;
+				GLshort texcoord_y;
+
+				Color color;
+			};
+
+			static const size_t LENGTH = 4;
+			Vertex vertices[LENGTH];
+
+			Quad(GLshort left, GLshort right, GLshort top, GLshort bottom, const Offset& offset, const Color& color, GLfloat rotation)
+			{
+				vertices[0] = { left, top, offset.left, offset.top, color };
+				vertices[1] = { left, bottom, offset.left, offset.bottom, color };
+				vertices[2] = { right, bottom, offset.right, offset.bottom, color };
+				vertices[3] = { right, top, offset.right, offset.top, color };
+
+				if (rotation != 0.0f)
+				{
+					GLfloat cos = std::cos(rotation);
+					GLfloat sin = std::sin(rotation);
+					GLshort center_x = (left + right) / 2;
+					GLshort center_y = (top + bottom) / 2;
+
+					for (size_t i = 0; i < LENGTH; i++)
+					{
+						GLshort vertice_x = vertices[i].localcoord_x - center_x;
+						GLshort vertice_y = vertices[i].localcoord_y - center_y;
+						GLfloat rounded_x = std::roundf(vertice_x * cos - vertice_y * sin);
+						GLfloat rounded_y = std::roundf(vertice_x * sin + vertice_y * cos);
+						vertices[i].localcoord_x = static_cast<GLshort>(rounded_x + center_x);
+						vertices[i].localcoord_y = static_cast<GLshort>(rounded_y + center_y);
+					}
+				}
+			}
+		};
+
+		struct Font
+		{
+			struct Char
+			{
+				GLshort ax;
+				GLshort ay;
+				GLshort bw;
+				GLshort bh;
+				GLshort bl;
+				GLshort bt;
+				Offset offset;
+			};
+
+			GLshort width;
+			GLshort height;
+			Char chars[128];
+
+			Font(GLshort w, GLshort h)
+			{
+				width = w;
+				height = h;
+			}
+
+			Font()
+			{
+				width = 0;
+				height = 0;
+			}
+
+			int16_t linespace() const
+			{
+				return static_cast<int16_t>(height * 1.35 + 1);
+			}
+		};
+
+		class LayoutBuilder
+		{
+		public:
+			LayoutBuilder(Text::Font id, const Font& font, Text::Alignment alignment, Color::Name color, int16_t maxwidth, bool formatted, int16_t line_adj);
+
+			size_t add(const char* text, size_t prev, size_t first, size_t last);
+			Text::Layout finish(size_t first, size_t last);
+
+		private:
+			void add_word(size_t first, size_t last, Text::Font font, Color::Name color);
+			void add_line();
+
+			const Font& font;
+
+			Text::Alignment alignment;
+			Text::Font fontid;
+			Color::Name color;
+			int16_t maxwidth;
+			bool formatted;
+
+			int16_t ax;
+			int16_t ay;
+
+			std::vector<Text::Layout::Line> lines;
+			std::vector<Text::Layout::Word> words;
+			std::vector<int16_t> advances;
+			int16_t width;
+			int16_t endy;
+			int16_t line_adj;
+		};
+
+		int16_t VWIDTH;
+		int16_t VHEIGHT;
+		Rectangle<int16_t> SCREEN;
+
+		// Camera offset for debugging
+		int16_t camera_x;
+		int16_t camera_y;
+		bool debug_mode;
+
+		static const GLshort ATLASW = 8192;
+		static const GLshort ATLASH = 8192;
+		static const GLshort MINLOSIZE = 32;
+
+		bool locked;
+
+		std::vector<Quad> quads;
+		GLuint VBO;
+		GLuint atlas;
+
+		GLint shaderProgram;
+		GLint attribute_coord;
+		GLint attribute_color;
+		GLint uniform_texture;
+		GLint uniform_atlassize;
+		GLint uniform_screensize;
+		GLint uniform_yoffset;
+		GLint uniform_fontregion;
+
+		std::unordered_map<size_t, Offset> offsets;
+		Offset nulloffset;
+
+		QuadTree<size_t, Leftover> leftovers;
+		size_t rlid;
+		size_t wasted;
+		Point<GLshort> border;
+		Range<GLshort> yrange;
+
+		FT_Library ftlibrary;
+		Font fonts[Text::Font::NUM_FONTS];
+		Point<GLshort> fontborder;
+		GLshort fontymax;
+	};
+}
+
+================
+File: IO/UIStateGame.cpp
+================
+//////////////////////////////////////////////////////////////////////////////////
+//	This file is part of the continued Journey MMORPG client					//
+//	Copyright (C) 2015-2019  Daniel Allendorf, Ryan Payton						//
+//																				//
+//	This program is free software: you can redistribute it and/or modify		//
+//	it under the terms of the GNU Affero General Public License as published by	//
+//	the Free Software Foundation, either version 3 of the License, or			//
+//	(at your option) any later version.											//
+//																				//
+//	This program is distributed in the hope that it will be useful,				//
+//	but WITHOUT ANY WARRANTY; without even the implied warranty of				//
+//	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the				//
+//	GNU Affero General Public License for more details.							//
+//																				//
+//	You should have received a copy of the GNU Affero General Public License	//
+//	along with this program.  If not, see <https://www.gnu.org/licenses/>.		//
+//////////////////////////////////////////////////////////////////////////////////
+#include "UIStateGame.h"
+
+#include "UI.h"
+
+#include "UITypes/UIBuffList.h"
+#include "UITypes/UIChannel.h"
+#include "UITypes/UICharInfo.h"
+#include "UITypes/UIChat.h"
+#include "UITypes/UIChatBar.h"
+#include "UITypes/UIEquipInventory.h"
+#include "UITypes/UIEvent.h"
+#include "UITypes/UIItemInventory.h"
+#include "UITypes/UIKeyConfig.h"
+#include "UITypes/UIMiniMap.h"
+#include "UITypes/UIQuestLog.h"
+#include "UITypes/UIQuit.h"
+#include "UITypes/UIShop.h"
+#include "UITypes/UISkillBook.h"
+#include "UITypes/UIStatsInfo.h"
+#include "UITypes/UIStatusBar.h"
+#include "UITypes/UIStatusMessenger.h"
+#include "UITypes/UIUserList.h"
+#include "UITypes/UIWorldMap.h"
+
+#include "../Net/Packets/GameplayPackets.h"
+#include "../Gameplay/Stage.h"
+#include "../Util/Misc.h"
+
+namespace ms
+{
+	UIStateGame::UIStateGame() : stats(Stage::get().get_player().get_stats()), dragged(nullptr)
+	{
+		std::cout << "[STATETRANS] UIStateGame constructor called" << std::endl;
+		
+		// Ensure Stage is loaded - SetFieldHandler might not have loaded it yet
+		// due to fadeout callback timing
+		int32_t mapid = stats.get_mapid();
+		uint8_t portalid = stats.get_portal();
+		std::cout << "[STATETRANS] UIStateGame: Checking if Stage needs loading for map " << mapid << std::endl;
+		Stage::get().load(mapid, portalid);
+		
+		focused = UIElement::Type::NONE;
+		tooltipparent = Tooltip::Parent::NONE;
+
+		const CharLook& look = Stage::get().get_player().get_look();
+		const Inventory& inventory = Stage::get().get_player().get_inventory();
+
+		emplace<UIStatusMessenger>();
+		emplace<UIStatusBar>(stats);
+		emplace<UIChatBar>();
+		emplace<UIMiniMap>(stats);
+		emplace<UIBuffList>();
+		emplace<UIShop>(look, inventory);
+
+		VWIDTH = Constants::Constants::get().get_viewwidth();
+		VHEIGHT = Constants::Constants::get().get_viewheight();
+	}
+
+	void UIStateGame::draw(float inter, Point<int16_t> cursor) const
+	{
+		// Log periodically to check if we're still drawing
+		static int draw_count = 0;
+		draw_count++;
+		if (draw_count < 10 || draw_count % 100 == 0) {
+			std::cout << "[STATETRANS] UIStateGame::draw() - call #" << draw_count << ", calling Stage::draw()" << std::endl;
+		}
+		
+		// Draw the game world first (backgrounds, tiles, characters, etc)
+		Stage::get().draw(inter);
+		
+		// Then draw UI elements on top
+		for (auto& type : elementorder)
+		{
+			auto& element = elements[type];
+
+			if (element && element->is_active())
+				element->draw(inter);
+		}
+
+		if (tooltip)
+			tooltip->draw(cursor + Point<int16_t>(0, 22));
+
+		if (draggedicon)
+			draggedicon->dragdraw(cursor);
+	}
+
+	void UIStateGame::update()
+	{
+		// Update the game world (NPCs, monsters, player, animations)
+		Stage::get().update();
+
+		bool update_screen = false;
+		int16_t new_width = Constants::Constants::get().get_viewwidth();
+		int16_t new_height = Constants::Constants::get().get_viewheight();
+
+		if (VWIDTH != new_width || VHEIGHT != new_height)
+		{
+			update_screen = true;
+			VWIDTH = new_width;
+			VHEIGHT = new_height;
+
+			UI::get().remove(UIElement::Type::STATUSBAR);
+
+			const CharStats& stats = Stage::get().get_player().get_stats();
+			emplace<UIStatusBar>(stats);
+		}
+
+		for (auto& type : elementorder)
+		{
+			auto& element = elements[type];
+
+			if (element && element->is_active())
+			{
+				element->update();
+
+				if (update_screen)
+					element->update_screen(new_width, new_height);
+			}
+		}
+	}
+
+	bool UIStateGame::drop_icon(const Icon& icon, Point<int16_t> cursor_position)
+	{
+		if (UIElement* front = get_front(cursor_position))
+			return front->send_icon(icon, cursor_position);
+		else
+			icon.drop_on_stage();
+
+		return true;
+	}
+
+	void UIStateGame::remove_icon()
+	{
+		draggedicon->reset();
+		draggedicon = {};
+	}
+
+	void UIStateGame::remove_cursors()
+	{
+		for (auto type : elementorder)
+		{
+			auto element = elements[type].get();
+
+			if (element && element->is_active())
+				element->remove_cursor();
+		}
+	}
+
+	void UIStateGame::remove_cursor(UIElement::Type t)
+	{
+		for (auto type : elementorder)
+		{
+			auto element = elements[type].get();
+
+			if (element && element->is_active() && element->get_type() != t)
+				element->remove_cursor();
+		}
+	}
+
+	void UIStateGame::doubleclick(Point<int16_t> pos)
+	{
+		if (UIElement* front = get_front(pos))
+			front->doubleclick(pos);
+	}
+
+	void UIStateGame::rightclick(Point<int16_t> pos)
+	{
+		if (UIElement* front = get_front(pos))
+			front->rightclick(pos);
+	}
+
+	void UIStateGame::send_key(KeyType::Id type, int32_t action, bool pressed, bool escape)
+	{
+		if (UIElement* focusedelement = get(focused))
+		{
+			if (focusedelement->is_active())
+			{
+				return focusedelement->send_key(action, pressed, escape);
+			}
+			else
+			{
+				focused = UIElement::NONE;
+
+				return;
+			}
+		}
+		else
+		{
+			switch (type)
+			{
+				case KeyType::Id::MENU:
+				{
+					if (pressed)
+					{
+						switch (action)
+						{
+							case KeyAction::Id::EQUIPMENT:
+							{
+								emplace<UIEquipInventory>(
+									Stage::get().get_player().get_inventory()
+									);
+
+								break;
+							}
+							case KeyAction::Id::ITEMS:
+							{
+								emplace<UIItemInventory>(
+									Stage::get().get_player().get_inventory()
+									);
+
+								break;
+							}
+							case KeyAction::Id::STATS:
+							{
+								emplace<UIStatsInfo>(
+									Stage::get().get_player().get_stats()
+									);
+
+								break;
+							}
+							case KeyAction::Id::SKILLS:
+							{
+								emplace<UISkillBook>(
+									Stage::get().get_player().get_stats(),
+									Stage::get().get_player().get_skills()
+									);
+
+								break;
+							}
+							case KeyAction::Id::FRIENDS:
+							case KeyAction::Id::PARTY:
+							case KeyAction::Id::BOSSPARTY:
+							{
+								UIUserList::Tab tab;
+
+								switch (action)
+								{
+									case KeyAction::Id::FRIENDS:
+										tab = UIUserList::Tab::FRIEND;
+										break;
+									case KeyAction::Id::PARTY:
+										tab = UIUserList::Tab::PARTY;
+										break;
+									case KeyAction::Id::BOSSPARTY:
+										tab = UIUserList::Tab::BOSS;
+										break;
+								}
+
+								auto userlist = UI::get().get_element<UIUserList>();
+
+								if (userlist && userlist->get_tab() != tab && userlist->is_active())
+								{
+									userlist->change_tab(tab);
+								}
+								else
+								{
+									emplace<UIUserList>(tab);
+
+									if (userlist && userlist->get_tab() != tab && userlist->is_active())
+										userlist->change_tab(tab);
+								}
+
+								break;
+							}
+							case KeyAction::Id::WORLDMAP:
+							{
+								emplace<UIWorldMap>();
+								break;
+							}
+							case KeyAction::Id::MAPLECHAT:
+							{
+								auto chat = UI::get().get_element<UIChat>();
+
+								if (!chat || !chat->is_active())
+									emplace<UIChat>();
+
+								break;
+							}
+							case KeyAction::Id::MINIMAP:
+							{
+								if (auto minimap = UI::get().get_element<UIMiniMap>())
+									minimap->send_key(action, pressed, escape);
+
+								break;
+							}
+							case KeyAction::Id::QUESTLOG:
+							{
+								emplace<UIQuestLog>(
+									Stage::get().get_player().get_quests()
+									);
+
+								break;
+							}
+							case KeyAction::Id::KEYBINDINGS:
+							{
+								auto keyconfig = UI::get().get_element<UIKeyConfig>();
+
+								if (!keyconfig || !keyconfig->is_active())
+								{
+									emplace<UIKeyConfig>(
+										Stage::get().get_player().get_inventory(),
+										Stage::get().get_player().get_skills()
+										);
+								}
+								else if (keyconfig && keyconfig->is_active())
+								{
+									keyconfig->close();
+								}
+
+								break;
+							}
+							case KeyAction::Id::SAY:
+							case KeyAction::Id::PARTYCHAT:
+							case KeyAction::Id::FRIENDSCHAT:
+							case KeyAction::Id::GUILDCHAT:
+							case KeyAction::Id::ALLIANCECHAT:
+							case KeyAction::Id::TOSPOUSE:
+							{
+								if (auto chatbar = UI::get().get_element<UIChatBar>())
+									chatbar->change_target(action);
+
+								break;
+							}
+							case KeyAction::Id::MENU:
+							{
+								if (auto statusbar = UI::get().get_element<UIStatusBar>())
+									statusbar->toggle_menu();
+
+								break;
+							}
+							case KeyAction::Id::QUICKSLOTS:
+							{
+								if (auto statusbar = UI::get().get_element<UIStatusBar>())
+									statusbar->toggle_qs();
+
+								break;
+							}
+							case KeyAction::Id::TOGGLECHAT:
+							{
+								if (auto chatbar = UI::get().get_element<UIChatBar>())
+								{
+									if (chatbar->has_input())
+										chatbar->send_key(action, pressed, escape);
+									else
+										chatbar->toggle_view();
+								}
+
+								break;
+							}
+							case KeyAction::Id::CASHSHOP:
+							{
+								EnterCashShopPacket().dispatch();
+								break;
+							}
+							case KeyAction::Id::EVENT:
+							{
+								emplace<UIEvent>();
+								break;
+							}
+							case KeyAction::Id::CHARINFO:
+							{
+								emplace<UICharInfo>(
+									Stage::get().get_player().get_oid()
+									);
+
+								break;
+							}
+							case KeyAction::Id::CHANGECHANNEL:
+							{
+								emplace<UIChannel>();
+								break;
+							}
+							case KeyAction::Id::MAINMENU:
+							{
+								if (auto statusbar = UI::get().get_element<UIStatusBar>())
+									statusbar->send_key(action, pressed, escape);
+
+								break;
+							}
+							default:
+							{
+								LOG(LOG_DEBUG, "Unknown KeyAction::Id action: [" << action << "]");
+								break;
+							}
+						}
+					}
+
+					break;
+				}
+				case KeyType::Id::ACTION:
+				case KeyType::Id::FACE:
+				case KeyType::Id::ITEM:
+				case KeyType::Id::SKILL:
+				{
+					Stage::get().send_key(type, action, pressed);
+					break;
+				}
+			}
+		}
+	}
+
+	Cursor::State UIStateGame::send_cursor(Point<int16_t> cursor_position, Cursor::State cursor_state)
+	{
+		if (draggedicon)
+		{
+			if (cursor_state == Cursor::State::CLICKING)
+			{
+				if (drop_icon(*draggedicon, cursor_position))
+					remove_icon();
+
+				return cursor_state;
+			}
+
+			return Cursor::State::GRABBING;
+		}
+		else
+		{
+			bool clicked = cursor_state == Cursor::State::CLICKING || cursor_state == Cursor::State::VSCROLLIDLE || (dragged && (cursor_state == Cursor::State::CHATBARMOVE || cursor_state == Cursor::State::CHATBARVDRAG || cursor_state == Cursor::State::CHATBARHDRAG || cursor_state == Cursor::State::CHATBARBLTRDRAG || cursor_state == Cursor::State::CHATBARBRTLDRAG));
+
+			if (auto focusedelement = get(focused))
+			{
+				if (focusedelement->is_active())
+				{
+					remove_cursor(focusedelement->get_type());
+
+					return focusedelement->send_cursor(clicked, cursor_position);
+				}
+				else
+				{
+					focused = UIElement::Type::NONE;
+
+					return cursor_state;
+				}
+			}
+			else
+			{
+				if (!clicked)
+				{
+					dragged = nullptr;
+
+					if (auto front = get_front(cursor_position))
+					{
+						UIElement::Type front_type = front->get_type();
+
+						if (tooltipparent != UIElement::Type::NONE)
+							if (front_type != tooltipparent)
+								clear_tooltip(tooltipparent);
+
+						remove_cursor(front_type);
+
+						return front->send_cursor(clicked, cursor_position);
+					}
+					else
+					{
+						remove_cursors();
+
+						return Stage::get().send_cursor(clicked, cursor_position);
+					}
+				}
+				else
+				{
+					if (!dragged)
+					{
+						UIElement::Type drag_element_type = UIElement::Type::NONE;
+
+						for (auto iter = elementorder.rbegin(); iter != elementorder.rend(); ++iter)
+						{
+							auto& element = elements[*iter];
+
+							if (element && element->is_active() && element->is_in_range(cursor_position))
+							{
+								dragged = element.get();
+								drag_element_type = *iter;
+								break;
+							}
+						}
+
+						if (drag_element_type != UIElement::Type::NONE)
+						{
+							elementorder.remove(drag_element_type);
+							elementorder.push_back(drag_element_type);
+						}
+					}
+
+					if (dragged)
+						return dragged->send_cursor(clicked, cursor_position);
+					else
+						return Stage::get().send_cursor(clicked, cursor_position);
+				}
+			}
+		}
+	}
+
+	void UIStateGame::send_scroll(double yoffset)
+	{
+		for (auto& type : elementorder)
+		{
+			auto& element = elements[type];
+
+			if (element && element->is_active())
+				element->send_scroll(yoffset);
+		}
+	}
+
+	void UIStateGame::send_close()
+	{
+		UI::get().emplace<UIQuit>(stats);
+	}
+
+	void UIStateGame::drag_icon(Icon* drgic)
+	{
+		draggedicon = drgic;
+	}
+
+	void UIStateGame::clear_tooltip(Tooltip::Parent parent)
+	{
+		if (parent == tooltipparent)
+		{
+			eqtooltip.set_equip(Tooltip::Parent::NONE, 0);
+			ittooltip.set_item(0);
+			tetooltip.set_text("");
+			matooltip.reset();
+			tooltip = {};
+			tooltipparent = Tooltip::Parent::NONE;
+		}
+	}
+
+	void UIStateGame::show_equip(Tooltip::Parent parent, int16_t slot)
+	{
+		eqtooltip.set_equip(parent, slot);
+
+		if (slot)
+		{
+			tooltip = eqtooltip;
+			tooltipparent = parent;
+		}
+	}
+
+	void UIStateGame::show_item(Tooltip::Parent parent, int32_t itemid)
+	{
+		ittooltip.set_item(itemid);
+
+		if (itemid)
+		{
+			tooltip = ittooltip;
+			tooltipparent = parent;
+		}
+	}
+
+	void UIStateGame::show_skill(Tooltip::Parent parent, int32_t skill_id, int32_t level, int32_t masterlevel, int64_t expiration)
+	{
+		sktooltip.set_skill(skill_id, level, masterlevel, expiration);
+
+		if (skill_id)
+		{
+			tooltip = sktooltip;
+			tooltipparent = parent;
+		}
+	}
+
+	void UIStateGame::show_text(Tooltip::Parent parent, std::string text)
+	{
+		tetooltip.set_text(text);
+
+		if (!text.empty())
+		{
+			tooltip = tetooltip;
+			tooltipparent = parent;
+		}
+	}
+
+	void UIStateGame::show_map(Tooltip::Parent parent, std::string title, std::string description, int32_t mapid, bool bolded, bool portal)
+	{
+		matooltip.set_title(parent, title, bolded);
+		matooltip.set_desc(description);
+		matooltip.set_mapid(mapid, portal);
+
+		if (!title.empty())
+		{
+			tooltip = matooltip;
+			tooltipparent = parent;
+		}
+	}
+
+	template <class T, typename...Args>
+	void UIStateGame::emplace(Args&& ...args)
+	{
+		if (auto iter = pre_add(T::TYPE, T::TOGGLED, T::FOCUSED))
+		{
+			(*iter).second = std::make_unique<T>(
+				std::forward<Args>(args)...
+				);
+
+			auto silent_types = {
+				UIElement::Type::STATUSMESSENGER,
+				UIElement::Type::STATUSBAR,
+				UIElement::Type::CHATBAR,
+				UIElement::Type::MINIMAP,
+				UIElement::Type::BUFFLIST,
+				UIElement::Type::NPCTALK,
+				UIElement::Type::SHOP
+			};
+
+			if (std::find(silent_types.begin(), silent_types.end(), T::TYPE) == silent_types.end())
+			{
+				if (T::TYPE == UIElement::Type::WORLDMAP)
+					Sound(Sound::Name::WORLDMAPOPEN).play();
+				else
+					Sound(Sound::Name::MENUUP).play();
+
+				UI::get().send_cursor(false);
+			}
+		}
+	}
+
+	UIState::Iterator UIStateGame::pre_add(UIElement::Type type, bool is_toggled, bool is_focused)
+	{
+		auto& element = elements[type];
+
+		if (element && is_toggled)
+		{
+			elementorder.remove(type);
+			elementorder.push_back(type);
+
+			bool active = element->is_active();
+
+			element->toggle_active();
+
+			if (active != element->is_active())
+			{
+				if (element->is_active())
+				{
+					if (type == UIElement::Type::WORLDMAP)
+						Sound(Sound::Name::WORLDMAPOPEN).play();
+					else
+						Sound(Sound::Name::MENUUP).play();
+
+					UI::get().send_cursor(false);
+				}
+				else
+				{
+					if (type == UIElement::Type::WORLDMAP)
+						Sound(Sound::Name::WORLDMAPCLOSE).play();
+					else
+						Sound(Sound::Name::MENUDOWN).play();
+
+					element->remove_cursor();
+
+					if (draggedicon)
+						if (element->get_type() == icon_map[draggedicon.get()->get_type()])
+							remove_icon();
+
+					UI::get().send_cursor(false);
+				}
+			}
+
+			return elements.end();
+		}
+		else
+		{
+			remove(type);
+			elementorder.push_back(type);
+
+			if (is_focused)
+				focused = type;
+
+			return elements.find(type);
+		}
+	}
+
+	void UIStateGame::remove(UIElement::Type type)
+	{
+		if (type == focused)
+			focused = UIElement::Type::NONE;
+
+		if (type == tooltipparent)
+			clear_tooltip(tooltipparent);
+
+		elementorder.remove(type);
+
+		if (auto& element = elements[type])
+		{
+			element->deactivate();
+			element.release();
+		}
+	}
+
+	UIElement* UIStateGame::get(UIElement::Type type)
+	{
+		return elements[type].get();
+	}
+
+	UIElement* UIStateGame::get_front(std::list<UIElement::Type> types)
+	{
+		auto begin = elementorder.rbegin();
+		auto end = elementorder.rend();
+
+		for (auto& iter = begin; iter != end; ++iter)
+		{
+			if (std::find(types.begin(), types.end(), *iter) != types.end())
+			{
+				auto& element = elements[*iter];
+
+				if (element && element->is_active())
+					return element.get();
+			}
+		}
+
+		return nullptr;
+	}
+
+	UIElement* UIStateGame::get_front(Point<int16_t> cursor_position)
+	{
+		auto begin = elementorder.rbegin();
+		auto end = elementorder.rend();
+
+		for (auto& iter = begin; iter != end; ++iter)
+		{
+			auto& element = elements[*iter];
+
+			if (element && element->is_active() && element->is_in_range(cursor_position))
+				return element.get();
+		}
+
+		return nullptr;
+	}
+}
+
+================
+File: IO/UIStateGame.h
+================
+//////////////////////////////////////////////////////////////////////////////////
+//	This file is part of the continued Journey MMORPG client					//
+//	Copyright (C) 2015-2019  Daniel Allendorf, Ryan Payton						//
+//																				//
+//	This program is free software: you can redistribute it and/or modify		//
+//	it under the terms of the GNU Affero General Public License as published by	//
+//	the Free Software Foundation, either version 3 of the License, or			//
+//	(at your option) any later version.											//
+//																				//
+//	This program is distributed in the hope that it will be useful,				//
+//	but WITHOUT ANY WARRANTY; without even the implied warranty of				//
+//	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the				//
+//	GNU Affero General Public License for more details.							//
+//																				//
+//	You should have received a copy of the GNU Affero General Public License	//
+//	along with this program.  If not, see <https://www.gnu.org/licenses/>.		//
+//////////////////////////////////////////////////////////////////////////////////
+#pragma once
+
+#include "UIState.h"
+
+#include "Components/EquipTooltip.h"
+#include "Components/ItemTooltip.h"
+#include "Components/MapTooltip.h"
+#include "Components/SkillTooltip.h"
+#include "Components/TextTooltip.h"
+
+#include "../Character/CharStats.h"
+
+namespace ms
+{
+	class UIStateGame : public UIState
+	{
+	public:
+		UIStateGame();
+
+		void draw(float inter, Point<int16_t> cursor) const override;
+		void update() override;
+
+		void doubleclick(Point<int16_t> pos) override;
+		void rightclick(Point<int16_t> pos) override;
+		void send_key(KeyType::Id type, int32_t action, bool pressed, bool escape) override;
+		Cursor::State send_cursor(Point<int16_t> cursor_position, Cursor::State cursor_state) override;
+		void send_scroll(double yoffset) override;
+		void send_close() override;
+
+		void drag_icon(Icon* icon) override;
+		void clear_tooltip(Tooltip::Parent parent) override;
+		void show_equip(Tooltip::Parent parent, int16_t slot) override;
+		void show_item(Tooltip::Parent parent, int32_t itemid) override;
+		void show_skill(Tooltip::Parent parent, int32_t skill_id, int32_t level, int32_t masterlevel, int64_t expiration) override;
+		void show_text(Tooltip::Parent parent, std::string text) override;
+		void show_map(Tooltip::Parent parent, std::string title, std::string description, int32_t mapid, bool bolded, bool portal) override;
+
+		Iterator pre_add(UIElement::Type type, bool toggled, bool focused);
+		void remove(UIElement::Type type) override;
+		UIElement* get(UIElement::Type type) override;
+		UIElement* get_front(std::list<UIElement::Type> types) override;
+		UIElement* get_front(Point<int16_t> cursor_position) override;
+
+	private:
+		const CharStats& stats;
+
+		bool drop_icon(const Icon& icon, Point<int16_t> cursor_position);
+		void remove_icon();
+		void remove_cursors();
+		void remove_cursor(UIElement::Type type);
+
+		template <class T, typename...Args>
+		void emplace(Args&& ...args);
+
+		EnumMap<UIElement::Type, UIElement::UPtr, UIElement::Type::NUM_TYPES> elements;
+		std::list<UIElement::Type> elementorder;
+		UIElement::Type focused;
+		UIElement* dragged;
+
+		EquipTooltip eqtooltip;
+		ItemTooltip ittooltip;
+		SkillTooltip sktooltip;
+		TextTooltip tetooltip;
+		MapTooltip matooltip;
+		Optional<Tooltip> tooltip;
+		Tooltip::Parent tooltipparent;
+
+		Optional<Icon> draggedicon;
+
+		std::map<Icon::IconType, UIElement::Type> icon_map =
+		{
+			{ Icon::IconType::NONE,			UIElement::Type::NONE			},
+			{ Icon::IconType::SKILL,		UIElement::Type::SKILLBOOK		},
+			{ Icon::IconType::EQUIP,		UIElement::Type::EQUIPINVENTORY	},
+			{ Icon::IconType::ITEM,			UIElement::Type::ITEMINVENTORY	},
+			{ Icon::IconType::KEY,			UIElement::Type::KEYCONFIG		},
+			{ Icon::IconType::NUM_TYPES,	UIElement::Type::NUM_TYPES		}
+		};
+
+		int16_t VWIDTH;
+		int16_t VHEIGHT;
+	};
+}
+
+================
+File: IO/Window.cpp
+================
+//////////////////////////////////////////////////////////////////////////////////
+//	This file is part of the continued Journey MMORPG client					//
+//	Copyright (C) 2015-2019  Daniel Allendorf, Ryan Payton						//
+//																				//
+//	This program is free software: you can redistribute it and/or modify		//
+//	it under the terms of the GNU Affero General Public License as published by	//
+//	the Free Software Foundation, either version 3 of the License, or			//
+//	(at your option) any later version.											//
+//																				//
+//	This program is distributed in the hope that it will be useful,				//
+//	but WITHOUT ANY WARRANTY; without even the implied warranty of				//
+//	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the				//
+//	GNU Affero General Public License for more details.							//
+//																				//
+//	You should have received a copy of the GNU Affero General Public License	//
+//	along with this program.  If not, see <https://www.gnu.org/licenses/>.		//
+//////////////////////////////////////////////////////////////////////////////////
+#include "Window.h"
+
+#include "UI.h"
+
+#include "../Configuration.h"
+#include "../Timer.h"
+
+#define STB_IMAGE_IMPLEMENTATION
+#include <stb_image.h>
+#include <Windows.h>
+#include <iostream>
+
+namespace ms
+{
+	Window::Window()
+	{
+		context = nullptr;
+		glwnd = nullptr;
+		opacity = 1.0f;
+		opcstep = 0.0f;
+		width = Constants::Constants::get().get_viewwidth();
+		height = Constants::Constants::get().get_viewheight();
+	}
+
+	Window::~Window()
+	{
+		glfwTerminate();
+	}
+
+	void error_callback(int no, const char* description)
+	{
+		LOG(LOG_ERROR, "GLFW error [" << no << "]: " << description);
+	}
+
+	void key_callback(GLFWwindow*, int key, int, int action, int)
+	{
+		UI::get().send_key(key, action != GLFW_RELEASE);
+	}
+
+	std::chrono::time_point<std::chrono::steady_clock> start = ContinuousTimer::get().start();
+
+	void mousekey_callback(GLFWwindow*, int button, int action, int)
+	{
+		switch (button)
+		{
+			case GLFW_MOUSE_BUTTON_LEFT:
+			{
+				switch (action)
+				{
+					case GLFW_PRESS:
+					{
+						UI::get().send_cursor(true);
+						break;
+					}
+					case GLFW_RELEASE:
+					{
+						auto diff_ms = ContinuousTimer::get().stop(start) / 1000;
+
+						start = ContinuousTimer::get().start();
+
+						if (diff_ms > 10 && diff_ms < 200)
+							UI::get().doubleclick();
+
+						UI::get().send_cursor(false);
+						break;
+					}
+				}
+
+				break;
+			}
+			case GLFW_MOUSE_BUTTON_RIGHT:
+			{
+				switch (action)
+				{
+					case GLFW_PRESS:
+						UI::get().rightclick();
+						break;
+				}
+
+				break;
+			}
+		}
+	}
+
+	void cursor_callback(GLFWwindow*, double xpos, double ypos)
+	{
+		Point<int16_t> cursor_position = Point<int16_t>(
+			static_cast<int16_t>(xpos),
+			static_cast<int16_t>(ypos)
+			);
+
+		Point<int16_t> screen = Point<int16_t>(
+			Constants::Constants::get().get_viewwidth(),
+			Constants::Constants::get().get_viewheight()
+			);
+
+		if (cursor_position.x() > 0 && cursor_position.y() > 0)
+			if (cursor_position.x() < screen.x() && cursor_position.y() < screen.y())
+				UI::get().send_cursor(cursor_position);
+	}
+
+	void focus_callback(GLFWwindow*, int focused)
+	{
+		UI::get().send_focus(focused);
+	}
+
+	void scroll_callback(GLFWwindow*, double xoffset, double yoffset)
+	{
+		UI::get().send_scroll(yoffset);
+	}
+
+	void close_callback(GLFWwindow* window)
+	{
+		UI::get().send_close();
+
+		glfwSetWindowShouldClose(window, GL_FALSE);
+	}
+
+	Error Window::init()
+	{
+		fullscreen = Setting<Fullscreen>::get().load();
+
+		if (!glfwInit())
+			return Error::Code::GLFW;
+
+		glfwWindowHint(GLFW_VISIBLE, GL_FALSE);
+		context = glfwCreateWindow(1, 1, "", nullptr, nullptr);
+		glfwMakeContextCurrent(context);
+		glfwSetErrorCallback(error_callback);
+		glfwWindowHint(GLFW_VISIBLE, GL_TRUE);
+		glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
+
+		if (Error error = GraphicsGL::get().init())
+			return error;
+
+		return initwindow();
+	}
+
+	Error Window::initwindow()
+	{
+		if (glwnd)
+			glfwDestroyWindow(glwnd);
+
+		glwnd = glfwCreateWindow(
+			width,
+			height,
+			Configuration::get().get_title().c_str(),
+			fullscreen ? glfwGetPrimaryMonitor() : nullptr,
+			context
+		);
+
+		if (!glwnd)
+			return Error::Code::WINDOW;
+
+		glfwMakeContextCurrent(glwnd);
+
+		bool vsync = Setting<VSync>::get().load();
+		glfwSwapInterval(vsync ? 1 : 0);
+
+		glViewport(0, 0, width, height);
+		glMatrixMode(GL_PROJECTION);
+		glLoadIdentity();
+
+		glfwSetInputMode(glwnd, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
+
+		double xpos, ypos;
+
+		glfwGetCursorPos(glwnd, &xpos, &ypos);
+		cursor_callback(glwnd, xpos, ypos);
+
+		glfwSetInputMode(glwnd, GLFW_STICKY_KEYS, GL_TRUE);
+		glfwSetKeyCallback(glwnd, key_callback);
+		glfwSetMouseButtonCallback(glwnd, mousekey_callback);
+		glfwSetCursorPosCallback(glwnd, cursor_callback);
+		glfwSetWindowFocusCallback(glwnd, focus_callback);
+		glfwSetScrollCallback(glwnd, scroll_callback);
+		glfwSetWindowCloseCallback(glwnd, close_callback);
+
+		char buf[256];
+		GetCurrentDirectoryA(256, buf);
+		strcat_s(buf, sizeof(buf), "\\Icon.png");
+
+		GLFWimage images[1];
+
+		auto stbi = stbi_load(buf, &images[0].width, &images[0].height, 0, 4);
+
+		if (stbi == NULL)
+			return Error(Error::Code::MISSING_ICON, stbi_failure_reason());
+
+		images[0].pixels = stbi;
+
+		glfwSetWindowIcon(glwnd, 1, images);
+		stbi_image_free(images[0].pixels);
+
+		GraphicsGL::get().reinit();
+
+		return Error::Code::NONE;
+	}
+
+	bool Window::not_closed() const
+	{
+		return glfwWindowShouldClose(glwnd) == 0;
+	}
+
+	void Window::update()
+	{
+		updateopc();
+	}
+
+	void Window::updateopc()
+	{
+		if (opcstep != 0.0f)
+		{
+			opacity += opcstep;
+			
+			static bool opacity_logged = false;
+			if (!opacity_logged && opacity < 1.0f) {
+				opacity_logged = true;
+				std::cout << "[STATETRANS] Window opacity changing: " << opacity << ", step: " << opcstep << std::endl;
+			}
+
+			if (opacity >= 1.0f)
+			{
+				opacity = 1.0f;
+				opcstep = 0.0f;
+				std::cout << "[STATETRANS] Window fade complete, opacity back to 1.0" << std::endl;
+			}
+			else if (opacity <= 0.0f)
+			{
+				std::cout << "[STATETRANS] Window fadeout complete, executing callback" << std::endl;
+				opacity = 0.0f;
+				opcstep = -opcstep;
+
+				fadeprocedure();
+			}
+		}
+	}
+
+	void Window::check_events()
+	{
+		int16_t max_width = Configuration::get().get_max_width();
+		int16_t max_height = Configuration::get().get_max_height();
+		int16_t new_width = Constants::Constants::get().get_viewwidth();
+		int16_t new_height = Constants::Constants::get().get_viewheight();
+
+		if (width != new_width || height != new_height)
+		{
+			std::cout << "[HAIRRENDER] Window resize detected! Old: (" << width << "x" << height 
+			          << ") New: (" << new_width << "x" << new_height << ")" << std::endl;
+			
+			// Prevent extreme window sizes
+			if (new_width > 1920 || new_height > 1080) {
+				std::cout << "[HAIRRENDER] WARNING: Preventing extreme window resize!" << std::endl;
+				glfwPollEvents();
+				return;
+			}
+			
+			width = new_width;
+			height = new_height;
+
+			if (new_width >= max_width || new_height >= max_height)
+				fullscreen = true;
+
+			initwindow();
+		}
+
+		glfwPollEvents();
+	}
+
+	void Window::begin() const
+	{
+		static int frame_count = 0;
+		frame_count++;
+		if (frame_count < 10 || frame_count % 100 == 0) {
+			std::cout << "[STATETRANS] Window::begin() - clearing scene, frame " << frame_count << std::endl;
+		}
+		GraphicsGL::get().clearscene();
+	}
+
+	void Window::end() const
+	{
+		GraphicsGL::get().flush(opacity);
+		glfwSwapBuffers(glwnd);
+
+	}
+
+	void Window::fadeout(float step, std::function<void()> fadeproc)
+	{
+		std::cout << "[STATETRANS] Window::fadeout called with step: " << step << std::endl;
+		opcstep = -step;
+		fadeprocedure = fadeproc;
+	}
+
+	void Window::setclipboard(const std::string& text) const
+	{
+		glfwSetClipboardString(glwnd, text.c_str());
+	}
+
+	std::string Window::getclipboard() const
+	{
+		const char* text = glfwGetClipboardString(glwnd);
+
+		return text ? text : "";
+	}
+
+	void Window::toggle_fullscreen()
+	{
+		int16_t max_width = Configuration::get().get_max_width();
+		int16_t max_height = Configuration::get().get_max_height();
+
+		if (width < max_width && height < max_height)
+		{
+			fullscreen = !fullscreen;
+			Setting<Fullscreen>::get().save(fullscreen);
+
+			initwindow();
+			glfwPollEvents();
+		}
+	}
+}
+
+================
+File: IO/Window.h
+================
+//////////////////////////////////////////////////////////////////////////////////
+//	This file is part of the continued Journey MMORPG client					//
+//	Copyright (C) 2015-2019  Daniel Allendorf, Ryan Payton						//
+//																				//
+//	This program is free software: you can redistribute it and/or modify		//
+//	it under the terms of the GNU Affero General Public License as published by	//
+//	the Free Software Foundation, either version 3 of the License, or			//
+//	(at your option) any later version.											//
+//																				//
+//	This program is distributed in the hope that it will be useful,				//
+//	but WITHOUT ANY WARRANTY; without even the implied warranty of				//
+//	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the				//
+//	GNU Affero General Public License for more details.							//
+//																				//
+//	You should have received a copy of the GNU Affero General Public License	//
+//	along with this program.  If not, see <https://www.gnu.org/licenses/>.		//
+//////////////////////////////////////////////////////////////////////////////////
+#pragma once
+
+#include "../Error.h"
+
+#include "../Template/Singleton.h"
+
+#define GLEW_STATIC
+#include <glew.h>
+#include <glfw3.h>
+
+#include <functional>
+
+namespace ms
+{
+	class Window : public Singleton<Window>
+	{
+	public:
+		Window();
+		~Window();
+
+		Error init();
+		Error initwindow();
+
+		bool not_closed() const;
+		void update();
+		void begin() const;
+		void end() const;
+		void fadeout(float step, std::function<void()> fadeprocedure);
+		void check_events();
+
+		void setclipboard(const std::string& text) const;
+		std::string getclipboard() const;
+
+		void toggle_fullscreen();
+
+	private:
+		void updateopc();
+
+		GLFWwindow* glwnd;
+		GLFWwindow* context;
+		bool fullscreen;
+		float opacity;
+		float opcstep;
+		std::function<void()> fadeprocedure;
+		int16_t width;
+		int16_t height;
+	};
+}
+
+================
+File: MapleStory.cpp
+================
+//////////////////////////////////////////////////////////////////////////////////
+//	This file is part of the continued Journey MMORPG client					//
+//	Copyright (C) 2015-2019  Daniel Allendorf, Ryan Payton						//
+//																				//
+//	This program is free software: you can redistribute it and/or modify		//
+//	it under the terms of the GNU Affero General Public License as published by	//
+//	the Free Software Foundation, either version 3 of the License, or			//
+//	(at your option) any later version.											//
+//																				//
+//	This program is distributed in the hope that it will be useful,				//
+//	but WITHOUT ANY WARRANTY; without even the implied warranty of				//
+//	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the				//
+//	GNU Affero General Public License for more details.							//
+//																				//
+//	You should have received a copy of the GNU Affero General Public License	//
+//	along with this program.  If not, see <https://www.gnu.org/licenses/>.		//
+//////////////////////////////////////////////////////////////////////////////////
+#include "Gameplay/Stage.h"
+#include "IO/UI.h"
+#include "IO/Window.h"
+#include "Net/Session.h"
+#include "Util/HardwareInfo.h"
+#include "Util/ScreenResolution.h"
+
+#include <iostream>
+#include <fstream>
+
+#ifdef USE_NX
+#include "Util/NxFiles.h"
+#else
+#include "Util/WzFiles.h"
+#endif
+
+namespace ms
+{
+	Error init()
+	{
+		if (Error error = Session::get().init())
+			return error;
+
+#ifdef USE_NX
+		if (Error error = NxFiles::init())
+			return error;
+#else
+		if (Error error = WzFiles::init())
+			return error;
+#endif
+
+		if (Error error = Window::get().init())
+			return error;
+
+		if (Error error = Sound::init())
+			return error;
+
+		if (Error error = Music::init())
+			return error;
+
+		Char::init();
+		DamageNumber::init();
+		MapPortals::init();
+		Stage::get().init();
+		UI::get().init();
+
+		return Error::NONE;
+	}
+
+	void update()
+	{
+		Window::get().check_events();
+		Window::get().update();
+		Stage::get().update();
+		UI::get().update();
+		Session::get().read();
+	}
+
+	void draw(float alpha)
+	{
+		static int frame_count = 0;
+		frame_count++;
+		if (frame_count < 100 || frame_count % 100 == 0) {
+			std::cout << "[STATETRANS] Main draw() - frame " << frame_count << std::endl;
+		}
+		
+		Window::get().begin();
+		Stage::get().draw(alpha);
+		UI::get().draw(alpha);
+		Window::get().end();
+	}
+
+	bool running()
+	{
+		bool session_connected = Session::get().is_connected();
+		bool ui_not_quitted = UI::get().not_quitted();
+		bool window_not_closed = Window::get().not_closed();
+		
+		// Allow running during login screen even without session connection
+		bool should_run = ui_not_quitted && window_not_closed;
+		
+		// Main loop state check
+		
+		return should_run;
+	}
+
+	void loop()
+	{
+		Timer::get().start();
+
+		int64_t timestep = Constants::TIMESTEP * 1000;
+		int64_t accumulator = timestep;
+
+		int64_t period = 0;
+		int32_t samples = 0;
+
+		bool show_fps = Configuration::get().get_show_fps();
+
+		while (running())
+		{
+			int64_t elapsed = Timer::get().stop();
+
+			// Update game with constant timestep as many times as possible.
+			for (accumulator += elapsed; accumulator >= timestep; accumulator -= timestep)
+				update();
+
+			// Draw the game. Interpolate to account for remaining time.
+			float alpha = static_cast<float>(accumulator) / timestep;
+			draw(alpha);
+
+			if (show_fps)
+			{
+				if (samples < 100)
+				{
+					period += elapsed;
+					samples++;
+				}
+				else if (period)
+				{
+					int64_t fps = (samples * 1000000) / period;
+
+					LOG(LOG_INFO, "FPS: " << fps);
+
+					period = 0;
+					samples = 0;
+				}
+			}
+		}
+
+		Sound::close();
+	}
+
+	void start()
+	{
+		// Initialize and check for errors
+		if (Error error = init())
+		{
+			const char* message = error.get_message();
+			const char* args = error.get_args();
+			bool can_retry = error.can_retry();
+
+			if (args && args[0])
+				LOG(LOG_ERROR, message << args);
+			else
+				LOG(LOG_ERROR, message);
+
+			if (can_retry)
+				LOG(LOG_INFO, "Enter 'retry' to try agC:\HeavenClient\NoLifeWzToNxain.");
+
+			std::string command;
+			std::cin >> command;
+
+			if (can_retry && command == "retry")
+				start();
+		}
+		else
+		{
+			loop();
+		}
+	}
+}
+
+#ifdef _DEBUG
+int main()
+#else
+int APIENTRY WinMain(HINSTANCE hInst, HINSTANCE hInstPrev, PSTR cmdline, int cmdshow)
+#endif
+{
+	// Redirect stdout and stderr to debug_output.txt, clearing it on each run
+	//static std::ofstream debug_file("debug_output.txt", std::ios::trunc);
+	//static std::streambuf* orig_cout = std::cout.rdbuf();
+	//static std::streambuf* orig_cerr = std::cerr.rdbuf();
+	
+	//std::cout.rdbuf(debug_file.rdbuf());
+	//std::cerr.rdbuf(debug_file.rdbuf());
+	
+	ms::HardwareInfo();
+	ms::ScreenResolution();
+	ms::start();
+
+	// Restore original streams before exit
+	//std::cout.rdbuf(orig_cout);
+	//std::cerr.rdbuf(orig_cerr);
+	//debug_file.close();
+
+	return 0;
+}
+
+================
+File: Net/Handlers/SetFieldHandlers.cpp
+================
+//////////////////////////////////////////////////////////////////////////////////
+//	This file is part of the continued Journey MMORPG client					//
+//	Copyright (C) 2015-2019  Daniel Allendorf, Ryan Payton						//
+//																				//
+//	This program is free software: you can redistribute it and/or modify		//
+//	it under the terms of the GNU Affero General Public License as published by	//
+//	the Free Software Foundation, either version 3 of the License, or			//
+//	(at your option) any later version.											//
+//																				//
+//	This program is distributed in the hope that it will be useful,				//
+//	but WITHOUT ANY WARRANTY; without even the implied warranty of				//
+//	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the				//
+//	GNU Affero General Public License for more details.							//
+//																				//
+//	You should have received a copy of the GNU Affero General Public License	//
+//	along with this program.  If not, see <https://www.gnu.org/licenses/>.		//
+//////////////////////////////////////////////////////////////////////////////////
+#include "SetFieldHandlers.h"
+
+#include "Helpers/CharacterParser.h"
+#include "Helpers/LoginParser.h"
+
+#include "../Packets/GameplayPackets.h"
+
+#include "../../Configuration.h"
+
+#include "../../Gameplay/Stage.h"
+#include "../../IO/UI.h"
+#include "../../IO/Window.h"
+
+#include "../../IO/UITypes/UICharSelect_Legacy.h"
+#include "../../Util/Misc.h"
+
+namespace ms
+{
+	void SetFieldHandler::transition(int32_t mapid, uint8_t portalid) const
+	{
+		float fadestep = 0.025f;
+
+		NDEBUG("SetFieldHandler::transition() - starting fadeout for mapid: " << mapid << ", portalid: " << (int)portalid);
+		
+		Window::get().fadeout(
+			fadestep,
+			[mapid, portalid]()
+			{
+				std::cout << "[STATETRANS] SetFieldHandler fadeout callback executing" << std::endl;
+				
+				// Only clear and reload if not already in game
+				// UIStateGame may have already loaded the Stage
+				std::cout << "[STATETRANS] Calling Stage::load from SetFieldHandler" << std::endl;
+				Stage::get().load(mapid, portalid);
+
+				NDEBUG("SetFieldHandler::transition() - calling UI::enable()");
+				UI::get().enable();
+				
+				NDEBUG("SetFieldHandler::transition() - calling Timer::start()");
+				Timer::get().start();
+
+				NDEBUG("SetFieldHandler::transition() - calling Stage::transfer_player()");
+				Stage::get().transfer_player();
+				
+				NDEBUG("SetFieldHandler::transition() - fadeout callback completed");
+			});
+			
+		NDEBUG("SetFieldHandler::transition() - fadeout scheduled");
+
+		// No need to lock GL or clear stage here;
+		// the fade callback does the cleanup.
+	}
+
+	void SetFieldHandler::handle(InPacket& recv) const
+	{
+		NDEBUG("SetFieldHandler::handle() called");
+		Constants::Constants::get().set_viewwidth(Setting<Width>::get().load());
+		Constants::Constants::get().set_viewheight(Setting<Height>::get().load());
+
+		int32_t channel = recv.read_int();
+		int8_t mode1 = recv.read_byte();
+		int8_t mode2 = recv.read_byte();
+		NDEBUG("SetFieldHandler::handle() - channel: " << channel << ", mode1: " << (int)mode1 << ", mode2: " << (int)mode2);
+
+		if (mode1 == 0 && mode2 == 0) {
+			NDEBUG("SetFieldHandler::handle() - calling change_map()");
+			change_map(recv, channel);
+		} else {
+			NDEBUG("SetFieldHandler::handle() - calling set_field()");
+			set_field(recv);
+		}
+		NDEBUG("SetFieldHandler::handle() - completed");
+	}
+
+	void SetFieldHandler::change_map(InPacket& recv, int32_t) const
+	{
+		recv.skip(3);
+
+		int32_t mapid = recv.read_int();
+		int8_t portalid = recv.read_byte();
+
+		transition(mapid, portalid);
+	}
+
+	void SetFieldHandler::set_field(InPacket& recv) const
+	{
+		NDEBUG("SetFieldHandler::set_field() called");
+		recv.skip(23);
+
+		int32_t cid = recv.read_int();
+		NDEBUG("Character ID from packet: " << cid);
+		
+		auto charselect = UI::get().get_element<UICharSelect_Legacy>();
+
+		if (!charselect) {
+			NDEBUG("ERROR: UICharSelect_Legacy not found!");
+			return;
+		}
+		NDEBUG("Found UICharSelect_Legacy");
+
+		const CharEntry& playerentry = charselect->get_character(cid);
+
+		if (playerentry.id != cid) {
+			NDEBUG("ERROR: Character ID mismatch - expected " << cid << ", got " << playerentry.id);
+			return;
+		}
+		NDEBUG("Character found: " << playerentry.stats.name << " (ID: " << playerentry.id << ")");
+
+		NDEBUG("Loading player into stage...");
+		Stage::get().loadplayer(playerentry);
+
+		// Remove all login-related UI before transitioning to game
+		NDEBUG("Removing login UI elements before game transition");
+		UI::get().remove(UIElement::Type::CHARSELECT);
+		// Clear the pointer since we just removed the UI element
+		charselect = nullptr;
+		UI::get().remove(UIElement::Type::WORLDSELECT);
+		UI::get().remove(UIElement::Type::LOGINNOTICE);
+		UI::get().remove(UIElement::Type::RACESELECT);
+		UI::get().remove(UIElement::Type::CLASSCREATION);
+		NDEBUG("UI elements removed successfully");
+
+		NDEBUG("Starting to parse character stats...");
+		LoginParser::parse_stats(recv);
+		NDEBUG("Character stats parsed successfully");
+
+		NDEBUG("Getting player reference...");
+		Player& player = Stage::get().get_player();
+		NDEBUG("Player reference obtained");
+
+		NDEBUG("Reading buddycap...");
+		recv.read_byte(); // 'buddycap'
+		NDEBUG("Buddycap read");
+
+		NDEBUG("Checking linked name...");
+		if (recv.read_bool())
+			recv.read_string(); // 'linkedname'
+		NDEBUG("Linked name checked");
+
+		NDEBUG("Parsing inventory...");
+		CharacterParser::parse_inventory(recv, player.get_inventory());
+		NDEBUG("Inventory parsed");
+		
+		NDEBUG("Parsing skillbook...");
+		CharacterParser::parse_skillbook(recv, player.get_skills());
+		NDEBUG("Skillbook parsed");
+		
+		NDEBUG("Parsing cooldowns...");
+		CharacterParser::parse_cooldowns(recv, player);
+		NDEBUG("Cooldowns parsed");
+		
+		NDEBUG("Parsing questlog...");
+		CharacterParser::parse_questlog(recv, player.get_quests());
+		NDEBUG("Questlog parsed");
+		
+		NDEBUG("Parsing minigame...");
+		CharacterParser::parse_minigame(recv);
+		NDEBUG("Minigame parsed");
+		
+		NDEBUG("Parsing rings...");
+		// TEMP FIX: Skip ring parsing as it hangs with v83/v87 servers
+		// CharacterParser::parse_ring1(recv);
+		// CharacterParser::parse_ring2(recv);
+		// CharacterParser::parse_ring3(recv);
+		NDEBUG("Rings parsing skipped (v83/v87 compatibility)");
+		
+		NDEBUG("Parsing teleportrock...");
+		CharacterParser::parse_teleportrock(recv, player.get_teleportrock());
+		NDEBUG("Teleportrock parsed");
+		
+		NDEBUG("Parsing monsterbook...");
+		CharacterParser::parse_monsterbook(recv, player.get_monsterbook());
+		NDEBUG("Monsterbook parsed");
+		
+		NDEBUG("Parsing nyinfo...");
+		CharacterParser::parse_nyinfo(recv);
+		NDEBUG("Nyinfo parsed");
+		
+		NDEBUG("Parsing areainfo...");
+		CharacterParser::parse_areainfo(recv);
+		NDEBUG("Areainfo parsed");
+		
+		NDEBUG("All character parsing completed successfully");
+
+		NDEBUG("Recalculating player stats...");
+		player.recalc_stats(true);
+		NDEBUG("Player stats recalculated");
+
+		NDEBUG("Dispatching PlayerUpdatePacket...");
+		PlayerUpdatePacket().dispatch();
+		NDEBUG("PlayerUpdatePacket dispatched");
+
+		uint8_t portalid = player.get_stats().get_portal();
+		int32_t mapid = player.get_stats().get_mapid();
+		NDEBUG("Portal ID: " << (int)portalid << ", Map ID: " << mapid);
+
+		NDEBUG("Calling transition...");
+		transition(mapid, portalid);
+		NDEBUG("Transition completed");
+
+		NDEBUG("Playing game start sound...");
+		Sound(Sound::Name::GAMESTART).play();
+
+		NDEBUG("Changing UI state to GAME...");
+		UI::get().change_state(UI::State::GAME);
+		NDEBUG("UI state changed to GAME - set_field completed");
+	}
+}
+
+================
+File: Net/Handlers/SetFieldHandlers.h
+================
+//////////////////////////////////////////////////////////////////////////////////
+//	This file is part of the continued Journey MMORPG client					//
+//	Copyright (C) 2015-2019  Daniel Allendorf, Ryan Payton						//
+//																				//
+//	This program is free software: you can redistribute it and/or modify		//
+//	it under the terms of the GNU Affero General Public License as published by	//
+//	the Free Software Foundation, either version 3 of the License, or			//
+//	(at your option) any later version.											//
+//																				//
+//	This program is distributed in the hope that it will be useful,				//
+//	but WITHOUT ANY WARRANTY; without even the implied warranty of				//
+//	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the				//
+//	GNU Affero General Public License for more details.							//
+//																				//
+//	You should have received a copy of the GNU Affero General Public License	//
+//	along with this program.  If not, see <https://www.gnu.org/licenses/>.		//
+//////////////////////////////////////////////////////////////////////////////////
+#pragma once
+
+#include "../PacketHandler.h"
+
+namespace ms
+{
+	// Handler for a packet which contains all character information on first login or warps the player to a different map
+	class SetFieldHandler : public PacketHandler
+	{
+	public:
+		void handle(InPacket& recv) const override;
+
+	private:
+		void transition(int32_t mapid, uint8_t portalid) const;
+		void change_map(InPacket& recv, int32_t map_id) const;
+		void set_field(InPacket& recv) const;
+	};
+}
+
+
+
+================================================================
+End of Codebase
+================================================================

@@ -19,6 +19,8 @@
 
 #include "../Components/MapleButton.h"
 
+#include <iostream>
+
 #ifdef USE_NX
 #include <nlnx/nx.hpp>
 #endif
@@ -30,28 +32,42 @@ namespace ms
 		tab = Buttons::TAB0;
 
 		nl::node close = nl::nx::UI["Basic.img"]["BtClose3"];
-		nl::node quest = nl::nx::UI["UIWindow2.img"]["Quest"];
+		
+		// v92: Use UIWindow.img structure directly
+		nl::node quest = nl::nx::UI["UIWindow.img"]["Quest"];
 		nl::node list = quest["list"];
+		
+		if (!quest || !list) {
+			// If no Quest window assets found, create minimal window with defaults
+			dimension = Point<int16_t>(300, 400);
+			dragarea = Point<int16_t>(300, 20);
+			// Create minimal close button
+			if (close) buttons[Buttons::CLOSE] = std::make_unique<MapleButton>(close, Point<int16_t>(275, 6));
+			return;
+		}
 
 		nl::node backgrnd = list["backgrnd"];
 
-		sprites.emplace_back(backgrnd);
-		sprites.emplace_back(list["backgrnd2"]);
+		// Add sprites only if nodes exist
+		if (backgrnd) sprites.emplace_back(backgrnd);
+		if (list["backgrnd2"]) sprites.emplace_back(list["backgrnd2"]);
 
-		notice_sprites.emplace_back(list["notice0"]);
-		notice_sprites.emplace_back(list["notice1"]);
-		notice_sprites.emplace_back(list["notice2"]);
+		// Add notice sprites only if nodes exist
+		if (list["notice0"]) notice_sprites.emplace_back(list["notice0"]);
+		if (list["notice1"]) notice_sprites.emplace_back(list["notice1"]);
+		if (list["notice2"]) notice_sprites.emplace_back(list["notice2"]);
 
 		nl::node taben = list["Tab"]["enabled"];
 		nl::node tabdis = list["Tab"]["disabled"];
 
-		buttons[Buttons::TAB0] = std::make_unique<TwoSpriteButton>(tabdis["0"], taben["0"]);
-		buttons[Buttons::TAB1] = std::make_unique<TwoSpriteButton>(tabdis["1"], taben["1"]);
-		buttons[Buttons::TAB2] = std::make_unique<TwoSpriteButton>(tabdis["2"], taben["2"]);
-		buttons[Buttons::CLOSE] = std::make_unique<MapleButton>(close, Point<int16_t>(275, 6));
-		buttons[Buttons::SEARCH] = std::make_unique<MapleButton>(list["BtSearch"]);
-		buttons[Buttons::ALL_LEVEL] = std::make_unique<MapleButton>(list["BtAllLevel"]);
-		buttons[Buttons::MY_LOCATION] = std::make_unique<MapleButton>(list["BtMyLocation"]);
+		// Create buttons only if nodes exist
+		if (tabdis["0"] && taben["0"]) buttons[Buttons::TAB0] = std::make_unique<TwoSpriteButton>(tabdis["0"], taben["0"]);
+		if (tabdis["1"] && taben["1"]) buttons[Buttons::TAB1] = std::make_unique<TwoSpriteButton>(tabdis["1"], taben["1"]);
+		if (tabdis["2"] && taben["2"]) buttons[Buttons::TAB2] = std::make_unique<TwoSpriteButton>(tabdis["2"], taben["2"]);
+		if (close) buttons[Buttons::CLOSE] = std::make_unique<MapleButton>(close, Point<int16_t>(275, 6));
+		if (list["BtSearch"]) buttons[Buttons::SEARCH] = std::make_unique<MapleButton>(list["BtSearch"]);
+		if (list["BtAllLevel"]) buttons[Buttons::ALL_LEVEL] = std::make_unique<MapleButton>(list["BtAllLevel"]);
+		if (list["BtMyLocation"]) buttons[Buttons::MY_LOCATION] = std::make_unique<MapleButton>(list["BtMyLocation"]);
 
 		search_area = list["searchArea"];
 
@@ -64,8 +80,13 @@ namespace ms
 
 		change_tab(tab);
 
-		dimension = Texture(backgrnd).get_dimensions();
-		dragarea = Point<int16_t>(dimension.x(), 20);
+		if (backgrnd) {
+			dimension = Texture(backgrnd).get_dimensions();
+			dragarea = Point<int16_t>(dimension.x(), 20);
+		} else {
+			dimension = Point<int16_t>(400, 300); // Default size
+			dragarea = Point<int16_t>(400, 20);
+		}
 	}
 
 	void UIQuestLog::draw(float alpha) const
@@ -74,12 +95,15 @@ namespace ms
 
 		Point<int16_t> notice_position = Point<int16_t>(0, 26);
 
-		if (tab == Buttons::TAB0)
-			notice_sprites[tab].draw(position + notice_position + Point<int16_t>(9, 0), alpha);
-		else if (tab == Buttons::TAB1)
-			notice_sprites[tab].draw(position + notice_position + Point<int16_t>(0, 0), alpha);
-		else
-			notice_sprites[tab].draw(position + notice_position + Point<int16_t>(-10, 0), alpha);
+		// Only draw notice sprites if they exist and tab is valid
+		if (tab < notice_sprites.size() && notice_sprites.size() > 0) {
+			if (tab == Buttons::TAB0)
+				notice_sprites[tab].draw(position + notice_position + Point<int16_t>(9, 0), alpha);
+			else if (tab == Buttons::TAB1)
+				notice_sprites[tab].draw(position + notice_position + Point<int16_t>(0, 0), alpha);
+			else
+				notice_sprites[tab].draw(position + notice_position + Point<int16_t>(-10, 0), alpha);
+		}
 
 		if (tab != Buttons::TAB2)
 		{
@@ -160,10 +184,21 @@ namespace ms
 
 		if (oldtab != tab)
 		{
-			buttons[Buttons::TAB0 + oldtab]->set_state(Button::State::NORMAL);
-			buttons[Buttons::MY_LOCATION]->set_active(tab == Buttons::TAB0);
-			buttons[Buttons::ALL_LEVEL]->set_active(tab == Buttons::TAB0);
-			buttons[Buttons::SEARCH]->set_active(tab != Buttons::TAB2);
+			// Check if old tab button exists before setting state
+			if (buttons[Buttons::TAB0 + oldtab]) {
+				buttons[Buttons::TAB0 + oldtab]->set_state(Button::State::NORMAL);
+			}
+			
+			// Check if buttons exist before setting active state
+			if (buttons[Buttons::MY_LOCATION]) {
+				buttons[Buttons::MY_LOCATION]->set_active(tab == Buttons::TAB0);
+			}
+			if (buttons[Buttons::ALL_LEVEL]) {
+				buttons[Buttons::ALL_LEVEL]->set_active(tab == Buttons::TAB0);
+			}
+			if (buttons[Buttons::SEARCH]) {
+				buttons[Buttons::SEARCH]->set_active(tab != Buttons::TAB2);
+			}
 
 			if (tab == Buttons::TAB2)
 				search.set_state(Textfield::State::DISABLED);
@@ -171,7 +206,10 @@ namespace ms
 				search.set_state(Textfield::State::NORMAL);
 		}
 
-		buttons[Buttons::TAB0 + tab]->set_state(Button::State::PRESSED);
+		// Check if new tab button exists before setting state
+		if (buttons[Buttons::TAB0 + tab]) {
+			buttons[Buttons::TAB0 + tab]->set_state(Button::State::PRESSED);
+		}
 	}
 
 	Point<int16_t> UIQuestLog::get_search_pos()

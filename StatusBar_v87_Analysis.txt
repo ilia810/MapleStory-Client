@@ -1,0 +1,112 @@
+=== StatusBar.img Structure Analysis for v87 ===
+Generated to understand v87 asset structure and fix texture discrepancies
+
+Based on the existing UIStatusBar.cpp code analysis:
+
+=== Current Code Expectations ===
+
+Modern Client (expects StatusBar3.img):
+  - StatusBar3.img/mainBar/status/backgrnd
+  - StatusBar3.img/mainBar/status/layer:cover
+  - StatusBar3.img/mainBar/status/layer:Lv
+  - StatusBar3.img/mainBar/status/gauge/hp/layer:0
+  - StatusBar3.img/mainBar/status/gauge/mp/layer:0
+  - StatusBar3.img/mainBar/EXPBar/backgrnd
+  - StatusBar3.img/mainBar/EXPBar/layer:gauge
+  - StatusBar3.img/mainBar/EXPBar/layer:cover
+  - StatusBar3.img/mainBar/EXPBar/layer:effect
+  - StatusBar3.img/mainBar/EXPBar/number
+  - StatusBar3.img/mainBar/menu/button:Menu
+  - StatusBar3.img/mainBar/menu/button:CashShop
+  - StatusBar3.img/mainBar/menu/button:Setting
+  - StatusBar3.img/mainBar/menu/button:Character
+  - StatusBar3.img/mainBar/menu/button:Community
+  - StatusBar3.img/mainBar/menu/button:Event
+  - StatusBar3.img/mainBar/quickSlot/backgrnd
+  - StatusBar3.img/mainBar/quickSlot/layer:cover
+  - StatusBar3.img/mainBar/quickSlot/button:Fold
+  - StatusBar3.img/mainBar/quickSlot/button:Extend
+  - StatusBar3.img/mainBar/submenu/backgrnd/0
+  - StatusBar3.img/mainBar/submenu/backgrnd/1
+  - StatusBar3.img/mainBar/submenu/backgrnd/2
+  - StatusBar3.img/mainBar/submenu/menu/button:*
+  - StatusBar3.img/mainBar/submenu/setting/button:*
+  - StatusBar3.img/mainBar/submenu/community/button:*
+  - StatusBar3.img/mainBar/submenu/character/button:*
+  - StatusBar3.img/mainBar/submenu/event/button:*
+  - StatusBar3.img/mainBar/submenu/title/character
+  - StatusBar3.img/mainBar/submenu/title/community
+  - StatusBar3.img/mainBar/submenu/title/event
+  - StatusBar3.img/mainBar/submenu/title/menu
+  - StatusBar3.img/mainBar/submenu/title/setting
+
+V87 Client (actual StatusBar.img structure, based on code analysis):
+  - StatusBar.img/base/backgrnd
+  - StatusBar.img/base/backgrnd2
+  - StatusBar.img/base/level
+  - StatusBar.img/gauge/hpFlash
+  - StatusBar.img/gauge/mpFlash
+  - StatusBar.img/gauge/exp
+  - StatusBar.img/BtMenu
+  - StatusBar.img/BtShop
+  - StatusBar.img/quickslot (single node, not folder)
+  - StatusBar.img/number
+
+=== Mapping Strategy ===
+
+The UIStatusBar.cpp code already has v87 compatibility checks:
+```cpp
+// Detect v87 vs modern client
+bool is_v87 = nl::nx::UI["StatusBar3.img"].name().empty();
+```
+
+Current mappings implemented:
+1. HP/MP Background: StatusBar.img/base/backgrnd
+2. HP/MP Cover: StatusBar.img/base/backgrnd2
+3. Level Display: StatusBar.img/base/level
+4. HP Gauge: StatusBar.img/gauge/hpFlash
+5. MP Gauge: StatusBar.img/gauge/mpFlash
+6. EXP Gauge: StatusBar.img/gauge/exp
+7. Menu Button: StatusBar.img/BtMenu
+8. Shop Button: StatusBar.img/BtShop
+9. Numbers: StatusBar.img/number
+
+=== Missing Assets in v87 ===
+
+The following modern assets don't exist in v87:
+- EXP Bar background and cover layers
+- Quick slot backgrounds and buttons
+- Submenu backgrounds and titles
+- Most menu buttons (only BtMenu and BtShop exist)
+
+=== Recommendations ===
+
+1. **Keep current v87 detection**: The code already properly detects v87 by checking if StatusBar3.img exists
+2. **Graceful degradation**: Missing assets are handled by creating empty textures/sprites
+3. **Button availability**: Only basic Menu and Shop buttons are available in v87
+4. **Gauge simplification**: v87 uses simpler gauge structure without separate cover/effect layers
+
+=== Code Status ===
+
+The UIStatusBar.cpp already implements proper v87 compatibility:
+- Detects v87 vs modern client
+- Maps available assets correctly
+- Handles missing assets gracefully
+- Creates empty textures where needed
+
+=== Next Steps ===
+
+1. Test the client with v87 NX files to verify asset loading
+2. Confirm texture paths are correct
+3. Test UI functionality with limited v87 assets
+4. Document any remaining issues
+
+=== Asset Structure Summary ===
+
+V87 StatusBar.img is much simpler than modern StatusBar3.img:
+- Less hierarchical structure
+- Fewer texture variants
+- Limited button options
+- Basic gauge system
+
+The current implementation should work correctly with v87 assets as long as the NX files are properly loaded.

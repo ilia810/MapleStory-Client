@@ -182,7 +182,7 @@ namespace ms
 			return;
 		}
 		
-		// Try to load animations with v83/v87 fallbacks
+		// Try to load animations with v83/v87/v92 fallbacks
 		nl::node hidden_anim = src["ph"]["default"]["portalContinue"];
 		nl::node regular_anim = src["pv"]["default"];
 		
@@ -190,8 +190,90 @@ namespace ms
 		if (hidden_anim.name().empty()) {
 			hidden_anim = src["ph"]["default"]["portal"];
 		}
+		
+		// For v92 compatibility with hidden portals
+		if (hidden_anim.name().empty()) {
+			nl::node ph = src["ph"];
+			
+			// Check if ph has numbered children that are bitmaps (animation frames)
+			std::vector<nl::node> frames;
+			for (int i = 0; i < 20; i++) {
+				nl::node frame = ph[std::to_string(i)];
+				if (!frame.name().empty() && frame.data_type() == nl::node::type::bitmap) {
+					frames.push_back(frame);
+				}
+			}
+			
+			if (!frames.empty()) {
+				// v92 uses numbered frames directly under ph
+				hidden_anim = ph;
+			} else {
+				// Try individual portal types for static portals
+				for (int i = 0; i < 8; i++) {
+					nl::node ph_node = ph[std::to_string(i)];
+					if (!ph_node.name().empty()) {
+						if (ph_node.data_type() == nl::node::type::bitmap) {
+							// Static bitmap portal
+							hidden_anim = ph_node;
+						} else {
+							// Check for nested structure
+							nl::node portal_subnode = ph_node["portal"];
+							if (!portal_subnode.name().empty()) {
+								hidden_anim = portal_subnode;
+							} else {
+								hidden_anim = ph_node;
+							}
+						}
+						break;
+					}
+				}
+			}
+		}
 		if (regular_anim.name().empty()) {
 			regular_anim = src["pv"]["default"]["portal"];
+		}
+		
+		// For v92 compatibility, try numbered portal entries
+		if (regular_anim.name().empty()) {
+			// v92 uses numbered entries as frames themselves
+			nl::node pv = src["pv"];
+			
+			// Count how many numbered entries exist
+			std::vector<nl::node> frames;
+			for (int i = 0; i < 20; i++) {
+				nl::node frame = pv[std::to_string(i)];
+				if (!frame.name().empty() && frame.data_type() == nl::node::type::bitmap) {
+					frames.push_back(frame);
+				}
+			}
+			
+			if (!frames.empty()) {
+				// For v92, pass the parent node containing the numbered frames
+				// The Animation constructor will iterate through numbered children
+				regular_anim = pv;
+				LOG(LOG_DEBUG, "[MapPortals] Found " << frames.size() << " animation frames for v92 portal under pv");
+			} else {
+				// If no numbered frames, try individual portal types for static portals
+				for (int i = 0; i < 8; i++) {
+					nl::node pv_node = pv[std::to_string(i)];
+					if (!pv_node.name().empty()) {
+						if (pv_node.data_type() == nl::node::type::bitmap) {
+							// Static bitmap portal
+							regular_anim = pv_node;
+							LOG(LOG_DEBUG, "[MapPortals] Using static bitmap portal pv/" << i);
+						} else {
+							// Check for nested structure
+							nl::node portal_subnode = pv_node["portal"];
+							if (!portal_subnode.name().empty()) {
+								regular_anim = portal_subnode;
+							} else {
+								regular_anim = pv_node;
+							}
+						}
+						break;
+					}
+				}
+			}
 		}
 		
 		if (!hidden_anim.name().empty()) {

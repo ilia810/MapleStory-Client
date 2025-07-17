@@ -1,0 +1,21 @@
+Compressed NX Structure
+Generated: 2025-07-14 12:21:51
+Note: Use states & frames to expand back to original structure
+
+BasicEff.img
+CharacterEff.img
+Direction.img
+Direction1.img
+Direction2.img
+Direction3.img
+ItemEff.img
+MapEff.img
+OnUserEff.img
+PetEff.img
+SetEff.img
+SkillName1.img
+SkillName2.img
+SkillName3.img
+SkillName4.img
+Summon.img
+Tomb.img

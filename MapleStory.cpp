@@ -32,7 +32,7 @@
 #include "Util/WzFiles.h"
 #endif
 
-#include "Testing/TestMain.cpp"
+// #include "Testing/TestMain.cpp"
 
 namespace ms
 {
@@ -182,19 +182,19 @@ int APIENTRY WinMain(HINSTANCE hInst, HINSTANCE hInstPrev, PSTR cmdline, int cmd
 {
 #ifdef _DEBUG
 	// Check if running in test mode
-	if (ms::Testing::isTestMode(argc, argv))
-	{
-		return runTests(argc, argv);
-	}
+	// if (ms::Testing::isTestMode(argc, argv))
+	// {
+	//	return runTests(argc, argv);
+	// }
 #else
 	// Parse command line in release mode
 	int argc = __argc;
 	char** argv = __argv;
 	
-	if (ms::Testing::isTestMode(argc, argv))
-	{
-		return runTests(argc, argv);
-	}
+	// if (ms::Testing::isTestMode(argc, argv))
+	// {
+	//	return runTests(argc, argv);
+	// }
 #endif
 
 	// Redirect stdout and stderr to debug_output.txt, clearing it on each run

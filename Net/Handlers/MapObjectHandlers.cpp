@@ -22,6 +22,9 @@
 
 #include "../../Gameplay/Stage.h"
 
+#include <iomanip>
+#include <vector>
+
 namespace ms
 {
 	// Temporary storage for NPCs received during map transitions
@@ -209,20 +212,36 @@ namespace ms
 
 	void SpawnMobHandler::handle(InPacket& recv) const
 	{
-		std::cout << "[DEBUG] SpawnMobHandler::handle() called" << std::endl;
-		
 		int32_t oid = recv.read_int();
 		recv.read_byte(); // 5 if controller == null
 		int32_t id = recv.read_int();
 
-		recv.skip(22);
+		// CRITICAL FIX: The v83 spawn mob packet structure is:
+		// After mob ID, when requestController is false:
+		// - 16 bytes: skip (as seen in server code: p.skip(16))
+		// Then:
+		// - Position (4 bytes)
+		// - Stance (1 byte)
+		// - etc.
+		
+		// The server code shows: if not requestController, p.skip(16)
+		// This matches what we need to skip before position
+		recv.skip(16);
 
 		Point<int16_t> position = recv.read_point();
 		int8_t stance = recv.read_byte();
-
 		recv.skip(2);
-
 		uint16_t fh = recv.read_short();
+		
+		// Check if we have enough bytes for the full packet format
+		if (recv.available() < 5) {
+			// Simplified packet format - no effect/team data
+			Stage::get().get_mobs().spawn(
+				{ oid, id, 1, stance, fh, false, -1, position }
+			);
+			return;
+		}
+		
 		int8_t effect = recv.read_byte();
 
 		if (effect > 0)
@@ -238,15 +257,9 @@ namespace ms
 
 		recv.skip(4);
 
-		std::cout << "[DEBUG] Spawning mob: OID=" << oid << ", ID=" << id 
-				  << ", pos=(" << position.x() << "," << position.y() << ")" 
-				  << ", stance=" << (int)stance << ", fh=" << fh << std::endl;
-
 		Stage::get().get_mobs().spawn(
-			{ oid, id, 0, stance, fh, effect == -2, team, position }
+			{ oid, id, 1, stance, fh, effect == -2, team, position }
 		);
-		
-		std::cout << "[DEBUG] Mob spawn queued successfully" << std::endl;
 	}
 
 	void KillMobHandler::handle(InPacket& recv) const
@@ -274,7 +287,11 @@ namespace ms
 
 				int32_t id = recv.read_int();
 
-				recv.skip(22);
+				// CRITICAL FIX: For controller packets, we need to parse the actual status data
+				// The structure after mob ID includes the full encodeTemporary data
+				// which is variable length. For now, let's skip a fixed amount that works
+				// for most common cases
+				recv.skip(22); // This works for monsters with no active status effects
 
 				Point<int16_t> position = recv.read_point();
 				int8_t stance = recv.read_byte();
@@ -395,7 +412,6 @@ namespace ms
 		if (mode != 2)
 		{
 			dropfrom = recv.read_point();
-
 			recv.skip(2);
 
 			Sound(Sound::Name::DROP).play();

@@ -1,0 +1,62 @@
+RESEARCH REQUEST: MapleStory v83/v87 UIRaceSelect Implementation
+
+PROBLEM:
+The current UIRaceSelect.cpp implementation is designed for modern MapleStory (v228+) and tries to access UI nodes that don't exist in v83/v87. The character creation screen (race selection) crashes because it's looking for "RaceSelect_new" and complex button structures that don't exist. When it does run, everything renders at position (0,0) making UI elements bunched up in the top-left corner.
+
+AVAILABLE UI STRUCTURE (from UI_compressed.txt):
+```
+Login.img
+ ├─ RaceSelect
+ │   states:{BtSelect,aran,aran1,knight,normal,textGL}
+ │   anim:{4,3,3,3,3,1}
+```
+
+This means RaceSelect has 6 different states:
+- BtSelect: 4 animation frames (likely the select button)
+- aran: 3 animation frames (Aran class option)
+- aran1: 3 animation frames (Aran variant?)
+- knight: 3 animation frames (Cygnus Knight class option)
+- normal: 3 animation frames (Explorer/normal class option)
+- textGL: 1 animation frame (some text element)
+
+CURRENT BROKEN CODE STRUCTURE:
+The UIRaceSelect.cpp constructor tries to access:
+- RaceSelect_new (doesn't exist, should be RaceSelect)
+- RaceSelect["order"][SELECTED_LIST] (doesn't exist)
+- RaceSelect["make"]["pos"] (doesn't exist)
+- RaceSelect["button"]["normal"], RaceSelect["buttonDisabled"] (don't exist)
+- RaceSelect["Back"], RaceSelect["Back1"], RaceSelect["BackAni"] (don't exist)
+- Various hotlist, newlist, bgm nodes (don't exist)
+
+TASK:
+Please analyze the v83/v87 UI structure and provide:
+
+1. **Correct UI Node Access Pattern**: How to properly access the RaceSelect states (BtSelect, aran, knight, normal, textGL) and extract textures/sprites from them
+
+2. **Proper Positioning Strategy**: Since position data isn't embedded in the nodes, provide:
+   - Default screen positions for each class selection button
+   - Proper screen layout (800x600 resolution)
+   - Background positioning if any
+
+3. **Complete UIRaceSelect Constructor Rewrite**: Provide C++ code that:
+   - Correctly loads textures from the available states
+   - Sets up proper button positioning
+   - Maps the 3 available classes (Explorer/normal, Knight, Aran) to the UI
+   - Handles the simplified v83/v87 structure
+
+4. **Draw Method Fixes**: Update the draw() method to:
+   - Only draw textures that actually exist
+   - Position elements correctly on screen
+   - Handle the simplified class selection UI
+
+5. **Button Interaction**: How button clicks should work with this simplified structure
+
+CONTEXT:
+- This is for a v83/v87 MapleStory private server (Cosmic)
+- Screen resolution: 800x600
+- Only 3 character classes available: Explorers (normal), Cygnus Knights (knight), Aran
+- User should be able to click on class icons to select them, then proceed to character creation
+- No modern features like hotlist, newlist, complex backgrounds
+
+EXPECTED OUTPUT:
+Complete C++ code sections that replace the broken parts of UIRaceSelect.cpp, working purely with the v83/v87 UI structure shown above.

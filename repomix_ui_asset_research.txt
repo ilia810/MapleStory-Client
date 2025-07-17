@@ -1,0 +1,286 @@
+# UI Asset Loading Research Repomix
+
+This repomix contains the most relevant files for debugging UI asset loading issues between v83 WZ/NX files and the HeavenClient.
+
+## File: Util/V83UIAssets.h
+```cpp
+//////////////////////////////////////////////////////////////////////////////////
+//	This file is part of the continued Journey MMORPG client					//
+//	Copyright (C) 2015-2019  Daniel Allendorf, Ryan Payton						//
+//////////////////////////////////////////////////////////////////////////////////
+#pragma once
+
+#include <nlnx/node.hpp>
+#include <nlnx/nx.hpp>
+#include "../Graphics/Texture.h"
+#include "../Constants.h"
+
+namespace ms
+{
+	// Centralized v83 UI asset compatibility layer
+	class V83UIAssets
+	{
+	public:
+		// Check if we're using v83/v87 assets
+		static bool isV83Mode()
+		{
+			// Check for the existence of UIWindow2.img to determine version
+			// v83/v87 uses UIWindow.img, newer versions use UIWindow2.img
+			return !nl::nx::UI["UIWindow2.img"];
+		}
+
+		// === Login Screen Assets ===
+		static nl::node getLoginBackground()
+		{
+			// v83 structure: Login screen background can be in multiple places
+			nl::node bg;
+			
+			// Try v83 specific paths first
+			bg = nl::nx::Map["Obj"]["login.img"]["back"]["0"];
+			if (bg) return bg;
+			
+			// Try alternative v83 path
+			bg = nl::nx::Map["Back"]["login"]["0"];
+			if (bg) return bg;
+			
+			// Try UI-based path
+			bg = nl::nx::UI["Login.img"]["Common"]["frame"]["2"];
+			if (bg) return bg;
+			
+			// Modern path as fallback
+			return nl::nx::UI["Login.img"]["Title"]["effect"];
+		}
+
+		static nl::node getLoginButton(const std::string& buttonName)
+		{
+			nl::node login = nl::nx::UI["Login.img"];
+			if (!login) {
+				LOG(LOG_ERROR, "[V83UIAssets] Login.img not found!");
+				return nl::node();
+			}
+			
+			// Try various button naming conventions
+			std::vector<std::string> variations;
+			
+			// v83 might use different naming
+			if (buttonName == "Login") {
+				variations = {"BtLogin", "Login", "login", "btLogin", "bt_login", "loginBtn"};
+			} else if (buttonName == "New") {
+				variations = {"BtNew", "New", "new", "btNew", "bt_new", "newBtn", "BtMakeChar"};
+			} else if (buttonName == "Quit") {
+				variations = {"BtQuit", "Quit", "quit", "btQuit", "bt_quit", "quitBtn", "BtExit"};
+			} else {
+				// For other buttons, try with and without Bt prefix
+				variations = {"Bt" + buttonName, buttonName, "bt" + buttonName};
+			}
+			
+			for (const auto& variant : variations) {
+				nl::node btn = login[variant];
+				if (btn) {
+					LOG(LOG_DEBUG, "[V83UIAssets] Found button '" << buttonName << "' as '" << variant << "'");
+					return btn;
+				}
+			}
+			
+			// If still not found, log what's available
+			LOG(LOG_ERROR, "[V83UIAssets] Button '" << buttonName << "' not found. Available nodes in Login.img:");
+			int count = 0;
+			for (const auto& child : login) {
+				if (count++ < 30) { // Limit output
+					std::string nodeInfo = "  - " + child.name();
+					if (child.size() > 0) {
+						nodeInfo += " [" + std::to_string(child.size()) + " children]";
+					} else if (child.data_type() == nl::node::type::bitmap) {
+						nodeInfo += " [BITMAP]";
+					}
+					LOG(LOG_ERROR, nodeInfo);
+				}
+			}
+			if (count > 30) {
+				LOG(LOG_ERROR, "  ... and " << (login.size() - 30) << " more nodes");
+			}
+			
+			return nl::node();
+		}
+
+		// Other asset getters omitted for brevity...
+	};
+}
+```
+
+## File: IO/UITypes/UILogin.cpp (Relevant excerpts)
+```cpp
+UILogin::UILogin() : UIElement(Point<int16_t>(0, 0), Point<int16_t>(1024, 768)), title_pos(Point<int16_t>(344, 246)), nexon(false), showLoginHelpText(false)
+{
+	// Initialize login help text (will only be shown if buttons are missing)
+	loginButtonMissingText = Text(Text::Font::A12B, Text::Alignment::CENTER, Color::Name::YELLOW, "Press ENTER to login");
+	
+	// Get base login nodes through AssetRegistry
+	nl::node Login = nl::nx::UI["Login.img"];
+
+	nl::node Title = Login["Title"];  // CORRECTED: v83 uses "Title" not "Title_new"
+	
+	// Use V83 compatibility layer for background
+	nl::node login_bg = V83UIAssets::getLoginBackground();
+	if (login_bg) {
+		sprites.emplace_back(login_bg, Point<int16_t>(0, 0));
+		// Title area might use same background in v83
+		sprites.emplace_back(login_bg, title_pos);
+	} else {
+		LOG(LOG_ERROR, "[UILogin] Failed to load login background");
+	}
+
+	// Create buttons using V83 compatibility
+	bool hasLoginButton = false;
+	nl::node btnLogin = V83UIAssets::getLoginButton("Login");
+	if (btnLogin) {
+		buttons[Buttons::BtLogin] = std::make_unique<MapleButton>(btnLogin, title_pos);
+		hasLoginButton = true;
+	} else {
+		LOG(LOG_ERROR, "[UILogin] Login button not found - login via Enter key only");
+		// Show the help text since login button is missing
+		showLoginHelpText = true;
+	}
+	
+	// Other button creation code...
+}
+
+void UILogin::draw(float alpha) const
+{
+	background.draw(position + Point<int16_t>(0, 7));
+	draw_sprites(alpha);
+	draw_buttons(alpha);
+	
+	// Draw missing button text if needed
+	if (showLoginHelpText) {
+		loginButtonMissingText.draw(position + Point<int16_t>(400, 380));
+	}
+}
+```
+
+## File: Graphics/Sprite.h (Key structure)
+```cpp
+class Sprite
+{
+public:
+	Sprite(nl::node src, const DrawArgument& args);
+	Sprite(const Texture& texture, const DrawArgument& args);
+	Sprite(const Texture& texture, const Rectangle<int16_t>& bounds);
+	Sprite(const Animation& animation, const DrawArgument& args);
+	Sprite();
+	
+	void draw(const DrawArgument& args, float alpha) const;
+	// Other methods...
+};
+```
+
+## File: Graphics/Texture.h (Key structure)
+```cpp
+class Texture
+{
+public:
+	Texture(nl::node src);
+	Texture();
+	
+	void draw(const DrawArgument& args) const;
+	bool is_valid() const;
+	int16_t width() const;
+	int16_t height() const;
+	Point<int16_t> get_dimensions() const;
+	// Other methods...
+};
+```
+
+## NX File Structure to Research
+
+### Expected v83 UI.nx structure:
+```
+UI.nx/
+├── Login.img/
+│   ├── Title (or Title_new?)
+│   ├── Common/
+│   │   ├── frame/
+│   │   │   ├── 0 (bitmap?)
+│   │   │   ├── 1 (bitmap?)
+│   │   │   └── 2 (bitmap?)
+│   ├── BtLogin (or Login? login? btLogin?)
+│   ├── BtQuit (or Quit? quit? btQuit?)
+│   ├── BtNew (or New? new? btNew?)
+│   ├── TabD/ (might not exist in v83)
+│   └── TabE/ (might not exist in v83)
+├── UIWindow.img/ (v83 uses this, not UIWindow2.img)
+│   ├── Item/
+│   │   ├── backgrnd
+│   │   └── Tab/ (might have different structure)
+│   └── Skill/
+│       └── backgrnd
+└── Basic.img/
+    └── BtClose (or BtClose3?)
+
+Map.nx/
+├── Obj/
+│   └── login.img/
+│       ├── back/
+│       │   └── 0 (login background?)
+│       └── WorldSelect/
+│           └── default/
+│               └── 0 (world select background?)
+└── Back/
+    ├── login/
+    │   └── 0 (alternative login background?)
+    └── worldselect/
+        └── 0 (alternative world select background?)
+```
+
+## Key Issues to Investigate
+
+1. **Node Type Confusion**: 
+   - Are nodes returning as containers when we expect bitmaps?
+   - Are we accessing the correct child nodes?
+
+2. **Path Variations**:
+   - What are the exact button names in v83?
+   - Are backgrounds stored in Map.nx or UI.nx?
+
+3. **Sprite Creation**:
+   - Why are sprites being created but not displaying?
+   - Are origin/offset properties being handled correctly?
+
+4. **Debug Output Analysis**:
+   - Current log shows "No tab nodes found (v83 mode)"
+   - Login button not found despite trying multiple variations
+   - Need to see actual Login.img structure
+
+## Research Tasks
+
+1. **Create NX Structure Dumper**:
+   - Write a tool to recursively print all nodes in Login.img
+   - Show node types (bitmap/container/property)
+   - Show full paths to each element
+
+2. **Test Individual Assets**:
+   - Try loading each asset path directly
+   - Verify if textures are valid after loading
+   - Check sprite dimensions and positions
+
+3. **Compare with v83 Client Source**:
+   - Find original v83 client asset paths
+   - Verify naming conventions used
+
+4. **Debug Sprite Rendering**:
+   - Add logging to Sprite constructor
+   - Verify texture validity
+   - Check draw positions
+
+## Success Metrics
+
+- Login screen shows background image
+- Login, Quit, and New buttons are visible and clickable
+- World select screen displays properly
+- Character select has backgrounds
+- Inventory window shows with tabs
+- All UI elements positioned correctly
+
+## Additional Context
+
+The client was originally designed for newer MapleStory versions (v139+) and we're trying to make it compatible with v83 assets. The main challenge is that asset paths and structures changed significantly between versions. The V83UIAssets compatibility layer attempts to bridge this gap but most UI elements are still not displaying despite the code appearing to load them correctly.

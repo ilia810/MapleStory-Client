@@ -1,0 +1,144 @@
+🗂️ NX STRUCTURE ANALYSIS: Sound.nx
+📅 Generated: Current HeavenMS v83 Client Session
+🎯 Purpose: AssetRegistry Development & Asset Management
+================================================================================
+📊 Overview:
+   📦 Root children: 44
+   🏗️ Structure optimized for manageable file size
+   ⭐ Important assets prioritized (Login, UI, Buttons)
+
+├─  📁 (44 items)
+  ├─ Bgm00.img 📁 (5 items)
+    ├─ FloralLife 🔊
+    ├─ GoPicnic 🔊
+    ├─ Nightmare 🔊
+    ├─ RestNPeace 🔊
+    ├─ SleepyWood 🔊
+  ├─ Bgm01.img 📁 (6 items)
+    ├─ AncientMove 🔊
+    ├─ BadGuys 🔊
+    ├─ CavaBien 🔊
+    ├─ HighlandStar 🔊
+    ├─ MoonlightShadow 🔊
+    ├─ WhereTheBarlogFrom 🔊
+  ├─ Bgm02.img 📁 (5 items)
+    ├─ AboveTheTreetops 🔊
+    ├─ EvilEyes 🔊
+    ├─ JungleBook 🔊
+    ├─ MissingYou 🔊
+    ├─ WhenTheMorningComes 🔊
+  ├─ Bgm03.img 📁 (5 items)
+    ├─ Beachway 🔊
+    ├─ BlueSky 🔊
+    ├─ Elfwood 🔊
+    ├─ SnowyVillage 🔊
+    ├─ Subway 🔊
+  ├─ Bgm04.img 📁 (6 items)
+    ├─ ArabPirate 🔊
+    ├─ PlayWithMe 🔊
+    ├─ Shinin'Harbor 🔊
+    ├─ UponTheSky 🔊
+    ├─ WarmRegard 🔊
+    ├─ WhiteChristmas 🔊
+  ├─ Bgm05.img 📁 (5 items)
+    ├─ AbandonedMine 🔊
+    ├─ DownToTheCave 🔊
+    ├─ HellGate 🔊
+    ├─ MineQuest 🔊
+    ├─ WolfWood 🔊
+  ├─ Bgm06.img 📁 (5 items)
+    ├─ ComeWithMe 🔊
+    ├─ FantasticThinking 🔊
+    ├─ FinalFight 🔊
+    ├─ FlyingInABlueDream 🔊
+    ├─ WelcomeToTheHell 🔊
+  ├─ Bgm07.img 📁 (5 items)
+    ├─ Fantasia 🔊
+    ├─ FunnyTimeMaker 🔊
+    ├─ HighEnough 🔊
+    ├─ WaltzForWork 🔊
+    ├─ WhereverYouAre 🔊
+  ├─ Bgm08.img 📁 (5 items)
+    ├─ FindingForest 🔊
+    ├─ ForTheGlory 🔊
+    ├─ LetsHuntAliens 🔊
+    ├─ LetsMarch 🔊
+    ├─ PlotOfPixie 🔊
+  ├─ Bgm09.img 📁 (5 items)
+    ├─ DarkShadow 🔊
+    ├─ FairyTale 🔊
+    ├─ FairyTalediffvers 🔊
+    ├─ TheyMenacingYou 🔊
+    ├─ TimeAttack 🔊
+  ├─ Bgm10.img 📁 (5 items)
+    ├─ BizarreTales 🔊
+    ├─ Eregos 🔊
+    ├─ TheWayGrotesque 🔊
+    ├─ Timeless 🔊
+    ├─ TimelessB 🔊
+  ├─ Bgm11.img 📁 (5 items)
+    ├─ Aquarium 🔊
+    ├─ BlueWorld 🔊
+    ├─ DarkMountain 🔊
+    ├─ DownTown 🔊
+    ├─ ShiningSea 🔊
+  ├─ Bgm12.img 📁 (6 items)
+    ├─ AcientRemain 🔊
+    ├─ AquaCave 🔊
+    ├─ DeepSee 🔊
+    ├─ Dispute 🔊
+    ├─ RuinCastle 🔊
+    ├─ WaterWay 🔊
+  ├─ Bgm13.img 📁 (6 items)
+    ├─ AcientForest 🔊
+    ├─ CokeTown 🔊
+    ├─ FightSand 🔊
+    ├─ Leafre 🔊
+    ├─ Minar'sDream 🔊
+    ├─ TowerOfGoddess 🔊
+  ├─ Bgm14.img 📁 (6 items)
+    ├─ Ariant 🔊
+    ├─ CaveOfHontale 🔊
+    ├─ DragonLoad 🔊
+    ├─ DragonNest 🔊
+    ├─ HonTale 🔊
+    ├─ HotDesert 🔊
+  ├─ Bgm15.img 📁 (9 items)
+    ├─ ElinForest 🔊
+    ├─ MureungForest 🔊
+    ├─ MureungHill 🔊
+    ├─ Nautilus 🔊
+    ├─ Pirate 🔊
+    ├─ PoisonForest 🔊
+    ├─ SunsetDesert 🔊
+    ├─ WhiteHerb 🔊
+    ├─ inNautilus 🔊
+  ├─ Bgm16.img 📁 (6 items)
+    ├─ Duskofgod 🔊
+    ├─ FightingPinkBeen 🔊
+    ├─ Forgetfulness 🔊
+    ├─ Remembrance 🔊
+    ├─ Repentance 🔊
+    ├─ TimeTemple 🔊
+  ├─ Bgm17.img 📁 (4 items)
+    ├─ MureungSchool1 🔊
+    ├─ MureungSchool2 🔊
+    ├─ MureungSchool3 🔊
+    ├─ MureungSchool4 🔊
+  ├─ Bgm18.img 📁 (5 items)
+    ├─ BlackWing 🔊
+    ├─ DrillHall 🔊
+    ├─ QueensGarden 🔊
+    ├─ RaindropFlower 🔊
+    ├─ WolfAndSheep 🔊
+  ├─ Bgm19.img 📁 (5 items)
+    ├─ BambooGym 🔊
+    ├─ CrystalCave 🔊
+    ├─ MushCatle 🔊
+    ├─ RienVillage 🔊
+    ├─ SnowDrop 🔊
+  └─ ... (24 more items)
+
+================================================================================
+Total nodes: 130
+================================================================================

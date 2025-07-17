@@ -1,0 +1,4311 @@
+{
+  "format": "NX Structure - Lossless Compressed v3",
+  "generated": "2025-07-14 12:28:39",
+  "notation": {
+    "range": "\"0-10\" = items 0,1,2...10",
+    "_struct": "substructure for range items",
+    "null": "empty leaf node"
+  },
+  "data": {
+    "00002000.img": {
+      "airstrike": {
+        "airstrike": "0-14"
+      },
+      "alert": {
+        "alert": [
+          "0",
+          "1",
+          "2"
+        ]
+      },
+      "alert2": {
+        "alert2": [
+          "0",
+          "1",
+          "2"
+        ]
+      },
+      "alert3": {
+        "alert3": [
+          "0",
+          "1",
+          "2"
+        ]
+      },
+      "alert4": {
+        "alert4": [
+          "0",
+          "1",
+          "2"
+        ]
+      },
+      "alert5": {
+        "alert5": [
+          "0",
+          "1",
+          "2"
+        ]
+      },
+      "alert6": {
+        "alert6": [
+          "0",
+          "1",
+          "2"
+        ]
+      },
+      "assassination": {
+        "assassination": "0-10"
+      },
+      "assassinationS": {
+        "assassinationS": [
+          "0",
+          "1",
+          "2"
+        ]
+      },
+      "assaulter": {
+        "assaulter": [
+          "0",
+          "1"
+        ]
+      },
+      "avenger": {
+        "avenger": [
+          "0",
+          "1",
+          "2"
+        ]
+      },
+      "backspin": {
+        "backspin": "0-4"
+      },
+      "backstep": {
+        "backstep": [
+          "0"
+        ]
+      },
+      "bamboo": {
+        "bamboo": "0-30"
+      },
+      "blade": {
+        "blade": "0-7"
+      },
+      "blast": {
+        "blast": [
+          "0",
+          "1"
+        ]
+      },
+      "blizzard": {
+        "blizzard": [
+          "0",
+          "1",
+          "2"
+        ]
+      },
+      "brandish1": {
+        "brandish1": "0-6"
+      },
+      "brandish2": {
+        "brandish2": "0-6"
+      },
+      "breathe_prepare": {
+        "breathe_prepare": [
+          "0"
+        ]
+      },
+      "burster1": {
+        "burster1": [
+          "0",
+          "1",
+          "2",
+          "3"
+        ]
+      },
+      "burster2": {
+        "burster2": "0-4"
+      },
+      "cannon": {
+        "cannon": [
+          "0"
+        ]
+      },
+      "chainlightning": {
+        "chainlightning": [
+          "0",
+          "1"
+        ]
+      },
+      "combatStep": {
+        "combatStep": [
+          "0",
+          "1",
+          "2",
+          "3"
+        ]
+      },
+      "comboFenrir": {
+        "comboFenrir": "0-8"
+      },
+      "comboSmash": {
+        "comboSmash": "0-5"
+      },
+      "comboTempest": {
+        "comboTempest": [
+          "0",
+          "1",
+          "2"
+        ]
+      },
+      "coolingeffect": {
+        "coolingeffect": [
+          "0",
+          "1",
+          "2",
+          "3"
+        ]
+      },
+      "darksight": {
+        "darksight": [
+          "0"
+        ]
+      },
+      "... (128 more items)": null
+    },
+    "00002001.img": {
+      "alert": {
+        "alert": [
+          "0",
+          "1",
+          "2"
+        ]
+      },
+      "dead": {
+        "dead": [
+          "0"
+        ]
+      },
+      "fly": {
+        "fly": [
+          "0",
+          "1"
+        ]
+      },
+      "ghostfly": {
+        "ghostfly": [
+          "1",
+          "2"
+        ]
+      },
+      "ghostjump": {
+        "ghostjump": [
+          "1",
+          "2"
+        ]
+      },
+      "ghostladder": {
+        "ghostladder": [
+          "1",
+          "2"
+        ]
+      },
+      "ghostproneStab": {
+        "ghostproneStab": [
+          "1",
+          "2"
+        ]
+      },
+      "ghostrope": {
+        "ghostrope": [
+          "1",
+          "2"
+        ]
+      },
+      "ghostsit": {
+        "ghostsit": [
+          "1",
+          "2"
+        ]
+      },
+      "ghoststand": {
+        "ghoststand": [
+          "1",
+          "2"
+        ]
+      },
+      "ghostwalk": {
+        "ghostwalk": [
+          "1",
+          "2"
+        ]
+      },
+      "heal": {
+        "heal": [
+          "0",
+          "1",
+          "2"
+        ]
+      },
+      "info": {
+        "cash": "0",
+        "islot": "\"Bd\"",
+        "vslot": "\"Bd\""
+      },
+      "jump": {
+        "jump": [
+          "0"
+        ]
+      },
+      "ladder": {
+        "ladder": [
+          "0",
+          "1"
+        ]
+      },
+      "prone": {
+        "prone": [
+          "0"
+        ]
+      },
+      "proneStab": {
+        "proneStab": [
+          "0",
+          "1"
+        ]
+      },
+      "rope": {
+        "rope": [
+          "0",
+          "1"
+        ]
+      },
+      "shoot1": {
+        "shoot1": [
+          "0",
+          "1",
+          "2"
+        ]
+      },
+      "shoot2": {
+        "shoot2": "0-4"
+      },
+      "shootF": {
+        "shootF": [
+          "0",
+          "1",
+          "2"
+        ]
+      },
+      "sit": {
+        "sit": [
+          "0"
+        ]
+      },
+      "stabO1": {
+        "stabO1": [
+          "0",
+          "1"
+        ]
+      },
+      "stabO2": {
+        "stabO2": [
+          "0",
+          "1"
+        ]
+      },
+      "stabOF": {
+        "stabOF": [
+          "0",
+          "1",
+          "2"
+        ]
+      },
+      "stabT1": {
+        "stabT1": [
+          "0",
+          "1",
+          "2"
+        ]
+      },
+      "stabT2": {
+        "stabT2": [
+          "0",
+          "1",
+          "2"
+        ]
+      },
+      "stabTF": {
+        "stabTF": [
+          "0",
+          "1",
+          "2",
+          "3"
+        ]
+      },
+      "stand1": {
+        "stand1": [
+          "0",
+          "1",
+          "2"
+        ]
+      },
+      "stand2": {
+        "stand2": [
+          "0",
+          "1",
+          "2"
+        ]
+      },
+      "... (13 more items)": null
+    },
+    "00002002.img": {
+      "alert": {
+        "alert": [
+          "0",
+          "1",
+          "2"
+        ]
+      },
+      "dead": {
+        "dead": [
+          "0"
+        ]
+      },
+      "fly": {
+        "fly": [
+          "0",
+          "1"
+        ]
+      },
+      "ghostfly": {
+        "ghostfly": [
+          "1",
+          "2"
+        ]
+      },
+      "ghostjump": {
+        "ghostjump": [
+          "1",
+          "2"
+        ]
+      },
+      "ghostladder": {
+        "ghostladder": [
+          "1",
+          "2"
+        ]
+      },
+      "ghostproneStab": {
+        "ghostproneStab": [
+          "1",
+          "2"
+        ]
+      },
+      "ghostrope": {
+        "ghostrope": [
+          "1",
+          "2"
+        ]
+      },
+      "ghostsit": {
+        "ghostsit": [
+          "1",
+          "2"
+        ]
+      },
+      "ghoststand": {
+        "ghoststand": [
+          "1",
+          "2"
+        ]
+      },
+      "ghostwalk": {
+        "ghostwalk": [
+          "1",
+          "2"
+        ]
+      },
+      "heal": {
+        "heal": [
+          "0",
+          "1",
+          "2"
+        ]
+      },
+      "info": {
+        "cash": "0",
+        "islot": "\"Bd\"",
+        "vslot": "\"Bd\""
+      },
+      "jump": {
+        "jump": [
+          "0"
+        ]
+      },
+      "ladder": {
+        "ladder": [
+          "0",
+          "1"
+        ]
+      },
+      "prone": {
+        "prone": [
+          "0"
+        ]
+      },
+      "proneStab": {
+        "proneStab": [
+          "0",
+          "1"
+        ]
+      },
+      "rope": {
+        "rope": [
+          "0",
+          "1"
+        ]
+      },
+      "shoot1": {
+        "shoot1": [
+          "0",
+          "1",
+          "2"
+        ]
+      },
+      "shoot2": {
+        "shoot2": "0-4"
+      },
+      "shootF": {
+        "shootF": [
+          "0",
+          "1",
+          "2"
+        ]
+      },
+      "sit": {
+        "sit": [
+          "0"
+        ]
+      },
+      "stabO1": {
+        "stabO1": [
+          "0",
+          "1"
+        ]
+      },
+      "stabO2": {
+        "stabO2": [
+          "0",
+          "1"
+        ]
+      },
+      "stabOF": {
+        "stabOF": [
+          "0",
+          "1",
+          "2"
+        ]
+      },
+      "stabT1": {
+        "stabT1": [
+          "0",
+          "1",
+          "2"
+        ]
+      },
+      "stabT2": {
+        "stabT2": [
+          "0",
+          "1",
+          "2"
+        ]
+      },
+      "stabTF": {
+        "stabTF": [
+          "0",
+          "1",
+          "2",
+          "3"
+        ]
+      },
+      "stand1": {
+        "stand1": [
+          "0",
+          "1",
+          "2"
+        ]
+      },
+      "stand2": {
+        "stand2": [
+          "0",
+          "1",
+          "2"
+        ]
+      },
+      "... (13 more items)": null
+    },
+    "00002003.img": {
+      "alert": {
+        "alert": [
+          "0",
+          "1",
+          "2"
+        ]
+      },
+      "dead": {
+        "dead": [
+          "0"
+        ]
+      },
+      "fly": {
+        "fly": [
+          "0",
+          "1"
+        ]
+      },
+      "ghostfly": {
+        "ghostfly": [
+          "1",
+          "2"
+        ]
+      },
+      "ghostjump": {
+        "ghostjump": [
+          "1",
+          "2"
+        ]
+      },
+      "ghostladder": {
+        "ghostladder": [
+          "1",
+          "2"
+        ]
+      },
+      "ghostproneStab": {
+        "ghostproneStab": [
+          "1",
+          "2"
+        ]
+      },
+      "ghostrope": {
+        "ghostrope": [
+          "1",
+          "2"
+        ]
+      },
+      "ghostsit": {
+        "ghostsit": [
+          "1",
+          "2"
+        ]
+      },
+      "ghoststand": {
+        "ghoststand": [
+          "1",
+          "2"
+        ]
+      },
+      "ghostwalk": {
+        "ghostwalk": [
+          "1",
+          "2"
+        ]
+      },
+      "heal": {
+        "heal": [
+          "0",
+          "1",
+          "2"
+        ]
+      },
+      "info": {
+        "cash": "0",
+        "islot": "\"Bd\"",
+        "vslot": "\"Bd\""
+      },
+      "jump": {
+        "jump": [
+          "0"
+        ]
+      },
+      "ladder": {
+        "ladder": [
+          "0",
+          "1"
+        ]
+      },
+      "prone": {
+        "prone": [
+          "0"
+        ]
+      },
+      "proneStab": {
+        "proneStab": [
+          "0",
+          "1"
+        ]
+      },
+      "rope": {
+        "rope": [
+          "0",
+          "1"
+        ]
+      },
+      "shoot1": {
+        "shoot1": [
+          "0",
+          "1",
+          "2"
+        ]
+      },
+      "shoot2": {
+        "shoot2": "0-4"
+      },
+      "shootF": {
+        "shootF": [
+          "0",
+          "1",
+          "2"
+        ]
+      },
+      "sit": {
+        "sit": [
+          "0"
+        ]
+      },
+      "stabO1": {
+        "stabO1": [
+          "0",
+          "1"
+        ]
+      },
+      "stabO2": {
+        "stabO2": [
+          "0",
+          "1"
+        ]
+      },
+      "stabOF": {
+        "stabOF": [
+          "0",
+          "1",
+          "2"
+        ]
+      },
+      "stabT1": {
+        "stabT1": [
+          "0",
+          "1",
+          "2"
+        ]
+      },
+      "stabT2": {
+        "stabT2": [
+          "0",
+          "1",
+          "2"
+        ]
+      },
+      "stabTF": {
+        "stabTF": [
+          "0",
+          "1",
+          "2",
+          "3"
+        ]
+      },
+      "stand1": {
+        "stand1": [
+          "0",
+          "1",
+          "2"
+        ]
+      },
+      "stand2": {
+        "stand2": [
+          "0",
+          "1",
+          "2"
+        ]
+      },
+      "... (13 more items)": null
+    },
+    "00002004.img": {
+      "alert": {
+        "alert": [
+          "0",
+          "1",
+          "2"
+        ]
+      },
+      "dead": {
+        "dead": [
+          "0"
+        ]
+      },
+      "fly": {
+        "fly": [
+          "0",
+          "1"
+        ]
+      },
+      "ghostfly": {
+        "ghostfly": [
+          "1",
+          "2"
+        ]
+      },
+      "ghostjump": {
+        "ghostjump": [
+          "1",
+          "2"
+        ]
+      },
+      "ghostladder": {
+        "ghostladder": [
+          "1",
+          "2"
+        ]
+      },
+      "ghostproneStab": {
+        "ghostproneStab": [
+          "1",
+          "2"
+        ]
+      },
+      "ghostrope": {
+        "ghostrope": [
+          "1",
+          "2"
+        ]
+      },
+      "ghostsit": {
+        "ghostsit": [
+          "1",
+          "2"
+        ]
+      },
+      "ghoststand": {
+        "ghoststand": [
+          "1",
+          "2"
+        ]
+      },
+      "ghostwalk": {
+        "ghostwalk": [
+          "1",
+          "2"
+        ]
+      },
+      "heal": {
+        "heal": [
+          "0",
+          "1",
+          "2"
+        ]
+      },
+      "info": {
+        "cash": "0",
+        "islot": "\"Bd\"",
+        "vslot": "\"Bd\""
+      },
+      "jump": {
+        "jump": [
+          "0"
+        ]
+      },
+      "ladder": {
+        "ladder": [
+          "0",
+          "1"
+        ]
+      },
+      "prone": {
+        "prone": [
+          "0"
+        ]
+      },
+      "proneStab": {
+        "proneStab": [
+          "0",
+          "1"
+        ]
+      },
+      "rope": {
+        "rope": [
+          "0",
+          "1"
+        ]
+      },
+      "shoot1": {
+        "shoot1": [
+          "0",
+          "1",
+          "2"
+        ]
+      },
+      "shoot2": {
+        "shoot2": "0-4"
+      },
+      "shootF": {
+        "shootF": [
+          "0",
+          "1",
+          "2"
+        ]
+      },
+      "sit": {
+        "sit": [
+          "0"
+        ]
+      },
+      "stabO1": {
+        "stabO1": [
+          "0",
+          "1"
+        ]
+      },
+      "stabO2": {
+        "stabO2": [
+          "0",
+          "1"
+        ]
+      },
+      "stabOF": {
+        "stabOF": [
+          "0",
+          "1",
+          "2"
+        ]
+      },
+      "stabT1": {
+        "stabT1": [
+          "0",
+          "1",
+          "2"
+        ]
+      },
+      "stabT2": {
+        "stabT2": [
+          "0",
+          "1",
+          "2"
+        ]
+      },
+      "stabTF": {
+        "stabTF": [
+          "0",
+          "1",
+          "2",
+          "3"
+        ]
+      },
+      "stand1": {
+        "stand1": [
+          "0",
+          "1",
+          "2"
+        ]
+      },
+      "stand2": {
+        "stand2": [
+          "0",
+          "1",
+          "2"
+        ]
+      },
+      "... (13 more items)": null
+    },
+    "00002005.img": {
+      "alert": {
+        "alert": [
+          "0",
+          "1",
+          "2"
+        ]
+      },
+      "dead": {
+        "dead": [
+          "0"
+        ]
+      },
+      "fly": {
+        "fly": [
+          "0",
+          "1"
+        ]
+      },
+      "ghostfly": {
+        "ghostfly": [
+          "0",
+          "1"
+        ]
+      },
+      "ghostjump": {
+        "ghostjump": [
+          "0"
+        ]
+      },
+      "ghostladder": {
+        "ghostladder": [
+          "0",
+          "1"
+        ]
+      },
+      "ghostproneStab": {
+        "ghostproneStab": [
+          "0",
+          "1"
+        ]
+      },
+      "ghostrope": {
+        "ghostrope": [
+          "0",
+          "1"
+        ]
+      },
+      "ghostsit": {
+        "ghostsit": [
+          "0"
+        ]
+      },
+      "ghoststand": {
+        "ghoststand": [
+          "0",
+          "1",
+          "2"
+        ]
+      },
+      "ghostwalk": {
+        "ghostwalk": [
+          "0",
+          "1",
+          "2",
+          "3"
+        ]
+      },
+      "heal": {
+        "heal": [
+          "0",
+          "1",
+          "2"
+        ]
+      },
+      "info": {
+        "cash": "0",
+        "islot": "\"Bd\"",
+        "vslot": "\"Bd\""
+      },
+      "jump": {
+        "jump": [
+          "0"
+        ]
+      },
+      "ladder": {
+        "ladder": [
+          "0",
+          "1"
+        ]
+      },
+      "mesoranger": {
+        "mesoranger": [
+          "0"
+        ]
+      },
+      "prone": {
+        "prone": [
+          "0"
+        ]
+      },
+      "proneStab": {
+        "proneStab": [
+          "0",
+          "1"
+        ]
+      },
+      "rope": {
+        "rope": [
+          "0",
+          "1"
+        ]
+      },
+      "shoot1": {
+        "shoot1": [
+          "0",
+          "1",
+          "2"
+        ]
+      },
+      "shoot2": {
+        "shoot2": "0-4"
+      },
+      "shootF": {
+        "shootF": [
+          "0",
+          "1",
+          "2"
+        ]
+      },
+      "sit": {
+        "sit": [
+          "0"
+        ]
+      },
+      "stabO1": {
+        "stabO1": [
+          "0",
+          "1"
+        ]
+      },
+      "stabO2": {
+        "stabO2": [
+          "0",
+          "1"
+        ]
+      },
+      "stabOF": {
+        "stabOF": [
+          "0",
+          "1",
+          "2"
+        ]
+      },
+      "stabT1": {
+        "stabT1": [
+          "0",
+          "1",
+          "2"
+        ]
+      },
+      "stabT2": {
+        "stabT2": [
+          "0",
+          "1",
+          "2"
+        ]
+      },
+      "stabTF": {
+        "stabTF": [
+          "0",
+          "1",
+          "2",
+          "3"
+        ]
+      },
+      "stand1": {
+        "stand1": [
+          "0",
+          "1",
+          "2"
+        ]
+      },
+      "... (14 more items)": null
+    },
+    "00002009.img": {
+      "alert": {
+        "alert": [
+          "0",
+          "1",
+          "2"
+        ]
+      },
+      "alert2": {
+        "alert2": [
+          "0",
+          "1",
+          "2"
+        ]
+      },
+      "alert3": {
+        "alert3": [
+          "0",
+          "1",
+          "2"
+        ]
+      },
+      "alert4": {
+        "alert4": [
+          "0",
+          "1",
+          "2"
+        ]
+      },
+      "alert5": {
+        "alert5": [
+          "0",
+          "1",
+          "2"
+        ]
+      },
+      "alert6": {
+        "alert6": [
+          "0",
+          "1",
+          "2"
+        ]
+      },
+      "assassination": {
+        "assassination": "0-10"
+      },
+      "assassinationS": {
+        "assassinationS": [
+          "0",
+          "1",
+          "2"
+        ]
+      },
+      "assaulter": {
+        "assaulter": [
+          "0",
+          "1"
+        ]
+      },
+      "avenger": {
+        "avenger": [
+          "0",
+          "1",
+          "2"
+        ]
+      },
+      "backstep": {
+        "backstep": [
+          "0"
+        ]
+      },
+      "blast": {
+        "blast": [
+          "0",
+          "1"
+        ]
+      },
+      "blizzard": {
+        "blizzard": [
+          "0",
+          "1",
+          "2"
+        ]
+      },
+      "bombing": {
+        "bombing": "0-14"
+      },
+      "brandish1": {
+        "brandish1": "0-6"
+      },
+      "brandish2": {
+        "brandish2": "0-6"
+      },
+      "burster1": {
+        "burster1": [
+          "0",
+          "1",
+          "2",
+          "3"
+        ]
+      },
+      "burster2": {
+        "burster2": "0-4"
+      },
+      "chainlightning": {
+        "chainlightning": [
+          "0",
+          "1"
+        ]
+      },
+      "coolingeffect": {
+        "coolingeffect": [
+          "0",
+          "1",
+          "2",
+          "3"
+        ]
+      },
+      "dash": {
+        "dash": [
+          "0",
+          "1"
+        ]
+      },
+      "dead": {
+        "dead": [
+          "0"
+        ]
+      },
+      "demolition": {
+        "demolition": [
+          "0",
+          "1"
+        ]
+      },
+      "doublefire": {
+        "doublefire": [
+          "0",
+          "1",
+          "2"
+        ]
+      },
+      "dragonrising": {
+        "dragonrising": "0-11"
+      },
+      "eblast": {
+        "eblast": "0-7"
+      },
+      "elbowattack": {
+        "elbowattack": "0-4"
+      },
+      "energyorb": {
+        "energyorb": "0-6"
+      },
+      "energysteal": {
+        "energysteal": [
+          "0"
+        ]
+      },
+      "fake": {
+        "fake": [
+          "0",
+          "1",
+          "2"
+        ]
+      },
+      "... (77 more items)": null
+    },
+    "00002010.img": {
+      "airstrike": {
+        "airstrike": "0-14"
+      },
+      "alert": {
+        "alert": [
+          "0",
+          "1",
+          "2"
+        ]
+      },
+      "alert2": {
+        "alert2": [
+          "0",
+          "1",
+          "2"
+        ]
+      },
+      "alert3": {
+        "alert3": [
+          "0",
+          "1",
+          "2"
+        ]
+      },
+      "alert4": {
+        "alert4": [
+          "0",
+          "1",
+          "2"
+        ]
+      },
+      "alert5": {
+        "alert5": [
+          "0",
+          "1",
+          "2"
+        ]
+      },
+      "alert6": {
+        "alert6": [
+          "0",
+          "1",
+          "2"
+        ]
+      },
+      "assassination": {
+        "assassination": "0-10"
+      },
+      "assassinationS": {
+        "assassinationS": [
+          "0",
+          "1",
+          "2"
+        ]
+      },
+      "assaulter": {
+        "assaulter": [
+          "0",
+          "1"
+        ]
+      },
+      "avenger": {
+        "avenger": [
+          "0",
+          "1",
+          "2"
+        ]
+      },
+      "backspin": {
+        "backspin": "0-4"
+      },
+      "backstep": {
+        "backstep": [
+          "0"
+        ]
+      },
+      "blast": {
+        "blast": [
+          "0",
+          "1"
+        ]
+      },
+      "blizzard": {
+        "blizzard": [
+          "0",
+          "1",
+          "2"
+        ]
+      },
+      "brandish1": {
+        "brandish1": "0-6"
+      },
+      "brandish2": {
+        "brandish2": "0-6"
+      },
+      "burster1": {
+        "burster1": [
+          "0",
+          "1",
+          "2",
+          "3"
+        ]
+      },
+      "burster2": {
+        "burster2": "0-4"
+      },
+      "chainlightning": {
+        "chainlightning": [
+          "0",
+          "1"
+        ]
+      },
+      "coolingeffect": {
+        "coolingeffect": [
+          "0",
+          "1",
+          "2",
+          "3"
+        ]
+      },
+      "dash": {
+        "dash": [
+          "0",
+          "1"
+        ]
+      },
+      "dead": {
+        "dead": [
+          "0"
+        ]
+      },
+      "doublefire": {
+        "doublefire": [
+          "0",
+          "1",
+          "2"
+        ]
+      },
+      "doubleupper": {
+        "doubleupper": "0-7"
+      },
+      "dragonstrike": {
+        "dragonstrike": "0-11"
+      },
+      "eburster": {
+        "eburster": "0-7"
+      },
+      "edrain": {
+        "edrain": [
+          "0"
+        ]
+      },
+      "eorb": {
+        "eorb": "0-6"
+      },
+      "fake": {
+        "fake": [
+          "0",
+          "1",
+          "2"
+        ]
+      },
+      "... (74 more items)": null
+    },
+    "00002011.img": {
+      "alert": {
+        "alert": [
+          "0",
+          "1",
+          "2"
+        ]
+      },
+      "dead": {
+        "dead": [
+          "0"
+        ]
+      },
+      "fly": {
+        "fly": [
+          "0",
+          "1"
+        ]
+      },
+      "ghostfly": {
+        "ghostfly": [
+          "1",
+          "2"
+        ]
+      },
+      "ghostjump": {
+        "ghostjump": [
+          "1",
+          "2"
+        ]
+      },
+      "ghostladder": {
+        "ghostladder": [
+          "1",
+          "2"
+        ]
+      },
+      "ghostproneStab": {
+        "ghostproneStab": [
+          "1",
+          "2"
+        ]
+      },
+      "ghostrope": {
+        "ghostrope": [
+          "1",
+          "2"
+        ]
+      },
+      "ghostsit": {
+        "ghostsit": [
+          "1",
+          "2"
+        ]
+      },
+      "ghoststand": {
+        "ghoststand": [
+          "1",
+          "2"
+        ]
+      },
+      "ghostwalk": {
+        "ghostwalk": [
+          "1",
+          "2"
+        ]
+      },
+      "heal": {
+        "heal": [
+          "0",
+          "1",
+          "2"
+        ]
+      },
+      "info": {
+        "cash": "0",
+        "islot": "\"Bd\"",
+        "vslot": "\"Bd\""
+      },
+      "jump": {
+        "jump": [
+          "0"
+        ]
+      },
+      "ladder": {
+        "ladder": [
+          "0",
+          "1"
+        ]
+      },
+      "prone": {
+        "prone": [
+          "0"
+        ]
+      },
+      "proneStab": {
+        "proneStab": [
+          "0",
+          "1"
+        ]
+      },
+      "rope": {
+        "rope": [
+          "0",
+          "1"
+        ]
+      },
+      "shoot1": {
+        "shoot1": [
+          "0",
+          "1",
+          "2"
+        ]
+      },
+      "shoot2": {
+        "shoot2": "0-4"
+      },
+      "shootF": {
+        "shootF": [
+          "0",
+          "1",
+          "2"
+        ]
+      },
+      "sit": {
+        "sit": [
+          "0"
+        ]
+      },
+      "stabO1": {
+        "stabO1": [
+          "0",
+          "1"
+        ]
+      },
+      "stabO2": {
+        "stabO2": [
+          "0",
+          "1"
+        ]
+      },
+      "stabOF": {
+        "stabOF": [
+          "0",
+          "1",
+          "2"
+        ]
+      },
+      "stabT1": {
+        "stabT1": [
+          "0",
+          "1",
+          "2"
+        ]
+      },
+      "stabT2": {
+        "stabT2": [
+          "0",
+          "1",
+          "2"
+        ]
+      },
+      "stabTF": {
+        "stabTF": [
+          "0",
+          "1",
+          "2",
+          "3"
+        ]
+      },
+      "stand1": {
+        "stand1": [
+          "0",
+          "1",
+          "2"
+        ]
+      },
+      "stand2": {
+        "stand2": [
+          "0",
+          "1",
+          "2"
+        ]
+      },
+      "... (13 more items)": null
+    },
+    "00012000.img": {
+      "alert": {
+        "alert": [
+          "0",
+          "1",
+          "2"
+        ]
+      },
+      "back": {
+        "head": null
+      },
+      "fly": {
+        "fly": [
+          "0",
+          "1"
+        ]
+      },
+      "front": {
+        "head": null
+      },
+      "heal": {
+        "heal": [
+          "0",
+          "1",
+          "2"
+        ]
+      },
+      "info": {
+        "cash": "0",
+        "islot": "\"Hd\"",
+        "vslot": "\"Hd\""
+      },
+      "jump": {
+        "jump": [
+          "0"
+        ]
+      },
+      "ladder": {
+        "ladder": [
+          "0",
+          "1"
+        ]
+      },
+      "prone": {
+        "prone": [
+          "0"
+        ]
+      },
+      "proneStab": {
+        "proneStab": [
+          "0",
+          "1"
+        ]
+      },
+      "rope": {
+        "rope": [
+          "0",
+          "1"
+        ]
+      },
+      "shoot1": {
+        "shoot1": [
+          "0",
+          "1",
+          "2"
+        ]
+      },
+      "shoot2": {
+        "shoot2": "0-4"
+      },
+      "shootF": {
+        "shootF": [
+          "0",
+          "1",
+          "2"
+        ]
+      },
+      "sit": {
+        "sit": [
+          "0"
+        ]
+      },
+      "stabO1": {
+        "stabO1": [
+          "0",
+          "1"
+        ]
+      },
+      "stabO2": {
+        "stabO2": [
+          "0",
+          "1"
+        ]
+      },
+      "stabOF": {
+        "stabOF": [
+          "0",
+          "1",
+          "2"
+        ]
+      },
+      "stabT1": {
+        "stabT1": [
+          "0",
+          "1",
+          "2"
+        ]
+      },
+      "stabT2": {
+        "stabT2": [
+          "0",
+          "1",
+          "2"
+        ]
+      },
+      "stabTF": {
+        "stabTF": [
+          "0",
+          "1",
+          "2",
+          "3"
+        ]
+      },
+      "stand1": {
+        "stand1": [
+          "0",
+          "1",
+          "2"
+        ]
+      },
+      "stand2": {
+        "stand2": [
+          "0",
+          "1",
+          "2"
+        ]
+      },
+      "swingO1": {
+        "swingO1": [
+          "0",
+          "1",
+          "2"
+        ]
+      },
+      "swingO2": {
+        "swingO2": [
+          "0",
+          "1",
+          "2"
+        ]
+      },
+      "swingO3": {
+        "swingO3": [
+          "0",
+          "1",
+          "2"
+        ]
+      },
+      "swingOF": {
+        "swingOF": [
+          "0",
+          "1",
+          "2",
+          "3"
+        ]
+      },
+      "swingP1": {
+        "swingP1": [
+          "0",
+          "1",
+          "2"
+        ]
+      },
+      "swingP2": {
+        "swingP2": [
+          "0",
+          "1",
+          "2"
+        ]
+      },
+      "swingPF": {
+        "swingPF": [
+          "0",
+          "1",
+          "2",
+          "3"
+        ]
+      },
+      "... (6 more items)": null
+    },
+    "00012001.img": {
+      "alert": {
+        "alert": [
+          "0",
+          "1",
+          "2"
+        ]
+      },
+      "back": {
+        "head": null
+      },
+      "fly": {
+        "fly": [
+          "0",
+          "1"
+        ]
+      },
+      "front": {
+        "head": null
+      },
+      "heal": {
+        "heal": [
+          "0",
+          "1",
+          "2"
+        ]
+      },
+      "info": {
+        "cash": "0",
+        "islot": "\"Hd\"",
+        "vslot": "\"Hd\""
+      },
+      "jump": {
+        "jump": [
+          "0"
+        ]
+      },
+      "ladder": {
+        "ladder": [
+          "0",
+          "1"
+        ]
+      },
+      "prone": {
+        "prone": [
+          "0"
+        ]
+      },
+      "proneStab": {
+        "proneStab": [
+          "0",
+          "1"
+        ]
+      },
+      "rope": {
+        "rope": [
+          "0",
+          "1"
+        ]
+      },
+      "shoot1": {
+        "shoot1": [
+          "0",
+          "1",
+          "2"
+        ]
+      },
+      "shoot2": {
+        "shoot2": "0-4"
+      },
+      "shootF": {
+        "shootF": [
+          "0",
+          "1",
+          "2"
+        ]
+      },
+      "sit": {
+        "sit": [
+          "0"
+        ]
+      },
+      "stabO1": {
+        "stabO1": [
+          "0",
+          "1"
+        ]
+      },
+      "stabO2": {
+        "stabO2": [
+          "0",
+          "1"
+        ]
+      },
+      "stabOF": {
+        "stabOF": [
+          "0",
+          "1",
+          "2"
+        ]
+      },
+      "stabT1": {
+        "stabT1": [
+          "0",
+          "1",
+          "2"
+        ]
+      },
+      "stabT2": {
+        "stabT2": [
+          "0",
+          "1",
+          "2"
+        ]
+      },
+      "stabTF": {
+        "stabTF": [
+          "0",
+          "1",
+          "2",
+          "3"
+        ]
+      },
+      "stand1": {
+        "stand1": [
+          "0",
+          "1",
+          "2"
+        ]
+      },
+      "stand2": {
+        "stand2": [
+          "0",
+          "1",
+          "2"
+        ]
+      },
+      "swingO1": {
+        "swingO1": [
+          "0",
+          "1",
+          "2"
+        ]
+      },
+      "swingO2": {
+        "swingO2": [
+          "0",
+          "1",
+          "2"
+        ]
+      },
+      "swingO3": {
+        "swingO3": [
+          "0",
+          "1",
+          "2"
+        ]
+      },
+      "swingOF": {
+        "swingOF": [
+          "0",
+          "1",
+          "2",
+          "3"
+        ]
+      },
+      "swingP1": {
+        "swingP1": [
+          "0",
+          "1",
+          "2"
+        ]
+      },
+      "swingP2": {
+        "swingP2": [
+          "0",
+          "1",
+          "2"
+        ]
+      },
+      "swingPF": {
+        "swingPF": [
+          "0",
+          "1",
+          "2",
+          "3"
+        ]
+      },
+      "... (6 more items)": null
+    },
+    "00012002.img": {
+      "alert": {
+        "alert": [
+          "0",
+          "1",
+          "2"
+        ]
+      },
+      "back": {
+        "head": null
+      },
+      "fly": {
+        "fly": [
+          "0",
+          "1"
+        ]
+      },
+      "front": {
+        "head": null
+      },
+      "heal": {
+        "heal": [
+          "0",
+          "1",
+          "2"
+        ]
+      },
+      "info": {
+        "cash": "0",
+        "islot": "\"Hd\"",
+        "vslot": "\"Hd\""
+      },
+      "jump": {
+        "jump": [
+          "0"
+        ]
+      },
+      "ladder": {
+        "ladder": [
+          "0",
+          "1"
+        ]
+      },
+      "prone": {
+        "prone": [
+          "0"
+        ]
+      },
+      "proneStab": {
+        "proneStab": [
+          "0",
+          "1"
+        ]
+      },
+      "rope": {
+        "rope": [
+          "0",
+          "1"
+        ]
+      },
+      "shoot1": {
+        "shoot1": [
+          "0",
+          "1",
+          "2"
+        ]
+      },
+      "shoot2": {
+        "shoot2": "0-4"
+      },
+      "shootF": {
+        "shootF": [
+          "0",
+          "1",
+          "2"
+        ]
+      },
+      "sit": {
+        "sit": [
+          "0"
+        ]
+      },
+      "stabO1": {
+        "stabO1": [
+          "0",
+          "1"
+        ]
+      },
+      "stabO2": {
+        "stabO2": [
+          "0",
+          "1"
+        ]
+      },
+      "stabOF": {
+        "stabOF": [
+          "0",
+          "1",
+          "2"
+        ]
+      },
+      "stabT1": {
+        "stabT1": [
+          "0",
+          "1",
+          "2"
+        ]
+      },
+      "stabT2": {
+        "stabT2": [
+          "0",
+          "1",
+          "2"
+        ]
+      },
+      "stabTF": {
+        "stabTF": [
+          "0",
+          "1",
+          "2",
+          "3"
+        ]
+      },
+      "stand1": {
+        "stand1": [
+          "0",
+          "1",
+          "2"
+        ]
+      },
+      "stand2": {
+        "stand2": [
+          "0",
+          "1",
+          "2"
+        ]
+      },
+      "swingO1": {
+        "swingO1": [
+          "0",
+          "1",
+          "2"
+        ]
+      },
+      "swingO2": {
+        "swingO2": [
+          "0",
+          "1",
+          "2"
+        ]
+      },
+      "swingO3": {
+        "swingO3": [
+          "0",
+          "1",
+          "2"
+        ]
+      },
+      "swingOF": {
+        "swingOF": [
+          "0",
+          "1",
+          "2",
+          "3"
+        ]
+      },
+      "swingP1": {
+        "swingP1": [
+          "0",
+          "1",
+          "2"
+        ]
+      },
+      "swingP2": {
+        "swingP2": [
+          "0",
+          "1",
+          "2"
+        ]
+      },
+      "swingPF": {
+        "swingPF": [
+          "0",
+          "1",
+          "2",
+          "3"
+        ]
+      },
+      "... (6 more items)": null
+    },
+    "00012003.img": {
+      "alert": {
+        "alert": [
+          "0",
+          "1",
+          "2"
+        ]
+      },
+      "back": {
+        "head": null
+      },
+      "fly": {
+        "fly": [
+          "0",
+          "1"
+        ]
+      },
+      "front": {
+        "head": null
+      },
+      "heal": {
+        "heal": [
+          "0",
+          "1",
+          "2"
+        ]
+      },
+      "info": {
+        "cash": "0",
+        "islot": "\"Hd\"",
+        "vslot": "\"Hd\""
+      },
+      "jump": {
+        "jump": [
+          "0"
+        ]
+      },
+      "ladder": {
+        "ladder": [
+          "0",
+          "1"
+        ]
+      },
+      "prone": {
+        "prone": [
+          "0"
+        ]
+      },
+      "proneStab": {
+        "proneStab": [
+          "0",
+          "1"
+        ]
+      },
+      "rope": {
+        "rope": [
+          "0",
+          "1"
+        ]
+      },
+      "shoot1": {
+        "shoot1": [
+          "0",
+          "1",
+          "2"
+        ]
+      },
+      "shoot2": {
+        "shoot2": "0-4"
+      },
+      "shootF": {
+        "shootF": [
+          "0",
+          "1",
+          "2"
+        ]
+      },
+      "sit": {
+        "sit": [
+          "0"
+        ]
+      },
+      "stabO1": {
+        "stabO1": [
+          "0",
+          "1"
+        ]
+      },
+      "stabO2": {
+        "stabO2": [
+          "0",
+          "1"
+        ]
+      },
+      "stabOF": {
+        "stabOF": [
+          "0",
+          "1",
+          "2"
+        ]
+      },
+      "stabT1": {
+        "stabT1": [
+          "0",
+          "1",
+          "2"
+        ]
+      },
+      "stabT2": {
+        "stabT2": [
+          "0",
+          "1",
+          "2"
+        ]
+      },
+      "stabTF": {
+        "stabTF": [
+          "0",
+          "1",
+          "2",
+          "3"
+        ]
+      },
+      "stand1": {
+        "stand1": [
+          "0",
+          "1",
+          "2"
+        ]
+      },
+      "stand2": {
+        "stand2": [
+          "0",
+          "1",
+          "2"
+        ]
+      },
+      "swingO1": {
+        "swingO1": [
+          "0",
+          "1",
+          "2"
+        ]
+      },
+      "swingO2": {
+        "swingO2": [
+          "0",
+          "1",
+          "2"
+        ]
+      },
+      "swingO3": {
+        "swingO3": [
+          "0",
+          "1",
+          "2"
+        ]
+      },
+      "swingOF": {
+        "swingOF": [
+          "0",
+          "1",
+          "2",
+          "3"
+        ]
+      },
+      "swingP1": {
+        "swingP1": [
+          "0",
+          "1",
+          "2"
+        ]
+      },
+      "swingP2": {
+        "swingP2": [
+          "0",
+          "1",
+          "2"
+        ]
+      },
+      "swingPF": {
+        "swingPF": [
+          "0",
+          "1",
+          "2",
+          "3"
+        ]
+      },
+      "... (6 more items)": null
+    },
+    "00012004.img": {
+      "alert": {
+        "alert": [
+          "0",
+          "1",
+          "2"
+        ]
+      },
+      "back": {
+        "head": null
+      },
+      "fly": {
+        "fly": [
+          "0",
+          "1"
+        ]
+      },
+      "front": {
+        "head": null
+      },
+      "heal": {
+        "heal": [
+          "0",
+          "1",
+          "2"
+        ]
+      },
+      "info": {
+        "cash": "0",
+        "islot": "\"Hd\"",
+        "vslot": "\"Hd\""
+      },
+      "jump": {
+        "jump": [
+          "0"
+        ]
+      },
+      "ladder": {
+        "ladder": [
+          "0",
+          "1"
+        ]
+      },
+      "prone": {
+        "prone": [
+          "0"
+        ]
+      },
+      "proneStab": {
+        "proneStab": [
+          "0",
+          "1"
+        ]
+      },
+      "rope": {
+        "rope": [
+          "0",
+          "1"
+        ]
+      },
+      "shoot1": {
+        "shoot1": [
+          "0",
+          "1",
+          "2"
+        ]
+      },
+      "shoot2": {
+        "shoot2": "0-4"
+      },
+      "shootF": {
+        "shootF": [
+          "0",
+          "1",
+          "2"
+        ]
+      },
+      "sit": {
+        "sit": [
+          "0"
+        ]
+      },
+      "stabO1": {
+        "stabO1": [
+          "0",
+          "1"
+        ]
+      },
+      "stabO2": {
+        "stabO2": [
+          "0",
+          "1"
+        ]
+      },
+      "stabOF": {
+        "stabOF": [
+          "0",
+          "1",
+          "2"
+        ]
+      },
+      "stabT1": {
+        "stabT1": [
+          "0",
+          "1",
+          "2"
+        ]
+      },
+      "stabT2": {
+        "stabT2": [
+          "0",
+          "1",
+          "2"
+        ]
+      },
+      "stabTF": {
+        "stabTF": [
+          "0",
+          "1",
+          "2",
+          "3"
+        ]
+      },
+      "stand1": {
+        "stand1": [
+          "0",
+          "1",
+          "2"
+        ]
+      },
+      "stand2": {
+        "stand2": [
+          "0",
+          "1",
+          "2"
+        ]
+      },
+      "swingO1": {
+        "swingO1": [
+          "0",
+          "1",
+          "2"
+        ]
+      },
+      "swingO2": {
+        "swingO2": [
+          "0",
+          "1",
+          "2"
+        ]
+      },
+      "swingO3": {
+        "swingO3": [
+          "0",
+          "1",
+          "2"
+        ]
+      },
+      "swingOF": {
+        "swingOF": [
+          "0",
+          "1",
+          "2",
+          "3"
+        ]
+      },
+      "swingP1": {
+        "swingP1": [
+          "0",
+          "1",
+          "2"
+        ]
+      },
+      "swingP2": {
+        "swingP2": [
+          "0",
+          "1",
+          "2"
+        ]
+      },
+      "swingPF": {
+        "swingPF": [
+          "0",
+          "1",
+          "2",
+          "3"
+        ]
+      },
+      "... (6 more items)": null
+    },
+    "00012005.img": {
+      "alert": {
+        "alert": [
+          "0",
+          "1",
+          "2"
+        ]
+      },
+      "back": {
+        "head": null
+      },
+      "fly": {
+        "fly": [
+          "0",
+          "1"
+        ]
+      },
+      "front": {
+        "head": null
+      },
+      "heal": {
+        "heal": [
+          "0",
+          "1",
+          "2"
+        ]
+      },
+      "info": {
+        "cash": "0",
+        "islot": "\"Hd\"",
+        "vslot": "\"Hd\""
+      },
+      "jump": {
+        "jump": [
+          "0"
+        ]
+      },
+      "ladder": {
+        "ladder": [
+          "0",
+          "1"
+        ]
+      },
+      "mesoranger": {
+        "mesoranger": [
+          "0"
+        ]
+      },
+      "prone": {
+        "prone": [
+          "0"
+        ]
+      },
+      "proneStab": {
+        "proneStab": [
+          "0",
+          "1"
+        ]
+      },
+      "rope": {
+        "rope": [
+          "0",
+          "1"
+        ]
+      },
+      "shoot1": {
+        "shoot1": [
+          "0",
+          "1",
+          "2"
+        ]
+      },
+      "shoot2": {
+        "shoot2": "0-4"
+      },
+      "shootF": {
+        "shootF": [
+          "0",
+          "1",
+          "2"
+        ]
+      },
+      "sit": {
+        "sit": [
+          "0"
+        ]
+      },
+      "stabO1": {
+        "stabO1": [
+          "0",
+          "1"
+        ]
+      },
+      "stabO2": {
+        "stabO2": [
+          "0",
+          "1"
+        ]
+      },
+      "stabOF": {
+        "stabOF": [
+          "0",
+          "1",
+          "2"
+        ]
+      },
+      "stabT1": {
+        "stabT1": [
+          "0",
+          "1",
+          "2"
+        ]
+      },
+      "stabT2": {
+        "stabT2": [
+          "0",
+          "1",
+          "2"
+        ]
+      },
+      "stabTF": {
+        "stabTF": [
+          "0",
+          "1",
+          "2",
+          "3"
+        ]
+      },
+      "stand1": {
+        "stand1": [
+          "0",
+          "1",
+          "2"
+        ]
+      },
+      "stand2": {
+        "stand2": [
+          "0",
+          "1",
+          "2"
+        ]
+      },
+      "swingO1": {
+        "swingO1": [
+          "0",
+          "1",
+          "2"
+        ]
+      },
+      "swingO2": {
+        "swingO2": [
+          "0",
+          "1",
+          "2"
+        ]
+      },
+      "swingO3": {
+        "swingO3": [
+          "0",
+          "1",
+          "2"
+        ]
+      },
+      "swingOF": {
+        "swingOF": [
+          "0",
+          "1",
+          "2",
+          "3"
+        ]
+      },
+      "swingP1": {
+        "swingP1": [
+          "0",
+          "1",
+          "2"
+        ]
+      },
+      "swingP2": {
+        "swingP2": [
+          "0",
+          "1",
+          "2"
+        ]
+      },
+      "... (7 more items)": null
+    },
+    "00012009.img": {
+      "alert": {
+        "alert": [
+          "0",
+          "1",
+          "2"
+        ]
+      },
+      "back": {
+        "head": null
+      },
+      "fly": {
+        "fly": [
+          "0",
+          "1"
+        ]
+      },
+      "front": {
+        "head": null
+      },
+      "heal": {
+        "heal": [
+          "0",
+          "1",
+          "2"
+        ]
+      },
+      "info": {
+        "cash": "0",
+        "islot": "\"Hd\"",
+        "vslot": "\"Hd\""
+      },
+      "jump": {
+        "jump": [
+          "0"
+        ]
+      },
+      "ladder": {
+        "ladder": [
+          "0",
+          "1"
+        ]
+      },
+      "prone": {
+        "prone": [
+          "0"
+        ]
+      },
+      "proneStab": {
+        "proneStab": [
+          "0",
+          "1"
+        ]
+      },
+      "rope": {
+        "rope": [
+          "0",
+          "1"
+        ]
+      },
+      "shoot1": {
+        "shoot1": [
+          "0",
+          "1",
+          "2"
+        ]
+      },
+      "shoot2": {
+        "shoot2": "0-4"
+      },
+      "shootF": {
+        "shootF": [
+          "0",
+          "1",
+          "2"
+        ]
+      },
+      "sit": {
+        "sit": [
+          "0"
+        ]
+      },
+      "stabO1": {
+        "stabO1": [
+          "0",
+          "1"
+        ]
+      },
+      "stabO2": {
+        "stabO2": [
+          "0",
+          "1"
+        ]
+      },
+      "stabOF": {
+        "stabOF": [
+          "0",
+          "1",
+          "2"
+        ]
+      },
+      "stabT1": {
+        "stabT1": [
+          "0",
+          "1",
+          "2"
+        ]
+      },
+      "stabT2": {
+        "stabT2": [
+          "0",
+          "1",
+          "2"
+        ]
+      },
+      "stabTF": {
+        "stabTF": [
+          "0",
+          "1",
+          "2",
+          "3"
+        ]
+      },
+      "stand1": {
+        "stand1": [
+          "0",
+          "1",
+          "2"
+        ]
+      },
+      "stand2": {
+        "stand2": [
+          "0",
+          "1",
+          "2"
+        ]
+      },
+      "swingO1": {
+        "swingO1": [
+          "0",
+          "1",
+          "2"
+        ]
+      },
+      "swingO2": {
+        "swingO2": [
+          "0",
+          "1",
+          "2"
+        ]
+      },
+      "swingO3": {
+        "swingO3": [
+          "0",
+          "1",
+          "2"
+        ]
+      },
+      "swingOF": {
+        "swingOF": [
+          "0",
+          "1",
+          "2",
+          "3"
+        ]
+      },
+      "swingP1": {
+        "swingP1": [
+          "0",
+          "1",
+          "2"
+        ]
+      },
+      "swingP2": {
+        "swingP2": [
+          "0",
+          "1",
+          "2"
+        ]
+      },
+      "swingPF": {
+        "swingPF": [
+          "0",
+          "1",
+          "2",
+          "3"
+        ]
+      },
+      "... (6 more items)": null
+    },
+    "00012010.img": {
+      "alert": {
+        "alert": [
+          "0",
+          "1",
+          "2"
+        ]
+      },
+      "back": {
+        "head": null
+      },
+      "fly": {
+        "fly": [
+          "0",
+          "1"
+        ]
+      },
+      "front": {
+        "head": null
+      },
+      "heal": {
+        "heal": [
+          "0",
+          "1",
+          "2"
+        ]
+      },
+      "info": {
+        "cash": "0",
+        "islot": "\"Hd\"",
+        "vslot": "\"Hd\""
+      },
+      "jump": {
+        "jump": [
+          "0"
+        ]
+      },
+      "ladder": {
+        "ladder": [
+          "0",
+          "1"
+        ]
+      },
+      "prone": {
+        "prone": [
+          "0"
+        ]
+      },
+      "proneStab": {
+        "proneStab": [
+          "0",
+          "1"
+        ]
+      },
+      "rope": {
+        "rope": [
+          "0",
+          "1"
+        ]
+      },
+      "shoot1": {
+        "shoot1": [
+          "0",
+          "1",
+          "2"
+        ]
+      },
+      "shoot2": {
+        "shoot2": "0-4"
+      },
+      "shootF": {
+        "shootF": [
+          "0",
+          "1",
+          "2"
+        ]
+      },
+      "sit": {
+        "sit": [
+          "0"
+        ]
+      },
+      "stabO1": {
+        "stabO1": [
+          "0",
+          "1"
+        ]
+      },
+      "stabO2": {
+        "stabO2": [
+          "0",
+          "1"
+        ]
+      },
+      "stabOF": {
+        "stabOF": [
+          "0",
+          "1",
+          "2"
+        ]
+      },
+      "stabT1": {
+        "stabT1": [
+          "0",
+          "1",
+          "2"
+        ]
+      },
+      "stabT2": {
+        "stabT2": [
+          "0",
+          "1",
+          "2"
+        ]
+      },
+      "stabTF": {
+        "stabTF": [
+          "0",
+          "1",
+          "2",
+          "3"
+        ]
+      },
+      "stand1": {
+        "stand1": [
+          "0",
+          "1",
+          "2"
+        ]
+      },
+      "stand2": {
+        "stand2": [
+          "0",
+          "1",
+          "2"
+        ]
+      },
+      "swingO1": {
+        "swingO1": [
+          "0",
+          "1",
+          "2"
+        ]
+      },
+      "swingO2": {
+        "swingO2": [
+          "0",
+          "1",
+          "2"
+        ]
+      },
+      "swingO3": {
+        "swingO3": [
+          "0",
+          "1",
+          "2"
+        ]
+      },
+      "swingOF": {
+        "swingOF": [
+          "0",
+          "1",
+          "2",
+          "3"
+        ]
+      },
+      "swingP1": {
+        "swingP1": [
+          "0",
+          "1",
+          "2"
+        ]
+      },
+      "swingP2": {
+        "swingP2": [
+          "0",
+          "1",
+          "2"
+        ]
+      },
+      "swingPF": {
+        "swingPF": [
+          "0",
+          "1",
+          "2",
+          "3"
+        ]
+      },
+      "... (6 more items)": null
+    },
+    "00012011.img": {
+      "alert": {
+        "alert": [
+          "0",
+          "1",
+          "2"
+        ]
+      },
+      "back": {
+        "head": null
+      },
+      "fly": {
+        "fly": [
+          "0",
+          "1"
+        ]
+      },
+      "front": {
+        "head": null
+      },
+      "heal": {
+        "heal": [
+          "0",
+          "1",
+          "2"
+        ]
+      },
+      "info": {
+        "cash": "0",
+        "islot": "\"Hd\"",
+        "vslot": "\"Hd\""
+      },
+      "jump": {
+        "jump": [
+          "0"
+        ]
+      },
+      "ladder": {
+        "ladder": [
+          "0",
+          "1"
+        ]
+      },
+      "prone": {
+        "prone": [
+          "0"
+        ]
+      },
+      "proneStab": {
+        "proneStab": [
+          "0",
+          "1"
+        ]
+      },
+      "rope": {
+        "rope": [
+          "0",
+          "1"
+        ]
+      },
+      "shoot1": {
+        "shoot1": [
+          "0",
+          "1",
+          "2"
+        ]
+      },
+      "shoot2": {
+        "shoot2": "0-4"
+      },
+      "shootF": {
+        "shootF": [
+          "0",
+          "1",
+          "2"
+        ]
+      },
+      "sit": {
+        "sit": [
+          "0"
+        ]
+      },
+      "stabO1": {
+        "stabO1": [
+          "0",
+          "1"
+        ]
+      },
+      "stabO2": {
+        "stabO2": [
+          "0",
+          "1"
+        ]
+      },
+      "stabOF": {
+        "stabOF": [
+          "0",
+          "1",
+          "2"
+        ]
+      },
+      "stabT1": {
+        "stabT1": [
+          "0",
+          "1",
+          "2"
+        ]
+      },
+      "stabT2": {
+        "stabT2": [
+          "0",
+          "1",
+          "2"
+        ]
+      },
+      "stabTF": {
+        "stabTF": [
+          "0",
+          "1",
+          "2",
+          "3"
+        ]
+      },
+      "stand1": {
+        "stand1": [
+          "0",
+          "1",
+          "2"
+        ]
+      },
+      "stand2": {
+        "stand2": [
+          "0",
+          "1",
+          "2"
+        ]
+      },
+      "swingO1": {
+        "swingO1": [
+          "0",
+          "1",
+          "2"
+        ]
+      },
+      "swingO2": {
+        "swingO2": [
+          "0",
+          "1",
+          "2"
+        ]
+      },
+      "swingO3": {
+        "swingO3": [
+          "0",
+          "1",
+          "2"
+        ]
+      },
+      "swingOF": {
+        "swingOF": [
+          "0",
+          "1",
+          "2",
+          "3"
+        ]
+      },
+      "swingP1": {
+        "swingP1": [
+          "0",
+          "1",
+          "2"
+        ]
+      },
+      "swingP2": {
+        "swingP2": [
+          "0",
+          "1",
+          "2"
+        ]
+      },
+      "swingPF": {
+        "swingPF": [
+          "0",
+          "1",
+          "2",
+          "3"
+        ]
+      },
+      "... (6 more items)": null
+    },
+    "Accessory": {
+      "01010000.img": {
+        "angry": null,
+        "bewildered": null,
+        "blaze": null,
+        "blink": null,
+        "bowing": null,
+        "cheers": null,
+        "chu": null,
+        "cry": null,
+        "dam": null,
+        "default": null,
+        "despair": null,
+        "glitter": null,
+        "hit": null,
+        "hot": null,
+        "hum": null,
+        "info": null,
+        "love": null,
+        "oops": null,
+        "pain": null,
+        "shine": null,
+        "smile": null,
+        "stunned": null,
+        "troubled": null,
+        "vomit": null,
+        "wink": null
+      },
+      "01010001.img": {
+        "angry": null,
+        "bewildered": null,
+        "blaze": null,
+        "blink": null,
+        "bowing": null,
+        "cheers": null,
+        "chu": null,
+        "cry": null,
+        "dam": null,
+        "default": null,
+        "despair": null,
+        "glitter": null,
+        "hit": null,
+        "hot": null,
+        "hum": null,
+        "info": null,
+        "love": null,
+        "oops": null,
+        "pain": null,
+        "shine": null,
+        "smile": null,
+        "stunned": null,
+        "troubled": null,
+        "vomit": null,
+        "wink": null
+      },
+      "01010002.img": {
+        "angry": null,
+        "bewildered": null,
+        "blaze": null,
+        "blink": null,
+        "bowing": null,
+        "cheers": null,
+        "chu": null,
+        "cry": null,
+        "dam": null,
+        "default": null,
+        "despair": null,
+        "glitter": null,
+        "hit": null,
+        "hot": null,
+        "hum": null,
+        "info": null,
+        "love": null,
+        "oops": null,
+        "pain": null,
+        "shine": null,
+        "smile": null,
+        "stunned": null,
+        "troubled": null,
+        "vomit": null,
+        "wink": null
+      },
+      "01010003.img": {
+        "angry": null,
+        "bewildered": null,
+        "blaze": null,
+        "blink": null,
+        "bowing": null,
+        "cheers": null,
+        "chu": null,
+        "cry": null,
+        "dam": null,
+        "default": null,
+        "despair": null,
+        "glitter": null,
+        "hit": null,
+        "hot": null,
+        "hum": null,
+        "info": null,
+        "love": null,
+        "oops": null,
+        "pain": null,
+        "shine": null,
+        "smile": null,
+        "stunned": null,
+        "troubled": null,
+        "vomit": null,
+        "wink": null
+      },
+      "01010004.img": {
+        "angry": null,
+        "bewildered": null,
+        "blaze": null,
+        "blink": null,
+        "bowing": null,
+        "cheers": null,
+        "chu": null,
+        "cry": null,
+        "dam": null,
+        "default": null,
+        "despair": null,
+        "glitter": null,
+        "hit": null,
+        "hot": null,
+        "hum": null,
+        "info": null,
+        "love": null,
+        "oops": null,
+        "pain": null,
+        "shine": null,
+        "smile": null,
+        "stunned": null,
+        "troubled": null,
+        "vomit": null,
+        "wink": null
+      },
+      "01010005.img": {
+        "angry": null,
+        "bewildered": null,
+        "blaze": null,
+        "blink": null,
+        "bowing": null,
+        "cheers": null,
+        "chu": null,
+        "cry": null,
+        "dam": null,
+        "default": null,
+        "despair": null,
+        "glitter": null,
+        "hit": null,
+        "hot": null,
+        "hum": null,
+        "info": null,
+        "love": null,
+        "oops": null,
+        "pain": null,
+        "shine": null,
+        "smile": null,
+        "stunned": null,
+        "troubled": null,
+        "vomit": null,
+        "wink": null
+      },
+      "01010006.img": {
+        "angry": null,
+        "bewildered": null,
+        "blaze": null,
+        "blink": null,
+        "bowing": null,
+        "cheers": null,
+        "chu": null,
+        "cry": null,
+        "dam": null,
+        "default": null,
+        "despair": null,
+        "glitter": null,
+        "hit": null,
+        "hot": null,
+        "hum": null,
+        "info": null,
+        "love": null,
+        "oops": null,
+        "pain": null,
+        "shine": null,
+        "smile": null,
+        "stunned": null,
+        "troubled": null,
+        "vomit": null,
+        "wink": null
+      },
+      "01011000.img": {
+        "angry": null,
+        "bewildered": null,
+        "blaze": null,
+        "blink": null,
+        "bowing": null,
+        "cheers": null,
+        "chu": null,
+        "cry": null,
+        "dam": null,
+        "default": null,
+        "despair": null,
+        "glitter": null,
+        "hit": null,
+        "hot": null,
+        "hum": null,
+        "info": null,
+        "love": null,
+        "oops": null,
+        "pain": null,
+        "shine": null,
+        "smile": null,
+        "stunned": null,
+        "troubled": null,
+        "vomit": null,
+        "wink": null
+      },
+      "01011001.img": {
+        "angry": null,
+        "bewildered": null,
+        "blaze": null,
+        "blink": null,
+        "bowing": null,
+        "cheers": null,
+        "chu": null,
+        "cry": null,
+        "dam": null,
+        "default": null,
+        "despair": null,
+        "glitter": null,
+        "hit": null,
+        "hot": null,
+        "hum": null,
+        "info": null,
+        "love": null,
+        "oops": null,
+        "pain": null,
+        "shine": null,
+        "smile": null,
+        "stunned": null,
+        "troubled": null,
+        "vomit": null,
+        "wink": null
+      },
+      "01011002.img": {
+        "angry": null,
+        "bewildered": null,
+        "blaze": null,
+        "blink": null,
+        "bowing": null,
+        "cheers": null,
+        "chu": null,
+        "cry": null,
+        "dam": null,
+        "default": null,
+        "despair": null,
+        "glitter": null,
+        "hit": null,
+        "hot": null,
+        "hum": null,
+        "info": null,
+        "love": null,
+        "oops": null,
+        "pain": null,
+        "shine": null,
+        "smile": null,
+        "stunned": null,
+        "troubled": null,
+        "vomit": null,
+        "wink": null
+      },
+      "01011003.img": {
+        "angry": null,
+        "bewildered": null,
+        "blaze": null,
+        "blink": null,
+        "bowing": null,
+        "cheers": null,
+        "chu": null,
+        "cry": null,
+        "dam": null,
+        "default": null,
+        "despair": null,
+        "glitter": null,
+        "hit": null,
+        "hot": null,
+        "hum": null,
+        "info": null,
+        "love": null,
+        "oops": null,
+        "pain": null,
+        "shine": null,
+        "smile": null,
+        "stunned": null,
+        "troubled": null,
+        "vomit": null,
+        "wink": null
+      },
+      "01012000.img": {
+        "angry": null,
+        "bewildered": null,
+        "blaze": null,
+        "blink": null,
+        "bowing": null,
+        "cheers": null,
+        "chu": null,
+        "cry": null,
+        "dam": null,
+        "default": null,
+        "despair": null,
+        "glitter": null,
+        "hit": null,
+        "hot": null,
+        "hum": null,
+        "info": null,
+        "love": null,
+        "oops": null,
+        "pain": null,
+        "shine": null,
+        "smile": null,
+        "stunned": null,
+        "troubled": null,
+        "vomit": null,
+        "wink": null
+      },
+      "01012001.img": {
+        "angry": null,
+        "bewildered": null,
+        "blaze": null,
+        "blink": null,
+        "bowing": null,
+        "cheers": null,
+        "chu": null,
+        "cry": null,
+        "dam": null,
+        "default": null,
+        "despair": null,
+        "glitter": null,
+        "hit": null,
+        "hot": null,
+        "hum": null,
+        "info": null,
+        "love": null,
+        "oops": null,
+        "pain": null,
+        "shine": null,
+        "smile": null,
+        "stunned": null,
+        "troubled": null,
+        "vomit": null,
+        "wink": null
+      },
+      "01012002.img": {
+        "angry": null,
+        "bewildered": null,
+        "blaze": null,
+        "blink": null,
+        "bowing": null,
+        "cheers": null,
+        "chu": null,
+        "cry": null,
+        "dam": null,
+        "default": null,
+        "despair": null,
+        "glitter": null,
+        "hit": null,
+        "hot": null,
+        "hum": null,
+        "info": null,
+        "love": null,
+        "oops": null,
+        "pain": null,
+        "shine": null,
+        "smile": null,
+        "stunned": null,
+        "troubled": null,
+        "vomit": null,
+        "wink": null
+      },
+      "01012003.img": {
+        "angry": null,
+        "bewildered": null,
+        "blaze": null,
+        "blink": null,
+        "bowing": null,
+        "cheers": null,
+        "chu": null,
+        "cry": null,
+        "dam": null,
+        "default": null,
+        "despair": null,
+        "glitter": null,
+        "hit": null,
+        "hot": null,
+        "hum": null,
+        "info": null,
+        "love": null,
+        "oops": null,
+        "pain": null,
+        "shine": null,
+        "smile": null,
+        "stunned": null,
+        "troubled": null,
+        "vomit": null,
+        "wink": null
+      },
+      "01012004.img": {
+        "angry": null,
+        "bewildered": null,
+        "blaze": null,
+        "blink": null,
+        "bowing": null,
+        "cheers": null,
+        "chu": null,
+        "cry": null,
+        "dam": null,
+        "default": null,
+        "despair": null,
+        "glitter": null,
+        "hit": null,
+        "hot": null,
+        "hum": null,
+        "info": null,
+        "love": null,
+        "oops": null,
+        "pain": null,
+        "shine": null,
+        "smile": null,
+        "stunned": null,
+        "troubled": null,
+        "vomit": null,
+        "wink": null
+      },
+      "01012005.img": {
+        "angry": null,
+        "bewildered": null,
+        "blaze": null,
+        "blink": null,
+        "bowing": null,
+        "cheers": null,
+        "chu": null,
+        "cry": null,
+        "dam": null,
+        "default": null,
+        "despair": null,
+        "glitter": null,
+        "hit": null,
+        "hot": null,
+        "hum": null,
+        "info": null,
+        "love": null,
+        "oops": null,
+        "pain": null,
+        "shine": null,
+        "smile": null,
+        "stunned": null,
+        "troubled": null,
+        "vomit": null,
+        "wink": null
+      },
+      "01012006.img": {
+        "angry": null,
+        "bewildered": null,
+        "blaze": null,
+        "blink": null,
+        "bowing": null,
+        "cheers": null,
+        "chu": null,
+        "cry": null,
+        "dam": null,
+        "default": null,
+        "despair": null,
+        "glitter": null,
+        "hit": null,
+        "hot": null,
+        "hum": null,
+        "info": null,
+        "love": null,
+        "oops": null,
+        "pain": null,
+        "shine": null,
+        "smile": null,
+        "stunned": null,
+        "troubled": null,
+        "vomit": null,
+        "wink": null
+      },
+      "01012007.img": {
+        "angry": null,
+        "bewildered": null,
+        "blaze": null,
+        "blink": null,
+        "bowing": null,
+        "cheers": null,
+        "chu": null,
+        "cry": null,
+        "dam": null,
+        "default": null,
+        "despair": null,
+        "glitter": null,
+        "hit": null,
+        "hot": null,
+        "hum": null,
+        "info": null,
+        "love": null,
+        "oops": null,
+        "pain": null,
+        "shine": null,
+        "smile": null,
+        "stunned": null,
+        "troubled": null,
+        "vomit": null,
+        "wink": null
+      },
+      "01012008.img": {
+        "angry": null,
+        "bewildered": null,
+        "blaze": null,
+        "blink": null,
+        "bowing": null,
+        "cheers": null,
+        "chu": null,
+        "cry": null,
+        "dam": null,
+        "default": null,
+        "despair": null,
+        "glitter": null,
+        "hit": null,
+        "hot": null,
+        "hum": null,
+        "info": null,
+        "love": null,
+        "oops": null,
+        "pain": null,
+        "shine": null,
+        "smile": null,
+        "stunned": null,
+        "troubled": null,
+        "vomit": null,
+        "wink": null
+      },
+      "01012009.img": {
+        "angry": null,
+        "bewildered": null,
+        "blaze": null,
+        "blink": null,
+        "bowing": null,
+        "cheers": null,
+        "chu": null,
+        "cry": null,
+        "dam": null,
+        "default": null,
+        "despair": null,
+        "glitter": null,
+        "hit": null,
+        "hot": null,
+        "hum": null,
+        "info": null,
+        "love": null,
+        "oops": null,
+        "pain": null,
+        "shine": null,
+        "smile": null,
+        "stunned": null,
+        "troubled": null,
+        "vomit": null,
+        "wink": null
+      },
+      "01012010.img": {
+        "angry": null,
+        "bewildered": null,
+        "blaze": null,
+        "blink": null,
+        "bowing": null,
+        "cheers": null,
+        "chu": null,
+        "cry": null,
+        "dam": null,
+        "default": null,
+        "despair": null,
+        "glitter": null,
+        "hit": null,
+        "hot": null,
+        "hum": null,
+        "info": null,
+        "love": null,
+        "oops": null,
+        "pain": null,
+        "shine": null,
+        "smile": null,
+        "stunned": null,
+        "troubled": null,
+        "vomit": null,
+        "wink": null
+      },
+      "01012011.img": {
+        "angry": null,
+        "bewildered": null,
+        "blaze": null,
+        "blink": null,
+        "bowing": null,
+        "cheers": null,
+        "chu": null,
+        "cry": null,
+        "dam": null,
+        "default": null,
+        "despair": null,
+        "glitter": null,
+        "hit": null,
+        "hot": null,
+        "hum": null,
+        "info": null,
+        "love": null,
+        "oops": null,
+        "pain": null,
+        "shine": null,
+        "smile": null,
+        "stunned": null,
+        "troubled": null,
+        "vomit": null,
+        "wink": null
+      },
+      "01012012.img": {
+        "angry": null,
+        "bewildered": null,
+        "blaze": null,
+        "blink": null,
+        "bowing": null,
+        "cheers": null,
+        "chu": null,
+        "cry": null,
+        "dam": null,
+        "default": null,
+        "despair": null,
+        "glitter": null,
+        "hit": null,
+        "hot": null,
+        "hum": null,
+        "info": null,
+        "love": null,
+        "oops": null,
+        "pain": null,
+        "shine": null,
+        "smile": null,
+        "stunned": null,
+        "troubled": null,
+        "vomit": null,
+        "wink": null
+      },
+      "01012013.img": {
+        "angry": null,
+        "bewildered": null,
+        "blaze": null,
+        "blink": null,
+        "bowing": null,
+        "cheers": null,
+        "chu": null,
+        "cry": null,
+        "dam": null,
+        "default": null,
+        "despair": null,
+        "glitter": null,
+        "hit": null,
+        "hot": null,
+        "hum": null,
+        "info": null,
+        "love": null,
+        "oops": null,
+        "pain": null,
+        "shine": null,
+        "smile": null,
+        "stunned": null,
+        "troubled": null,
+        "vomit": null,
+        "wink": null
+      },
+      "01012014.img": {
+        "angry": null,
+        "bewildered": null,
+        "blaze": null,
+        "blink": null,
+        "bowing": null,
+        "cheers": null,
+        "chu": null,
+        "cry": null,
+        "dam": null,
+        "default": null,
+        "despair": null,
+        "glitter": null,
+        "hit": null,
+        "hot": null,
+        "hum": null,
+        "info": null,
+        "love": null,
+        "oops": null,
+        "pain": null,
+        "shine": null,
+        "smile": null,
+        "stunned": null,
+        "troubled": null,
+        "vomit": null,
+        "wink": null
+      },
+      "01012015.img": {
+        "angry": null,
+        "bewildered": null,
+        "blaze": null,
+        "blink": null,
+        "bowing": null,
+        "cheers": null,
+        "chu": null,
+        "cry": null,
+        "dam": null,
+        "default": null,
+        "despair": null,
+        "glitter": null,
+        "hit": null,
+        "hot": null,
+        "hum": null,
+        "info": null,
+        "love": null,
+        "oops": null,
+        "pain": null,
+        "shine": null,
+        "smile": null,
+        "stunned": null,
+        "troubled": null,
+        "vomit": null,
+        "wink": null
+      },
+      "01012016.img": {
+        "angry": null,
+        "bewildered": null,
+        "blaze": null,
+        "blink": null,
+        "bowing": null,
+        "cheers": null,
+        "chu": null,
+        "cry": null,
+        "dam": null,
+        "default": null,
+        "despair": null,
+        "glitter": null,
+        "hit": null,
+        "hot": null,
+        "hum": null,
+        "info": null,
+        "love": null,
+        "oops": null,
+        "pain": null,
+        "shine": null,
+        "smile": null,
+        "stunned": null,
+        "troubled": null,
+        "vomit": null,
+        "wink": null
+      },
+      "01012017.img": {
+        "angry": null,
+        "bewildered": null,
+        "blaze": null,
+        "blink": null,
+        "bowing": null,
+        "cheers": null,
+        "chu": null,
+        "cry": null,
+        "dam": null,
+        "default": null,
+        "despair": null,
+        "glitter": null,
+        "hit": null,
+        "hot": null,
+        "hum": null,
+        "info": null,
+        "love": null,
+        "oops": null,
+        "pain": null,
+        "shine": null,
+        "smile": null,
+        "stunned": null,
+        "troubled": null,
+        "vomit": null,
+        "wink": null
+      },
+      "01012018.img": {
+        "angry": null,
+        "bewildered": null,
+        "blaze": null,
+        "blink": null,
+        "bowing": null,
+        "cheers": null,
+        "chu": null,
+        "cry": null,
+        "dam": null,
+        "default": null,
+        "despair": null,
+        "glitter": null,
+        "hit": null,
+        "hot": null,
+        "hum": null,
+        "info": null,
+        "love": null,
+        "oops": null,
+        "pain": null,
+        "shine": null,
+        "smile": null,
+        "stunned": null,
+        "troubled": null,
+        "vomit": null,
+        "wink": null
+      },
+      "... (470 more items)": null
+    },
+    "Afterimage": {
+      "axe.img": {
+        "0": null,
+        "1": null,
+        "10": null,
+        "2": null,
+        "3": null,
+        "4": null,
+        "5": null,
+        "6": null,
+        "7": null,
+        "8": null,
+        "9": null,
+        "charge": null
+      },
+      "barehands.img": {
+        "barehands.img": "0-10"
+      },
+      "blank.img": {
+        "axe 📄": null,
+        "crossBow 📄": null,
+        "mace 📄": null,
+        "poleArm 📄": null,
+        "spear 📄": null,
+        "swordOL 📄": null,
+        "swordOS 📄": null,
+        "swordTL 📄": null,
+        "swordTS 📄": null
+      },
+      "bow.img": {
+        "bow.img": "0-16"
+      },
+      "crossBow.img": {
+        "crossBow.img": "0-16"
+      },
+      "gun.img": {
+        "gun.img": "0-10"
+      },
+      "hit.img": {
+        "anniversary": null,
+        "anniversary1": null,
+        "anniversary2": null,
+        "anniversary3": null,
+        "anniversary4": null,
+        "anniversary5": null,
+        "mace1": null,
+        "mace2": null,
+        "maceF": null,
+        "sword1": null,
+        "sword2": null,
+        "swordF": null
+      },
+      "knuckle.img": {
+        "0": null,
+        "1": null,
+        "10": null,
+        "2": null,
+        "3": null,
+        "4": null,
+        "5": null,
+        "6": null,
+        "7": null,
+        "8": null,
+        "9": null,
+        "charge": null
+      },
+      "mace.img": {
+        "0": null,
+        "1": null,
+        "10": null,
+        "2": null,
+        "3": null,
+        "4": null,
+        "5": null,
+        "6": null,
+        "7": null,
+        "8": null,
+        "9": null,
+        "charge": null
+      },
+      "poleArm.img": {
+        "0": null,
+        "1": null,
+        "10": null,
+        "11": null,
+        "12": null,
+        "13": null,
+        "14": null,
+        "15": null,
+        "16": null,
+        "2": null,
+        "3": null,
+        "4": null,
+        "5": null,
+        "6": null,
+        "7": null,
+        "8": null,
+        "9": null,
+        "charge": null
+      },
+      "spear.img": {
+        "spear.img": "0-14"
+      },
+      "swordOL.img": {
+        "0": null,
+        "1": null,
+        "10": null,
+        "2": null,
+        "3": null,
+        "4": null,
+        "5": null,
+        "6": null,
+        "7": null,
+        "8": null,
+        "9": null,
+        "charge": null
+      },
+      "swordOS.img": {
+        "0": null,
+        "1": null,
+        "10": null,
+        "2": null,
+        "3": null,
+        "4": null,
+        "5": null,
+        "6": null,
+        "7": null,
+        "8": null,
+        "9": null,
+        "charge": null
+      },
+      "swordTL.img": {
+        "0": null,
+        "1": null,
+        "10": null,
+        "2": null,
+        "3": null,
+        "4": null,
+        "5": null,
+        "6": null,
+        "7": null,
+        "8": null,
+        "9": null,
+        "charge": null
+      },
+      "swordTS.img": {
+        "0": null,
+        "1": null,
+        "10": null,
+        "11": null,
+        "12": null,
+        "13": null,
+        "14": null,
+        "15": null,
+        "16": null,
+        "2": null,
+        "3": null,
+        "4": null,
+        "5": null,
+        "6": null,
+        "7": null,
+        "8": null,
+        "9": null,
+        "charge": null
+      }
+    },
+    "... (15 more items)": null
+  }
+}
