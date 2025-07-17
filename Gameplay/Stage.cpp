@@ -21,6 +21,8 @@
 
 #include "../IO/UI.h"
 
+#include <iostream>
+
 #include "../IO/UITypes/UIStatusBar.h"
 #include "../Net/Packets/AttackAndSkillPackets.h"
 #include "../Net/Packets/GameplayPackets.h"
@@ -251,6 +253,9 @@ namespace ms
 
 		backgrounds.drawbackgrounds(viewx, viewy, alpha);
 
+		static int draw_frame = 0;
+		bool debug_this_frame = (draw_frame++ % 600 == 0); // Log every 10 seconds
+		
 		for (auto id : Layer::IDs)
 		{
 			tilesobjs.draw(id, viewpos, alpha);

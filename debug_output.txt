@@ -1,0 +1,1852 @@
+[NoLifeNx] Detected v92 NX file with bitmap_count=0: Base.nx
+[NoLifeNx] No bitmap nodes found, file truly has no images
+[NoLifeNx] Detected v92 NX file with bitmap_count=0: Quest.nx
+[NoLifeNx] No bitmap nodes found, file truly has no images
+[NoLifeNx] Detected v92 NX file with bitmap_count=0: Sound.nx
+[NoLifeNx] No bitmap nodes found, file truly has no images
+[NoLifeNx] Detected v92 NX file with bitmap_count=0: String.nx
+[NoLifeNx] No bitmap nodes found, file truly has no images
+[NoLifeNx] Detected v92 NX file with bitmap_count=0: TamingMob.nx
+[NoLifeNx] No bitmap nodes found, file truly has no images
+[AssetRegistry] Initialized 21 hardcoded asset mappings
+[AssetRegistry] Loaded asset mappings successfully
+[INFO]: Using OpenGL 4.6.0 NVIDIA 572.42
+[INFO]: Using GLEW 2.1.0
+[INFO]: Using FreeType 2.9.1
+[DEBUG] BASS audio initialized successfully
+[DEBUG] Music initialized successfully
+[DEBUG FRAME] Creating frame from node: '0', data type: 5
+[NoLifeNx DEBUG] Hybrid bitmap node detected with 1 children
+[NoLifeNx DEBUG] Child 0 name: 'origin', type: 4, children: 0
+[NoLifeNx DEBUG] No suitable bitmap child found in hybrid node
+[DEBUG FRAME] Texture created from node
+[DEBUG FRAME] Creating frame from node: '1', data type: 5
+[NoLifeNx DEBUG] Hybrid bitmap node detected with 1 children
+[NoLifeNx DEBUG] Child 0 name: 'origin', type: 4, children: 0
+[NoLifeNx DEBUG] No suitable bitmap child found in hybrid node
+[DEBUG FRAME] Texture created from node
+[DEBUG FRAME] Creating frame from node: '2', data type: 5
+[NoLifeNx DEBUG] Hybrid bitmap node detected with 1 children
+[NoLifeNx DEBUG] Child 0 name: 'origin', type: 4, children: 0
+[NoLifeNx DEBUG] No suitable bitmap child found in hybrid node
+[DEBUG FRAME] Texture created from node
+[DEBUG FRAME] Creating frame from node: '3', data type: 5
+[NoLifeNx DEBUG] Hybrid bitmap node detected with 1 children
+[NoLifeNx DEBUG] Child 0 name: 'origin', type: 4, children: 0
+[NoLifeNx DEBUG] No suitable bitmap child found in hybrid node
+[DEBUG FRAME] Texture created from node
+[DEBUG FRAME] Creating frame from node: '4', data type: 5
+[NoLifeNx DEBUG] Hybrid bitmap node detected with 1 children
+[NoLifeNx DEBUG] Child 0 name: 'origin', type: 4, children: 0
+[NoLifeNx DEBUG] No suitable bitmap child found in hybrid node
+[DEBUG FRAME] Texture created from node
+[DEBUG FRAME] Creating frame from node: '5', data type: 5
+[NoLifeNx DEBUG] Hybrid bitmap node detected with 1 children
+[NoLifeNx DEBUG] Child 0 name: 'origin', type: 4, children: 0
+[NoLifeNx DEBUG] No suitable bitmap child found in hybrid node
+[DEBUG FRAME] Texture created from node
+[DEBUG FRAME] Creating frame from node: '6', data type: 5
+[NoLifeNx DEBUG] Hybrid bitmap node detected with 1 children
+[NoLifeNx DEBUG] Child 0 name: 'origin', type: 4, children: 0
+[NoLifeNx DEBUG] No suitable bitmap child found in hybrid node
+[DEBUG FRAME] Texture created from node
+[DEBUG FRAME] Creating frame from node: '7', data type: 5
+[NoLifeNx DEBUG] Hybrid bitmap node detected with 1 children
+[NoLifeNx DEBUG] Child 0 name: 'origin', type: 4, children: 0
+[NoLifeNx DEBUG] No suitable bitmap child found in hybrid node
+[DEBUG FRAME] Texture created from node
+[DEBUG FRAME] Creating frame from node: '8', data type: 5
+[NoLifeNx DEBUG] Hybrid bitmap node detected with 1 children
+[NoLifeNx DEBUG] Child 0 name: 'origin', type: 4, children: 0
+[NoLifeNx DEBUG] No suitable bitmap child found in hybrid node
+[DEBUG FRAME] Texture created from node
+[DEBUG FRAME] Creating frame from node: '9', data type: 5
+[NoLifeNx DEBUG] Hybrid bitmap node detected with 1 children
+[NoLifeNx DEBUG] Child 0 name: 'origin', type: 4, children: 0
+[NoLifeNx DEBUG] No suitable bitmap child found in hybrid node
+[DEBUG FRAME] Texture created from node
+[DEBUG FRAME] Creating frame from node: '10', data type: 5
+[NoLifeNx DEBUG] Hybrid bitmap node detected with 1 children
+[NoLifeNx DEBUG] Child 0 name: 'origin', type: 4, children: 0
+[NoLifeNx DEBUG] No suitable bitmap child found in hybrid node
+[DEBUG FRAME] Texture created from node
+[DEBUG FRAME] Creating frame from node: '11', data type: 5
+[NoLifeNx DEBUG] Hybrid bitmap node detected with 1 children
+[NoLifeNx DEBUG] Child 0 name: 'origin', type: 4, children: 0
+[NoLifeNx DEBUG] No suitable bitmap child found in hybrid node
+[DEBUG FRAME] Texture created from node
+[DEBUG FRAME] Creating frame from node: '12', data type: 5
+[NoLifeNx DEBUG] Hybrid bitmap node detected with 1 children
+[NoLifeNx DEBUG] Child 0 name: 'origin', type: 4, children: 0
+[NoLifeNx DEBUG] No suitable bitmap child found in hybrid node
+[DEBUG FRAME] Texture created from node
+[DEBUG FRAME] Creating frame from node: '13', data type: 5
+[NoLifeNx DEBUG] Hybrid bitmap node detected with 1 children
+[NoLifeNx DEBUG] Child 0 name: 'origin', type: 4, children: 0
+[NoLifeNx DEBUG] No suitable bitmap child found in hybrid node
+[DEBUG FRAME] Texture created from node
+[DEBUG FRAME] Creating frame from node: '14', data type: 5
+[NoLifeNx DEBUG] Hybrid bitmap node detected with 1 children
+[NoLifeNx DEBUG] Child 0 name: 'origin', type: 4, children: 0
+[NoLifeNx DEBUG] No suitable bitmap child found in hybrid node
+[DEBUG FRAME] Texture created from node
+[DEBUG FRAME] Creating frame from node: '15', data type: 5
+[NoLifeNx DEBUG] Hybrid bitmap node detected with 1 children
+[NoLifeNx DEBUG] Child 0 name: 'origin', type: 4, children: 0
+[NoLifeNx DEBUG] No suitable bitmap child found in hybrid node
+[DEBUG FRAME] Texture created from node
+[DEBUG FRAME] Creating frame from node: '16', data type: 5
+[NoLifeNx DEBUG] Hybrid bitmap node detected with 1 children
+[NoLifeNx DEBUG] Child 0 name: 'origin', type: 4, children: 0
+[NoLifeNx DEBUG] No suitable bitmap child found in hybrid node
+[DEBUG FRAME] Texture created from node
+[DEBUG FRAME] Creating frame from node: '17', data type: 5
+[NoLifeNx DEBUG] Hybrid bitmap node detected with 1 children
+[NoLifeNx DEBUG] Child 0 name: 'origin', type: 4, children: 0
+[NoLifeNx DEBUG] No suitable bitmap child found in hybrid node
+[DEBUG FRAME] Texture created from node
+[DEBUG FRAME] Creating frame from node: '18', data type: 5
+[NoLifeNx DEBUG] Hybrid bitmap node detected with 1 children
+[NoLifeNx DEBUG] Child 0 name: 'origin', type: 4, children: 0
+[NoLifeNx DEBUG] No suitable bitmap child found in hybrid node
+[DEBUG FRAME] Texture created from node
+[DEBUG FRAME] Creating frame from node: '19', data type: 5
+[NoLifeNx DEBUG] Hybrid bitmap node detected with 1 children
+[NoLifeNx DEBUG] Child 0 name: 'origin', type: 4, children: 0
+[NoLifeNx DEBUG] No suitable bitmap child found in hybrid node
+[DEBUG FRAME] Texture created from node
+[DEBUG FRAME] Creating frame from node: '20', data type: 5
+[NoLifeNx DEBUG] Hybrid bitmap node detected with 1 children
+[NoLifeNx DEBUG] Child 0 name: 'origin', type: 4, children: 0
+[NoLifeNx DEBUG] No suitable bitmap child found in hybrid node
+[DEBUG FRAME] Texture created from node
+[DEBUG FRAME] Creating frame from node: '0', data type: 5
+[NoLifeNx DEBUG] Hybrid bitmap node detected with 2 children
+[NoLifeNx DEBUG] Child 0 name: 'delay', type: 1, children: 0
+[NoLifeNx DEBUG] Child 1 name: 'origin', type: 4, children: 0
+[NoLifeNx DEBUG] No suitable bitmap child found in hybrid node
+[DEBUG FRAME] Texture created from node
+[DEBUG FRAME] Creating frame from node: '1', data type: 5
+[NoLifeNx DEBUG] Hybrid bitmap node detected with 2 children
+[NoLifeNx DEBUG] Child 0 name: 'delay', type: 1, children: 0
+[NoLifeNx DEBUG] Child 1 name: 'origin', type: 4, children: 0
+[NoLifeNx DEBUG] No suitable bitmap child found in hybrid node
+[DEBUG FRAME] Texture created from node
+[DEBUG FRAME] Creating frame from node: '2', data type: 5
+[NoLifeNx DEBUG] Hybrid bitmap node detected with 2 children
+[NoLifeNx DEBUG] Child 0 name: 'delay', type: 1, children: 0
+[NoLifeNx DEBUG] Child 1 name: 'origin', type: 4, children: 0
+[NoLifeNx DEBUG] No suitable bitmap child found in hybrid node
+[DEBUG FRAME] Texture created from node
+[DEBUG FRAME] Creating frame from node: '3', data type: 5
+[NoLifeNx DEBUG] Hybrid bitmap node detected with 2 children
+[NoLifeNx DEBUG] Child 0 name: 'delay', type: 1, children: 0
+[NoLifeNx DEBUG] Child 1 name: 'origin', type: 4, children: 0
+[NoLifeNx DEBUG] No suitable bitmap child found in hybrid node
+[DEBUG FRAME] Texture created from node
+[DEBUG FRAME] Creating frame from node: '4', data type: 5
+[NoLifeNx DEBUG] Hybrid bitmap node detected with 2 children
+[NoLifeNx DEBUG] Child 0 name: 'delay', type: 1, children: 0
+[NoLifeNx DEBUG] Child 1 name: 'origin', type: 4, children: 0
+[NoLifeNx DEBUG] No suitable bitmap child found in hybrid node
+[DEBUG FRAME] Texture created from node
+[DEBUG FRAME] Creating frame from node: '5', data type: 5
+[NoLifeNx DEBUG] Hybrid bitmap node detected with 2 children
+[NoLifeNx DEBUG] Child 0 name: 'delay', type: 1, children: 0
+[NoLifeNx DEBUG] Child 1 name: 'origin', type: 4, children: 0
+[NoLifeNx DEBUG] No suitable bitmap child found in hybrid node
+[DEBUG FRAME] Texture created from node
+[DEBUG FRAME] Creating frame from node: '6', data type: 5
+[NoLifeNx DEBUG] Hybrid bitmap node detected with 2 children
+[NoLifeNx DEBUG] Child 0 name: 'delay', type: 1, children: 0
+[NoLifeNx DEBUG] Child 1 name: 'origin', type: 4, children: 0
+[NoLifeNx DEBUG] No suitable bitmap child found in hybrid node
+[DEBUG FRAME] Texture created from node
+[DEBUG FRAME] Creating frame from node: '7', data type: 5
+[NoLifeNx DEBUG] Hybrid bitmap node detected with 2 children
+[NoLifeNx DEBUG] Child 0 name: 'delay', type: 1, children: 0
+[NoLifeNx DEBUG] Child 1 name: 'origin', type: 4, children: 0
+[NoLifeNx DEBUG] No suitable bitmap child found in hybrid node
+[DEBUG FRAME] Texture created from node
+[DEBUG FRAME] Creating frame from node: '8', data type: 5
+[NoLifeNx DEBUG] Hybrid bitmap node detected with 2 children
+[NoLifeNx DEBUG] Child 0 name: 'delay', type: 1, children: 0
+[NoLifeNx DEBUG] Child 1 name: 'origin', type: 4, children: 0
+[NoLifeNx DEBUG] No suitable bitmap child found in hybrid node
+[DEBUG FRAME] Texture created from node
+[DEBUG FRAME] Creating frame from node: '9', data type: 5
+[NoLifeNx DEBUG] Hybrid bitmap node detected with 2 children
+[NoLifeNx DEBUG] Child 0 name: 'delay', type: 1, children: 0
+[NoLifeNx DEBUG] Child 1 name: 'origin', type: 4, children: 0
+[NoLifeNx DEBUG] No suitable bitmap child found in hybrid node
+[DEBUG FRAME] Texture created from node
+[DEBUG FRAME] Creating frame from node: '10', data type: 5
+[NoLifeNx DEBUG] Hybrid bitmap node detected with 2 children
+[NoLifeNx DEBUG] Child 0 name: 'delay', type: 1, children: 0
+[NoLifeNx DEBUG] Child 1 name: 'origin', type: 4, children: 0
+[NoLifeNx DEBUG] No suitable bitmap child found in hybrid node
+[DEBUG FRAME] Texture created from node
+[DEBUG FRAME] Creating frame from node: '11', data type: 5
+[NoLifeNx DEBUG] Hybrid bitmap node detected with 2 children
+[NoLifeNx DEBUG] Child 0 name: 'delay', type: 1, children: 0
+[NoLifeNx DEBUG] Child 1 name: 'origin', type: 4, children: 0
+[NoLifeNx DEBUG] No suitable bitmap child found in hybrid node
+[DEBUG FRAME] Texture created from node
+[DEBUG FRAME] Creating frame from node: '12', data type: 5
+[NoLifeNx DEBUG] Hybrid bitmap node detected with 2 children
+[NoLifeNx DEBUG] Child 0 name: 'delay', type: 1, children: 0
+[NoLifeNx DEBUG] Child 1 name: 'origin', type: 4, children: 0
+[NoLifeNx DEBUG] No suitable bitmap child found in hybrid node
+[DEBUG FRAME] Texture created from node
+[DEBUG FRAME] Creating frame from node: '0', data type: 5
+[NoLifeNx DEBUG] Hybrid bitmap node detected with 2 children
+[NoLifeNx DEBUG] Child 0 name: 'delay', type: 1, children: 0
+[NoLifeNx DEBUG] Child 1 name: 'origin', type: 4, children: 0
+[NoLifeNx DEBUG] No suitable bitmap child found in hybrid node
+[DEBUG FRAME] Texture created from node
+[DEBUG FRAME] Creating frame from node: '1', data type: 5
+[NoLifeNx DEBUG] Hybrid bitmap node detected with 2 children
+[NoLifeNx DEBUG] Child 0 name: 'delay', type: 1, children: 0
+[NoLifeNx DEBUG] Child 1 name: 'origin', type: 4, children: 0
+[NoLifeNx DEBUG] No suitable bitmap child found in hybrid node
+[DEBUG FRAME] Texture created from node
+[DEBUG FRAME] Creating frame from node: '2', data type: 5
+[NoLifeNx DEBUG] Hybrid bitmap node detected with 2 children
+[NoLifeNx DEBUG] Child 0 name: 'delay', type: 1, children: 0
+[NoLifeNx DEBUG] Child 1 name: 'origin', type: 4, children: 0
+[NoLifeNx DEBUG] No suitable bitmap child found in hybrid node
+[DEBUG FRAME] Texture created from node
+[DEBUG FRAME] Creating frame from node: '3', data type: 5
+[NoLifeNx DEBUG] Hybrid bitmap node detected with 2 children
+[NoLifeNx DEBUG] Child 0 name: 'delay', type: 1, children: 0
+[NoLifeNx DEBUG] Child 1 name: 'origin', type: 4, children: 0
+[NoLifeNx DEBUG] No suitable bitmap child found in hybrid node
+[DEBUG FRAME] Texture created from node
+[DEBUG FRAME] Creating frame from node: '4', data type: 5
+[NoLifeNx DEBUG] Hybrid bitmap node detected with 2 children
+[NoLifeNx DEBUG] Child 0 name: 'delay', type: 1, children: 0
+[NoLifeNx DEBUG] Child 1 name: 'origin', type: 4, children: 0
+[NoLifeNx DEBUG] No suitable bitmap child found in hybrid node
+[DEBUG FRAME] Texture created from node
+[DEBUG FRAME] Creating frame from node: '5', data type: 5
+[NoLifeNx DEBUG] Hybrid bitmap node detected with 2 children
+[NoLifeNx DEBUG] Child 0 name: 'delay', type: 1, children: 0
+[NoLifeNx DEBUG] Child 1 name: 'origin', type: 4, children: 0
+[NoLifeNx DEBUG] No suitable bitmap child found in hybrid node
+[DEBUG FRAME] Texture created from node
+[DEBUG FRAME] Creating frame from node: '6', data type: 5
+[NoLifeNx DEBUG] Hybrid bitmap node detected with 2 children
+[NoLifeNx DEBUG] Child 0 name: 'delay', type: 1, children: 0
+[NoLifeNx DEBUG] Child 1 name: 'origin', type: 4, children: 0
+[NoLifeNx DEBUG] No suitable bitmap child found in hybrid node
+[DEBUG FRAME] Texture created from node
+[DEBUG FRAME] Creating frame from node: '7', data type: 5
+[NoLifeNx DEBUG] Hybrid bitmap node detected with 2 children
+[NoLifeNx DEBUG] Child 0 name: 'delay', type: 1, children: 0
+[NoLifeNx DEBUG] Child 1 name: 'origin', type: 4, children: 0
+[NoLifeNx DEBUG] No suitable bitmap child found in hybrid node
+[DEBUG FRAME] Texture created from node
+[DEBUG FRAME] Creating frame from node: '8', data type: 5
+[NoLifeNx DEBUG] Hybrid bitmap node detected with 2 children
+[NoLifeNx DEBUG] Child 0 name: 'delay', type: 1, children: 0
+[NoLifeNx DEBUG] Child 1 name: 'origin', type: 4, children: 0
+[NoLifeNx DEBUG] No suitable bitmap child found in hybrid node
+[DEBUG FRAME] Texture created from node
+[DEBUG FRAME] Creating frame from node: '9', data type: 5
+[NoLifeNx DEBUG] Hybrid bitmap node detected with 2 children
+[NoLifeNx DEBUG] Child 0 name: 'delay', type: 1, children: 0
+[NoLifeNx DEBUG] Child 1 name: 'origin', type: 4, children: 0
+[NoLifeNx DEBUG] No suitable bitmap child found in hybrid node
+[DEBUG FRAME] Texture created from node
+[DEBUG FRAME] Creating frame from node: '10', data type: 5
+[NoLifeNx DEBUG] Hybrid bitmap node detected with 2 children
+[NoLifeNx DEBUG] Child 0 name: 'delay', type: 1, children: 0
+[NoLifeNx DEBUG] Child 1 name: 'origin', type: 4, children: 0
+[NoLifeNx DEBUG] No suitable bitmap child found in hybrid node
+[DEBUG FRAME] Texture created from node
+[DEBUG FRAME] Creating frame from node: '11', data type: 5
+[NoLifeNx DEBUG] Hybrid bitmap node detected with 2 children
+[NoLifeNx DEBUG] Child 0 name: 'delay', type: 1, children: 0
+[NoLifeNx DEBUG] Child 1 name: 'origin', type: 4, children: 0
+[NoLifeNx DEBUG] No suitable bitmap child found in hybrid node
+[DEBUG FRAME] Texture created from node
+[DEBUG FRAME] Creating frame from node: '12', data type: 5
+[NoLifeNx DEBUG] Hybrid bitmap node detected with 2 children
+[NoLifeNx DEBUG] Child 0 name: 'delay', type: 1, children: 0
+[NoLifeNx DEBUG] Child 1 name: 'origin', type: 4, children: 0
+[NoLifeNx DEBUG] No suitable bitmap child found in hybrid node
+[DEBUG FRAME] Texture created from node
+[DEBUG FRAME] Creating frame from node: '13', data type: 5
+[NoLifeNx DEBUG] Hybrid bitmap node detected with 1 children
+[NoLifeNx DEBUG] Child 0 name: 'origin', type: 4, children: 0
+[NoLifeNx DEBUG] No suitable bitmap child found in hybrid node
+[DEBUG FRAME] Texture created from node
+[DEBUG FRAME] Creating frame from node: '14', data type: 5
+[NoLifeNx DEBUG] Hybrid bitmap node detected with 2 children
+[NoLifeNx DEBUG] Child 0 name: 'delay', type: 1, children: 0
+[NoLifeNx DEBUG] Child 1 name: 'origin', type: 4, children: 0
+[NoLifeNx DEBUG] No suitable bitmap child found in hybrid node
+[DEBUG FRAME] Texture created from node
+[DEBUG FRAME] Creating frame from node: '15', data type: 5
+[NoLifeNx DEBUG] Hybrid bitmap node detected with 2 children
+[NoLifeNx DEBUG] Child 0 name: 'delay', type: 1, children: 0
+[NoLifeNx DEBUG] Child 1 name: 'origin', type: 4, children: 0
+[NoLifeNx DEBUG] No suitable bitmap child found in hybrid node
+[DEBUG FRAME] Texture created from node
+[DEBUG FRAME] Creating frame from node: '16', data type: 5
+[NoLifeNx DEBUG] Hybrid bitmap node detected with 2 children
+[NoLifeNx DEBUG] Child 0 name: 'delay', type: 1, children: 0
+[NoLifeNx DEBUG] Child 1 name: 'origin', type: 4, children: 0
+[NoLifeNx DEBUG] No suitable bitmap child found in hybrid node
+[DEBUG FRAME] Texture created from node
+[DEBUG FRAME] Creating frame from node: '17', data type: 5
+[NoLifeNx DEBUG] Hybrid bitmap node detected with 2 children
+[NoLifeNx DEBUG] Child 0 name: 'delay', type: 1, children: 0
+[NoLifeNx DEBUG] Child 1 name: 'origin', type: 4, children: 0
+[NoLifeNx DEBUG] No suitable bitmap child found in hybrid node
+[DEBUG FRAME] Texture created from node
+[DEBUG FRAME] Creating frame from node: '18', data type: 5
+[NoLifeNx DEBUG] Hybrid bitmap node detected with 2 children
+[NoLifeNx DEBUG] Child 0 name: 'delay', type: 1, children: 0
+[NoLifeNx DEBUG] Child 1 name: 'origin', type: 4, children: 0
+[NoLifeNx DEBUG] No suitable bitmap child found in hybrid node
+[DEBUG FRAME] Texture created from node
+[DEBUG FRAME] Creating frame from node: '19', data type: 5
+[NoLifeNx DEBUG] Hybrid bitmap node detected with 2 children
+[NoLifeNx DEBUG] Child 0 name: 'delay', type: 1, children: 0
+[NoLifeNx DEBUG] Child 1 name: 'origin', type: 4, children: 0
+[NoLifeNx DEBUG] No suitable bitmap child found in hybrid node
+[DEBUG FRAME] Texture created from node
+[DEBUG FRAME] Creating frame from node: '20', data type: 5
+[NoLifeNx DEBUG] Hybrid bitmap node detected with 2 children
+[NoLifeNx DEBUG] Child 0 name: 'delay', type: 1, children: 0
+[NoLifeNx DEBUG] Child 1 name: 'origin', type: 4, children: 0
+[NoLifeNx DEBUG] No suitable bitmap child found in hybrid node
+[DEBUG FRAME] Texture created from node
+[DEBUG FRAME] Creating frame from node: '0', data type: 5
+[NoLifeNx DEBUG] Hybrid bitmap node detected with 2 children
+[NoLifeNx DEBUG] Child 0 name: 'delay', type: 1, children: 0
+[NoLifeNx DEBUG] Child 1 name: 'origin', type: 4, children: 0
+[NoLifeNx DEBUG] No suitable bitmap child found in hybrid node
+[DEBUG FRAME] Texture created from node
+[DEBUG FRAME] Creating frame from node: '1', data type: 5
+[NoLifeNx DEBUG] Hybrid bitmap node detected with 2 children
+[NoLifeNx DEBUG] Child 0 name: 'delay', type: 1, children: 0
+[NoLifeNx DEBUG] Child 1 name: 'origin', type: 4, children: 0
+[NoLifeNx DEBUG] No suitable bitmap child found in hybrid node
+[DEBUG FRAME] Texture created from node
+[DEBUG FRAME] Creating frame from node: '2', data type: 5
+[NoLifeNx DEBUG] Hybrid bitmap node detected with 2 children
+[NoLifeNx DEBUG] Child 0 name: 'delay', type: 1, children: 0
+[NoLifeNx DEBUG] Child 1 name: 'origin', type: 4, children: 0
+[NoLifeNx DEBUG] No suitable bitmap child found in hybrid node
+[DEBUG FRAME] Texture created from node
+[DEBUG FRAME] Creating frame from node: '3', data type: 5
+[NoLifeNx DEBUG] Hybrid bitmap node detected with 2 children
+[NoLifeNx DEBUG] Child 0 name: 'delay', type: 1, children: 0
+[NoLifeNx DEBUG] Child 1 name: 'origin', type: 4, children: 0
+[NoLifeNx DEBUG] No suitable bitmap child found in hybrid node
+[DEBUG FRAME] Texture created from node
+[DEBUG FRAME] Creating frame from node: '4', data type: 5
+[NoLifeNx DEBUG] Hybrid bitmap node detected with 2 children
+[NoLifeNx DEBUG] Child 0 name: 'delay', type: 1, children: 0
+[NoLifeNx DEBUG] Child 1 name: 'origin', type: 4, children: 0
+[NoLifeNx DEBUG] No suitable bitmap child found in hybrid node
+[DEBUG FRAME] Texture created from node
+[DEBUG FRAME] Creating frame from node: '5', data type: 5
+[NoLifeNx DEBUG] Hybrid bitmap node detected with 2 children
+[NoLifeNx DEBUG] Child 0 name: 'delay', type: 1, children: 0
+[NoLifeNx DEBUG] Child 1 name: 'origin', type: 4, children: 0
+[NoLifeNx DEBUG] No suitable bitmap child found in hybrid node
+[DEBUG FRAME] Texture created from node
+[DEBUG FRAME] Creating frame from node: '6', data type: 5
+[NoLifeNx DEBUG] Hybrid bitmap node detected with 2 children
+[NoLifeNx DEBUG] Child 0 name: 'delay', type: 1, children: 0
+[NoLifeNx DEBUG] Child 1 name: 'origin', type: 4, children: 0
+[NoLifeNx DEBUG] No suitable bitmap child found in hybrid node
+[DEBUG FRAME] Texture created from node
+[DEBUG FRAME] Creating frame from node: '7', data type: 5
+[NoLifeNx DEBUG] Hybrid bitmap node detected with 2 children
+[NoLifeNx DEBUG] Child 0 name: 'delay', type: 1, children: 0
+[NoLifeNx DEBUG] Child 1 name: 'origin', type: 4, children: 0
+[NoLifeNx DEBUG] No suitable bitmap child found in hybrid node
+[DEBUG FRAME] Texture created from node
+[DEBUG FRAME] Creating frame from node: '8', data type: 5
+[NoLifeNx DEBUG] Hybrid bitmap node detected with 2 children
+[NoLifeNx DEBUG] Child 0 name: 'delay', type: 1, children: 0
+[NoLifeNx DEBUG] Child 1 name: 'origin', type: 4, children: 0
+[NoLifeNx DEBUG] No suitable bitmap child found in hybrid node
+[DEBUG FRAME] Texture created from node
+[DEBUG FRAME] Creating frame from node: '9', data type: 5
+[NoLifeNx DEBUG] Hybrid bitmap node detected with 2 children
+[NoLifeNx DEBUG] Child 0 name: 'delay', type: 1, children: 0
+[NoLifeNx DEBUG] Child 1 name: 'origin', type: 4, children: 0
+[NoLifeNx DEBUG] No suitable bitmap child found in hybrid node
+[DEBUG FRAME] Texture created from node
+[DEBUG FRAME] Creating frame from node: '10', data type: 5
+[NoLifeNx DEBUG] Hybrid bitmap node detected with 2 children
+[NoLifeNx DEBUG] Child 0 name: 'delay', type: 1, children: 0
+[NoLifeNx DEBUG] Child 1 name: 'origin', type: 4, children: 0
+[NoLifeNx DEBUG] No suitable bitmap child found in hybrid node
+[DEBUG FRAME] Texture created from node
+[DEBUG FRAME] Creating frame from node: '11', data type: 5
+[NoLifeNx DEBUG] Hybrid bitmap node detected with 2 children
+[NoLifeNx DEBUG] Child 0 name: 'delay', type: 1, children: 0
+[NoLifeNx DEBUG] Child 1 name: 'origin', type: 4, children: 0
+[NoLifeNx DEBUG] No suitable bitmap child found in hybrid node
+[DEBUG FRAME] Texture created from node
+[DEBUG FRAME] Creating frame from node: '12', data type: 5
+[NoLifeNx DEBUG] Hybrid bitmap node detected with 2 children
+[NoLifeNx DEBUG] Child 0 name: 'delay', type: 1, children: 0
+[NoLifeNx DEBUG] Child 1 name: 'origin', type: 4, children: 0
+[NoLifeNx DEBUG] No suitable bitmap child found in hybrid node
+[DEBUG FRAME] Texture created from node
+[DEBUG FRAME] Creating frame from node: '13', data type: 5
+[NoLifeNx DEBUG] Hybrid bitmap node detected with 2 children
+[NoLifeNx DEBUG] Child 0 name: 'delay', type: 1, children: 0
+[NoLifeNx DEBUG] Child 1 name: 'origin', type: 4, children: 0
+[NoLifeNx DEBUG] No suitable bitmap child found in hybrid node
+[DEBUG FRAME] Texture created from node
+[DEBUG FRAME] Creating frame from node: '14', data type: 5
+[NoLifeNx DEBUG] Hybrid bitmap node detected with 1 children
+[NoLifeNx DEBUG] Child 0 name: 'origin', type: 4, children: 0
+[NoLifeNx DEBUG] No suitable bitmap child found in hybrid node
+[DEBUG FRAME] Texture created from node
+[DEBUG FRAME] Creating frame from node: '15', data type: 5
+[NoLifeNx DEBUG] Hybrid bitmap node detected with 2 children
+[NoLifeNx DEBUG] Child 0 name: 'delay', type: 1, children: 0
+[NoLifeNx DEBUG] Child 1 name: 'origin', type: 4, children: 0
+[NoLifeNx DEBUG] No suitable bitmap child found in hybrid node
+[DEBUG FRAME] Texture created from node
+[DEBUG FRAME] Creating frame from node: '0', data type: 5
+[NoLifeNx DEBUG] Hybrid bitmap node detected with 3 children
+[NoLifeNx DEBUG] Child 0 name: 'delay', type: 1, children: 0
+[NoLifeNx DEBUG] Child 1 name: 'origin', type: 4, children: 0
+[NoLifeNx DEBUG] Child 2 name: 'z', type: 1, children: 0
+[NoLifeNx DEBUG] No suitable bitmap child found in hybrid node
+[DEBUG FRAME] Texture created from node
+[DEBUG FRAME] Creating frame from node: '1', data type: 5
+[NoLifeNx DEBUG] Hybrid bitmap node detected with 3 children
+[NoLifeNx DEBUG] Child 0 name: 'delay', type: 1, children: 0
+[NoLifeNx DEBUG] Child 1 name: 'origin', type: 4, children: 0
+[NoLifeNx DEBUG] Child 2 name: 'z', type: 1, children: 0
+[NoLifeNx DEBUG] No suitable bitmap child found in hybrid node
+[DEBUG FRAME] Texture created from node
+[DEBUG FRAME] Creating frame from node: '2', data type: 5
+[NoLifeNx DEBUG] Hybrid bitmap node detected with 3 children
+[NoLifeNx DEBUG] Child 0 name: 'delay', type: 1, children: 0
+[NoLifeNx DEBUG] Child 1 name: 'origin', type: 4, children: 0
+[NoLifeNx DEBUG] Child 2 name: 'z', type: 1, children: 0
+[NoLifeNx DEBUG] No suitable bitmap child found in hybrid node
+[DEBUG FRAME] Texture created from node
+[DEBUG FRAME] Creating frame from node: '3', data type: 5
+[NoLifeNx DEBUG] Hybrid bitmap node detected with 3 children
+[NoLifeNx DEBUG] Child 0 name: 'delay', type: 1, children: 0
+[NoLifeNx DEBUG] Child 1 name: 'origin', type: 4, children: 0
+[NoLifeNx DEBUG] Child 2 name: 'z', type: 1, children: 0
+[NoLifeNx DEBUG] No suitable bitmap child found in hybrid node
+[DEBUG FRAME] Texture created from node
+[DEBUG FRAME] Creating frame from node: '4', data type: 5
+[NoLifeNx DEBUG] Hybrid bitmap node detected with 3 children
+[NoLifeNx DEBUG] Child 0 name: 'delay', type: 1, children: 0
+[NoLifeNx DEBUG] Child 1 name: 'origin', type: 4, children: 0
+[NoLifeNx DEBUG] Child 2 name: 'z', type: 1, children: 0
+[NoLifeNx DEBUG] No suitable bitmap child found in hybrid node
+[DEBUG FRAME] Texture created from node
+[DEBUG FRAME] Creating frame from node: '5', data type: 5
+[NoLifeNx DEBUG] Hybrid bitmap node detected with 3 children
+[NoLifeNx DEBUG] Child 0 name: 'delay', type: 1, children: 0
+[NoLifeNx DEBUG] Child 1 name: 'origin', type: 4, children: 0
+[NoLifeNx DEBUG] Child 2 name: 'z', type: 1, children: 0
+[NoLifeNx DEBUG] No suitable bitmap child found in hybrid node
+[DEBUG FRAME] Texture created from node
+[DEBUG FRAME] Creating frame from node: '6', data type: 5
+[NoLifeNx DEBUG] Hybrid bitmap node detected with 3 children
+[NoLifeNx DEBUG] Child 0 name: 'delay', type: 1, children: 0
+[NoLifeNx DEBUG] Child 1 name: 'origin', type: 4, children: 0
+[NoLifeNx DEBUG] Child 2 name: 'z', type: 1, children: 0
+[NoLifeNx DEBUG] No suitable bitmap child found in hybrid node
+[DEBUG FRAME] Texture created from node
+[DEBUG FRAME] Creating frame from node: '7', data type: 5
+[NoLifeNx DEBUG] Hybrid bitmap node detected with 3 children
+[NoLifeNx DEBUG] Child 0 name: 'delay', type: 1, children: 0
+[NoLifeNx DEBUG] Child 1 name: 'origin', type: 4, children: 0
+[NoLifeNx DEBUG] Child 2 name: 'z', type: 1, children: 0
+[NoLifeNx DEBUG] No suitable bitmap child found in hybrid node
+[DEBUG FRAME] Texture created from node
+[DEBUG FRAME] Creating frame from node: '8', data type: 5
+[NoLifeNx DEBUG] Hybrid bitmap node detected with 3 children
+[NoLifeNx DEBUG] Child 0 name: 'delay', type: 1, children: 0
+[NoLifeNx DEBUG] Child 1 name: 'origin', type: 4, children: 0
+[NoLifeNx DEBUG] Child 2 name: 'z', type: 1, children: 0
+[NoLifeNx DEBUG] No suitable bitmap child found in hybrid node
+[DEBUG FRAME] Texture created from node
+[DEBUG FRAME] Creating frame from node: '9', data type: 5
+[NoLifeNx DEBUG] Hybrid bitmap node detected with 3 children
+[NoLifeNx DEBUG] Child 0 name: 'delay', type: 1, children: 0
+[NoLifeNx DEBUG] Child 1 name: 'origin', type: 4, children: 0
+[NoLifeNx DEBUG] Child 2 name: 'z', type: 1, children: 0
+[NoLifeNx DEBUG] No suitable bitmap child found in hybrid node
+[DEBUG FRAME] Texture created from node
+[DEBUG FRAME] Creating frame from node: '10', data type: 5
+[NoLifeNx DEBUG] Hybrid bitmap node detected with 3 children
+[NoLifeNx DEBUG] Child 0 name: 'delay', type: 1, children: 0
+[NoLifeNx DEBUG] Child 1 name: 'origin', type: 4, children: 0
+[NoLifeNx DEBUG] Child 2 name: 'z', type: 1, children: 0
+[NoLifeNx DEBUG] No suitable bitmap child found in hybrid node
+[DEBUG FRAME] Texture created from node
+[DEBUG FRAME] Creating frame from node: '11', data type: 5
+[NoLifeNx DEBUG] Hybrid bitmap node detected with 3 children
+[NoLifeNx DEBUG] Child 0 name: 'delay', type: 1, children: 0
+[NoLifeNx DEBUG] Child 1 name: 'origin', type: 4, children: 0
+[NoLifeNx DEBUG] Child 2 name: 'z', type: 1, children: 0
+[NoLifeNx DEBUG] No suitable bitmap child found in hybrid node
+[DEBUG FRAME] Texture created from node
+[DEBUG FRAME] Creating frame from node: '12', data type: 5
+[NoLifeNx DEBUG] Hybrid bitmap node detected with 3 children
+[NoLifeNx DEBUG] Child 0 name: 'delay', type: 1, children: 0
+[NoLifeNx DEBUG] Child 1 name: 'origin', type: 4, children: 0
+[NoLifeNx DEBUG] Child 2 name: 'z', type: 1, children: 0
+[NoLifeNx DEBUG] No suitable bitmap child found in hybrid node
+[DEBUG FRAME] Texture created from node
+[DEBUG FRAME] Creating frame from node: '13', data type: 5
+[NoLifeNx DEBUG] Hybrid bitmap node detected with 3 children
+[NoLifeNx DEBUG] Child 0 name: 'delay', type: 1, children: 0
+[NoLifeNx DEBUG] Child 1 name: 'origin', type: 4, children: 0
+[NoLifeNx DEBUG] Child 2 name: 'z', type: 1, children: 0
+[NoLifeNx DEBUG] No suitable bitmap child found in hybrid node
+[DEBUG FRAME] Texture created from node
+[DEBUG FRAME] Creating frame from node: '14', data type: 5
+[NoLifeNx DEBUG] Hybrid bitmap node detected with 3 children
+[NoLifeNx DEBUG] Child 0 name: 'delay', type: 1, children: 0
+[NoLifeNx DEBUG] Child 1 name: 'origin', type: 4, children: 0
+[NoLifeNx DEBUG] Child 2 name: 'z', type: 1, children: 0
+[NoLifeNx DEBUG] No suitable bitmap child found in hybrid node
+[DEBUG FRAME] Texture created from node
+[DEBUG FRAME] Creating frame from node: '15', data type: 5
+[NoLifeNx DEBUG] Hybrid bitmap node detected with 3 children
+[NoLifeNx DEBUG] Child 0 name: 'delay', type: 1, children: 0
+[NoLifeNx DEBUG] Child 1 name: 'origin', type: 4, children: 0
+[NoLifeNx DEBUG] Child 2 name: 'z', type: 1, children: 0
+[NoLifeNx DEBUG] No suitable bitmap child found in hybrid node
+[DEBUG FRAME] Texture created from node
+[DEBUG FRAME] Creating frame from node: '16', data type: 5
+[NoLifeNx DEBUG] Hybrid bitmap node detected with 3 children
+[NoLifeNx DEBUG] Child 0 name: 'delay', type: 1, children: 0
+[NoLifeNx DEBUG] Child 1 name: 'origin', type: 4, children: 0
+[NoLifeNx DEBUG] Child 2 name: 'z', type: 1, children: 0
+[NoLifeNx DEBUG] No suitable bitmap child found in hybrid node
+[DEBUG FRAME] Texture created from node
+[DEBUG FRAME] Creating frame from node: '17', data type: 5
+[NoLifeNx DEBUG] Hybrid bitmap node detected with 3 children
+[NoLifeNx DEBUG] Child 0 name: 'delay', type: 1, children: 0
+[NoLifeNx DEBUG] Child 1 name: 'origin', type: 4, children: 0
+[NoLifeNx DEBUG] Child 2 name: 'z', type: 1, children: 0
+[NoLifeNx DEBUG] No suitable bitmap child found in hybrid node
+[DEBUG FRAME] Texture created from node
+[DEBUG FRAME] Creating frame from node: '18', data type: 5
+[NoLifeNx DEBUG] Hybrid bitmap node detected with 3 children
+[NoLifeNx DEBUG] Child 0 name: 'delay', type: 1, children: 0
+[NoLifeNx DEBUG] Child 1 name: 'origin', type: 4, children: 0
+[NoLifeNx DEBUG] Child 2 name: 'z', type: 1, children: 0
+[NoLifeNx DEBUG] No suitable bitmap child found in hybrid node
+[DEBUG FRAME] Texture created from node
+[DEBUG FRAME] Creating frame from node: '19', data type: 5
+[NoLifeNx DEBUG] Hybrid bitmap node detected with 3 children
+[NoLifeNx DEBUG] Child 0 name: 'delay', type: 1, children: 0
+[NoLifeNx DEBUG] Child 1 name: 'origin', type: 4, children: 0
+[NoLifeNx DEBUG] Child 2 name: 'z', type: 1, children: 0
+[NoLifeNx DEBUG] No suitable bitmap child found in hybrid node
+[DEBUG FRAME] Texture created from node
+[NoLifeNx DEBUG] Hybrid bitmap node detected with 1 children
+[NoLifeNx DEBUG] Child 0 name: 'origin', type: 4, children: 0
+[NoLifeNx DEBUG] No suitable bitmap child found in hybrid node
+[NoLifeNx DEBUG] Hybrid bitmap node detected with 1 children
+[NoLifeNx DEBUG] Child 0 name: 'origin', type: 4, children: 0
+[NoLifeNx DEBUG] No suitable bitmap child found in hybrid node
+[NoLifeNx DEBUG] Hybrid bitmap node detected with 1 children
+[NoLifeNx DEBUG] Child 0 name: 'origin', type: 4, children: 0
+[NoLifeNx DEBUG] No suitable bitmap child found in hybrid node
+[NoLifeNx DEBUG] Hybrid bitmap node detected with 1 children
+[NoLifeNx DEBUG] Child 0 name: 'origin', type: 4, children: 0
+[NoLifeNx DEBUG] No suitable bitmap child found in hybrid node
+[NoLifeNx DEBUG] Hybrid bitmap node detected with 1 children
+[NoLifeNx DEBUG] Child 0 name: 'origin', type: 4, children: 0
+[NoLifeNx DEBUG] No suitable bitmap child found in hybrid node
+[NoLifeNx DEBUG] Hybrid bitmap node detected with 1 children
+[NoLifeNx DEBUG] Child 0 name: 'origin', type: 4, children: 0
+[NoLifeNx DEBUG] No suitable bitmap child found in hybrid node
+[NoLifeNx DEBUG] Hybrid bitmap node detected with 1 children
+[NoLifeNx DEBUG] Child 0 name: 'origin', type: 4, children: 0
+[NoLifeNx DEBUG] No suitable bitmap child found in hybrid node
+[NoLifeNx DEBUG] Hybrid bitmap node detected with 1 children
+[NoLifeNx DEBUG] Child 0 name: 'origin', type: 4, children: 0
+[NoLifeNx DEBUG] No suitable bitmap child found in hybrid node
+[NoLifeNx DEBUG] Hybrid bitmap node detected with 1 children
+[NoLifeNx DEBUG] Child 0 name: 'origin', type: 4, children: 0
+[NoLifeNx DEBUG] No suitable bitmap child found in hybrid node
+[NoLifeNx DEBUG] Hybrid bitmap node detected with 1 children
+[NoLifeNx DEBUG] Child 0 name: 'origin', type: 4, children: 0
+[NoLifeNx DEBUG] No suitable bitmap child found in hybrid node
+[NoLifeNx DEBUG] Hybrid bitmap node detected with 1 children
+[NoLifeNx DEBUG] Child 0 name: 'origin', type: 4, children: 0
+[NoLifeNx DEBUG] No suitable bitmap child found in hybrid node
+[NoLifeNx DEBUG] Hybrid bitmap node detected with 1 children
+[NoLifeNx DEBUG] Child 0 name: 'origin', type: 4, children: 0
+[NoLifeNx DEBUG] No suitable bitmap child found in hybrid node
+[NoLifeNx DEBUG] Hybrid bitmap node detected with 1 children
+[NoLifeNx DEBUG] Child 0 name: 'origin', type: 4, children: 0
+[NoLifeNx DEBUG] No suitable bitmap child found in hybrid node
+[NoLifeNx DEBUG] Hybrid bitmap node detected with 1 children
+[NoLifeNx DEBUG] Child 0 name: 'origin', type: 4, children: 0
+[NoLifeNx DEBUG] No suitable bitmap child found in hybrid node
+[NoLifeNx DEBUG] Hybrid bitmap node detected with 1 children
+[NoLifeNx DEBUG] Child 0 name: 'origin', type: 4, children: 0
+[NoLifeNx DEBUG] No suitable bitmap child found in hybrid node
+[NoLifeNx DEBUG] Hybrid bitmap node detected with 1 children
+[NoLifeNx DEBUG] Child 0 name: 'origin', type: 4, children: 0
+[NoLifeNx DEBUG] No suitable bitmap child found in hybrid node
+[NoLifeNx DEBUG] Hybrid bitmap node detected with 1 children
+[NoLifeNx DEBUG] Child 0 name: 'origin', type: 4, children: 0
+[NoLifeNx DEBUG] No suitable bitmap child found in hybrid node
+[NoLifeNx DEBUG] Hybrid bitmap node detected with 1 children
+[NoLifeNx DEBUG] Child 0 name: 'origin', type: 4, children: 0
+[NoLifeNx DEBUG] No suitable bitmap child found in hybrid node
+[NoLifeNx DEBUG] Hybrid bitmap node detected with 1 children
+[NoLifeNx DEBUG] Child 0 name: 'origin', type: 4, children: 0
+[NoLifeNx DEBUG] No suitable bitmap child found in hybrid node
+[NoLifeNx DEBUG] Hybrid bitmap node detected with 1 children
+[NoLifeNx DEBUG] Child 0 name: 'origin', type: 4, children: 0
+[NoLifeNx DEBUG] No suitable bitmap child found in hybrid node
+[NoLifeNx DEBUG] Hybrid bitmap node detected with 1 children
+[NoLifeNx DEBUG] Child 0 name: 'origin', type: 4, children: 0
+[NoLifeNx DEBUG] No suitable bitmap child found in hybrid node
+[NoLifeNx DEBUG] Hybrid bitmap node detected with 1 children
+[NoLifeNx DEBUG] Child 0 name: 'origin', type: 4, children: 0
+[NoLifeNx DEBUG] No suitable bitmap child found in hybrid node
+[NoLifeNx DEBUG] Hybrid bitmap node detected with 1 children
+[NoLifeNx DEBUG] Child 0 name: 'origin', type: 4, children: 0
+[NoLifeNx DEBUG] No suitable bitmap child found in hybrid node
+[NoLifeNx DEBUG] Hybrid bitmap node detected with 1 children
+[NoLifeNx DEBUG] Child 0 name: 'origin', type: 4, children: 0
+[NoLifeNx DEBUG] No suitable bitmap child found in hybrid node
+[NoLifeNx DEBUG] Hybrid bitmap node detected with 1 children
+[NoLifeNx DEBUG] Child 0 name: 'origin', type: 4, children: 0
+[NoLifeNx DEBUG] No suitable bitmap child found in hybrid node
+[NoLifeNx DEBUG] Hybrid bitmap node detected with 1 children
+[NoLifeNx DEBUG] Child 0 name: 'origin', type: 4, children: 0
+[NoLifeNx DEBUG] No suitable bitmap child found in hybrid node
+[NoLifeNx DEBUG] Hybrid bitmap node detected with 1 children
+[NoLifeNx DEBUG] Child 0 name: 'origin', type: 4, children: 0
+[NoLifeNx DEBUG] No suitable bitmap child found in hybrid node
+[NoLifeNx DEBUG] Hybrid bitmap node detected with 1 children
+[NoLifeNx DEBUG] Child 0 name: 'origin', type: 4, children: 0
+[NoLifeNx DEBUG] No suitable bitmap child found in hybrid node
+[NoLifeNx DEBUG] Hybrid bitmap node detected with 1 children
+[NoLifeNx DEBUG] Child 0 name: 'origin', type: 4, children: 0
+[NoLifeNx DEBUG] No suitable bitmap child found in hybrid node
+[NoLifeNx DEBUG] Hybrid bitmap node detected with 1 children
+[NoLifeNx DEBUG] Child 0 name: 'origin', type: 4, children: 0
+[NoLifeNx DEBUG] No suitable bitmap child found in hybrid node
+[NoLifeNx DEBUG] Hybrid bitmap node detected with 1 children
+[NoLifeNx DEBUG] Child 0 name: 'origin', type: 4, children: 0
+[NoLifeNx DEBUG] No suitable bitmap child found in hybrid node
+[NoLifeNx DEBUG] Hybrid bitmap node detected with 1 children
+[NoLifeNx DEBUG] Child 0 name: 'origin', type: 4, children: 0
+[NoLifeNx DEBUG] No suitable bitmap child found in hybrid node
+[NoLifeNx DEBUG] Hybrid bitmap node detected with 1 children
+[NoLifeNx DEBUG] Child 0 name: 'origin', type: 4, children: 0
+[NoLifeNx DEBUG] No suitable bitmap child found in hybrid node
+[NoLifeNx DEBUG] Hybrid bitmap node detected with 1 children
+[NoLifeNx DEBUG] Child 0 name: 'origin', type: 4, children: 0
+[NoLifeNx DEBUG] No suitable bitmap child found in hybrid node
+[NoLifeNx DEBUG] Hybrid bitmap node detected with 1 children
+[NoLifeNx DEBUG] Child 0 name: 'origin', type: 4, children: 0
+[NoLifeNx DEBUG] No suitable bitmap child found in hybrid node
+[NoLifeNx DEBUG] Hybrid bitmap node detected with 1 children
+[NoLifeNx DEBUG] Child 0 name: 'origin', type: 4, children: 0
+[NoLifeNx DEBUG] No suitable bitmap child found in hybrid node
+[NoLifeNx DEBUG] Hybrid bitmap node detected with 1 children
+[NoLifeNx DEBUG] Child 0 name: 'origin', type: 4, children: 0
+[NoLifeNx DEBUG] No suitable bitmap child found in hybrid node
+[NoLifeNx DEBUG] Hybrid bitmap node detected with 1 children
+[NoLifeNx DEBUG] Child 0 name: 'origin', type: 4, children: 0
+[NoLifeNx DEBUG] No suitable bitmap child found in hybrid node
+[NoLifeNx DEBUG] Hybrid bitmap node detected with 1 children
+[NoLifeNx DEBUG] Child 0 name: 'origin', type: 4, children: 0
+[NoLifeNx DEBUG] No suitable bitmap child found in hybrid node
+[NoLifeNx DEBUG] Hybrid bitmap node detected with 1 children
+[NoLifeNx DEBUG] Child 0 name: 'origin', type: 4, children: 0
+[NoLifeNx DEBUG] No suitable bitmap child found in hybrid node
+[NoLifeNx DEBUG] Hybrid bitmap node detected with 1 children
+[NoLifeNx DEBUG] Child 0 name: 'origin', type: 4, children: 0
+[NoLifeNx DEBUG] No suitable bitmap child found in hybrid node
+[NoLifeNx DEBUG] Hybrid bitmap node detected with 1 children
+[NoLifeNx DEBUG] Child 0 name: 'origin', type: 4, children: 0
+[NoLifeNx DEBUG] No suitable bitmap child found in hybrid node
+[NoLifeNx DEBUG] Hybrid bitmap node detected with 1 children
+[NoLifeNx DEBUG] Child 0 name: 'origin', type: 4, children: 0
+[NoLifeNx DEBUG] No suitable bitmap child found in hybrid node
+[NoLifeNx DEBUG] Hybrid bitmap node detected with 1 children
+[NoLifeNx DEBUG] Child 0 name: 'origin', type: 4, children: 0
+[NoLifeNx DEBUG] No suitable bitmap child found in hybrid node
+[NoLifeNx DEBUG] Hybrid bitmap node detected with 1 children
+[NoLifeNx DEBUG] Child 0 name: 'origin', type: 4, children: 0
+[NoLifeNx DEBUG] No suitable bitmap child found in hybrid node
+[NoLifeNx DEBUG] Hybrid bitmap node detected with 1 children
+[NoLifeNx DEBUG] Child 0 name: 'origin', type: 4, children: 0
+[NoLifeNx DEBUG] No suitable bitmap child found in hybrid node
+[NoLifeNx DEBUG] Hybrid bitmap node detected with 1 children
+[NoLifeNx DEBUG] Child 0 name: 'origin', type: 4, children: 0
+[NoLifeNx DEBUG] No suitable bitmap child found in hybrid node
+[NoLifeNx DEBUG] Hybrid bitmap node detected with 1 children
+[NoLifeNx DEBUG] Child 0 name: 'origin', type: 4, children: 0
+[NoLifeNx DEBUG] No suitable bitmap child found in hybrid node
+[NoLifeNx DEBUG] Hybrid bitmap node detected with 1 children
+[NoLifeNx DEBUG] Child 0 name: 'origin', type: 4, children: 0
+[NoLifeNx DEBUG] No suitable bitmap child found in hybrid node
+[NoLifeNx DEBUG] Hybrid bitmap node detected with 1 children
+[NoLifeNx DEBUG] Child 0 name: 'origin', type: 4, children: 0
+[NoLifeNx DEBUG] No suitable bitmap child found in hybrid node
+[NoLifeNx DEBUG] Hybrid bitmap node detected with 1 children
+[NoLifeNx DEBUG] Child 0 name: 'origin', type: 4, children: 0
+[NoLifeNx DEBUG] No suitable bitmap child found in hybrid node
+[NoLifeNx DEBUG] Hybrid bitmap node detected with 1 children
+[NoLifeNx DEBUG] Child 0 name: 'origin', type: 4, children: 0
+[NoLifeNx DEBUG] No suitable bitmap child found in hybrid node
+[NoLifeNx DEBUG] Hybrid bitmap node detected with 1 children
+[NoLifeNx DEBUG] Child 0 name: 'origin', type: 4, children: 0
+[NoLifeNx DEBUG] No suitable bitmap child found in hybrid node
+[NoLifeNx DEBUG] Hybrid bitmap node detected with 1 children
+[NoLifeNx DEBUG] Child 0 name: 'origin', type: 4, children: 0
+[NoLifeNx DEBUG] No suitable bitmap child found in hybrid node
+[NoLifeNx DEBUG] Hybrid bitmap node detected with 1 children
+[NoLifeNx DEBUG] Child 0 name: 'origin', type: 4, children: 0
+[NoLifeNx DEBUG] No suitable bitmap child found in hybrid node
+[NoLifeNx DEBUG] Hybrid bitmap node detected with 1 children
+[NoLifeNx DEBUG] Child 0 name: 'origin', type: 4, children: 0
+[NoLifeNx DEBUG] No suitable bitmap child found in hybrid node
+[NoLifeNx DEBUG] Hybrid bitmap node detected with 1 children
+[NoLifeNx DEBUG] Child 0 name: 'origin', type: 4, children: 0
+[NoLifeNx DEBUG] No suitable bitmap child found in hybrid node
+[NoLifeNx DEBUG] Hybrid bitmap node detected with 1 children
+[NoLifeNx DEBUG] Child 0 name: 'origin', type: 4, children: 0
+[NoLifeNx DEBUG] No suitable bitmap child found in hybrid node
+[NoLifeNx DEBUG] Hybrid bitmap node detected with 1 children
+[NoLifeNx DEBUG] Child 0 name: 'origin', type: 4, children: 0
+[NoLifeNx DEBUG] No suitable bitmap child found in hybrid node
+[NoLifeNx DEBUG] Hybrid bitmap node detected with 1 children
+[NoLifeNx DEBUG] Child 0 name: 'origin', type: 4, children: 0
+[NoLifeNx DEBUG] No suitable bitmap child found in hybrid node
+[NoLifeNx DEBUG] Hybrid bitmap node detected with 1 children
+[NoLifeNx DEBUG] Child 0 name: 'origin', type: 4, children: 0
+[NoLifeNx DEBUG] No suitable bitmap child found in hybrid node
+[NoLifeNx DEBUG] Hybrid bitmap node detected with 1 children
+[NoLifeNx DEBUG] Child 0 name: 'origin', type: 4, children: 0
+[NoLifeNx DEBUG] No suitable bitmap child found in hybrid node
+[NoLifeNx DEBUG] Hybrid bitmap node detected with 1 children
+[NoLifeNx DEBUG] Child 0 name: 'origin', type: 4, children: 0
+[NoLifeNx DEBUG] No suitable bitmap child found in hybrid node
+[DEBUG FRAME] Creating frame from node: '0', data type: 5
+[NoLifeNx DEBUG] Hybrid bitmap node detected with 1 children
+[NoLifeNx DEBUG] Child 0 name: 'origin', type: 4, children: 0
+[NoLifeNx DEBUG] No suitable bitmap child found in hybrid node
+[DEBUG FRAME] Texture created from node
+[DEBUG FRAME] Creating frame from node: '1', data type: 5
+[NoLifeNx DEBUG] Hybrid bitmap node detected with 1 children
+[NoLifeNx DEBUG] Child 0 name: 'origin', type: 4, children: 0
+[NoLifeNx DEBUG] No suitable bitmap child found in hybrid node
+[DEBUG FRAME] Texture created from node
+[DEBUG FRAME] Creating frame from node: '2', data type: 5
+[NoLifeNx DEBUG] Hybrid bitmap node detected with 1 children
+[NoLifeNx DEBUG] Child 0 name: 'origin', type: 4, children: 0
+[NoLifeNx DEBUG] No suitable bitmap child found in hybrid node
+[DEBUG FRAME] Texture created from node
+[DEBUG FRAME] Creating frame from node: '3', data type: 5
+[NoLifeNx DEBUG] Hybrid bitmap node detected with 1 children
+[NoLifeNx DEBUG] Child 0 name: 'origin', type: 4, children: 0
+[NoLifeNx DEBUG] No suitable bitmap child found in hybrid node
+[DEBUG FRAME] Texture created from node
+[DEBUG FRAME] Creating frame from node: '4', data type: 5
+[NoLifeNx DEBUG] Hybrid bitmap node detected with 1 children
+[NoLifeNx DEBUG] Child 0 name: 'origin', type: 4, children: 0
+[NoLifeNx DEBUG] No suitable bitmap child found in hybrid node
+[DEBUG FRAME] Texture created from node
+[DEBUG FRAME] Creating frame from node: '5', data type: 5
+[NoLifeNx DEBUG] Hybrid bitmap node detected with 1 children
+[NoLifeNx DEBUG] Child 0 name: 'origin', type: 4, children: 0
+[NoLifeNx DEBUG] No suitable bitmap child found in hybrid node
+[DEBUG FRAME] Texture created from node
+[DEBUG FRAME] Creating frame from node: '6', data type: 5
+[NoLifeNx DEBUG] Hybrid bitmap node detected with 1 children
+[NoLifeNx DEBUG] Child 0 name: 'origin', type: 4, children: 0
+[NoLifeNx DEBUG] No suitable bitmap child found in hybrid node
+[DEBUG FRAME] Texture created from node
+[DEBUG FRAME] Creating frame from node: '0', data type: 5
+[NoLifeNx DEBUG] Hybrid bitmap node detected with 1 children
+[NoLifeNx DEBUG] Child 0 name: 'origin', type: 4, children: 0
+[NoLifeNx DEBUG] No suitable bitmap child found in hybrid node
+[DEBUG FRAME] Texture created from node
+[DEBUG FRAME] Creating frame from node: '1', data type: 5
+[NoLifeNx DEBUG] Hybrid bitmap node detected with 1 children
+[NoLifeNx DEBUG] Child 0 name: 'origin', type: 4, children: 0
+[NoLifeNx DEBUG] No suitable bitmap child found in hybrid node
+[DEBUG FRAME] Texture created from node
+[DEBUG FRAME] Creating frame from node: '2', data type: 5
+[NoLifeNx DEBUG] Hybrid bitmap node detected with 1 children
+[NoLifeNx DEBUG] Child 0 name: 'origin', type: 4, children: 0
+[NoLifeNx DEBUG] No suitable bitmap child found in hybrid node
+[DEBUG FRAME] Texture created from node
+[DEBUG FRAME] Creating frame from node: '3', data type: 5
+[NoLifeNx DEBUG] Hybrid bitmap node detected with 1 children
+[NoLifeNx DEBUG] Child 0 name: 'origin', type: 4, children: 0
+[NoLifeNx DEBUG] No suitable bitmap child found in hybrid node
+[DEBUG FRAME] Texture created from node
+[DEBUG FRAME] Creating frame from node: '0', data type: 5
+[NoLifeNx DEBUG] Hybrid bitmap node detected with 1 children
+[NoLifeNx DEBUG] Child 0 name: 'origin', type: 4, children: 0
+[NoLifeNx DEBUG] No suitable bitmap child found in hybrid node
+[DEBUG FRAME] Texture created from node
+[DEBUG FRAME] Creating frame from node: '1', data type: 5
+[NoLifeNx DEBUG] Hybrid bitmap node detected with 1 children
+[NoLifeNx DEBUG] Child 0 name: 'origin', type: 4, children: 0
+[NoLifeNx DEBUG] No suitable bitmap child found in hybrid node
+[DEBUG FRAME] Texture created from node
+[DEBUG FRAME] Creating frame from node: '2', data type: 5
+[NoLifeNx DEBUG] Hybrid bitmap node detected with 1 children
+[NoLifeNx DEBUG] Child 0 name: 'origin', type: 4, children: 0
+[NoLifeNx DEBUG] No suitable bitmap child found in hybrid node
+[DEBUG FRAME] Texture created from node
+[DEBUG FRAME] Creating frame from node: '3', data type: 5
+[NoLifeNx DEBUG] Hybrid bitmap node detected with 1 children
+[NoLifeNx DEBUG] Child 0 name: 'origin', type: 4, children: 0
+[NoLifeNx DEBUG] No suitable bitmap child found in hybrid node
+[DEBUG FRAME] Texture created from node
+[DEBUG FRAME] Creating frame from node: '0', data type: 5
+[NoLifeNx DEBUG] Hybrid bitmap node detected with 1 children
+[NoLifeNx DEBUG] Child 0 name: 'origin', type: 4, children: 0
+[NoLifeNx DEBUG] No suitable bitmap child found in hybrid node
+[DEBUG FRAME] Texture created from node
+[DEBUG FRAME] Creating frame from node: '1', data type: 5
+[NoLifeNx DEBUG] Hybrid bitmap node detected with 1 children
+[NoLifeNx DEBUG] Child 0 name: 'origin', type: 4, children: 0
+[NoLifeNx DEBUG] No suitable bitmap child found in hybrid node
+[DEBUG FRAME] Texture created from node
+[DEBUG FRAME] Creating frame from node: '2', data type: 5
+[NoLifeNx DEBUG] Hybrid bitmap node detected with 1 children
+[NoLifeNx DEBUG] Child 0 name: 'origin', type: 4, children: 0
+[NoLifeNx DEBUG] No suitable bitmap child found in hybrid node
+[DEBUG FRAME] Texture created from node
+[DEBUG FRAME] Creating frame from node: '3', data type: 5
+[NoLifeNx DEBUG] Hybrid bitmap node detected with 1 children
+[NoLifeNx DEBUG] Child 0 name: 'origin', type: 4, children: 0
+[NoLifeNx DEBUG] No suitable bitmap child found in hybrid node
+[DEBUG FRAME] Texture created from node
+[DEBUG FRAME] Creating frame from node: '0', data type: 5
+[NoLifeNx DEBUG] Hybrid bitmap node detected with 1 children
+[NoLifeNx DEBUG] Child 0 name: 'origin', type: 4, children: 0
+[NoLifeNx DEBUG] No suitable bitmap child found in hybrid node
+[DEBUG FRAME] Texture created from node
+[DEBUG FRAME] Creating frame from node: '1', data type: 5
+[NoLifeNx DEBUG] Hybrid bitmap node detected with 1 children
+[NoLifeNx DEBUG] Child 0 name: 'origin', type: 4, children: 0
+[NoLifeNx DEBUG] No suitable bitmap child found in hybrid node
+[DEBUG FRAME] Texture created from node
+[DEBUG FRAME] Creating frame from node: '2', data type: 5
+[NoLifeNx DEBUG] Hybrid bitmap node detected with 1 children
+[NoLifeNx DEBUG] Child 0 name: 'origin', type: 4, children: 0
+[NoLifeNx DEBUG] No suitable bitmap child found in hybrid node
+[DEBUG FRAME] Texture created from node
+[DEBUG FRAME] Creating frame from node: '3', data type: 5
+[NoLifeNx DEBUG] Hybrid bitmap node detected with 1 children
+[NoLifeNx DEBUG] Child 0 name: 'origin', type: 4, children: 0
+[NoLifeNx DEBUG] No suitable bitmap child found in hybrid node
+[DEBUG FRAME] Texture created from node
+[DEBUG FRAME] Creating frame from node: '0', data type: 5
+[NoLifeNx DEBUG] Hybrid bitmap node detected with 1 children
+[NoLifeNx DEBUG] Child 0 name: 'origin', type: 4, children: 0
+[NoLifeNx DEBUG] No suitable bitmap child found in hybrid node
+[DEBUG FRAME] Texture created from node
+[DEBUG FRAME] Creating frame from node: '0', data type: 5
+[NoLifeNx DEBUG] Hybrid bitmap node detected with 2 children
+[NoLifeNx DEBUG] Child 0 name: 'delay', type: 1, children: 0
+[NoLifeNx DEBUG] Child 1 name: 'origin', type: 4, children: 0
+[NoLifeNx DEBUG] No suitable bitmap child found in hybrid node
+[DEBUG FRAME] Texture created from node
+[DEBUG FRAME] Creating frame from node: '1', data type: 5
+[NoLifeNx DEBUG] Hybrid bitmap node detected with 2 children
+[NoLifeNx DEBUG] Child 0 name: 'delay', type: 1, children: 0
+[NoLifeNx DEBUG] Child 1 name: 'origin', type: 4, children: 0
+[NoLifeNx DEBUG] No suitable bitmap child found in hybrid node
+[DEBUG FRAME] Texture created from node
+[DEBUG FRAME] Creating frame from node: '0', data type: 5
+[NoLifeNx DEBUG] Hybrid bitmap node detected with 2 children
+[NoLifeNx DEBUG] Child 0 name: 'delay', type: 1, children: 0
+[NoLifeNx DEBUG] Child 1 name: 'origin', type: 4, children: 0
+[NoLifeNx DEBUG] No suitable bitmap child found in hybrid node
+[DEBUG FRAME] Texture created from node
+[DEBUG FRAME] Creating frame from node: '1', data type: 5
+[NoLifeNx DEBUG] Hybrid bitmap node detected with 2 children
+[NoLifeNx DEBUG] Child 0 name: 'delay', type: 1, children: 0
+[NoLifeNx DEBUG] Child 1 name: 'origin', type: 4, children: 0
+[NoLifeNx DEBUG] No suitable bitmap child found in hybrid node
+[DEBUG FRAME] Texture created from node
+[DEBUG FRAME] Creating frame from node: '2', data type: 5
+[NoLifeNx DEBUG] Hybrid bitmap node detected with 2 children
+[NoLifeNx DEBUG] Child 0 name: 'delay', type: 1, children: 0
+[NoLifeNx DEBUG] Child 1 name: 'origin', type: 4, children: 0
+[NoLifeNx DEBUG] No suitable bitmap child found in hybrid node
+[DEBUG FRAME] Texture created from node
+[DEBUG FRAME] Creating frame from node: '3', data type: 5
+[NoLifeNx DEBUG] Hybrid bitmap node detected with 2 children
+[NoLifeNx DEBUG] Child 0 name: 'delay', type: 1, children: 0
+[NoLifeNx DEBUG] Child 1 name: 'origin', type: 4, children: 0
+[NoLifeNx DEBUG] No suitable bitmap child found in hybrid node
+[DEBUG FRAME] Texture created from node
+[DEBUG FRAME] Creating frame from node: '4', data type: 5
+[NoLifeNx DEBUG] Hybrid bitmap node detected with 2 children
+[NoLifeNx DEBUG] Child 0 name: 'delay', type: 1, children: 0
+[NoLifeNx DEBUG] Child 1 name: 'origin', type: 4, children: 0
+[NoLifeNx DEBUG] No suitable bitmap child found in hybrid node
+[DEBUG FRAME] Texture created from node
+[DEBUG FRAME] Creating frame from node: '5', data type: 5
+[NoLifeNx DEBUG] Hybrid bitmap node detected with 2 children
+[NoLifeNx DEBUG] Child 0 name: 'delay', type: 1, children: 0
+[NoLifeNx DEBUG] Child 1 name: 'origin', type: 4, children: 0
+[NoLifeNx DEBUG] No suitable bitmap child found in hybrid node
+[DEBUG FRAME] Texture created from node
+[DEBUG FRAME] Creating frame from node: '6', data type: 5
+[NoLifeNx DEBUG] Hybrid bitmap node detected with 2 children
+[NoLifeNx DEBUG] Child 0 name: 'delay', type: 1, children: 0
+[NoLifeNx DEBUG] Child 1 name: 'origin', type: 4, children: 0
+[NoLifeNx DEBUG] No suitable bitmap child found in hybrid node
+[DEBUG FRAME] Texture created from node
+[DEBUG FRAME] Creating frame from node: '0', data type: 5
+[NoLifeNx DEBUG] Hybrid bitmap node detected with 2 children
+[NoLifeNx DEBUG] Child 0 name: 'delay', type: 1, children: 0
+[NoLifeNx DEBUG] Child 1 name: 'origin', type: 4, children: 0
+[NoLifeNx DEBUG] No suitable bitmap child found in hybrid node
+[DEBUG FRAME] Texture created from node
+[DEBUG FRAME] Creating frame from node: '1', data type: 5
+[NoLifeNx DEBUG] Hybrid bitmap node detected with 2 children
+[NoLifeNx DEBUG] Child 0 name: 'delay', type: 1, children: 0
+[NoLifeNx DEBUG] Child 1 name: 'origin', type: 4, children: 0
+[NoLifeNx DEBUG] No suitable bitmap child found in hybrid node
+[DEBUG FRAME] Texture created from node
+[DEBUG FRAME] Creating frame from node: '2', data type: 5
+[NoLifeNx DEBUG] Hybrid bitmap node detected with 2 children
+[NoLifeNx DEBUG] Child 0 name: 'delay', type: 1, children: 0
+[NoLifeNx DEBUG] Child 1 name: 'origin', type: 4, children: 0
+[NoLifeNx DEBUG] No suitable bitmap child found in hybrid node
+[DEBUG FRAME] Texture created from node
+[DEBUG FRAME] Creating frame from node: '3', data type: 5
+[NoLifeNx DEBUG] Hybrid bitmap node detected with 2 children
+[NoLifeNx DEBUG] Child 0 name: 'delay', type: 1, children: 0
+[NoLifeNx DEBUG] Child 1 name: 'origin', type: 4, children: 0
+[NoLifeNx DEBUG] No suitable bitmap child found in hybrid node
+[DEBUG FRAME] Texture created from node
+[DEBUG FRAME] Creating frame from node: '4', data type: 5
+[NoLifeNx DEBUG] Hybrid bitmap node detected with 2 children
+[NoLifeNx DEBUG] Child 0 name: 'delay', type: 1, children: 0
+[NoLifeNx DEBUG] Child 1 name: 'origin', type: 4, children: 0
+[NoLifeNx DEBUG] No suitable bitmap child found in hybrid node
+[DEBUG FRAME] Texture created from node
+[DEBUG FRAME] Creating frame from node: '5', data type: 5
+[NoLifeNx DEBUG] Hybrid bitmap node detected with 2 children
+[NoLifeNx DEBUG] Child 0 name: 'delay', type: 1, children: 0
+[NoLifeNx DEBUG] Child 1 name: 'origin', type: 4, children: 0
+[NoLifeNx DEBUG] No suitable bitmap child found in hybrid node
+[DEBUG FRAME] Texture created from node
+[DEBUG FRAME] Creating frame from node: '0', data type: 5
+[NoLifeNx DEBUG] Hybrid bitmap node detected with 2 children
+[NoLifeNx DEBUG] Child 0 name: 'delay', type: 1, children: 0
+[NoLifeNx DEBUG] Child 1 name: 'origin', type: 4, children: 0
+[NoLifeNx DEBUG] No suitable bitmap child found in hybrid node
+[DEBUG FRAME] Texture created from node
+[DEBUG FRAME] Creating frame from node: '1', data type: 5
+[NoLifeNx DEBUG] Hybrid bitmap node detected with 2 children
+[NoLifeNx DEBUG] Child 0 name: 'delay', type: 1, children: 0
+[NoLifeNx DEBUG] Child 1 name: 'origin', type: 4, children: 0
+[NoLifeNx DEBUG] No suitable bitmap child found in hybrid node
+[DEBUG FRAME] Texture created from node
+[DEBUG FRAME] Creating frame from node: '0', data type: 5
+[NoLifeNx DEBUG] Hybrid bitmap node detected with 2 children
+[NoLifeNx DEBUG] Child 0 name: 'delay', type: 1, children: 0
+[NoLifeNx DEBUG] Child 1 name: 'origin', type: 4, children: 0
+[NoLifeNx DEBUG] No suitable bitmap child found in hybrid node
+[DEBUG FRAME] Texture created from node
+[DEBUG FRAME] Creating frame from node: '1', data type: 5
+[NoLifeNx DEBUG] Hybrid bitmap node detected with 2 children
+[NoLifeNx DEBUG] Child 0 name: 'delay', type: 1, children: 0
+[NoLifeNx DEBUG] Child 1 name: 'origin', type: 4, children: 0
+[NoLifeNx DEBUG] No suitable bitmap child found in hybrid node
+[DEBUG FRAME] Texture created from node
+[DEBUG FRAME] Creating frame from node: '2', data type: 5
+[NoLifeNx DEBUG] Hybrid bitmap node detected with 2 children
+[NoLifeNx DEBUG] Child 0 name: 'delay', type: 1, children: 0
+[NoLifeNx DEBUG] Child 1 name: 'origin', type: 4, children: 0
+[NoLifeNx DEBUG] No suitable bitmap child found in hybrid node
+[DEBUG FRAME] Texture created from node
+[DEBUG FRAME] Creating frame from node: '3', data type: 5
+[NoLifeNx DEBUG] Hybrid bitmap node detected with 2 children
+[NoLifeNx DEBUG] Child 0 name: 'delay', type: 1, children: 0
+[NoLifeNx DEBUG] Child 1 name: 'origin', type: 4, children: 0
+[NoLifeNx DEBUG] No suitable bitmap child found in hybrid node
+[DEBUG FRAME] Texture created from node
+[DEBUG FRAME] Creating frame from node: '0', data type: 5
+[NoLifeNx DEBUG] Hybrid bitmap node detected with 2 children
+[NoLifeNx DEBUG] Child 0 name: 'delay', type: 1, children: 0
+[NoLifeNx DEBUG] Child 1 name: 'origin', type: 4, children: 0
+[NoLifeNx DEBUG] No suitable bitmap child found in hybrid node
+[DEBUG FRAME] Texture created from node
+[DEBUG FRAME] Creating frame from node: '1', data type: 5
+[NoLifeNx DEBUG] Hybrid bitmap node detected with 2 children
+[NoLifeNx DEBUG] Child 0 name: 'delay', type: 1, children: 0
+[NoLifeNx DEBUG] Child 1 name: 'origin', type: 4, children: 0
+[NoLifeNx DEBUG] No suitable bitmap child found in hybrid node
+[DEBUG FRAME] Texture created from node
+[DEBUG FRAME] Creating frame from node: '2', data type: 5
+[NoLifeNx DEBUG] Hybrid bitmap node detected with 2 children
+[NoLifeNx DEBUG] Child 0 name: 'delay', type: 1, children: 0
+[NoLifeNx DEBUG] Child 1 name: 'origin', type: 4, children: 0
+[NoLifeNx DEBUG] No suitable bitmap child found in hybrid node
+[DEBUG FRAME] Texture created from node
+[DEBUG FRAME] Creating frame from node: '3', data type: 5
+[NoLifeNx DEBUG] Hybrid bitmap node detected with 2 children
+[NoLifeNx DEBUG] Child 0 name: 'delay', type: 1, children: 0
+[NoLifeNx DEBUG] Child 1 name: 'origin', type: 4, children: 0
+[NoLifeNx DEBUG] No suitable bitmap child found in hybrid node
+[DEBUG FRAME] Texture created from node
+[DEBUG FRAME] Creating frame from node: '4', data type: 5
+[NoLifeNx DEBUG] Hybrid bitmap node detected with 2 children
+[NoLifeNx DEBUG] Child 0 name: 'delay', type: 1, children: 0
+[NoLifeNx DEBUG] Child 1 name: 'origin', type: 4, children: 0
+[NoLifeNx DEBUG] No suitable bitmap child found in hybrid node
+[DEBUG FRAME] Texture created from node
+[DEBUG FRAME] Creating frame from node: '5', data type: 5
+[NoLifeNx DEBUG] Hybrid bitmap node detected with 2 children
+[NoLifeNx DEBUG] Child 0 name: 'delay', type: 1, children: 0
+[NoLifeNx DEBUG] Child 1 name: 'origin', type: 4, children: 0
+[NoLifeNx DEBUG] No suitable bitmap child found in hybrid node
+[DEBUG FRAME] Texture created from node
+[DEBUG FRAME] Creating frame from node: '6', data type: 5
+[NoLifeNx DEBUG] Hybrid bitmap node detected with 2 children
+[NoLifeNx DEBUG] Child 0 name: 'delay', type: 1, children: 0
+[NoLifeNx DEBUG] Child 1 name: 'origin', type: 4, children: 0
+[NoLifeNx DEBUG] No suitable bitmap child found in hybrid node
+[DEBUG FRAME] Texture created from node
+[DEBUG FRAME] Creating frame from node: '0', data type: 5
+[NoLifeNx DEBUG] Hybrid bitmap node detected with 2 children
+[NoLifeNx DEBUG] Child 0 name: 'delay', type: 1, children: 0
+[NoLifeNx DEBUG] Child 1 name: 'origin', type: 4, children: 0
+[NoLifeNx DEBUG] No suitable bitmap child found in hybrid node
+[DEBUG FRAME] Texture created from node
+[DEBUG FRAME] Creating frame from node: '1', data type: 5
+[NoLifeNx DEBUG] Hybrid bitmap node detected with 2 children
+[NoLifeNx DEBUG] Child 0 name: 'delay', type: 1, children: 0
+[NoLifeNx DEBUG] Child 1 name: 'origin', type: 4, children: 0
+[NoLifeNx DEBUG] No suitable bitmap child found in hybrid node
+[DEBUG FRAME] Texture created from node
+[DEBUG FRAME] Creating frame from node: '2', data type: 5
+[NoLifeNx DEBUG] Hybrid bitmap node detected with 2 children
+[NoLifeNx DEBUG] Child 0 name: 'delay', type: 1, children: 0
+[NoLifeNx DEBUG] Child 1 name: 'origin', type: 4, children: 0
+[NoLifeNx DEBUG] No suitable bitmap child found in hybrid node
+[DEBUG FRAME] Texture created from node
+[DEBUG FRAME] Creating frame from node: '4', data type: 5
+[NoLifeNx DEBUG] Hybrid bitmap node detected with 2 children
+[NoLifeNx DEBUG] Child 0 name: 'delay', type: 1, children: 0
+[NoLifeNx DEBUG] Child 1 name: 'origin', type: 4, children: 0
+[NoLifeNx DEBUG] No suitable bitmap child found in hybrid node
+[DEBUG FRAME] Texture created from node
+[DEBUG FRAME] Creating frame from node: '0', data type: 5
+[NoLifeNx DEBUG] Hybrid bitmap node detected with 2 children
+[NoLifeNx DEBUG] Child 0 name: 'delay', type: 1, children: 0
+[NoLifeNx DEBUG] Child 1 name: 'origin', type: 4, children: 0
+[NoLifeNx DEBUG] No suitable bitmap child found in hybrid node
+[DEBUG FRAME] Texture created from node
+[DEBUG FRAME] Creating frame from node: '1', data type: 5
+[NoLifeNx DEBUG] Hybrid bitmap node detected with 2 children
+[NoLifeNx DEBUG] Child 0 name: 'delay', type: 1, children: 0
+[NoLifeNx DEBUG] Child 1 name: 'origin', type: 4, children: 0
+[NoLifeNx DEBUG] No suitable bitmap child found in hybrid node
+[DEBUG FRAME] Texture created from node
+[DEBUG FRAME] Creating frame from node: '2', data type: 5
+[NoLifeNx DEBUG] Hybrid bitmap node detected with 2 children
+[NoLifeNx DEBUG] Child 0 name: 'delay', type: 1, children: 0
+[NoLifeNx DEBUG] Child 1 name: 'origin', type: 4, children: 0
+[NoLifeNx DEBUG] No suitable bitmap child found in hybrid node
+[DEBUG FRAME] Texture created from node
+[DEBUG FRAME] Creating frame from node: '4', data type: 5
+[NoLifeNx DEBUG] Hybrid bitmap node detected with 2 children
+[NoLifeNx DEBUG] Child 0 name: 'delay', type: 1, children: 0
+[NoLifeNx DEBUG] Child 1 name: 'origin', type: 4, children: 0
+[NoLifeNx DEBUG] No suitable bitmap child found in hybrid node
+[DEBUG FRAME] Texture created from node
+[DEBUG FRAME] Creating frame from node: '0', data type: 5
+[NoLifeNx DEBUG] Hybrid bitmap node detected with 1 children
+[NoLifeNx DEBUG] Child 0 name: 'origin', type: 4, children: 0
+[NoLifeNx DEBUG] No suitable bitmap child found in hybrid node
+[DEBUG FRAME] Texture created from node
+[DEBUG FRAME] Creating frame from node: '0', data type: 5
+[NoLifeNx DEBUG] Hybrid bitmap node detected with 1 children
+[NoLifeNx DEBUG] Child 0 name: 'origin', type: 4, children: 0
+[NoLifeNx DEBUG] No suitable bitmap child found in hybrid node
+[DEBUG FRAME] Texture created from node
+[DEBUG FRAME] Creating frame from node: '0', data type: 5
+[NoLifeNx DEBUG] Hybrid bitmap node detected with 1 children
+[NoLifeNx DEBUG] Child 0 name: 'origin', type: 4, children: 0
+[NoLifeNx DEBUG] No suitable bitmap child found in hybrid node
+[DEBUG FRAME] Texture created from node
+[DEBUG FRAME] Creating frame from node: '0', data type: 5
+[NoLifeNx DEBUG] Hybrid bitmap node detected with 1 children
+[NoLifeNx DEBUG] Child 0 name: 'origin', type: 4, children: 0
+[NoLifeNx DEBUG] No suitable bitmap child found in hybrid node
+[DEBUG FRAME] Texture created from node
+[DEBUG FRAME] Creating frame from node: '0', data type: 5
+[NoLifeNx DEBUG] Hybrid bitmap node detected with 2 children
+[NoLifeNx DEBUG] Child 0 name: 'delay', type: 1, children: 0
+[NoLifeNx DEBUG] Child 1 name: 'origin', type: 4, children: 0
+[NoLifeNx DEBUG] No suitable bitmap child found in hybrid node
+[DEBUG FRAME] Texture created from node
+[DEBUG FRAME] Creating frame from node: '1', data type: 5
+[NoLifeNx DEBUG] Hybrid bitmap node detected with 2 children
+[NoLifeNx DEBUG] Child 0 name: 'delay', type: 1, children: 0
+[NoLifeNx DEBUG] Child 1 name: 'origin', type: 4, children: 0
+[NoLifeNx DEBUG] No suitable bitmap child found in hybrid node
+[DEBUG FRAME] Texture created from node
+[DEBUG FRAME] Creating frame from node: '0', data type: 5
+[NoLifeNx DEBUG] Hybrid bitmap node detected with 1 children
+[NoLifeNx DEBUG] Child 0 name: 'origin', type: 4, children: 0
+[NoLifeNx DEBUG] No suitable bitmap child found in hybrid node
+[DEBUG FRAME] Texture created from node
+[DEBUG FRAME] Creating frame from node: '0', data type: 5
+[NoLifeNx DEBUG] Hybrid bitmap node detected with 2 children
+[NoLifeNx DEBUG] Child 0 name: 'delay', type: 1, children: 0
+[NoLifeNx DEBUG] Child 1 name: 'origin', type: 4, children: 0
+[NoLifeNx DEBUG] No suitable bitmap child found in hybrid node
+[DEBUG FRAME] Texture created from node
+[DEBUG FRAME] Creating frame from node: '1', data type: 5
+[NoLifeNx DEBUG] Hybrid bitmap node detected with 2 children
+[NoLifeNx DEBUG] Child 0 name: 'delay', type: 1, children: 0
+[NoLifeNx DEBUG] Child 1 name: 'origin', type: 4, children: 0
+[NoLifeNx DEBUG] No suitable bitmap child found in hybrid node
+[DEBUG FRAME] Texture created from node
+[DEBUG FRAME] Creating frame from node: '0', data type: 5
+[NoLifeNx DEBUG] Hybrid bitmap node detected with 2 children
+[NoLifeNx DEBUG] Child 0 name: 'delay', type: 1, children: 0
+[NoLifeNx DEBUG] Child 1 name: 'origin', type: 4, children: 0
+[NoLifeNx DEBUG] No suitable bitmap child found in hybrid node
+[DEBUG FRAME] Texture created from node
+[DEBUG FRAME] Creating frame from node: '1', data type: 5
+[NoLifeNx DEBUG] Hybrid bitmap node detected with 2 children
+[NoLifeNx DEBUG] Child 0 name: 'delay', type: 1, children: 0
+[NoLifeNx DEBUG] Child 1 name: 'origin', type: 4, children: 0
+[NoLifeNx DEBUG] No suitable bitmap child found in hybrid node
+[DEBUG FRAME] Texture created from node
+[DEBUG FRAME] Creating frame from node: '2', data type: 5
+[NoLifeNx DEBUG] Hybrid bitmap node detected with 2 children
+[NoLifeNx DEBUG] Child 0 name: 'delay', type: 1, children: 0
+[NoLifeNx DEBUG] Child 1 name: 'origin', type: 4, children: 0
+[NoLifeNx DEBUG] No suitable bitmap child found in hybrid node
+[DEBUG FRAME] Texture created from node
+[DEBUG FRAME] Creating frame from node: '3', data type: 5
+[NoLifeNx DEBUG] Hybrid bitmap node detected with 2 children
+[NoLifeNx DEBUG] Child 0 name: 'delay', type: 1, children: 0
+[NoLifeNx DEBUG] Child 1 name: 'origin', type: 4, children: 0
+[NoLifeNx DEBUG] No suitable bitmap child found in hybrid node
+[DEBUG FRAME] Texture created from node
+[NoLifeNx DEBUG] Hybrid bitmap node detected with 2 children
+[NoLifeNx DEBUG] Child 0 name: 'origin', type: 4, children: 0
+[NoLifeNx DEBUG] Child 1 name: 'z', type: 1, children: 0
+[NoLifeNx DEBUG] No suitable bitmap child found in hybrid node
+[NoLifeNx DEBUG] Hybrid bitmap node detected with 2 children
+[NoLifeNx DEBUG] Child 0 name: 'origin', type: 4, children: 0
+[NoLifeNx DEBUG] Child 1 name: 'z', type: 1, children: 0
+[NoLifeNx DEBUG] No suitable bitmap child found in hybrid node
+[NoLifeNx DEBUG] Hybrid bitmap node detected with 2 children
+[NoLifeNx DEBUG] Child 0 name: 'origin', type: 4, children: 0
+[NoLifeNx DEBUG] Child 1 name: 'z', type: 1, children: 0
+[NoLifeNx DEBUG] No suitable bitmap child found in hybrid node
+[DEBUG FRAME] Creating frame from node: '0', data type: 5
+[NoLifeNx DEBUG] Hybrid bitmap node detected with 2 children
+[NoLifeNx DEBUG] Child 0 name: 'origin', type: 4, children: 0
+[NoLifeNx DEBUG] Child 1 name: 'z', type: 1, children: 0
+[NoLifeNx DEBUG] No suitable bitmap child found in hybrid node
+[DEBUG FRAME] Texture created from node
+[DEBUG FRAME] Creating frame from node: '0', data type: 5
+[NoLifeNx DEBUG] Hybrid bitmap node detected with 2 children
+[NoLifeNx DEBUG] Child 0 name: 'origin', type: 4, children: 0
+[NoLifeNx DEBUG] Child 1 name: 'z', type: 1, children: 0
+[NoLifeNx DEBUG] No suitable bitmap child found in hybrid node
+[DEBUG FRAME] Texture created from node
+[NoLifeNx DEBUG] Hybrid bitmap node detected with 2 children
+[NoLifeNx DEBUG] Child 0 name: 'origin', type: 4, children: 0
+[NoLifeNx DEBUG] Child 1 name: 'z', type: 1, children: 0
+[NoLifeNx DEBUG] No suitable bitmap child found in hybrid node
+[NoLifeNx DEBUG] Hybrid bitmap node detected with 2 children
+[NoLifeNx DEBUG] Child 0 name: 'origin', type: 4, children: 0
+[NoLifeNx DEBUG] Child 1 name: 'z', type: 1, children: 0
+[NoLifeNx DEBUG] No suitable bitmap child found in hybrid node
+[NoLifeNx DEBUG] Hybrid bitmap node detected with 2 children
+[NoLifeNx DEBUG] Child 0 name: 'origin', type: 4, children: 0
+[NoLifeNx DEBUG] Child 1 name: 'z', type: 1, children: 0
+[NoLifeNx DEBUG] No suitable bitmap child found in hybrid node
+[DEBUG FRAME] Creating frame from node: 'backgrnd', data type: 5
+[NoLifeNx DEBUG] Hybrid bitmap node detected with 1 children
+[NoLifeNx DEBUG] Child 0 name: 'origin', type: 4, children: 0
+[NoLifeNx DEBUG] No suitable bitmap child found in hybrid node
+[DEBUG FRAME] Texture created from node
+[DEBUG FRAME] Creating frame from node: '0', data type: 5
+[NoLifeNx DEBUG] Hybrid bitmap node detected with 3 children
+[NoLifeNx DEBUG] Child 0 name: 'delay', type: 1, children: 0
+[NoLifeNx DEBUG] Child 1 name: 'origin', type: 4, children: 0
+[NoLifeNx DEBUG] Child 2 name: 'z', type: 1, children: 0
+[NoLifeNx DEBUG] No suitable bitmap child found in hybrid node
+[DEBUG FRAME] Texture created from node
+[DEBUG FRAME] Creating frame from node: '1', data type: 5
+[NoLifeNx DEBUG] Hybrid bitmap node detected with 3 children
+[NoLifeNx DEBUG] Child 0 name: 'delay', type: 1, children: 0
+[NoLifeNx DEBUG] Child 1 name: 'origin', type: 4, children: 0
+[NoLifeNx DEBUG] Child 2 name: 'z', type: 1, children: 0
+[NoLifeNx DEBUG] No suitable bitmap child found in hybrid node
+[DEBUG FRAME] Texture created from node
+[DEBUG FRAME] Creating frame from node: '2', data type: 5
+[NoLifeNx DEBUG] Hybrid bitmap node detected with 3 children
+[NoLifeNx DEBUG] Child 0 name: 'delay', type: 1, children: 0
+[NoLifeNx DEBUG] Child 1 name: 'origin', type: 4, children: 0
+[NoLifeNx DEBUG] Child 2 name: 'z', type: 1, children: 0
+[NoLifeNx DEBUG] No suitable bitmap child found in hybrid node
+[DEBUG FRAME] Texture created from node
+[DEBUG FRAME] Creating frame from node: '3', data type: 5
+[NoLifeNx DEBUG] Hybrid bitmap node detected with 3 children
+[NoLifeNx DEBUG] Child 0 name: 'delay', type: 1, children: 0
+[NoLifeNx DEBUG] Child 1 name: 'origin', type: 4, children: 0
+[NoLifeNx DEBUG] Child 2 name: 'z', type: 1, children: 0
+[NoLifeNx DEBUG] No suitable bitmap child found in hybrid node
+[DEBUG FRAME] Texture created from node
+[DEBUG FRAME] Creating frame from node: '4', data type: 5
+[NoLifeNx DEBUG] Hybrid bitmap node detected with 3 children
+[NoLifeNx DEBUG] Child 0 name: 'delay', type: 1, children: 0
+[NoLifeNx DEBUG] Child 1 name: 'origin', type: 4, children: 0
+[NoLifeNx DEBUG] Child 2 name: 'z', type: 1, children: 0
+[NoLifeNx DEBUG] No suitable bitmap child found in hybrid node
+[DEBUG FRAME] Texture created from node
+[DEBUG FRAME] Creating frame from node: '5', data type: 5
+[NoLifeNx DEBUG] Hybrid bitmap node detected with 3 children
+[NoLifeNx DEBUG] Child 0 name: 'delay', type: 1, children: 0
+[NoLifeNx DEBUG] Child 1 name: 'origin', type: 4, children: 0
+[NoLifeNx DEBUG] Child 2 name: 'z', type: 1, children: 0
+[NoLifeNx DEBUG] No suitable bitmap child found in hybrid node
+[DEBUG FRAME] Texture created from node
+[DEBUG FRAME] Creating frame from node: '6', data type: 5
+[NoLifeNx DEBUG] Hybrid bitmap node detected with 3 children
+[NoLifeNx DEBUG] Child 0 name: 'delay', type: 1, children: 0
+[NoLifeNx DEBUG] Child 1 name: 'origin', type: 4, children: 0
+[NoLifeNx DEBUG] Child 2 name: 'z', type: 1, children: 0
+[NoLifeNx DEBUG] No suitable bitmap child found in hybrid node
+[DEBUG FRAME] Texture created from node
+[DEBUG FRAME] Creating frame from node: '7', data type: 5
+[NoLifeNx DEBUG] Hybrid bitmap node detected with 3 children
+[NoLifeNx DEBUG] Child 0 name: 'delay', type: 1, children: 0
+[NoLifeNx DEBUG] Child 1 name: 'origin', type: 4, children: 0
+[NoLifeNx DEBUG] Child 2 name: 'z', type: 1, children: 0
+[NoLifeNx DEBUG] No suitable bitmap child found in hybrid node
+[DEBUG FRAME] Texture created from node
+[DEBUG FRAME] Creating frame from node: '8', data type: 5
+[NoLifeNx DEBUG] Hybrid bitmap node detected with 3 children
+[NoLifeNx DEBUG] Child 0 name: 'delay', type: 1, children: 0
+[NoLifeNx DEBUG] Child 1 name: 'origin', type: 4, children: 0
+[NoLifeNx DEBUG] Child 2 name: 'z', type: 1, children: 0
+[NoLifeNx DEBUG] No suitable bitmap child found in hybrid node
+[DEBUG FRAME] Texture created from node
+[DEBUG FRAME] Creating frame from node: '9', data type: 5
+[NoLifeNx DEBUG] Hybrid bitmap node detected with 3 children
+[NoLifeNx DEBUG] Child 0 name: 'delay', type: 1, children: 0
+[NoLifeNx DEBUG] Child 1 name: 'origin', type: 4, children: 0
+[NoLifeNx DEBUG] Child 2 name: 'z', type: 1, children: 0
+[NoLifeNx DEBUG] No suitable bitmap child found in hybrid node
+[DEBUG FRAME] Texture created from node
+[DEBUG FRAME] Creating frame from node: '10', data type: 5
+[NoLifeNx DEBUG] Hybrid bitmap node detected with 3 children
+[NoLifeNx DEBUG] Child 0 name: 'delay', type: 1, children: 0
+[NoLifeNx DEBUG] Child 1 name: 'origin', type: 4, children: 0
+[NoLifeNx DEBUG] Child 2 name: 'z', type: 1, children: 0
+[NoLifeNx DEBUG] No suitable bitmap child found in hybrid node
+[DEBUG FRAME] Texture created from node
+[DEBUG FRAME] Creating frame from node: '11', data type: 5
+[NoLifeNx DEBUG] Hybrid bitmap node detected with 3 children
+[NoLifeNx DEBUG] Child 0 name: 'delay', type: 1, children: 0
+[NoLifeNx DEBUG] Child 1 name: 'origin', type: 4, children: 0
+[NoLifeNx DEBUG] Child 2 name: 'z', type: 1, children: 0
+[NoLifeNx DEBUG] No suitable bitmap child found in hybrid node
+[DEBUG FRAME] Texture created from node
+[DEBUG FRAME] Creating frame from node: '12', data type: 5
+[NoLifeNx DEBUG] Hybrid bitmap node detected with 3 children
+[NoLifeNx DEBUG] Child 0 name: 'delay', type: 1, children: 0
+[NoLifeNx DEBUG] Child 1 name: 'origin', type: 4, children: 0
+[NoLifeNx DEBUG] Child 2 name: 'z', type: 1, children: 0
+[NoLifeNx DEBUG] No suitable bitmap child found in hybrid node
+[DEBUG FRAME] Texture created from node
+[DEBUG FRAME] Creating frame from node: '13', data type: 5
+[NoLifeNx DEBUG] Hybrid bitmap node detected with 3 children
+[NoLifeNx DEBUG] Child 0 name: 'delay', type: 1, children: 0
+[NoLifeNx DEBUG] Child 1 name: 'origin', type: 4, children: 0
+[NoLifeNx DEBUG] Child 2 name: 'z', type: 1, children: 0
+[NoLifeNx DEBUG] No suitable bitmap child found in hybrid node
+[DEBUG FRAME] Texture created from node
+[DEBUG FRAME] Creating frame from node: '14', data type: 5
+[NoLifeNx DEBUG] Hybrid bitmap node detected with 3 children
+[NoLifeNx DEBUG] Child 0 name: 'delay', type: 1, children: 0
+[NoLifeNx DEBUG] Child 1 name: 'origin', type: 4, children: 0
+[NoLifeNx DEBUG] Child 2 name: 'z', type: 1, children: 0
+[NoLifeNx DEBUG] No suitable bitmap child found in hybrid node
+[DEBUG FRAME] Texture created from node
+[DEBUG FRAME] Creating frame from node: '15', data type: 5
+[NoLifeNx DEBUG] Hybrid bitmap node detected with 3 children
+[NoLifeNx DEBUG] Child 0 name: 'delay', type: 1, children: 0
+[NoLifeNx DEBUG] Child 1 name: 'origin', type: 4, children: 0
+[NoLifeNx DEBUG] Child 2 name: 'z', type: 1, children: 0
+[NoLifeNx DEBUG] No suitable bitmap child found in hybrid node
+[DEBUG FRAME] Texture created from node
+[NoLifeNx DEBUG] Hybrid bitmap node detected with 2 children
+[NoLifeNx DEBUG] Child 0 name: 'origin', type: 4, children: 0
+[NoLifeNx DEBUG] Child 1 name: 'z', type: 1, children: 0
+[NoLifeNx DEBUG] No suitable bitmap child found in hybrid node
+[NoLifeNx DEBUG] Hybrid bitmap node detected with 2 children
+[NoLifeNx DEBUG] Child 0 name: 'origin', type: 4, children: 0
+[NoLifeNx DEBUG] Child 1 name: 'z', type: 1, children: 0
+[NoLifeNx DEBUG] No suitable bitmap child found in hybrid node
+[NoLifeNx DEBUG] Hybrid bitmap node detected with 2 children
+[NoLifeNx DEBUG] Child 0 name: 'origin', type: 4, children: 0
+[NoLifeNx DEBUG] Child 1 name: 'z', type: 1, children: 0
+[NoLifeNx DEBUG] No suitable bitmap child found in hybrid node
+[NoLifeNx DEBUG] Hybrid bitmap node detected with 2 children
+[NoLifeNx DEBUG] Child 0 name: 'origin', type: 4, children: 0
+[NoLifeNx DEBUG] Child 1 name: 'z', type: 1, children: 0
+[NoLifeNx DEBUG] No suitable bitmap child found in hybrid node
+[NoLifeNx DEBUG] Hybrid bitmap node detected with 1 children
+[NoLifeNx DEBUG] Child 0 name: 'origin', type: 4, children: 0
+[NoLifeNx DEBUG] No suitable bitmap child found in hybrid node
+[NoLifeNx DEBUG] Hybrid bitmap node detected with 2 children
+[NoLifeNx DEBUG] Child 0 name: 'origin', type: 4, children: 0
+[NoLifeNx DEBUG] Child 1 name: 'z', type: 1, children: 0
+[NoLifeNx DEBUG] No suitable bitmap child found in hybrid node
+[NoLifeNx DEBUG] Hybrid bitmap node detected with 2 children
+[NoLifeNx DEBUG] Child 0 name: 'origin', type: 4, children: 0
+[NoLifeNx DEBUG] Child 1 name: 'z', type: 1, children: 0
+[NoLifeNx DEBUG] No suitable bitmap child found in hybrid node
+[NoLifeNx DEBUG] Hybrid bitmap node detected with 2 children
+[NoLifeNx DEBUG] Child 0 name: 'origin', type: 4, children: 0
+[NoLifeNx DEBUG] Child 1 name: 'z', type: 1, children: 0
+[NoLifeNx DEBUG] No suitable bitmap child found in hybrid node
+[NoLifeNx DEBUG] Hybrid bitmap node detected with 2 children
+[NoLifeNx DEBUG] Child 0 name: 'origin', type: 4, children: 0
+[NoLifeNx DEBUG] Child 1 name: 'z', type: 1, children: 0
+[NoLifeNx DEBUG] No suitable bitmap child found in hybrid node
+[NoLifeNx DEBUG] Hybrid bitmap node detected with 2 children
+[NoLifeNx DEBUG] Child 0 name: 'origin', type: 4, children: 0
+[NoLifeNx DEBUG] Child 1 name: 'z', type: 1, children: 0
+[NoLifeNx DEBUG] No suitable bitmap child found in hybrid node
+[NoLifeNx DEBUG] Hybrid bitmap node detected with 2 children
+[NoLifeNx DEBUG] Child 0 name: 'origin', type: 4, children: 0
+[NoLifeNx DEBUG] Child 1 name: 'z', type: 1, children: 0
+[NoLifeNx DEBUG] No suitable bitmap child found in hybrid node
+[NoLifeNx DEBUG] Hybrid bitmap node detected with 2 children
+[NoLifeNx DEBUG] Child 0 name: 'origin', type: 4, children: 0
+[NoLifeNx DEBUG] Child 1 name: 'z', type: 1, children: 0
+[NoLifeNx DEBUG] No suitable bitmap child found in hybrid node
+[NoLifeNx DEBUG] Hybrid bitmap node detected with 2 children
+[NoLifeNx DEBUG] Child 0 name: 'origin', type: 4, children: 0
+[NoLifeNx DEBUG] Child 1 name: 'z', type: 1, children: 0
+[NoLifeNx DEBUG] No suitable bitmap child found in hybrid node
+[NoLifeNx DEBUG] Hybrid bitmap node detected with 2 children
+[NoLifeNx DEBUG] Child 0 name: 'origin', type: 4, children: 0
+[NoLifeNx DEBUG] Child 1 name: 'z', type: 1, children: 0
+[NoLifeNx DEBUG] No suitable bitmap child found in hybrid node
+[NoLifeNx DEBUG] Hybrid bitmap node detected with 2 children
+[NoLifeNx DEBUG] Child 0 name: 'origin', type: 4, children: 0
+[NoLifeNx DEBUG] Child 1 name: 'z', type: 1, children: 0
+[NoLifeNx DEBUG] No suitable bitmap child found in hybrid node
+[NoLifeNx DEBUG] Hybrid bitmap node detected with 2 children
+[NoLifeNx DEBUG] Child 0 name: 'origin', type: 4, children: 0
+[NoLifeNx DEBUG] Child 1 name: 'z', type: 1, children: 0
+[NoLifeNx DEBUG] No suitable bitmap child found in hybrid node
+[NoLifeNx DEBUG] Hybrid bitmap node detected with 2 children
+[NoLifeNx DEBUG] Child 0 name: 'origin', type: 4, children: 0
+[NoLifeNx DEBUG] Child 1 name: 'z', type: 1, children: 0
+[NoLifeNx DEBUG] No suitable bitmap child found in hybrid node
+[NoLifeNx DEBUG] Hybrid bitmap node detected with 2 children
+[NoLifeNx DEBUG] Child 0 name: 'origin', type: 4, children: 0
+[NoLifeNx DEBUG] Child 1 name: 'z', type: 1, children: 0
+[NoLifeNx DEBUG] No suitable bitmap child found in hybrid node
+[NoLifeNx DEBUG] Hybrid bitmap node detected with 2 children
+[NoLifeNx DEBUG] Child 0 name: 'origin', type: 4, children: 0
+[NoLifeNx DEBUG] Child 1 name: 'z', type: 1, children: 0
+[NoLifeNx DEBUG] No suitable bitmap child found in hybrid node
+[NoLifeNx DEBUG] Hybrid bitmap node detected with 2 children
+[NoLifeNx DEBUG] Child 0 name: 'origin', type: 4, children: 0
+[NoLifeNx DEBUG] Child 1 name: 'z', type: 1, children: 0
+[NoLifeNx DEBUG] No suitable bitmap child found in hybrid node
+[NoLifeNx DEBUG] Hybrid bitmap node detected with 3 children
+[NoLifeNx DEBUG] Child 0 name: 'delay', type: 1, children: 0
+[NoLifeNx DEBUG] Child 1 name: 'origin', type: 4, children: 0
+[NoLifeNx DEBUG] Child 2 name: 'z', type: 1, children: 0
+[NoLifeNx DEBUG] No suitable bitmap child found in hybrid node
+[NoLifeNx DEBUG] Hybrid bitmap node detected with 2 children
+[NoLifeNx DEBUG] Child 0 name: 'origin', type: 4, children: 0
+[NoLifeNx DEBUG] Child 1 name: 'z', type: 1, children: 0
+[NoLifeNx DEBUG] No suitable bitmap child found in hybrid node
+[NoLifeNx DEBUG] Hybrid bitmap node detected with 3 children
+[NoLifeNx DEBUG] Child 0 name: 'delay', type: 1, children: 0
+[NoLifeNx DEBUG] Child 1 name: 'origin', type: 4, children: 0
+[NoLifeNx DEBUG] Child 2 name: 'z', type: 1, children: 0
+[NoLifeNx DEBUG] No suitable bitmap child found in hybrid node
+[NoLifeNx DEBUG] Hybrid bitmap node detected with 2 children
+[NoLifeNx DEBUG] Child 0 name: 'origin', type: 4, children: 0
+[NoLifeNx DEBUG] Child 1 name: 'z', type: 1, children: 0
+[NoLifeNx DEBUG] No suitable bitmap child found in hybrid node
+[NoLifeNx DEBUG] Hybrid bitmap node detected with 2 children
+[NoLifeNx DEBUG] Child 0 name: 'origin', type: 4, children: 0
+[NoLifeNx DEBUG] Child 1 name: 'z', type: 1, children: 0
+[NoLifeNx DEBUG] No suitable bitmap child found in hybrid node
+[NoLifeNx DEBUG] Hybrid bitmap node detected with 2 children
+[NoLifeNx DEBUG] Child 0 name: 'origin', type: 4, children: 0
+[NoLifeNx DEBUG] Child 1 name: 'z', type: 1, children: 0
+[NoLifeNx DEBUG] No suitable bitmap child found in hybrid node
+[NoLifeNx DEBUG] Hybrid bitmap node detected with 2 children
+[NoLifeNx DEBUG] Child 0 name: 'origin', type: 4, children: 0
+[NoLifeNx DEBUG] Child 1 name: 'z', type: 1, children: 0
+[NoLifeNx DEBUG] No suitable bitmap child found in hybrid node
+[NoLifeNx DEBUG] Hybrid bitmap node detected with 2 children
+[NoLifeNx DEBUG] Child 0 name: 'origin', type: 4, children: 0
+[NoLifeNx DEBUG] Child 1 name: 'z', type: 1, children: 0
+[NoLifeNx DEBUG] No suitable bitmap child found in hybrid node
+[DEBUG FRAME] Creating frame from node: '0', data type: 5
+[NoLifeNx DEBUG] Hybrid bitmap node detected with 2 children
+[NoLifeNx DEBUG] Child 0 name: 'origin', type: 4, children: 0
+[NoLifeNx DEBUG] Child 1 name: 'z', type: 1, children: 0
+[NoLifeNx DEBUG] No suitable bitmap child found in hybrid node
+[DEBUG FRAME] Texture created from node
+[DEBUG FRAME] Creating frame from node: '1', data type: 5
+[NoLifeNx DEBUG] Hybrid bitmap node detected with 2 children
+[NoLifeNx DEBUG] Child 0 name: 'origin', type: 4, children: 0
+[NoLifeNx DEBUG] Child 1 name: 'z', type: 1, children: 0
+[NoLifeNx DEBUG] No suitable bitmap child found in hybrid node
+[DEBUG FRAME] Texture created from node
+[DEBUG FRAME] Creating frame from node: '2', data type: 5
+[NoLifeNx DEBUG] Hybrid bitmap node detected with 2 children
+[NoLifeNx DEBUG] Child 0 name: 'origin', type: 4, children: 0
+[NoLifeNx DEBUG] Child 1 name: 'z', type: 1, children: 0
+[NoLifeNx DEBUG] No suitable bitmap child found in hybrid node
+[DEBUG FRAME] Texture created from node
+[DEBUG FRAME] Creating frame from node: '3', data type: 5
+[NoLifeNx DEBUG] Hybrid bitmap node detected with 2 children
+[NoLifeNx DEBUG] Child 0 name: 'origin', type: 4, children: 0
+[NoLifeNx DEBUG] Child 1 name: 'z', type: 1, children: 0
+[NoLifeNx DEBUG] No suitable bitmap child found in hybrid node
+[DEBUG FRAME] Texture created from node
+[DEBUG FRAME] Creating frame from node: '4', data type: 5
+[NoLifeNx DEBUG] Hybrid bitmap node detected with 2 children
+[NoLifeNx DEBUG] Child 0 name: 'origin', type: 4, children: 0
+[NoLifeNx DEBUG] Child 1 name: 'z', type: 1, children: 0
+[NoLifeNx DEBUG] No suitable bitmap child found in hybrid node
+[DEBUG FRAME] Texture created from node
+[DEBUG FRAME] Creating frame from node: '5', data type: 5
+[NoLifeNx DEBUG] Hybrid bitmap node detected with 2 children
+[NoLifeNx DEBUG] Child 0 name: 'origin', type: 4, children: 0
+[NoLifeNx DEBUG] Child 1 name: 'z', type: 1, children: 0
+[NoLifeNx DEBUG] No suitable bitmap child found in hybrid node
+[DEBUG FRAME] Texture created from node
+[DEBUG FRAME] Creating frame from node: '0', data type: 5
+[NoLifeNx DEBUG] Hybrid bitmap node detected with 2 children
+[NoLifeNx DEBUG] Child 0 name: 'origin', type: 4, children: 0
+[NoLifeNx DEBUG] Child 1 name: 'z', type: 1, children: 0
+[NoLifeNx DEBUG] No suitable bitmap child found in hybrid node
+[DEBUG FRAME] Texture created from node
+[DEBUG FRAME] Creating frame from node: '1', data type: 5
+[NoLifeNx DEBUG] Hybrid bitmap node detected with 2 children
+[NoLifeNx DEBUG] Child 0 name: 'origin', type: 4, children: 0
+[NoLifeNx DEBUG] Child 1 name: 'z', type: 1, children: 0
+[NoLifeNx DEBUG] No suitable bitmap child found in hybrid node
+[DEBUG FRAME] Texture created from node
+[DEBUG FRAME] Creating frame from node: '2', data type: 5
+[NoLifeNx DEBUG] Hybrid bitmap node detected with 2 children
+[NoLifeNx DEBUG] Child 0 name: 'origin', type: 4, children: 0
+[NoLifeNx DEBUG] Child 1 name: 'z', type: 1, children: 0
+[NoLifeNx DEBUG] No suitable bitmap child found in hybrid node
+[DEBUG FRAME] Texture created from node
+[DEBUG FRAME] Creating frame from node: '3', data type: 5
+[NoLifeNx DEBUG] Hybrid bitmap node detected with 2 children
+[NoLifeNx DEBUG] Child 0 name: 'origin', type: 4, children: 0
+[NoLifeNx DEBUG] Child 1 name: 'z', type: 1, children: 0
+[NoLifeNx DEBUG] No suitable bitmap child found in hybrid node
+[DEBUG FRAME] Texture created from node
+[DEBUG FRAME] Creating frame from node: '4', data type: 5
+[NoLifeNx DEBUG] Hybrid bitmap node detected with 2 children
+[NoLifeNx DEBUG] Child 0 name: 'origin', type: 4, children: 0
+[NoLifeNx DEBUG] Child 1 name: 'z', type: 1, children: 0
+[NoLifeNx DEBUG] No suitable bitmap child found in hybrid node
+[DEBUG FRAME] Texture created from node
+[DEBUG FRAME] Creating frame from node: '5', data type: 5
+[NoLifeNx DEBUG] Hybrid bitmap node detected with 2 children
+[NoLifeNx DEBUG] Child 0 name: 'origin', type: 4, children: 0
+[NoLifeNx DEBUG] Child 1 name: 'z', type: 1, children: 0
+[NoLifeNx DEBUG] No suitable bitmap child found in hybrid node
+[DEBUG FRAME] Texture created from node
+[DEBUG FRAME] Creating frame from node: '0', data type: 5
+[NoLifeNx DEBUG] Hybrid bitmap node detected with 2 children
+[NoLifeNx DEBUG] Child 0 name: 'origin', type: 4, children: 0
+[NoLifeNx DEBUG] Child 1 name: 'z', type: 1, children: 0
+[NoLifeNx DEBUG] No suitable bitmap child found in hybrid node
+[DEBUG FRAME] Texture created from node
+[DEBUG FRAME] Creating frame from node: '1', data type: 5
+[NoLifeNx DEBUG] Hybrid bitmap node detected with 2 children
+[NoLifeNx DEBUG] Child 0 name: 'origin', type: 4, children: 0
+[NoLifeNx DEBUG] Child 1 name: 'z', type: 1, children: 0
+[NoLifeNx DEBUG] No suitable bitmap child found in hybrid node
+[DEBUG FRAME] Texture created from node
+[DEBUG FRAME] Creating frame from node: '2', data type: 5
+[NoLifeNx DEBUG] Hybrid bitmap node detected with 2 children
+[NoLifeNx DEBUG] Child 0 name: 'origin', type: 4, children: 0
+[NoLifeNx DEBUG] Child 1 name: 'z', type: 1, children: 0
+[NoLifeNx DEBUG] No suitable bitmap child found in hybrid node
+[DEBUG FRAME] Texture created from node
+[DEBUG FRAME] Creating frame from node: '3', data type: 5
+[NoLifeNx DEBUG] Hybrid bitmap node detected with 2 children
+[NoLifeNx DEBUG] Child 0 name: 'origin', type: 4, children: 0
+[NoLifeNx DEBUG] Child 1 name: 'z', type: 1, children: 0
+[NoLifeNx DEBUG] No suitable bitmap child found in hybrid node
+[DEBUG FRAME] Texture created from node
+[DEBUG FRAME] Creating frame from node: '4', data type: 5
+[NoLifeNx DEBUG] Hybrid bitmap node detected with 2 children
+[NoLifeNx DEBUG] Child 0 name: 'origin', type: 4, children: 0
+[NoLifeNx DEBUG] Child 1 name: 'z', type: 1, children: 0
+[NoLifeNx DEBUG] No suitable bitmap child found in hybrid node
+[DEBUG FRAME] Texture created from node
+[DEBUG FRAME] Creating frame from node: '5', data type: 5
+[NoLifeNx DEBUG] Hybrid bitmap node detected with 2 children
+[NoLifeNx DEBUG] Child 0 name: 'origin', type: 4, children: 0
+[NoLifeNx DEBUG] Child 1 name: 'z', type: 1, children: 0
+[NoLifeNx DEBUG] No suitable bitmap child found in hybrid node
+[DEBUG FRAME] Texture created from node
+[DEBUG FRAME] Creating frame from node: 'backgrnd', data type: 5
+[NoLifeNx DEBUG] Hybrid bitmap node detected with 1 children
+[NoLifeNx DEBUG] Child 0 name: 'origin', type: 4, children: 0
+[NoLifeNx DEBUG] No suitable bitmap child found in hybrid node
+[DEBUG FRAME] Texture created from node
+[DEBUG FRAME] Creating frame from node: '0', data type: 5
+[NoLifeNx DEBUG] Hybrid bitmap node detected with 3 children
+[NoLifeNx DEBUG] Child 0 name: 'delay', type: 1, children: 0
+[NoLifeNx DEBUG] Child 1 name: 'origin', type: 4, children: 0
+[NoLifeNx DEBUG] Child 2 name: 'z', type: 1, children: 0
+[NoLifeNx DEBUG] No suitable bitmap child found in hybrid node
+[DEBUG FRAME] Texture created from node
+[DEBUG FRAME] Creating frame from node: '1', data type: 5
+[NoLifeNx DEBUG] Hybrid bitmap node detected with 3 children
+[NoLifeNx DEBUG] Child 0 name: 'delay', type: 1, children: 0
+[NoLifeNx DEBUG] Child 1 name: 'origin', type: 4, children: 0
+[NoLifeNx DEBUG] Child 2 name: 'z', type: 1, children: 0
+[NoLifeNx DEBUG] No suitable bitmap child found in hybrid node
+[DEBUG FRAME] Texture created from node
+[DEBUG FRAME] Creating frame from node: '2', data type: 5
+[NoLifeNx DEBUG] Hybrid bitmap node detected with 3 children
+[NoLifeNx DEBUG] Child 0 name: 'delay', type: 1, children: 0
+[NoLifeNx DEBUG] Child 1 name: 'origin', type: 4, children: 0
+[NoLifeNx DEBUG] Child 2 name: 'z', type: 1, children: 0
+[NoLifeNx DEBUG] No suitable bitmap child found in hybrid node
+[DEBUG FRAME] Texture created from node
+[DEBUG FRAME] Creating frame from node: '3', data type: 5
+[NoLifeNx DEBUG] Hybrid bitmap node detected with 3 children
+[NoLifeNx DEBUG] Child 0 name: 'delay', type: 1, children: 0
+[NoLifeNx DEBUG] Child 1 name: 'origin', type: 4, children: 0
+[NoLifeNx DEBUG] Child 2 name: 'z', type: 1, children: 0
+[NoLifeNx DEBUG] No suitable bitmap child found in hybrid node
+[DEBUG FRAME] Texture created from node
+[DEBUG FRAME] Creating frame from node: '4', data type: 5
+[NoLifeNx DEBUG] Hybrid bitmap node detected with 3 children
+[NoLifeNx DEBUG] Child 0 name: 'delay', type: 1, children: 0
+[NoLifeNx DEBUG] Child 1 name: 'origin', type: 4, children: 0
+[NoLifeNx DEBUG] Child 2 name: 'z', type: 1, children: 0
+[NoLifeNx DEBUG] No suitable bitmap child found in hybrid node
+[DEBUG FRAME] Texture created from node
+[DEBUG FRAME] Creating frame from node: '5', data type: 5
+[NoLifeNx DEBUG] Hybrid bitmap node detected with 3 children
+[NoLifeNx DEBUG] Child 0 name: 'delay', type: 1, children: 0
+[NoLifeNx DEBUG] Child 1 name: 'origin', type: 4, children: 0
+[NoLifeNx DEBUG] Child 2 name: 'z', type: 1, children: 0
+[NoLifeNx DEBUG] No suitable bitmap child found in hybrid node
+[DEBUG FRAME] Texture created from node
+[DEBUG FRAME] Creating frame from node: '6', data type: 5
+[NoLifeNx DEBUG] Hybrid bitmap node detected with 3 children
+[NoLifeNx DEBUG] Child 0 name: 'delay', type: 1, children: 0
+[NoLifeNx DEBUG] Child 1 name: 'origin', type: 4, children: 0
+[NoLifeNx DEBUG] Child 2 name: 'z', type: 1, children: 0
+[NoLifeNx DEBUG] No suitable bitmap child found in hybrid node
+[DEBUG FRAME] Texture created from node
+[DEBUG FRAME] Creating frame from node: '7', data type: 5
+[NoLifeNx DEBUG] Hybrid bitmap node detected with 3 children
+[NoLifeNx DEBUG] Child 0 name: 'delay', type: 1, children: 0
+[NoLifeNx DEBUG] Child 1 name: 'origin', type: 4, children: 0
+[NoLifeNx DEBUG] Child 2 name: 'z', type: 1, children: 0
+[NoLifeNx DEBUG] No suitable bitmap child found in hybrid node
+[DEBUG FRAME] Texture created from node
+[DEBUG FRAME] Creating frame from node: '8', data type: 5
+[NoLifeNx DEBUG] Hybrid bitmap node detected with 3 children
+[NoLifeNx DEBUG] Child 0 name: 'delay', type: 1, children: 0
+[NoLifeNx DEBUG] Child 1 name: 'origin', type: 4, children: 0
+[NoLifeNx DEBUG] Child 2 name: 'z', type: 1, children: 0
+[NoLifeNx DEBUG] No suitable bitmap child found in hybrid node
+[DEBUG FRAME] Texture created from node
+[DEBUG FRAME] Creating frame from node: '9', data type: 5
+[NoLifeNx DEBUG] Hybrid bitmap node detected with 3 children
+[NoLifeNx DEBUG] Child 0 name: 'delay', type: 1, children: 0
+[NoLifeNx DEBUG] Child 1 name: 'origin', type: 4, children: 0
+[NoLifeNx DEBUG] Child 2 name: 'z', type: 1, children: 0
+[NoLifeNx DEBUG] No suitable bitmap child found in hybrid node
+[DEBUG FRAME] Texture created from node
+[DEBUG FRAME] Creating frame from node: '10', data type: 5
+[NoLifeNx DEBUG] Hybrid bitmap node detected with 3 children
+[NoLifeNx DEBUG] Child 0 name: 'delay', type: 1, children: 0
+[NoLifeNx DEBUG] Child 1 name: 'origin', type: 4, children: 0
+[NoLifeNx DEBUG] Child 2 name: 'z', type: 1, children: 0
+[NoLifeNx DEBUG] No suitable bitmap child found in hybrid node
+[DEBUG FRAME] Texture created from node
+[DEBUG FRAME] Creating frame from node: '11', data type: 5
+[NoLifeNx DEBUG] Hybrid bitmap node detected with 3 children
+[NoLifeNx DEBUG] Child 0 name: 'delay', type: 1, children: 0
+[NoLifeNx DEBUG] Child 1 name: 'origin', type: 4, children: 0
+[NoLifeNx DEBUG] Child 2 name: 'z', type: 1, children: 0
+[NoLifeNx DEBUG] No suitable bitmap child found in hybrid node
+[DEBUG FRAME] Texture created from node
+[DEBUG FRAME] Creating frame from node: '12', data type: 5
+[NoLifeNx DEBUG] Hybrid bitmap node detected with 3 children
+[NoLifeNx DEBUG] Child 0 name: 'delay', type: 1, children: 0
+[NoLifeNx DEBUG] Child 1 name: 'origin', type: 4, children: 0
+[NoLifeNx DEBUG] Child 2 name: 'z', type: 1, children: 0
+[NoLifeNx DEBUG] No suitable bitmap child found in hybrid node
+[DEBUG FRAME] Texture created from node
+[DEBUG FRAME] Creating frame from node: '13', data type: 5
+[NoLifeNx DEBUG] Hybrid bitmap node detected with 3 children
+[NoLifeNx DEBUG] Child 0 name: 'delay', type: 1, children: 0
+[NoLifeNx DEBUG] Child 1 name: 'origin', type: 4, children: 0
+[NoLifeNx DEBUG] Child 2 name: 'z', type: 1, children: 0
+[NoLifeNx DEBUG] No suitable bitmap child found in hybrid node
+[DEBUG FRAME] Texture created from node
+[DEBUG FRAME] Creating frame from node: '14', data type: 5
+[NoLifeNx DEBUG] Hybrid bitmap node detected with 3 children
+[NoLifeNx DEBUG] Child 0 name: 'delay', type: 1, children: 0
+[NoLifeNx DEBUG] Child 1 name: 'origin', type: 4, children: 0
+[NoLifeNx DEBUG] Child 2 name: 'z', type: 1, children: 0
+[NoLifeNx DEBUG] No suitable bitmap child found in hybrid node
+[DEBUG FRAME] Texture created from node
+[DEBUG FRAME] Creating frame from node: '15', data type: 5
+[NoLifeNx DEBUG] Hybrid bitmap node detected with 3 children
+[NoLifeNx DEBUG] Child 0 name: 'delay', type: 1, children: 0
+[NoLifeNx DEBUG] Child 1 name: 'origin', type: 4, children: 0
+[NoLifeNx DEBUG] Child 2 name: 'z', type: 1, children: 0
+[NoLifeNx DEBUG] No suitable bitmap child found in hybrid node
+[DEBUG FRAME] Texture created from node
+[NoLifeNx DEBUG] Hybrid bitmap node detected with 2 children
+[NoLifeNx DEBUG] Child 0 name: 'origin', type: 4, children: 0
+[NoLifeNx DEBUG] Child 1 name: 'z', type: 1, children: 0
+[NoLifeNx DEBUG] No suitable bitmap child found in hybrid node
+[NoLifeNx DEBUG] Hybrid bitmap node detected with 2 children
+[NoLifeNx DEBUG] Child 0 name: 'origin', type: 4, children: 0
+[NoLifeNx DEBUG] Child 1 name: 'z', type: 1, children: 0
+[NoLifeNx DEBUG] No suitable bitmap child found in hybrid node
+[NoLifeNx DEBUG] Hybrid bitmap node detected with 2 children
+[NoLifeNx DEBUG] Child 0 name: 'origin', type: 4, children: 0
+[NoLifeNx DEBUG] Child 1 name: 'z', type: 1, children: 0
+[NoLifeNx DEBUG] No suitable bitmap child found in hybrid node
+[NoLifeNx DEBUG] Hybrid bitmap node detected with 2 children
+[NoLifeNx DEBUG] Child 0 name: 'origin', type: 4, children: 0
+[NoLifeNx DEBUG] Child 1 name: 'z', type: 1, children: 0
+[NoLifeNx DEBUG] No suitable bitmap child found in hybrid node
+[NoLifeNx DEBUG] Hybrid bitmap node detected with 1 children
+[NoLifeNx DEBUG] Child 0 name: 'origin', type: 4, children: 0
+[NoLifeNx DEBUG] No suitable bitmap child found in hybrid node
+[DEBUG FRAME] Creating frame from node: 'backgrnd', data type: 5
+[NoLifeNx DEBUG] Hybrid bitmap node detected with 1 children
+[NoLifeNx DEBUG] Child 0 name: 'origin', type: 4, children: 0
+[NoLifeNx DEBUG] No suitable bitmap child found in hybrid node
+[DEBUG FRAME] Texture created from node
+[DEBUG FRAME] Creating frame from node: '0', data type: 5
+[NoLifeNx DEBUG] Hybrid bitmap node detected with 3 children
+[NoLifeNx DEBUG] Child 0 name: 'delay', type: 1, children: 0
+[NoLifeNx DEBUG] Child 1 name: 'origin', type: 4, children: 0
+[NoLifeNx DEBUG] Child 2 name: 'z', type: 1, children: 0
+[NoLifeNx DEBUG] No suitable bitmap child found in hybrid node
+[DEBUG FRAME] Texture created from node
+[DEBUG FRAME] Creating frame from node: '1', data type: 5
+[NoLifeNx DEBUG] Hybrid bitmap node detected with 3 children
+[NoLifeNx DEBUG] Child 0 name: 'delay', type: 1, children: 0
+[NoLifeNx DEBUG] Child 1 name: 'origin', type: 4, children: 0
+[NoLifeNx DEBUG] Child 2 name: 'z', type: 1, children: 0
+[NoLifeNx DEBUG] No suitable bitmap child found in hybrid node
+[DEBUG FRAME] Texture created from node
+[DEBUG FRAME] Creating frame from node: '2', data type: 5
+[NoLifeNx DEBUG] Hybrid bitmap node detected with 3 children
+[NoLifeNx DEBUG] Child 0 name: 'delay', type: 1, children: 0
+[NoLifeNx DEBUG] Child 1 name: 'origin', type: 4, children: 0
+[NoLifeNx DEBUG] Child 2 name: 'z', type: 1, children: 0
+[NoLifeNx DEBUG] No suitable bitmap child found in hybrid node
+[DEBUG FRAME] Texture created from node
+[DEBUG FRAME] Creating frame from node: '3', data type: 5
+[NoLifeNx DEBUG] Hybrid bitmap node detected with 3 children
+[NoLifeNx DEBUG] Child 0 name: 'delay', type: 1, children: 0
+[NoLifeNx DEBUG] Child 1 name: 'origin', type: 4, children: 0
+[NoLifeNx DEBUG] Child 2 name: 'z', type: 1, children: 0
+[NoLifeNx DEBUG] No suitable bitmap child found in hybrid node
+[DEBUG FRAME] Texture created from node
+[DEBUG FRAME] Creating frame from node: '4', data type: 5
+[NoLifeNx DEBUG] Hybrid bitmap node detected with 3 children
+[NoLifeNx DEBUG] Child 0 name: 'delay', type: 1, children: 0
+[NoLifeNx DEBUG] Child 1 name: 'origin', type: 4, children: 0
+[NoLifeNx DEBUG] Child 2 name: 'z', type: 1, children: 0
+[NoLifeNx DEBUG] No suitable bitmap child found in hybrid node
+[DEBUG FRAME] Texture created from node
+[DEBUG FRAME] Creating frame from node: '5', data type: 5
+[NoLifeNx DEBUG] Hybrid bitmap node detected with 3 children
+[NoLifeNx DEBUG] Child 0 name: 'delay', type: 1, children: 0
+[NoLifeNx DEBUG] Child 1 name: 'origin', type: 4, children: 0
+[NoLifeNx DEBUG] Child 2 name: 'z', type: 1, children: 0
+[NoLifeNx DEBUG] No suitable bitmap child found in hybrid node
+[DEBUG FRAME] Texture created from node
+[DEBUG FRAME] Creating frame from node: '6', data type: 5
+[NoLifeNx DEBUG] Hybrid bitmap node detected with 3 children
+[NoLifeNx DEBUG] Child 0 name: 'delay', type: 1, children: 0
+[NoLifeNx DEBUG] Child 1 name: 'origin', type: 4, children: 0
+[NoLifeNx DEBUG] Child 2 name: 'z', type: 1, children: 0
+[NoLifeNx DEBUG] No suitable bitmap child found in hybrid node
+[DEBUG FRAME] Texture created from node
+[DEBUG FRAME] Creating frame from node: '7', data type: 5
+[NoLifeNx DEBUG] Hybrid bitmap node detected with 3 children
+[NoLifeNx DEBUG] Child 0 name: 'delay', type: 1, children: 0
+[NoLifeNx DEBUG] Child 1 name: 'origin', type: 4, children: 0
+[NoLifeNx DEBUG] Child 2 name: 'z', type: 1, children: 0
+[NoLifeNx DEBUG] No suitable bitmap child found in hybrid node
+[DEBUG FRAME] Texture created from node
+[DEBUG FRAME] Creating frame from node: '8', data type: 5
+[NoLifeNx DEBUG] Hybrid bitmap node detected with 3 children
+[NoLifeNx DEBUG] Child 0 name: 'delay', type: 1, children: 0
+[NoLifeNx DEBUG] Child 1 name: 'origin', type: 4, children: 0
+[NoLifeNx DEBUG] Child 2 name: 'z', type: 1, children: 0
+[NoLifeNx DEBUG] No suitable bitmap child found in hybrid node
+[DEBUG FRAME] Texture created from node
+[DEBUG FRAME] Creating frame from node: '9', data type: 5
+[NoLifeNx DEBUG] Hybrid bitmap node detected with 3 children
+[NoLifeNx DEBUG] Child 0 name: 'delay', type: 1, children: 0
+[NoLifeNx DEBUG] Child 1 name: 'origin', type: 4, children: 0
+[NoLifeNx DEBUG] Child 2 name: 'z', type: 1, children: 0
+[NoLifeNx DEBUG] No suitable bitmap child found in hybrid node
+[DEBUG FRAME] Texture created from node
+[DEBUG FRAME] Creating frame from node: '10', data type: 5
+[NoLifeNx DEBUG] Hybrid bitmap node detected with 3 children
+[NoLifeNx DEBUG] Child 0 name: 'delay', type: 1, children: 0
+[NoLifeNx DEBUG] Child 1 name: 'origin', type: 4, children: 0
+[NoLifeNx DEBUG] Child 2 name: 'z', type: 1, children: 0
+[NoLifeNx DEBUG] No suitable bitmap child found in hybrid node
+[DEBUG FRAME] Texture created from node
+[DEBUG FRAME] Creating frame from node: '11', data type: 5
+[NoLifeNx DEBUG] Hybrid bitmap node detected with 3 children
+[NoLifeNx DEBUG] Child 0 name: 'delay', type: 1, children: 0
+[NoLifeNx DEBUG] Child 1 name: 'origin', type: 4, children: 0
+[NoLifeNx DEBUG] Child 2 name: 'z', type: 1, children: 0
+[NoLifeNx DEBUG] No suitable bitmap child found in hybrid node
+[DEBUG FRAME] Texture created from node
+[DEBUG FRAME] Creating frame from node: '12', data type: 5
+[NoLifeNx DEBUG] Hybrid bitmap node detected with 3 children
+[NoLifeNx DEBUG] Child 0 name: 'delay', type: 1, children: 0
+[NoLifeNx DEBUG] Child 1 name: 'origin', type: 4, children: 0
+[NoLifeNx DEBUG] Child 2 name: 'z', type: 1, children: 0
+[NoLifeNx DEBUG] No suitable bitmap child found in hybrid node
+[DEBUG FRAME] Texture created from node
+[DEBUG FRAME] Creating frame from node: '13', data type: 5
+[NoLifeNx DEBUG] Hybrid bitmap node detected with 3 children
+[NoLifeNx DEBUG] Child 0 name: 'delay', type: 1, children: 0
+[NoLifeNx DEBUG] Child 1 name: 'origin', type: 4, children: 0
+[NoLifeNx DEBUG] Child 2 name: 'z', type: 1, children: 0
+[NoLifeNx DEBUG] No suitable bitmap child found in hybrid node
+[DEBUG FRAME] Texture created from node
+[DEBUG FRAME] Creating frame from node: '14', data type: 5
+[NoLifeNx DEBUG] Hybrid bitmap node detected with 3 children
+[NoLifeNx DEBUG] Child 0 name: 'delay', type: 1, children: 0
+[NoLifeNx DEBUG] Child 1 name: 'origin', type: 4, children: 0
+[NoLifeNx DEBUG] Child 2 name: 'z', type: 1, children: 0
+[NoLifeNx DEBUG] No suitable bitmap child found in hybrid node
+[DEBUG FRAME] Texture created from node
+[DEBUG FRAME] Creating frame from node: '15', data type: 5
+[NoLifeNx DEBUG] Hybrid bitmap node detected with 3 children
+[NoLifeNx DEBUG] Child 0 name: 'delay', type: 1, children: 0
+[NoLifeNx DEBUG] Child 1 name: 'origin', type: 4, children: 0
+[NoLifeNx DEBUG] Child 2 name: 'z', type: 1, children: 0
+[NoLifeNx DEBUG] No suitable bitmap child found in hybrid node
+[DEBUG FRAME] Texture created from node
+[NoLifeNx DEBUG] Hybrid bitmap node detected with 2 children
+[NoLifeNx DEBUG] Child 0 name: 'origin', type: 4, children: 0
+[NoLifeNx DEBUG] Child 1 name: 'z', type: 1, children: 0
+[NoLifeNx DEBUG] No suitable bitmap child found in hybrid node
+[NoLifeNx DEBUG] Hybrid bitmap node detected with 2 children
+[NoLifeNx DEBUG] Child 0 name: 'origin', type: 4, children: 0
+[NoLifeNx DEBUG] Child 1 name: 'z', type: 1, children: 0
+[NoLifeNx DEBUG] No suitable bitmap child found in hybrid node
+[NoLifeNx DEBUG] Hybrid bitmap node detected with 2 children
+[NoLifeNx DEBUG] Child 0 name: 'origin', type: 4, children: 0
+[NoLifeNx DEBUG] Child 1 name: 'z', type: 1, children: 0
+[NoLifeNx DEBUG] No suitable bitmap child found in hybrid node
+[NoLifeNx DEBUG] Hybrid bitmap node detected with 2 children
+[NoLifeNx DEBUG] Child 0 name: 'origin', type: 4, children: 0
+[NoLifeNx DEBUG] Child 1 name: 'z', type: 1, children: 0
+[NoLifeNx DEBUG] No suitable bitmap child found in hybrid node
+[NoLifeNx DEBUG] Hybrid bitmap node detected with 1 children
+[NoLifeNx DEBUG] Child 0 name: 'origin', type: 4, children: 0
+[NoLifeNx DEBUG] No suitable bitmap child found in hybrid node
+[DEBUG FRAME] Creating frame from node: '0', data type: 5
+[NoLifeNx DEBUG] Hybrid bitmap node detected with 2 children
+[NoLifeNx DEBUG] Child 0 name: 'origin', type: 4, children: 0
+[NoLifeNx DEBUG] Child 1 name: 'z', type: 1, children: 0
+[NoLifeNx DEBUG] No suitable bitmap child found in hybrid node
+[DEBUG FRAME] Texture created from node
+[DEBUG FRAME] Creating frame from node: '53', data type: 5
+[NoLifeNx DEBUG] Hybrid bitmap node detected with 2 children
+[NoLifeNx DEBUG] Child 0 name: 'origin', type: 4, children: 0
+[NoLifeNx DEBUG] Child 1 name: 'z', type: 1, children: 0
+[NoLifeNx DEBUG] No suitable bitmap child found in hybrid node
+[DEBUG FRAME] Texture created from node
+[NoLifeNx DEBUG] Hybrid bitmap node detected with 2 children
+[NoLifeNx DEBUG] Child 0 name: 'origin', type: 4, children: 0
+[NoLifeNx DEBUG] Child 1 name: 'z', type: 1, children: 0
+[NoLifeNx DEBUG] No suitable bitmap child found in hybrid node
+[NoLifeNx DEBUG] Hybrid bitmap node detected with 2 children
+[NoLifeNx DEBUG] Child 0 name: 'origin', type: 4, children: 0
+[NoLifeNx DEBUG] Child 1 name: 'z', type: 1, children: 0
+[NoLifeNx DEBUG] No suitable bitmap child found in hybrid node
+[NoLifeNx DEBUG] Hybrid bitmap node detected with 2 children
+[NoLifeNx DEBUG] Child 0 name: 'origin', type: 4, children: 0
+[NoLifeNx DEBUG] Child 1 name: 'z', type: 1, children: 0
+[NoLifeNx DEBUG] No suitable bitmap child found in hybrid node
+[NoLifeNx DEBUG] Hybrid bitmap node detected with 2 children
+[NoLifeNx DEBUG] Child 0 name: 'origin', type: 4, children: 0
+[NoLifeNx DEBUG] Child 1 name: 'z', type: 1, children: 0
+[NoLifeNx DEBUG] No suitable bitmap child found in hybrid node
+[NoLifeNx DEBUG] Hybrid bitmap node detected with 2 children
+[NoLifeNx DEBUG] Child 0 name: 'origin', type: 4, children: 0
+[NoLifeNx DEBUG] Child 1 name: 'z', type: 1, children: 0
+[NoLifeNx DEBUG] No suitable bitmap child found in hybrid node
+[NoLifeNx DEBUG] Hybrid bitmap node detected with 2 children
+[NoLifeNx DEBUG] Child 0 name: 'origin', type: 4, children: 0
+[NoLifeNx DEBUG] Child 1 name: 'z', type: 1, children: 0
+[NoLifeNx DEBUG] No suitable bitmap child found in hybrid node
+[NoLifeNx DEBUG] Hybrid bitmap node detected with 2 children
+[NoLifeNx DEBUG] Child 0 name: 'origin', type: 4, children: 0
+[NoLifeNx DEBUG] Child 1 name: 'z', type: 1, children: 0
+[NoLifeNx DEBUG] No suitable bitmap child found in hybrid node
+[NoLifeNx DEBUG] Hybrid bitmap node detected with 2 children
+[NoLifeNx DEBUG] Child 0 name: 'origin', type: 4, children: 0
+[NoLifeNx DEBUG] Child 1 name: 'z', type: 1, children: 0
+[NoLifeNx DEBUG] No suitable bitmap child found in hybrid node
+[NoLifeNx DEBUG] Hybrid bitmap node detected with 2 children
+[NoLifeNx DEBUG] Child 0 name: 'origin', type: 4, children: 0
+[NoLifeNx DEBUG] Child 1 name: 'z', type: 1, children: 0
+[NoLifeNx DEBUG] No suitable bitmap child found in hybrid node

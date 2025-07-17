@@ -40,17 +40,23 @@ namespace ms
 	{
 		LOG(LOG_DEBUG, "[UIItemInventory] Constructor START");
 		
-		// Use V83 compatibility check
+		// Use version detection
 		bool is_v83 = V83UIAssets::isV83Mode();
+		bool is_v92 = V83UIAssets::isV92Mode();
 		
 		nl::node Item;
 		if (is_v83) {
 			// V83/V87 structure
 			Item = nl::nx::UI["UIWindow.img"]["Item"];
 			LOG(LOG_DEBUG, "[UIItemInventory] Using v83/v87 UI structure");
+		} else if (is_v92) {
+			// V92 structure - uses UIWindow.img but has tabs
+			Item = nl::nx::UI["UIWindow.img"]["Item"];
+			LOG(LOG_DEBUG, "[UIItemInventory] Using v92 UI structure");
 		} else {
 			// Modern structure
 			Item = nl::nx::UI["UIWindow2.img"]["Item"];
+			LOG(LOG_DEBUG, "[UIItemInventory] Using modern UI structure");
 		}
 		
 		if (Item.name().empty()) {
@@ -63,10 +69,24 @@ namespace ms
 			LOG(LOG_DEBUG, "  - " << child.name() << " (type: " << (int)child.data_type() << ")");
 		}
 		
-		// For v87, we need to use simplified initialization
-		// is_v83 already defined above
-		
-		if (!is_v83) {
+		// Handle position data based on version
+		if (is_v83) {
+			// V83/V87 defaults - no position data in NX files
+			LOG(LOG_DEBUG, "[UIItemInventory] Using v83/v87 defaults - no pos data in NX");
+			slot_col = 4;
+			slot_pos = Point<int16_t>(11, 51); // Position for first slot in v87
+			slot_row = 6;
+			slot_space_x = 36;
+			slot_space_y = 35;
+		} else if (is_v92) {
+			// V92 uses same defaults as v83/v87 but has tabs
+			LOG(LOG_DEBUG, "[UIItemInventory] Using v92 defaults - similar to v87 but with tabs");
+			slot_col = 4;
+			slot_pos = Point<int16_t>(11, 51); 
+			slot_row = 6;
+			slot_space_x = 36;
+			slot_space_y = 35;
+		} else {
 			// Modern MapleStory layout
 			nl::node pos = Item["pos"];
 			slot_col = pos["slot_col"];
@@ -74,14 +94,6 @@ namespace ms
 			slot_row = pos["slot_row"];
 			slot_space_x = pos["slot_space_x"];
 			slot_space_y = pos["slot_space_y"];
-		} else {
-			// V87 defaults - no position data in NX files
-			LOG(LOG_DEBUG, "[UIItemInventory] Using v87 defaults - no pos data in NX");
-			slot_col = 4;
-			slot_pos = Point<int16_t>(11, 51); // Position for first slot in v87
-			slot_row = 6;
-			slot_space_x = 36;
-			slot_space_y = 35;
 		}
 		
 		// Validate slot_pos
@@ -95,65 +107,108 @@ namespace ms
 		max_slots = 24;
 		max_full_slots = 96;
 
-		// These nodes don't exist in v87
-		nl::node AutoBuild = is_v83 ? nl::node() : Item["AutoBuild"];
-		nl::node FullAutoBuild = is_v83 ? nl::node() : Item["FullAutoBuild"];
+		// These nodes don't exist in v83/v87, and may not exist in v92
+		nl::node AutoBuild = (is_v83 || is_v92) ? nl::node() : Item["AutoBuild"];
+		nl::node FullAutoBuild = (is_v83 || is_v92) ? nl::node() : Item["FullAutoBuild"];
 
-		// Load backgrounds based on version
-		if (!is_v83) {
-			// Modern MapleStory backgrounds
-			backgrnd = Item["productionBackgrnd"];
-			backgrnd2 = Item["productionBackgrnd2"];
-			backgrnd3 = Item["productionBackgrnd3"];
-			full_backgrnd = Item["FullBackgrnd"];
-			full_backgrnd2 = Item["FullBackgrnd2"];
-			full_backgrnd3 = Item["FullBackgrnd3"];
+		// Load backgrounds - simplified to use only main background
+		nl::node backgrnd_node = Item["backgrnd"];
+		if (backgrnd_node && backgrnd_node.data_type() == nl::node::type::bitmap) {
+			backgrnd = backgrnd_node;
+			LOG(LOG_DEBUG, "[UIItemInventory] Loaded backgrnd");
 		} else {
-			// V87 only has simple backgrounds
-			if (Item["backgrnd"].data_type() == nl::node::type::bitmap) {
-				backgrnd = Item["backgrnd"];
-				LOG(LOG_DEBUG, "[UIItemInventory] Loaded v87 backgrnd");
+			// Fallback for modern versions that might use productionBackgrnd
+			backgrnd_node = Item["productionBackgrnd"];
+			if (backgrnd_node && backgrnd_node.data_type() == nl::node::type::bitmap) {
+				backgrnd = backgrnd_node;
+				LOG(LOG_DEBUG, "[UIItemInventory] Loaded productionBackgrnd as fallback");
 			} else {
-				LOG(LOG_ERROR, "[UIItemInventory] v87 backgrnd not found!");
+				LOG(LOG_ERROR, "[UIItemInventory] No background found!");
 				backgrnd = Texture();
 			}
-			
-			// V87 doesn't have backgrnd2/3
-			backgrnd2 = Texture();
-			backgrnd3 = Texture();
-			
-			// V87 doesn't have separate full backgrounds
-			full_backgrnd = backgrnd;
-			full_backgrnd2 = Texture();
-			full_backgrnd3 = Texture();
 		}
+		
+		// Don't load backgrnd2/3 - not needed
+		backgrnd2 = Texture();
+		backgrnd3 = Texture();
+		
+		// Load full background if available
+		nl::node full_bg_node = Item["FullBackgrnd"];
+		if (full_bg_node && full_bg_node.data_type() == nl::node::type::bitmap) {
+			full_backgrnd = full_bg_node;
+			LOG(LOG_DEBUG, "[UIItemInventory] Loaded FullBackgrnd");
+		} else {
+			// Use regular background as fallback for full view
+			full_backgrnd = backgrnd;
+			LOG(LOG_DEBUG, "[UIItemInventory] Using backgrnd as full_backgrnd fallback");
+		}
+		
+		// Don't load full_backgrnd2/3 - not needed
+		full_backgrnd2 = Texture();
+		full_backgrnd3 = Texture();
 
 		bg_dimensions = backgrnd.get_dimensions();
 		bg_full_dimensions = full_backgrnd.get_dimensions();
 
-		// V87 doesn't have these assets
-		if (!is_v83) {
+		// V83/V87 doesn't have these assets, v92 might have some
+		if (is_v83) {
+			// Use empty textures for v83/v87
+			newitemslot = Animation();
+			newitemtabdis = Animation();
+			newitemtaben = Animation();
+			projectile = Texture();
+			disabled = Texture();
+		} else if (is_v92) {
+			// V92 has basic assets like modern versions
+			nl::node New = Item["New"];
+			if (New) {
+				newitemslot = New["inventory"];
+				newitemtabdis = New["Tab0"];
+				newitemtaben = New["Tab1"];
+			} else {
+				newitemslot = Animation();
+				newitemtabdis = Animation();
+				newitemtaben = Animation();
+			}
+			projectile = Item["activeIcon"];
+			disabled = Item["disabled"];
+		} else {
+			// Modern versions have all assets
 			nl::node New = Item["New"];
 			newitemslot = New["inventory"];
 			newitemtabdis = New["Tab0"];
 			newitemtaben = New["Tab1"];
 			projectile = Item["activeIcon"];
 			disabled = Item["disabled"];
-		} else {
-			// Use empty textures for v87
-			newitemslot = Animation();
-			newitemtabdis = Animation();
-			newitemtaben = Animation();
-			projectile = Texture();
-			disabled = Texture();
 		}
 
 		Point<int16_t> icon_dimensions = disabled.get_dimensions();
 		icon_width = icon_dimensions.x();
 		icon_height = icon_dimensions.y();
 
-		// V87 doesn't have tabs
-		if (!is_v83) {
+		// Handle tabs based on version
+		if (is_v92) {
+			// V92 has 5 tabs (0-4) in UIWindow.img
+			nl::node Tab = Item["Tab"];
+			nl::node taben = Tab["enabled"];
+			nl::node tabdis = Tab["disabled"];
+
+			Point<int16_t> tab_pos0 = Texture(taben["0"]).get_origin() * -1;
+			Point<int16_t> tab_pos1 = Texture(taben["1"]).get_origin() * -1;
+			Point<int16_t> tab_pos2 = Texture(taben["2"]).get_origin() * -1;
+			Point<int16_t> tab_pos3 = Texture(taben["3"]).get_origin() * -1;
+			Point<int16_t> tab_pos4 = Texture(taben["4"]).get_origin() * -1;
+			Point<int16_t> tab_pos_adj = Point<int16_t>(9, 26);
+			
+			buttons[Buttons::BT_TAB_EQUIP] = std::make_unique<TwoSpriteButton>(tabdis["0"], taben["0"], tab_pos0 - tab_pos_adj, Point<int16_t>(0, 0));
+			buttons[Buttons::BT_TAB_USE] = std::make_unique<TwoSpriteButton>(tabdis["1"], taben["1"], tab_pos1 - tab_pos_adj, Point<int16_t>(0, 0));
+			buttons[Buttons::BT_TAB_ETC] = std::make_unique<TwoSpriteButton>(tabdis["2"], taben["2"], tab_pos2 - tab_pos_adj, Point<int16_t>(0, 0));
+			buttons[Buttons::BT_TAB_SETUP] = std::make_unique<TwoSpriteButton>(tabdis["3"], taben["3"], tab_pos3 - tab_pos_adj, Point<int16_t>(0, 0));
+			buttons[Buttons::BT_TAB_CASH] = std::make_unique<TwoSpriteButton>(tabdis["4"], taben["4"], tab_pos4 - tab_pos_adj, Point<int16_t>(0, 0));
+			// V92 doesn't have tab 5 (BT_TAB_DEC) - skip it
+			LOG(LOG_DEBUG, "[UIItemInventory] V92 mode - loaded 5 tabs (0-4), no tab 5");
+		} else if (!is_v83) {
+			// Modern versions have 6 tabs (0-5)
 			nl::node Tab = Item["Tab"];
 			nl::node taben = Tab["enabled"];
 			nl::node tabdis = Tab["disabled"];
@@ -172,17 +227,18 @@ namespace ms
 			buttons[Buttons::BT_TAB_SETUP] = std::make_unique<TwoSpriteButton>(tabdis["3"], taben["3"], tab_pos3 - tab_pos_adj, Point<int16_t>(0, 0));
 			buttons[Buttons::BT_TAB_CASH] = std::make_unique<TwoSpriteButton>(tabdis["4"], taben["4"], tab_pos4 - tab_pos_adj, Point<int16_t>(0, 0));
 			buttons[Buttons::BT_TAB_DEC] = std::make_unique<TwoSpriteButton>(tabdis["5"], taben["5"], tab_pos5 - tab_pos_adj, Point<int16_t>(0, 0));
+			LOG(LOG_DEBUG, "[UIItemInventory] Modern mode - loaded 6 tabs (0-5)");
 		} else {
-			// V87 has no tab system - create dummy buttons
-			LOG(LOG_DEBUG, "[UIItemInventory] V87 mode - no tabs");
+			// V83/V87 has no tab system - create dummy buttons
+			LOG(LOG_DEBUG, "[UIItemInventory] V83/V87 mode - no tabs");
 		}
 
 		// Close button exists in both versions
 		nl::node close = nl::nx::UI["Basic.img"]["BtClose3"];
 		buttons[Buttons::BT_CLOSE] = std::make_unique<MapleButton>(close);
 
-		// V87 doesn't have these buttons
-		if (!is_v83) {
+		// V83/V87 and V92 don't have these AutoBuild buttons
+		if (!is_v83 && !is_v92) {
 			buttons[Buttons::BT_COIN] = std::make_unique<MapleButton>(AutoBuild["button:Coin"]);
 			buttons[Buttons::BT_POINT] = std::make_unique<MapleButton>(AutoBuild["button:Point"]);
 			buttons[Buttons::BT_GATHER] = std::make_unique<MapleButton>(AutoBuild["button:Gather"]);
@@ -308,60 +364,51 @@ namespace ms
 		UIElement::draw_sprites(alpha);
 		LOG(LOG_DEBUG, "[UIItemInventory] draw() after draw_sprites");
 
-		Point<int16_t> mesolabel_pos = position + Point<int16_t>(144, 305);
-		Point<int16_t> maplepointslabel_pos = position + Point<int16_t>(179, 323);
+		// Use version-aware positioning for mesos text
+		Point<int16_t> mesolabel_pos;
+		Point<int16_t> maplepointslabel_pos;
+		
+		bool is_v92 = V83UIAssets::isV92Mode();
+		if (is_v92) {
+			// V92 inventory background is 175x289, so position mesos text within it
+			// Position at bottom of inventory with some padding
+			mesolabel_pos = position + Point<int16_t>(15, 265);
+			maplepointslabel_pos = position + Point<int16_t>(95, 265);
+		} else {
+			// Modern MapleStory positions
+			mesolabel_pos = position + Point<int16_t>(144, 305);
+			maplepointslabel_pos = position + Point<int16_t>(179, 323);
+		}
 
 		if (full_enabled)
 		{
-			LOG(LOG_DEBUG, "[UIItemInventory] draw() drawing full backgrounds");
-			full_backgrnd.draw(position);
-			full_backgrnd2.draw(position);
-			full_backgrnd3.draw(position);
+			LOG(LOG_DEBUG, "[UIItemInventory] draw() drawing full background");
+			if (full_backgrnd.is_valid()) {
+				full_backgrnd.draw(position);
+			}
 
 			mesolabel.draw(mesolabel_pos + Point<int16_t>(0, 84));
 			maplepointslabel.draw(maplepointslabel_pos + Point<int16_t>(220, 66));
 		}
 		else
 		{
-			LOG(LOG_DEBUG, "[UIItemInventory] draw() drawing normal backgrounds");
+			LOG(LOG_DEBUG, "[UIItemInventory] draw() drawing normal background");
 			LOG(LOG_DEBUG, "[UIItemInventory] draw() position=" << position.x() << "," << position.y());
-			try {
-				if (backgrnd.is_valid()) {
-					backgrnd.draw(position);
-					LOG(LOG_DEBUG, "[UIItemInventory] draw() after backgrnd");
-				} else {
-					LOG(LOG_DEBUG, "[UIItemInventory] draw() backgrnd is empty/invalid");
-				}
-			} catch (...) {
-				LOG(LOG_ERROR, "[UIItemInventory] draw() ERROR drawing backgrnd!");
+			
+			// Only draw the main background
+			if (backgrnd.is_valid()) {
+				backgrnd.draw(position);
+				LOG(LOG_DEBUG, "[UIItemInventory] draw() after backgrnd");
+			} else {
+				LOG(LOG_DEBUG, "[UIItemInventory] draw() backgrnd is empty/invalid");
 			}
-			try {
-				if (backgrnd2.is_valid()) {
-					backgrnd2.draw(position);
-					LOG(LOG_DEBUG, "[UIItemInventory] draw() after backgrnd2");
-				}
-			} catch (...) {
-				LOG(LOG_ERROR, "[UIItemInventory] draw() ERROR drawing backgrnd2!");
-			}
-			try {
-				if (backgrnd3.is_valid()) {
-					backgrnd3.draw(position);
-					LOG(LOG_DEBUG, "[UIItemInventory] draw() after backgrnd3");
-				}
-			} catch (...) {
-				LOG(LOG_ERROR, "[UIItemInventory] draw() ERROR drawing backgrnd3!");
-			}
-
+			
 			// Skip slider drawing - it's causing freezes
 			LOG(LOG_DEBUG, "[UIItemInventory] draw() slider drawing disabled due to freeze issue");
 
-			try {
-				mesolabel.draw(mesolabel_pos);
-				maplepointslabel.draw(maplepointslabel_pos);
-				LOG(LOG_DEBUG, "[UIItemInventory] draw() after labels");
-			} catch (...) {
-				LOG(LOG_ERROR, "[UIItemInventory] draw() ERROR drawing labels!");
-			}
+			mesolabel.draw(mesolabel_pos);
+			maplepointslabel.draw(maplepointslabel_pos);
+			LOG(LOG_DEBUG, "[UIItemInventory] draw() after labels");
 		}
 
 		LOG(LOG_DEBUG, "[UIItemInventory] draw() getting slot range for tab=" << (int)tab);

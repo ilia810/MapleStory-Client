@@ -1,0 +1,26 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(cl:*)",
+      "Bash(cmd.exe:*)",
+      "Bash(dir:*)",
+      "Bash(./check_inventory_assets.bat)",
+      "Bash(cmd /c:*)",
+      "Bash(where:*)",
+      "Bash(find:*)",
+      "Bash(ls:*)",
+      "Bash(awk:*)",
+      "Bash(grep:*)",
+      "Bash(./check_inventory_assets.exe)",
+      "Bash(git checkout:*)",
+      "Bash(.build.bat)",
+      "Bash(msbuild:*)",
+      "Bash(build.bat)",
+      "Bash(./build.bat)",
+      "Bash(build_simple.bat check_ui_assets.cpp check_ui_assets.exe)",
+      "Bash(./build_simple.bat check_ui_assets.cpp check_ui_assets.exe)",
+      "Bash(npx:*)"
+    ],
+    "deny": []
+  }
+}

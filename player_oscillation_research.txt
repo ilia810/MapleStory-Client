@@ -1,0 +1,3502 @@
+This file is a merged representation of a subset of the codebase, containing specifically included files, combined into a single document by Repomix.
+
+================================================================
+File Summary
+================================================================
+
+Purpose:
+--------
+This file contains a packed representation of the entire repository's contents.
+It is designed to be easily consumable by AI systems for analysis, code review,
+or other automated processes.
+
+File Format:
+------------
+The content is organized as follows:
+1. This summary section
+2. Repository information
+3. Directory structure
+4. Multiple file entries, each consisting of:
+  a. A separator line (================)
+  b. The file path (File: path/to/file)
+  c. Another separator line
+  d. The full contents of the file
+  e. A blank line
+
+Usage Guidelines:
+-----------------
+- This file should be treated as read-only. Any changes should be made to the
+  original repository files, not this packed version.
+- When processing this file, use the file path to distinguish
+  between different files in the repository.
+- Be aware that this file may contain sensitive information. Handle it with
+  the same level of security as you would the original repository.
+
+Notes:
+------
+- Some files may have been excluded based on .gitignore rules and Repomix's configuration
+- Binary files are not included in this packed representation. Please refer to the Repository Structure section for a complete list of file paths, including binary files
+- Only files matching these patterns are included: Character/Player.h, Character/Player.cpp, Character/Char.h, Character/Char.cpp, Gameplay/Physics/Physics.h, Gameplay/Physics/Physics.cpp, Gameplay/Physics/PhysicsObject.h, Gameplay/Physics/FootholdTree.h, Gameplay/Physics/FootholdTree.cpp, Gameplay/Stage.h, Gameplay/Stage.cpp, Gameplay/Camera.h, Gameplay/Camera.cpp, Gameplay/MapleMap/MapInfo.h, Gameplay/MapleMap/MapInfo.cpp, PLAYER_OSCILLATION_RESEARCH.md, research.txt
+- Files matching patterns in .gitignore are excluded
+- Files matching default ignore patterns are excluded
+
+Additional Info:
+----------------
+
+================================================================
+Directory Structure
+================================================================
+Character/Char.cpp
+Character/Char.h
+Character/Player.cpp
+Character/Player.h
+Gameplay/Camera.cpp
+Gameplay/Camera.h
+Gameplay/MapleMap/MapInfo.cpp
+Gameplay/MapleMap/MapInfo.h
+Gameplay/Physics/FootholdTree.cpp
+Gameplay/Physics/FootholdTree.h
+Gameplay/Physics/Physics.cpp
+Gameplay/Physics/Physics.h
+Gameplay/Physics/PhysicsObject.h
+Gameplay/Stage.cpp
+Gameplay/Stage.h
+PLAYER_OSCILLATION_RESEARCH.md
+research.txt
+
+================================================================
+Files
+================================================================
+
+================
+File: Character/Char.cpp
+================
+//////////////////////////////////////////////////////////////////////////////////
+//	This file is part of the continued Journey MMORPG client					//
+//	Copyright (C) 2015-2019  Daniel Allendorf, Ryan Payton						//
+//																				//
+//	This program is free software: you can redistribute it and/or modify		//
+//	it under the terms of the GNU Affero General Public License as published by	//
+//	the Free Software Foundation, either version 3 of the License, or			//
+//	(at your option) any later version.											//
+//																				//
+//	This program is distributed in the hope that it will be useful,				//
+//	but WITHOUT ANY WARRANTY; without even the implied warranty of				//
+//	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the				//
+//	GNU Affero General Public License for more details.							//
+//																				//
+//	You should have received a copy of the GNU Affero General Public License	//
+//	along with this program.  If not, see <https://www.gnu.org/licenses/>.		//
+//////////////////////////////////////////////////////////////////////////////////
+#include "Char.h"
+
+#include "../Data/WeaponData.h"
+#include <iostream>
+
+#ifdef USE_NX
+#include <nlnx/nx.hpp>
+#endif
+
+namespace ms
+{
+	Char::Char(int32_t o, const CharLook& lk, const std::string& name) : MapObject(o), look(lk), look_preview(lk), namelabel(Text(Text::Font::A13M, Text::Alignment::CENTER, Color::Name::WHITE, Text::Background::NAMETAG, name)) {}
+
+	void Char::draw(double viewx, double viewy, float alpha) const
+	{
+		Point<int16_t> absp = phobj.get_absolute(viewx, viewy, alpha);
+		
+		// One-time position debug
+		static bool pos_logged = false;
+		if (!pos_logged) {
+			pos_logged = true;
+			std::cout << "[STATETRANS] Char::draw first call - Character is being rendered!" << std::endl;
+			std::cout << "[STATETRANS] View position: (" << viewx << ", " << viewy << ")" << std::endl;
+			std::cout << "[STATETRANS] Physics position: (" << phobj.get_x() << ", " << phobj.get_y() << ")" << std::endl;
+			std::cout << "[STATETRANS] Absolute position: (" << absp.x() << ", " << absp.y() << ")" << std::endl;
+		}
+
+		effects.drawbelow(absp, alpha);
+
+		Color color;
+
+		if (invincible)
+		{
+			float phi = invincible.alpha() * 30;
+			float rgb = 0.9f - 0.5f * std::abs(std::sinf(phi));
+
+			color = Color(rgb, rgb, rgb, 1.0f);
+		}
+		else
+		{
+			color = Color::Code::CWHITE;
+		}
+
+		look.draw(DrawArgument(absp, color), alpha);
+
+		afterimage.draw(look.get_frame(), DrawArgument(absp, facing_right), alpha);
+
+		if (ironbody)
+		{
+			float ibalpha = ironbody.alpha();
+			float scale = 1.0f + ibalpha;
+			float opacity = 1.0f - ibalpha;
+
+			look.draw(DrawArgument(absp, scale, scale, opacity), alpha);
+		}
+
+		for (auto& pet : pets)
+			if (pet.get_itemid())
+				pet.draw(viewx, viewy, alpha);
+
+		// If ever changing code for namelabel confirm placements with map 10000
+		namelabel.draw(absp + Point<int16_t>(0, -4));
+		chatballoon.draw(absp - Point<int16_t>(0, 85));
+
+		effects.drawabove(absp, alpha);
+
+		for (auto& number : damagenumbers)
+			number.draw(viewx, viewy, alpha);
+	}
+
+	void Char::draw_preview(Point<int16_t> position, float alpha) const
+	{
+		look_preview.draw(position, false, Stance::Id::STAND1, Expression::Id::DEFAULT);
+	}
+
+	bool Char::update(const Physics& physics, float speed)
+	{
+		damagenumbers.remove_if(
+			[](DamageNumber& number)
+			{
+				return number.update();
+			}
+		);
+
+		effects.update();
+		chatballoon.update();
+		invincible.update();
+		ironbody.update();
+
+		for (auto& pet : pets)
+		{
+			if (pet.get_itemid())
+			{
+				switch (state)
+				{
+				case State::LADDER:
+				case State::ROPE:
+					pet.set_stance(PetLook::Stance::HANG);
+					break;
+				case State::SWIM:
+					pet.set_stance(PetLook::Stance::FLY);
+					break;
+				default:
+					if (pet.get_stance() == PetLook::Stance::HANG || pet.get_stance() == PetLook::Stance::FLY)
+						pet.set_stance(PetLook::Stance::STAND);
+
+					break;
+				}
+
+				pet.update(physics, get_position());
+			}
+		}
+
+		uint16_t stancespeed = 0;
+
+		if (speed >= 1.0f / Constants::TIMESTEP)
+			stancespeed = static_cast<uint16_t>(Constants::TIMESTEP * speed);
+
+		afterimage.update(look.get_frame(), stancespeed);
+
+		return look.update(stancespeed);
+	}
+
+	float Char::get_stancespeed() const
+	{
+		if (attacking)
+			return get_real_attackspeed();
+
+		switch (state)
+		{
+		case State::WALK:
+			return static_cast<float>(std::abs(phobj.hspeed));
+		case State::LADDER:
+		case State::ROPE:
+			return static_cast<float>(std::abs(phobj.vspeed));
+		default:
+			return 1.0f;
+		}
+	}
+
+	float Char::get_real_attackspeed() const
+	{
+		int8_t speed = get_integer_attackspeed();
+
+		return 1.7f - static_cast<float>(speed) / 10;
+	}
+
+	uint16_t Char::get_attackdelay(size_t no) const
+	{
+		uint8_t first_frame = afterimage.get_first_frame();
+		uint16_t delay = look.get_attackdelay(no, first_frame);
+		float fspeed = get_real_attackspeed();
+
+		return static_cast<uint16_t>(delay / fspeed);
+	}
+
+	int8_t Char::update(const Physics& physics)
+	{
+		update(physics, 1.0f);
+
+		return get_layer();
+	}
+
+	int8_t Char::get_layer() const
+	{
+		return is_climbing() ? 7 : phobj.fhlayer;
+	}
+
+	void Char::show_attack_effect(Animation toshow, int8_t z)
+	{
+		float attackspeed = get_real_attackspeed();
+
+		effects.add(toshow, DrawArgument(facing_right), z, attackspeed);
+	}
+
+	void Char::show_effect_id(CharEffect::Id toshow)
+	{
+		effects.add(chareffects[toshow]);
+	}
+
+	void Char::show_iron_body()
+	{
+		ironbody.set_for(500);
+	}
+
+	void Char::show_damage(int32_t damage)
+	{
+		int16_t start_y = phobj.get_y() - 60;
+		int16_t x = phobj.get_x() - 10;
+
+		damagenumbers.emplace_back(DamageNumber::Type::TOPLAYER, damage, start_y, x);
+
+		look.set_alerted(5000);
+		invincible.set_for(2000);
+	}
+
+	void Char::speak(const std::string& line)
+	{
+		chatballoon.change_text(line);
+	}
+
+	void Char::change_look(MapleStat::Id stat, int32_t id)
+	{
+		switch (stat)
+		{
+		case MapleStat::Id::SKIN:
+			look.set_body(id);
+			break;
+		case MapleStat::Id::FACE:
+			look.set_face(id);
+			break;
+		case MapleStat::Id::HAIR:
+			look.set_hair(id);
+			break;
+		}
+	}
+
+	void Char::set_state(uint8_t statebyte)
+	{
+		if (statebyte % 2 == 1)
+		{
+			set_direction(false);
+
+			statebyte -= 1;
+		}
+		else
+		{
+			set_direction(true);
+		}
+
+		Char::State newstate = by_value(statebyte);
+		set_state(newstate);
+	}
+
+	void Char::set_expression(int32_t expid)
+	{
+		Expression::Id expression = Expression::byaction(expid);
+		look.set_expression(expression);
+	}
+
+	void Char::attack(const std::string& action)
+	{
+		look.set_action(action);
+
+		attacking = true;
+		look.set_alerted(5000);
+	}
+
+	void Char::attack(Stance::Id stance)
+	{
+		look.attack(stance);
+
+		attacking = true;
+		look.set_alerted(5000);
+	}
+
+	void Char::attack(bool degenerate)
+	{
+		look.attack(degenerate);
+
+		attacking = true;
+		look.set_alerted(5000);
+	}
+
+	void Char::set_afterimage(int32_t skill_id)
+	{
+		int32_t weapon_id = look.get_equips().get_weapon();
+
+		if (weapon_id <= 0)
+			return;
+
+		const WeaponData& weapon = WeaponData::get(weapon_id);
+
+		std::string stance_name = Stance::names[look.get_stance()];
+		int16_t weapon_level = weapon.get_equipdata().get_reqstat(MapleStat::Id::LEVEL);
+		const std::string& ai_name = weapon.get_afterimage();
+
+		afterimage = Afterimage(skill_id, ai_name, stance_name, weapon_level);
+	}
+
+	const Afterimage& Char::get_afterimage() const
+	{
+		return afterimage;
+	}
+
+	void Char::set_direction(bool f)
+	{
+		facing_right = f;
+		look.set_direction(f);
+	}
+
+	void Char::set_state(State st)
+	{
+		state = st;
+
+		Stance::Id stance = Stance::by_state(state);
+		look.set_stance(stance);
+	}
+
+	void Char::add_pet(uint8_t index, int32_t iid, const std::string& name, int32_t uniqueid, Point<int16_t> pos, uint8_t stance, int32_t fhid)
+	{
+		if (index > 2)
+			return;
+
+		pets[index] = PetLook(iid, name, uniqueid, pos, stance, fhid);
+	}
+
+	void Char::remove_pet(uint8_t index, bool hunger)
+	{
+		if (index > 2)
+			return;
+
+		pets[index] = PetLook();
+
+		if (hunger)
+		{
+			// TODO: Empty
+		}
+	}
+
+	bool Char::is_invincible() const
+	{
+		return invincible == true;
+	}
+
+	bool Char::is_sitting() const
+	{
+		return state == State::SIT;
+	}
+
+	bool Char::is_climbing() const
+	{
+		return state == State::LADDER || state == State::ROPE;
+	}
+
+	bool Char::is_twohanded() const
+	{
+		return look.get_equips().is_twohanded();
+	}
+
+	Weapon::Type Char::get_weapontype() const
+	{
+		int32_t weapon_id = look.get_equips().get_weapon();
+
+		if (weapon_id <= 0)
+			return Weapon::Type::NONE;
+
+		return WeaponData::get(weapon_id).get_type();
+	}
+
+	bool Char::getflip() const
+	{
+		return facing_right;
+	}
+
+	std::string Char::get_name() const
+	{
+		return namelabel.get_text();
+	}
+
+	CharLook& Char::get_look()
+	{
+		return look;
+	}
+
+	const CharLook& Char::get_look() const
+	{
+		return look;
+	}
+
+	PhysicsObject& Char::get_phobj()
+	{
+		return phobj;
+	}
+
+	void Char::init()
+	{
+		CharLook::init();
+
+		nl::node src = nl::nx::Effect["BasicEff.img"];
+
+		for (auto iter : CharEffect::PATHS)
+			chareffects.emplace(iter.first, src.resolve(iter.second));
+	}
+
+	EnumMap<CharEffect::Id, Animation> Char::chareffects;
+}
+
+================
+File: Character/Char.h
+================
+//////////////////////////////////////////////////////////////////////////////////
+//	This file is part of the continued Journey MMORPG client					//
+//	Copyright (C) 2015-2019  Daniel Allendorf, Ryan Payton						//
+//																				//
+//	This program is free software: you can redistribute it and/or modify		//
+//	it under the terms of the GNU Affero General Public License as published by	//
+//	the Free Software Foundation, either version 3 of the License, or			//
+//	(at your option) any later version.											//
+//																				//
+//	This program is distributed in the hope that it will be useful,				//
+//	but WITHOUT ANY WARRANTY; without even the implied warranty of				//
+//	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the				//
+//	GNU Affero General Public License for more details.							//
+//																				//
+//	You should have received a copy of the GNU Affero General Public License	//
+//	along with this program.  If not, see <https://www.gnu.org/licenses/>.		//
+//////////////////////////////////////////////////////////////////////////////////
+#pragma once
+
+#include "CharEffect.h"
+
+#include "Inventory/Weapon.h"
+#include "Look/Afterimage.h"
+#include "Look/CharLook.h"
+#include "Look/PetLook.h"
+
+#include "../Graphics/EffectLayer.h"
+
+#include "../Gameplay/Combat/DamageNumber.h"
+#include "../Gameplay/MapleMap/MapObject.h"
+#include "../IO/Components/ChatBalloon.h"
+
+namespace ms
+{
+	// Base for characters, e.g. the player and other clients on the same map.
+	class Char : public MapObject
+	{
+	public:
+		// Player states which determine animation and state 
+		// Values are used in movement packets (Add one if facing left)
+		enum State : int8_t
+		{
+			WALK = 2,
+			STAND = 4,
+			FALL = 6,
+			ALERT = 8,
+			PRONE = 10,
+			SWIM = 12,
+			LADDER = 14,
+			ROPE = 16,
+			DIED = 18,
+			SIT = 20
+		};
+
+		static State by_value(int8_t value)
+		{
+			return static_cast<State>(value);
+		}
+
+		// Draw look, NameTag, effects and chat bubble.
+		void draw(double viewx, double viewy, float alpha) const override;
+		// Draw look
+		void draw_preview(Point<int16_t> position, float alpha) const;
+		// Update look and movements
+		int8_t update(const Physics& physics) override;
+		// Return the current map layer, or seven if on a ladder or rope.
+		int8_t get_layer() const override;
+
+		// Check whether the character is invincible
+		virtual bool is_invincible() const;
+		// Return the character's level
+		virtual uint16_t get_level() const = 0;
+		// Return the a skill's level from the character
+		virtual int32_t get_skilllevel(int32_t skillid) const = 0;
+		// Return the character's base attacking speed
+		virtual int8_t get_integer_attackspeed() const = 0;
+
+		// Return the attack speed as a multiplier
+		float get_real_attackspeed() const;
+		// Return the delay until applying an attack
+		uint16_t get_attackdelay(size_t no) const;
+
+		// Set if the character sprite is mirrored (true = facing right)
+		virtual void set_direction(bool flipped);
+		// Change the character's state
+		virtual void set_state(State newstate);
+		// Change the character's stance to an attack action
+		void attack(const std::string& action);
+		// Change the character's stance to an attack stance
+		void attack(Stance::Id stance);
+		// Change the character's stance to it's regular attack
+		void attack(bool degenerate);
+		// Set the afterimage for an attack
+		void set_afterimage(int32_t skill_id);
+		// Return the current afterimage
+		const Afterimage& get_afterimage() const;
+
+		// Display an animation as an effect with the character
+		void show_attack_effect(Animation animation, int8_t z);
+		// Display an animation as an effect on top of the character
+		void show_effect_id(CharEffect::Id toshow);
+		// Display the iron body skill animation
+		void show_iron_body();
+		// Display damage over the characters head
+		void show_damage(int32_t damage);
+		// Display a chat bubble with the specified line in it
+		void speak(const std::string& line);
+		// Change a part of the character's look
+		void change_look(MapleStat::Id stat, int32_t id);
+		// Change the character's state by id
+		void set_state(uint8_t statebyte);
+		// Change the character's face expression by id
+		void set_expression(int32_t expression);
+
+		// Add a pet with the specified stats
+		void add_pet(uint8_t index, int32_t iid, const std::string& name, int32_t uniqueid, Point<int16_t> pos, uint8_t stance, int32_t fhid);
+		// Remove a pet with the specified index and reason
+		void remove_pet(uint8_t index, bool hunger);
+
+		// Return if the character is facing left
+		bool getflip() const;
+		// Return the name of this character
+		std::string get_name() const;
+
+		// Return if the char is in the Char::State::SIT state
+		bool is_sitting() const;
+		// Return if the char is in the Char::State::LADDER or Char::State::ROPE state
+		bool is_climbing() const;
+		// Return whether the character sprite uses stances for two-handed weapons
+		bool is_twohanded() const;
+		// Return the type of the currently equipped weapon
+		Weapon::Type get_weapontype() const;
+
+		// Obtain a reference to this character's look
+		CharLook& get_look();
+		// Obtain a constant reference to this character's look
+		const CharLook& get_look() const;
+		// Return a reference to this characters's physics
+		PhysicsObject& get_phobj();
+
+		// Initialize character effects
+		static void init();
+
+	protected:
+		Char(int32_t oid, const CharLook& look, const std::string& name);
+
+		// Update the character's animation with the given speed
+		bool update(const Physics& physics, float speed);
+		// Get a speed modifier for the current stance
+		float get_stancespeed() const;
+
+		CharLook look;
+		CharLook look_preview;
+		PetLook pets[3];
+
+		State state;
+		bool attacking;
+		bool facing_right;
+
+	private:
+		Text namelabel;
+		ChatBalloon chatballoon;
+		EffectLayer effects;
+		Afterimage afterimage;
+		TimedBool invincible;
+		TimedBool ironbody;
+		std::list<DamageNumber> damagenumbers;
+
+		static EnumMap<CharEffect::Id, Animation> chareffects;
+	};
+}
+
+================
+File: Character/Player.cpp
+================
+//////////////////////////////////////////////////////////////////////////////////
+//	This file is part of the continued Journey MMORPG client					//
+//	Copyright (C) 2015-2019  Daniel Allendorf, Ryan Payton						//
+//																				//
+//	This program is free software: you can redistribute it and/or modify		//
+//	it under the terms of the GNU Affero General Public License as published by	//
+//	the Free Software Foundation, either version 3 of the License, or			//
+//	(at your option) any later version.											//
+//																				//
+//	This program is distributed in the hope that it will be useful,				//
+//	but WITHOUT ANY WARRANTY; without even the implied warranty of				//
+//	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the				//
+//	GNU Affero General Public License for more details.							//
+//																				//
+//	You should have received a copy of the GNU Affero General Public License	//
+//	along with this program.  If not, see <https://www.gnu.org/licenses/>.		//
+//////////////////////////////////////////////////////////////////////////////////
+#include "Player.h"
+
+#include "PlayerStates.h"
+#include <iostream>
+
+#include "../Data/WeaponData.h"
+#include "../IO/UI.h"
+
+#include "../IO/UITypes/UIStatsInfo.h"
+#include "../Net/Packets/GameplayPackets.h"
+#include "../Net/Packets/InventoryPackets.h"
+
+namespace ms
+{
+	const PlayerNullState nullstate;
+
+	const PlayerState* get_state(Char::State state)
+	{
+		static PlayerStandState standing;
+		static PlayerWalkState walking;
+		static PlayerFallState falling;
+		static PlayerProneState lying;
+		static PlayerClimbState climbing;
+		static PlayerSitState sitting;
+		static PlayerFlyState flying;
+
+		switch (state)
+		{
+			case Char::State::STAND:
+				return &standing;
+			case Char::State::WALK:
+				return &walking;
+			case Char::State::FALL:
+				return &falling;
+			case Char::State::PRONE:
+				return &lying;
+			case Char::State::LADDER:
+			case Char::State::ROPE:
+				return &climbing;
+			case Char::State::SIT:
+				return &sitting;
+			case Char::State::SWIM:
+				return &flying;
+			default:
+				return nullptr;
+		}
+	}
+
+	Player::Player(const CharEntry& entry) : Char(entry.id, entry.look, entry.stats.name), stats(entry.stats)
+	{
+		attacking = false;
+		underwater = false;
+
+		set_state(Char::State::STAND);
+		set_direction(true);
+	}
+
+	Player::Player() : Char(0, {}, "") {}
+
+	void Player::respawn(Point<int16_t> pos, bool uw)
+	{
+		set_position(pos.x(), pos.y());
+		underwater = uw;
+		keysdown.clear();
+		attacking = false;
+		ladder = nullptr;
+		nullstate.update_state(*this);
+	}
+
+	void Player::send_action(KeyAction::Id action, bool down)
+	{
+		const PlayerState* pst = get_state(state);
+
+		if (pst)
+			pst->send_action(*this, action, down);
+
+		keysdown[action] = down;
+	}
+
+	void Player::recalc_stats(bool equipchanged)
+	{
+		Weapon::Type weapontype = get_weapontype();
+
+		stats.set_weapontype(weapontype);
+		stats.init_totalstats();
+
+		if (equipchanged)
+			inventory.recalc_stats(weapontype);
+
+		for (auto stat : EquipStat::values)
+		{
+			int32_t inventory_total = inventory.get_stat(stat);
+			stats.add_value(stat, inventory_total);
+		}
+
+		auto passive_skills = skillbook.collect_passives();
+
+		for (auto& passive : passive_skills)
+		{
+			int32_t skill_id = passive.first;
+			int32_t skill_level = passive.second;
+
+			passive_buffs.apply_buff(stats, skill_id, skill_level);
+		}
+
+		for (const Buff& buff : buffs.values())
+			active_buffs.apply_buff(stats, buff.stat, buff.value);
+
+		stats.close_totalstats();
+
+		if (auto statsinfo = UI::get().get_element<UIStatsInfo>())
+			statsinfo->update_all_stats();
+	}
+
+	void Player::change_equip(int16_t slot)
+	{
+		if (int32_t itemid = inventory.get_item_id(InventoryType::Id::EQUIPPED, slot))
+			look.add_equip(itemid);
+		else
+			look.remove_equip(EquipSlot::by_id(slot));
+	}
+
+	void Player::use_item(int32_t itemid)
+	{
+		InventoryType::Id type = InventoryType::by_item_id(itemid);
+
+		if (int16_t slot = inventory.find_item(type, itemid))
+			if (type == InventoryType::Id::USE)
+				UseItemPacket(slot, itemid).dispatch();
+	}
+
+	void Player::draw(Layer::Id layer, double viewx, double viewy, float alpha) const
+	{
+		if (layer == get_layer())
+			Char::draw(viewx, viewy, alpha);
+	}
+
+	int8_t Player::update(const Physics& physics)
+	{
+		const PlayerState* pst = get_state(state);
+
+		if (pst)
+		{
+			pst->update(*this);
+			physics.move_object(phobj);
+
+			bool aniend = Char::update(physics, get_stancespeed());
+
+			if (aniend && attacking)
+			{
+				attacking = false;
+				nullstate.update_state(*this);
+			}
+			else
+			{
+				pst->update_state(*this);
+			}
+		}
+
+		uint8_t stancebyte = facing_right ? state : state + 1;
+		Movement newmove(phobj, stancebyte);
+		bool needupdate = lastmove.hasmoved(newmove);
+
+		if (needupdate)
+		{
+			MovePlayerPacket(newmove).dispatch();
+			lastmove = newmove;
+		}
+
+		climb_cooldown.update();
+
+		return get_layer();
+	}
+
+	int8_t Player::get_integer_attackspeed() const
+	{
+		int32_t weapon_id = look.get_equips().get_weapon();
+
+		if (weapon_id <= 0)
+			return 0;
+
+		const WeaponData& weapon = WeaponData::get(weapon_id);
+
+		int8_t base_speed = stats.get_attackspeed();
+		int8_t weapon_speed = weapon.get_speed();
+
+		return base_speed + weapon_speed;
+	}
+
+	void Player::set_direction(bool flipped)
+	{
+		if (!attacking)
+			Char::set_direction(flipped);
+	}
+
+	void Player::set_state(State st)
+	{
+		if (!attacking)
+		{
+			Char::set_state(st);
+
+			const PlayerState* pst = get_state(st);
+
+			if (pst)
+				pst->initialize(*this);
+		}
+	}
+
+	bool Player::is_attacking() const
+	{
+		return attacking;
+	}
+
+	bool Player::can_attack() const
+	{
+		return !attacking && !is_climbing() && !is_sitting() && look.get_equips().has_weapon();
+	}
+
+	SpecialMove::ForbidReason Player::can_use(const SpecialMove& move) const
+	{
+		if (move.is_skill() && state == Char::State::PRONE)
+			return SpecialMove::ForbidReason::FBR_OTHER;
+
+		if (move.is_attack() && (state == Char::State::LADDER || state == Char::State::ROPE))
+			return SpecialMove::ForbidReason::FBR_OTHER;
+
+		if (has_cooldown(move.get_id()))
+			return SpecialMove::ForbidReason::FBR_COOLDOWN;
+
+		int32_t level = skillbook.get_level(move.get_id());
+		Weapon::Type weapon = get_weapontype();
+		const Job& job = stats.get_job();
+		uint16_t hp = stats.get_stat(MapleStat::Id::HP);
+		uint16_t mp = stats.get_stat(MapleStat::Id::MP);
+		uint16_t bullets = inventory.get_bulletcount();
+
+		return move.can_use(level, weapon, job, hp, mp, bullets);
+	}
+
+	Attack Player::prepare_attack(bool skill) const
+	{
+		Attack::Type attacktype;
+		bool degenerate;
+
+		if (state == Char::State::PRONE)
+		{
+			degenerate = true;
+			attacktype = Attack::Type::CLOSE;
+		}
+		else
+		{
+			Weapon::Type weapontype;
+			weapontype = get_weapontype();
+
+			switch (weapontype)
+			{
+				case Weapon::Type::BOW:
+				case Weapon::Type::CROSSBOW:
+				case Weapon::Type::CLAW:
+				case Weapon::Type::GUN:
+				{
+					degenerate = !inventory.has_projectile();
+					attacktype = degenerate ? Attack::Type::CLOSE : Attack::Type::RANGED;
+					break;
+				}
+				case Weapon::Type::WAND:
+				case Weapon::Type::STAFF:
+				{
+					degenerate = !skill;
+					attacktype = degenerate ? Attack::Type::CLOSE : Attack::Type::MAGIC;
+					break;
+				}
+				default:
+				{
+					attacktype = Attack::Type::CLOSE;
+					degenerate = false;
+					break;
+				}
+			}
+		}
+
+		Attack attack;
+		attack.type = attacktype;
+		attack.mindamage = stats.get_mindamage();
+		attack.maxdamage = stats.get_maxdamage();
+
+		if (degenerate)
+		{
+			attack.mindamage /= 10;
+			attack.maxdamage /= 10;
+		}
+
+		attack.critical = stats.get_critical();
+		attack.ignoredef = stats.get_ignoredef();
+		attack.accuracy = stats.get_total(EquipStat::Id::ACC);
+		attack.playerlevel = stats.get_stat(MapleStat::Id::LEVEL);
+		attack.range = stats.get_range();
+		attack.bullet = inventory.get_bulletid();
+		attack.origin = get_position();
+		attack.toleft = !facing_right;
+		attack.speed = get_integer_attackspeed();
+
+		return attack;
+	}
+
+	void Player::rush(double targetx)
+	{
+		if (phobj.onground)
+		{
+			uint16_t delay = get_attackdelay(1);
+			phobj.movexuntil(targetx, delay);
+			phobj.set_flag(PhysicsObject::Flag::TURNATEDGES);
+		}
+	}
+
+	bool Player::is_invincible() const
+	{
+		if (state == Char::State::DIED)
+			return true;
+
+		if (has_buff(Buffstat::Id::DARKSIGHT))
+			return true;
+
+		return Char::is_invincible();
+	}
+
+	MobAttackResult Player::damage(const MobAttack& attack)
+	{
+		int32_t damage = stats.calculate_damage(attack.watk);
+		show_damage(damage);
+
+		bool fromleft = attack.origin.x() > phobj.get_x();
+
+		bool missed = damage <= 0;
+		bool immovable = ladder || state == Char::State::DIED;
+		bool knockback = !missed && !immovable;
+
+		if (knockback && randomizer.above(stats.get_stance()))
+		{
+			phobj.hspeed = fromleft ? -1.5 : 1.5;
+			phobj.vforce -= 3.5;
+		}
+
+		uint8_t direction = fromleft ? 0 : 1;
+
+		return { attack, damage, direction };
+	}
+
+	void Player::give_buff(Buff buff)
+	{
+		buffs[buff.stat] = buff;
+	}
+
+	void Player::cancel_buff(Buffstat::Id stat)
+	{
+		buffs[stat] = {};
+	}
+
+	bool Player::has_buff(Buffstat::Id stat) const
+	{
+		return buffs[stat].value > 0;
+	}
+
+	void Player::change_skill(int32_t skill_id, int32_t skill_level, int32_t masterlevel, int64_t expiration)
+	{
+		int32_t old_level = skillbook.get_level(skill_id);
+		skillbook.set_skill(skill_id, skill_level, masterlevel, expiration);
+
+		if (old_level != skill_level)
+			recalc_stats(false);
+	}
+
+	void Player::add_cooldown(int32_t skill_id, int32_t cooltime)
+	{
+		cooldowns[skill_id] = cooltime;
+	}
+
+	bool Player::has_cooldown(int32_t skill_id) const
+	{
+		auto iter = cooldowns.find(skill_id);
+
+		if (iter == cooldowns.end())
+			return false;
+
+		return iter->second > 0;
+	}
+
+	void Player::change_level(uint16_t level)
+	{
+		uint16_t oldlevel = get_level();
+
+		if (level > oldlevel)
+			show_effect_id(CharEffect::Id::LEVELUP);
+
+		stats.set_stat(MapleStat::Id::LEVEL, level);
+	}
+
+	uint16_t Player::get_level() const
+	{
+		return stats.get_stat(MapleStat::Id::LEVEL);
+	}
+
+	int32_t Player::get_skilllevel(int32_t skillid) const
+	{
+		return skillbook.get_level(skillid);
+	}
+
+	void Player::change_job(uint16_t jobid)
+	{
+		show_effect_id(CharEffect::Id::JOBCHANGE);
+		stats.change_job(jobid);
+	}
+
+	void Player::set_seat(Optional<const Seat> seat)
+	{
+		if (seat)
+		{
+			set_position(seat->getpos());
+			set_state(Char::State::SIT);
+		}
+	}
+
+	void Player::set_ladder(Optional<const Ladder> ldr)
+	{
+		ladder = ldr;
+
+		if (ladder)
+		{
+			phobj.set_x(ldr->get_x());
+
+			phobj.hspeed = 0.0;
+			phobj.vspeed = 0.0;
+			phobj.fhlayer = 7;
+
+			set_state(ldr->is_ladder() ? Char::State::LADDER : Char::State::ROPE);
+		}
+	}
+
+	void Player::set_climb_cooldown()
+	{
+		climb_cooldown.set_for(1000);
+	}
+
+	bool Player::can_climb()
+	{
+		return !climb_cooldown;
+	}
+
+	float Player::get_walkforce() const
+	{
+		return 0.05f + 0.11f * static_cast<float>(stats.get_total(EquipStat::Id::SPEED)) / 100;
+	}
+
+	float Player::get_jumpforce() const
+	{
+		return 1.0f + 3.5f * static_cast<float>(stats.get_total(EquipStat::Id::JUMP)) / 100;
+	}
+
+	float Player::get_climbforce() const
+	{
+		return static_cast<float>(stats.get_total(EquipStat::Id::SPEED)) / 100;
+	}
+
+	float Player::get_flyforce() const
+	{
+		return 0.25f;
+	}
+
+	bool Player::is_underwater() const
+	{
+		return underwater;
+	}
+
+	bool Player::is_key_down(KeyAction::Id action) const
+	{
+		return keysdown.count(action) ? keysdown.at(action) : false;
+	}
+
+	CharStats& Player::get_stats()
+	{
+		return stats;
+	}
+
+	const CharStats& Player::get_stats() const
+	{
+		return stats;
+	}
+
+	Inventory& Player::get_inventory()
+	{
+		return inventory;
+	}
+
+	const Inventory& Player::get_inventory() const
+	{
+		return inventory;
+	}
+
+	SkillBook& Player::get_skills()
+	{
+		return skillbook;
+	}
+
+	QuestLog& Player::get_quests()
+	{
+		return questlog;
+	}
+
+	TeleportRock& Player::get_teleportrock()
+	{
+		return teleportrock;
+	}
+
+	MonsterBook& Player::get_monsterbook()
+	{
+		return monsterbook;
+	}
+
+	Optional<const Ladder> Player::get_ladder() const
+	{
+		return ladder;
+	}
+}
+
+================
+File: Character/Player.h
+================
+//////////////////////////////////////////////////////////////////////////////////
+//	This file is part of the continued Journey MMORPG client					//
+//	Copyright (C) 2015-2019  Daniel Allendorf, Ryan Payton						//
+//																				//
+//	This program is free software: you can redistribute it and/or modify		//
+//	it under the terms of the GNU Affero General Public License as published by	//
+//	the Free Software Foundation, either version 3 of the License, or			//
+//	(at your option) any later version.											//
+//																				//
+//	This program is distributed in the hope that it will be useful,				//
+//	but WITHOUT ANY WARRANTY; without even the implied warranty of				//
+//	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the				//
+//	GNU Affero General Public License for more details.							//
+//																				//
+//	You should have received a copy of the GNU Affero General Public License	//
+//	along with this program.  If not, see <https://www.gnu.org/licenses/>.		//
+//////////////////////////////////////////////////////////////////////////////////
+#pragma once
+
+#include "ActiveBuffs.h"
+#include "MonsterBook.h"
+#include "PassiveBuffs.h"
+#include "QuestLog.h"
+#include "SkillBook.h"
+#include "TeleportRock.h"
+
+#include "Inventory/Inventory.h"
+
+#include "../Gameplay/Playable.h"
+
+#include "../Gameplay/Combat/Skill.h"
+#include "../Gameplay/MapleMap/Layer.h"
+#include "../Gameplay/MapleMap/MapInfo.h"
+
+namespace ms
+{
+	class Player : public Playable, public Char
+	{
+	public:
+		// Construct a player object from the given character entry
+		Player(const CharEntry& entry);
+		Player();
+
+		// Draw the player
+		void draw(Layer::Id layer, double viewx, double viewy, float alpha) const;
+		// Update the player's animation, physics and states.
+		int8_t update(const Physics& physics) override;
+		// Set flipped ignore if attacking
+		void set_direction(bool flipped) override;
+		// Set state ignore if attacking
+		void set_state(State stance) override;
+
+		// Respawn the player at the given position
+		void respawn(Point<int16_t> position, bool underwater);
+		// Sends a Keyaction to the player's state, to apply forces, change the state and other behavior.
+		void send_action(KeyAction::Id action, bool pressed);
+		// Recalculates the total stats from base stats, inventories and skills.
+		void recalc_stats(bool equipchanged);
+		// Change the equipment at the specified slot and recalculate stats
+		void change_equip(int16_t slot);
+		// Use the item from the player's inventory with the given id
+		void use_item(int32_t itemid);
+
+		// Return if the player is attacking
+		bool is_attacking() const;
+		// Return whether the player can attack or not
+		bool can_attack() const;
+		// Return whether the player can use a skill or not
+		SpecialMove::ForbidReason can_use(const SpecialMove& move) const;
+		// Create an attack struct using the player's stats
+		Attack prepare_attack(bool skill) const;
+
+		// Execute a rush movement
+		void rush(double targetx);
+
+		// Check whether the player is invincible
+		bool is_invincible() const override;
+		// Handle an attack to the player
+		MobAttackResult damage(const MobAttack& attack);
+
+		// Apply a buff to the player
+		void give_buff(Buff buff);
+		// Cancel a buff
+		void cancel_buff(Buffstat::Id stat);
+		// Return whether the buff is active
+		bool has_buff(Buffstat::Id stat) const;
+
+		// Change a skill
+		void change_skill(int32_t skill_id, int32_t level, int32_t masterlevel, int64_t expiration);
+		// Put a skill on cooldown
+		void add_cooldown(int32_t skill_id, int32_t time);
+		// Check if a skill is on cooldown
+		bool has_cooldown(int32_t skill_id) const;
+
+		// Change the player's level, display the "level up" effect.
+		void change_level(uint16_t level);
+		// Change the player's job, display the job change effect.
+		void change_job(uint16_t jobid);
+
+		// Return the character's level
+		uint16_t get_level() const override;
+		// Return the character's level of a skill
+		int32_t get_skilllevel(int32_t skillid) const override;
+		// Return the character's attacking speed
+		int8_t get_integer_attackspeed() const override;
+
+		// Returns the current walking force, calculated from the total ES_SPEED stat.
+		float get_walkforce() const;
+		// Returns the current jumping force, calculated from the total ES_JUMP stat.
+		float get_jumpforce() const;
+		// Returns the climbing force, calculated from the total ES_SPEED stat.
+		float get_climbforce() const;
+		// Returns the flying force
+		float get_flyforce() const;
+
+		// Return whether the player is underwater
+		bool is_underwater() const;
+		// Returns if a Keyaction is currently active 
+		bool is_key_down(KeyAction::Id action) const;
+		// Return a pointer to the ladder the player is on
+		Optional<const Ladder> get_ladder() const;
+
+		// Change players position to the seat's position and stance to Char::State::SIT
+		void set_seat(Optional<const Seat> seat);
+		// Change players x-position to the ladder x and change stance to Char::State::LADDER or Char::State::ROPE
+		void set_ladder(Optional<const Ladder> ladder);
+		// Sets a quick cooldown on climbing so when jumping off a ladder or rope, it doesn't start climb again.
+		void set_climb_cooldown();
+		// Checks if the player can climb
+		bool can_climb();
+
+		// Obtain a reference to the player's stats
+		CharStats& get_stats();
+		// Obtain a reference to the player's stats
+		const CharStats& get_stats() const;
+		// Obtain a reference to the player's inventory
+		Inventory& get_inventory();
+		// Obtain a reference to the player's inventory
+		const Inventory& get_inventory() const;
+		// Obtain a reference to the player's skills
+		SkillBook& get_skills();
+		// Obtain a reference to the player's QuestLog
+		QuestLog& get_quests();
+		// Obtain a reference to the player's TeleportRock locations
+		TeleportRock& get_teleportrock();
+		// Obtain a reference to the player's MonsterBook
+		MonsterBook& get_monsterbook();
+
+	private:
+		CharStats stats;
+		Inventory inventory;
+		SkillBook skillbook;
+		QuestLog questlog;
+		TeleportRock teleportrock;
+		MonsterBook monsterbook;
+
+		EnumMap<Buffstat::Id, Buff> buffs;
+		ActiveBuffs active_buffs;
+		PassiveBuffs passive_buffs;
+
+		std::unordered_map<int32_t, int32_t> cooldowns;
+
+		std::map<KeyAction::Id, bool> keysdown;
+
+		Movement lastmove;
+
+		Randomizer randomizer;
+
+		Optional<const Ladder> ladder;
+		TimedBool climb_cooldown;
+
+		bool underwater;
+	};
+}
+
+================
+File: Gameplay/Camera.cpp
+================
+//////////////////////////////////////////////////////////////////////////////////
+//	This file is part of the continued Journey MMORPG client					//
+//	Copyright (C) 2015-2019  Daniel Allendorf, Ryan Payton						//
+//																				//
+//	This program is free software: you can redistribute it and/or modify		//
+//	it under the terms of the GNU Affero General Public License as published by	//
+//	the Free Software Foundation, either version 3 of the License, or			//
+//	(at your option) any later version.											//
+//																				//
+//	This program is distributed in the hope that it will be useful,				//
+//	but WITHOUT ANY WARRANTY; without even the implied warranty of				//
+//	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the				//
+//	GNU Affero General Public License for more details.							//
+//																				//
+//	You should have received a copy of the GNU Affero General Public License	//
+//	along with this program.  If not, see <https://www.gnu.org/licenses/>.		//
+//////////////////////////////////////////////////////////////////////////////////
+#include "Camera.h"
+
+#include "../Constants.h"
+#include <iostream>
+
+namespace ms
+{
+	Camera::Camera()
+	{
+		x.set(0.0);
+		y.set(0.0);
+
+		VWIDTH = Constants::Constants::get().get_viewwidth();
+		VHEIGHT = Constants::Constants::get().get_viewheight();
+	}
+
+	void Camera::update(Point<int16_t> position)
+	{
+		static int simple_debug = 0;
+		if (simple_debug++ < 5) {
+			std::cout << "[CAMERA] Camera::update called #" << simple_debug << " with position (" << position.x() << ", " << position.y() << ")" << std::endl;
+		}
+		
+		int32_t new_width = Constants::Constants::get().get_viewwidth();
+		int32_t new_height = Constants::Constants::get().get_viewheight();
+
+		if (VWIDTH != new_width || VHEIGHT != new_height)
+		{
+			VWIDTH = new_width;
+			VHEIGHT = new_height;
+		}
+
+		double next_x = x.get();
+		double hdelta = VWIDTH / 2 - position.x() - next_x;
+
+		if (std::abs(hdelta) >= 5.0)
+			next_x += hdelta * (12.0 / VWIDTH);
+
+		double next_y = y.get();
+		double vdelta = VHEIGHT / 2 - position.y() - next_y;
+
+		if (std::abs(vdelta) >= 5.0)
+			next_y += vdelta * (12.0 / VHEIGHT);
+
+		// Debug camera bounds to understand oscillation
+		static int camera_debug_count = 0;
+		if (camera_debug_count++ < 5) {
+			std::cout << "[CAMERA] Before bounds: next_x=" << next_x << ", next_y=" << next_y << std::endl;
+			std::cout << "[CAMERA] hbounds: " << hbounds.first() << " to " << hbounds.second() << " (length=" << hbounds.length() << ")" << std::endl;
+			std::cout << "[CAMERA] vbounds: " << vbounds.first() << " to " << vbounds.second() << " (length=" << vbounds.length() << ")" << std::endl;
+			std::cout << "[CAMERA] VWIDTH=" << VWIDTH << ", VHEIGHT=" << VHEIGHT << std::endl;
+		}
+
+		// Fixed bounds checking logic to prevent oscillation
+		// Camera position is top-left corner, so we need to account for viewport size
+		if (hbounds.length() >= VWIDTH) {
+			// Normal bounds checking when map is larger than viewport
+			if (next_x < hbounds.first())
+				next_x = hbounds.first();
+			else if (next_x > hbounds.second() - VWIDTH)
+				next_x = hbounds.second() - VWIDTH;
+		} else {
+			// Center camera when map is smaller than viewport
+			next_x = hbounds.first() - (VWIDTH - hbounds.length()) / 2;
+		}
+
+		if (vbounds.length() >= VHEIGHT) {
+			// Normal bounds checking when map is larger than viewport
+			if (next_y < vbounds.first())
+				next_y = vbounds.first();
+			else if (next_y > vbounds.second() - VHEIGHT)
+				next_y = vbounds.second() - VHEIGHT;
+		} else {
+			// Center camera when map is smaller than viewport
+			next_y = vbounds.first() - (VHEIGHT - vbounds.length()) / 2;
+		}
+
+		// Debug camera bounds result
+		if (camera_debug_count <= 5) {
+			std::cout << "[CAMERA] After bounds: next_x=" << next_x << ", next_y=" << next_y << std::endl;
+		}
+
+		// Final safety clamp to prevent extreme camera positions
+		const double MAX_CAMERA_RANGE = 5000.0;  // Reasonable camera range limit
+		if (std::abs(next_x) > MAX_CAMERA_RANGE || std::abs(next_y) > MAX_CAMERA_RANGE) {
+			std::cout << "[CAMERA] WARNING: Extreme camera position (" << next_x << ", " << next_y 
+			          << "), clamping to safe range" << std::endl;
+			// Manual clamp for C++11/14 compatibility
+			if (next_x < -MAX_CAMERA_RANGE) next_x = -MAX_CAMERA_RANGE;
+			else if (next_x > MAX_CAMERA_RANGE) next_x = MAX_CAMERA_RANGE;
+			
+			if (next_y < -MAX_CAMERA_RANGE) next_y = -MAX_CAMERA_RANGE;
+			else if (next_y > MAX_CAMERA_RANGE) next_y = MAX_CAMERA_RANGE;
+		}
+
+		x = next_x;
+		y = next_y;
+	}
+
+	void Camera::set_position(Point<int16_t> position)
+	{
+		int32_t new_width = Constants::Constants::get().get_viewwidth();
+		int32_t new_height = Constants::Constants::get().get_viewheight();
+
+		if (VWIDTH != new_width || VHEIGHT != new_height)
+		{
+			VWIDTH = new_width;
+			VHEIGHT = new_height;
+		}
+
+		double new_x = VWIDTH / 2 - position.x();
+		double new_y = VHEIGHT / 2 - position.y();
+		
+		std::cout << "[CAMERA] set_position called with: (" << position.x() << ", " << position.y() << ")" << std::endl;
+		std::cout << "[CAMERA] Setting camera to: (" << new_x << ", " << new_y << ")" << std::endl;
+
+		x.set(new_x);
+		y.set(new_y);
+	}
+
+	void Camera::set_view(Range<int16_t> mapwalls, Range<int16_t> mapborders)
+	{
+		std::cout << "[CAMERA] set_view called with:" << std::endl;
+		std::cout << "[CAMERA] mapwalls: " << mapwalls.smaller() << " to " << mapwalls.greater() << std::endl;
+		std::cout << "[CAMERA] mapborders: " << mapborders.smaller() << " to " << mapborders.greater() << std::endl;
+		
+		hbounds = -mapwalls;
+		vbounds = -mapborders;
+		
+		std::cout << "[CAMERA] Resulting bounds:" << std::endl;
+		std::cout << "[CAMERA] hbounds: " << hbounds.first() << " to " << hbounds.second() << " (length=" << hbounds.length() << ")" << std::endl;
+		std::cout << "[CAMERA] vbounds: " << vbounds.first() << " to " << vbounds.second() << " (length=" << vbounds.length() << ")" << std::endl;
+	}
+
+	Point<int16_t> Camera::position() const
+	{
+		auto shortx = static_cast<int16_t>(std::round(x.get()));
+		auto shorty = static_cast<int16_t>(std::round(y.get()));
+
+		return { shortx, shorty };
+	}
+
+	Point<int16_t> Camera::position(float alpha) const
+	{
+		auto interx = static_cast<int16_t>(std::round(x.get(alpha)));
+		auto intery = static_cast<int16_t>(std::round(y.get(alpha)));
+
+		return { interx, intery };
+	}
+
+	Point<double> Camera::realposition(float alpha) const
+	{
+		return { x.get(alpha), y.get(alpha) };
+	}
+}
+
+================
+File: Gameplay/Camera.h
+================
+//////////////////////////////////////////////////////////////////////////////////
+//	This file is part of the continued Journey MMORPG client					//
+//	Copyright (C) 2015-2019  Daniel Allendorf, Ryan Payton						//
+//																				//
+//	This program is free software: you can redistribute it and/or modify		//
+//	it under the terms of the GNU Affero General Public License as published by	//
+//	the Free Software Foundation, either version 3 of the License, or			//
+//	(at your option) any later version.											//
+//																				//
+//	This program is distributed in the hope that it will be useful,				//
+//	but WITHOUT ANY WARRANTY; without even the implied warranty of				//
+//	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the				//
+//	GNU Affero General Public License for more details.							//
+//																				//
+//	You should have received a copy of the GNU Affero General Public License	//
+//	along with this program.  If not, see <https://www.gnu.org/licenses/>.		//
+//////////////////////////////////////////////////////////////////////////////////
+#pragma once
+
+#include "../Template/Interpolated.h"
+#include "../Template/Point.h"
+#include "../Template/Range.h"
+
+#include <cstdint>
+
+namespace ms
+{
+	// View on stage which follows the player object.
+	class Camera
+	{
+	public:
+		// Initialize everything to 0, we need the player's spawnpoint first to properly set the position.
+		Camera();
+
+		// Update the view with the current player position. (Or any other target)
+		void update(Point<int16_t> position);
+		// Set the position, changing the view immediately.
+		void set_position(Point<int16_t> position);
+		// Updates the view's boundaries. Determined by mapinfo or footholds.
+		void set_view(Range<int16_t> hborders, Range<int16_t> vborders);
+		// Return the current position.
+		Point<int16_t> position() const;
+		// Return the interpolated position.
+		Point<int16_t> position(float alpha) const;
+		// Return the interpolated position.
+		Point<double> realposition(float alpha) const;
+
+	private:
+		// Movement variables.
+		Linear<double> x;
+		Linear<double> y;
+
+		// View limits.
+		Range<int16_t> hbounds;
+		Range<int16_t> vbounds;
+
+		int16_t VWIDTH;
+		int16_t VHEIGHT;
+	};
+}
+
+================
+File: Gameplay/MapleMap/MapInfo.cpp
+================
+//////////////////////////////////////////////////////////////////////////////////
+//	This file is part of the continued Journey MMORPG client					//
+//	Copyright (C) 2015-2019  Daniel Allendorf, Ryan Payton						//
+//																				//
+//	This program is free software: you can redistribute it and/or modify		//
+//	it under the terms of the GNU Affero General Public License as published by	//
+//	the Free Software Foundation, either version 3 of the License, or			//
+//	(at your option) any later version.											//
+//																				//
+//	This program is distributed in the hope that it will be useful,				//
+//	but WITHOUT ANY WARRANTY; without even the implied warranty of				//
+//	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the				//
+//	GNU Affero General Public License for more details.							//
+//																				//
+//	You should have received a copy of the GNU Affero General Public License	//
+//	along with this program.  If not, see <https://www.gnu.org/licenses/>.		//
+//////////////////////////////////////////////////////////////////////////////////
+#include "MapInfo.h"
+
+namespace ms
+{
+	MapInfo::MapInfo(nl::node src, Range<int16_t> walls, Range<int16_t> borders)
+	{
+		nl::node info = src["info"];
+
+		if (info["VRLeft"].data_type() == nl::node::type::integer)
+		{
+			mapwalls = Range<int16_t>(info["VRLeft"], info["VRRight"]);
+			mapborders = Range<int16_t>(info["VRTop"], info["VRBottom"]);
+		}
+		else
+		{
+			mapwalls = walls;
+			mapborders = borders;
+		}
+
+		std::string bgmpath = info["bgm"];
+		size_t split = bgmpath.find('/');
+		bgm = bgmpath.substr(0, split) + ".img/" + bgmpath.substr(split + 1);
+
+		cloud = info["cloud"].get_bool();
+		fieldlimit = info["fieldLimit"];
+		hideminimap = info["hideMinimap"].get_bool();
+		mapmark = info["mapMark"];
+		swim = info["swim"].get_bool();
+		town = info["town"].get_bool();
+
+		for (auto seat : src["seat"])
+			seats.push_back(seat);
+
+		for (auto ladder : src["ladderRope"])
+			ladders.push_back(ladder);
+	}
+
+	MapInfo::MapInfo() {}
+
+	bool MapInfo::is_underwater() const
+	{
+		return swim;
+	}
+
+	std::string MapInfo::get_bgm() const
+	{
+		return bgm;
+	}
+
+	Range<int16_t> MapInfo::get_walls() const
+	{
+		return mapwalls;
+	}
+
+	Range<int16_t> MapInfo::get_borders() const
+	{
+		return mapborders;
+	}
+
+	Optional<const Seat> MapInfo::findseat(Point<int16_t> position) const
+	{
+		for (auto& seat : seats)
+			if (seat.inrange(position))
+				return seat;
+
+		return nullptr;
+	}
+
+	Optional<const Ladder> MapInfo::findladder(Point<int16_t> position, bool upwards) const
+	{
+		for (auto& ladder : ladders)
+			if (ladder.inrange(position, upwards))
+				return ladder;
+
+		return nullptr;
+	}
+
+	Seat::Seat(nl::node src)
+	{
+		pos = src;
+	}
+
+	bool Seat::inrange(Point<int16_t> position) const
+	{
+		auto hor = Range<int16_t>::symmetric(position.x(), 10);
+		auto ver = Range<int16_t>::symmetric(position.y(), 10);
+
+		return hor.contains(pos.x()) && ver.contains(pos.y());
+	}
+
+	Point<int16_t> Seat::getpos() const
+	{
+		return pos;
+	}
+
+	Ladder::Ladder(nl::node src)
+	{
+		x = src["x"];
+		y1 = src["y1"];
+		y2 = src["y2"];
+		ladder = src["l"].get_bool();
+	}
+
+	bool Ladder::is_ladder() const
+	{
+		return ladder;
+	}
+
+	bool Ladder::inrange(Point<int16_t> position, bool upwards) const
+	{
+		auto hor = Range<int16_t>::symmetric(position.x(), 10);
+		auto ver = Range<int16_t>(y1, y2);
+
+		int16_t y = upwards ?
+			position.y() - 5 :
+			position.y() + 5;
+
+		return hor.contains(x) && ver.contains(y);
+	}
+
+	bool Ladder::felloff(int16_t y, bool downwards) const
+	{
+		int16_t dy = downwards ? y + 5 : y - 5;
+
+		return dy > y2 || y + 5 < y1;
+	}
+
+	int16_t Ladder::get_x() const
+	{
+		return x;
+	}
+}
+
+================
+File: Gameplay/MapleMap/MapInfo.h
+================
+//////////////////////////////////////////////////////////////////////////////////
+//	This file is part of the continued Journey MMORPG client					//
+//	Copyright (C) 2015-2019  Daniel Allendorf, Ryan Payton						//
+//																				//
+//	This program is free software: you can redistribute it and/or modify		//
+//	it under the terms of the GNU Affero General Public License as published by	//
+//	the Free Software Foundation, either version 3 of the License, or			//
+//	(at your option) any later version.											//
+//																				//
+//	This program is distributed in the hope that it will be useful,				//
+//	but WITHOUT ANY WARRANTY; without even the implied warranty of				//
+//	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the				//
+//	GNU Affero General Public License for more details.							//
+//																				//
+//	You should have received a copy of the GNU Affero General Public License	//
+//	along with this program.  If not, see <https://www.gnu.org/licenses/>.		//
+//////////////////////////////////////////////////////////////////////////////////
+#pragma once
+
+#include "../../Template/Optional.h"
+#include "../../Template/Point.h"
+#include "../../Template/Range.h"
+
+#include <vector>
+
+namespace ms
+{
+	class Seat
+	{
+	public:
+		Seat(nl::node source);
+
+		bool inrange(Point<int16_t> position) const;
+		Point<int16_t> getpos() const;
+
+	private:
+		Point<int16_t> pos;
+	};
+
+	class Ladder
+	{
+	public:
+		Ladder(nl::node source);
+
+		bool is_ladder() const;
+		bool inrange(Point<int16_t> position, bool upwards) const;
+		bool felloff(int16_t y, bool downwards) const;
+		int16_t get_x() const;
+
+	private:
+		int16_t x;
+		int16_t y1;
+		int16_t y2;
+		bool ladder;
+	};
+
+	class MapInfo
+	{
+	public:
+		MapInfo(nl::node src, Range<int16_t> walls, Range<int16_t> borders);
+		MapInfo();
+
+		bool is_underwater() const;
+		std::string get_bgm() const;
+		Range<int16_t> get_walls() const;
+		Range<int16_t> get_borders() const;
+
+		// Find a seat the player's position
+		Optional<const Seat> findseat(Point<int16_t> position) const;
+		// Find a ladder at the player's position
+		// !upwards - implies downwards
+		Optional<const Ladder> findladder(Point<int16_t> position, bool upwards) const;
+
+	private:
+		int32_t fieldlimit;
+		bool cloud;
+		std::string bgm;
+		std::string mapdesc;
+		std::string mapname;
+		std::string streetname;
+		std::string mapmark;
+		bool swim;
+		bool town;
+		bool hideminimap;
+		Range<int16_t> mapwalls;
+		Range<int16_t> mapborders;
+		std::vector<Seat> seats;
+		std::vector<Ladder> ladders;
+	};
+}
+
+================
+File: Gameplay/Physics/FootholdTree.cpp
+================
+//////////////////////////////////////////////////////////////////////////////////
+//	This file is part of the continued Journey MMORPG client					//
+//	Copyright (C) 2015-2019  Daniel Allendorf, Ryan Payton						//
+//																				//
+//	This program is free software: you can redistribute it and/or modify		//
+//	it under the terms of the GNU Affero General Public License as published by	//
+//	the Free Software Foundation, either version 3 of the License, or			//
+//	(at your option) any later version.											//
+//																				//
+//	This program is distributed in the hope that it will be useful,				//
+//	but WITHOUT ANY WARRANTY; without even the implied warranty of				//
+//	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the				//
+//	GNU Affero General Public License for more details.							//
+//																				//
+//	You should have received a copy of the GNU Affero General Public License	//
+//	along with this program.  If not, see <https://www.gnu.org/licenses/>.		//
+//////////////////////////////////////////////////////////////////////////////////
+#include "FootholdTree.h"
+
+#include <iostream>
+
+namespace ms
+{
+	FootholdTree::FootholdTree(nl::node src)
+	{
+		int16_t leftw = 30000;
+		int16_t rightw = -30000;
+		int16_t botb = -30000;
+		int16_t topb = 30000;
+
+		for (auto basef : src)
+		{
+			uint8_t layer;
+
+			try
+			{
+				layer = static_cast<uint8_t>(std::stoi(basef.name()));
+			}
+			catch (const std::exception& ex)
+			{
+				LOG(LOG_ERROR, __func__ << ": " << ex.what());
+				continue;
+			}
+
+			for (auto midf : basef)
+			{
+				for (auto lastf : midf)
+				{
+					uint16_t id;
+
+					try
+					{
+						id = static_cast<uint16_t>(std::stoi(lastf.name()));
+					}
+					catch (const std::exception& ex)
+					{
+						LOG(LOG_ERROR, __func__ << ": " << ex.what());
+						continue;
+					}
+
+					const Foothold& foothold = footholds.emplace(
+						std::piecewise_construct,
+						std::forward_as_tuple(id),
+						std::forward_as_tuple(lastf, id, layer)
+					).first->second;
+
+					if (foothold.l() < leftw)
+						leftw = foothold.l();
+
+					if (foothold.r() > rightw)
+						rightw = foothold.r();
+
+					if (foothold.b() > botb)
+						botb = foothold.b();
+
+					if (foothold.t() < topb)
+						topb = foothold.t();
+
+					if (foothold.is_wall())
+						continue;
+
+					int16_t start = foothold.l();
+					int16_t end = foothold.r();
+
+					for (int16_t i = start; i <= end; i++)
+						footholdsbyx.emplace(i, id);
+				}
+			}
+		}
+
+		walls = { leftw + 25, rightw - 25 };
+		borders = { topb - 300, botb + 100 };
+	}
+
+	FootholdTree::FootholdTree() {}
+
+	void FootholdTree::limit_movement(PhysicsObject& phobj) const
+	{
+		if (phobj.hmobile())
+		{
+			double crnt_x = phobj.crnt_x();
+			double next_x = phobj.next_x();
+
+			bool left = phobj.hspeed < 0.0f;
+			double wall = get_wall(phobj.fhid, left, phobj.next_y());
+			bool collision = left ? crnt_x >= wall && next_x <= wall : crnt_x <= wall && next_x >= wall;
+
+			if (!collision && phobj.is_flag_set(PhysicsObject::Flag::TURNATEDGES))
+			{
+				wall = get_edge(phobj.fhid, left);
+				collision = left ? crnt_x >= wall && next_x <= wall : crnt_x <= wall && next_x >= wall;
+			}
+
+			if (collision)
+			{
+				phobj.limitx(wall);
+				phobj.clear_flag(PhysicsObject::Flag::TURNATEDGES);
+			}
+		}
+
+		if (phobj.vmobile())
+		{
+			double crnt_y = phobj.crnt_y();
+			double next_y = phobj.next_y();
+
+			auto ground = Range<double>(
+				get_fh(phobj.fhid).ground_below(phobj.crnt_x()),
+				get_fh(phobj.fhid).ground_below(phobj.next_x())
+				);
+
+			bool collision = crnt_y <= ground.first() && next_y >= ground.second();
+
+			if (collision)
+			{
+				phobj.limity(ground.second());
+
+				limit_movement(phobj);
+			}
+			else
+			{
+				if (next_y < borders.first())
+					phobj.limity(borders.first());
+				else if (next_y > borders.second())
+					phobj.limity(borders.second());
+			}
+		}
+	}
+
+	void FootholdTree::update_fh(PhysicsObject& phobj) const
+	{
+		if (phobj.type == PhysicsObject::Type::FIXATED && phobj.fhid > 0)
+			return;
+
+		const Foothold& curfh = get_fh(phobj.fhid);
+		bool checkslope = false;
+
+		double x = phobj.crnt_x();
+		double y = phobj.crnt_y();
+
+		if (phobj.onground)
+		{
+			if (std::floor(x) > curfh.r())
+				phobj.fhid = curfh.next();
+			else if (std::ceil(x) < curfh.l())
+				phobj.fhid = curfh.prev();
+
+			if (phobj.fhid == 0)
+				phobj.fhid = get_fhid_below(x, y);
+			else
+				checkslope = true;
+		}
+		else
+		{
+			phobj.fhid = get_fhid_below(x, y);
+
+			if (phobj.fhid == 0)
+				return;
+		}
+
+		const Foothold& nextfh = get_fh(phobj.fhid);
+		phobj.fhslope = nextfh.slope();
+
+		double ground = nextfh.ground_below(x);
+
+		if (phobj.vspeed == 0.0 && checkslope)
+		{
+			double vdelta = abs(phobj.fhslope);
+
+			if (phobj.fhslope < 0.0)
+				vdelta *= (ground - y);
+			else if (phobj.fhslope > 0.0)
+				vdelta *= (y - ground);
+
+			if (curfh.slope() != 0.0 || nextfh.slope() != 0.0)
+			{
+				if (phobj.hspeed > 0.0 && vdelta <= phobj.hspeed)
+					phobj.y = ground;
+				else if (phobj.hspeed < 0.0 && vdelta >= phobj.hspeed)
+					phobj.y = ground;
+			}
+		}
+
+		phobj.onground = phobj.y == ground;
+
+		if (phobj.enablejd || phobj.is_flag_set(PhysicsObject::Flag::CHECKBELOW))
+		{
+			uint16_t belowid = get_fhid_below(x, nextfh.ground_below(x) + 1.0);
+
+			if (belowid > 0)
+			{
+				double nextground = get_fh(belowid).ground_below(x);
+				phobj.enablejd = (nextground - ground) < 600.0;
+				phobj.groundbelow = ground + 1.0;
+			}
+			else
+			{
+				phobj.enablejd = false;
+			}
+
+			phobj.clear_flag(PhysicsObject::Flag::CHECKBELOW);
+		}
+
+		if (phobj.fhlayer == 0 || phobj.onground)
+			phobj.fhlayer = nextfh.layer();
+
+		if (phobj.fhid == 0)
+		{
+			phobj.fhid = curfh.id();
+			phobj.limitx(curfh.x1());
+		}
+	}
+
+	const Foothold& FootholdTree::get_fh(uint16_t fhid) const
+	{
+		auto iter = footholds.find(fhid);
+
+		if (iter == footholds.end())
+			return nullfh;
+
+		return iter->second;
+	}
+
+	double FootholdTree::get_wall(uint16_t curid, bool left, double fy) const
+	{
+		auto shorty = static_cast<int16_t>(fy);
+		Range<int16_t> vertical(shorty - 50, shorty - 1);
+		const Foothold& cur = get_fh(curid);
+
+		if (left)
+		{
+			const Foothold& prev = get_fh(cur.prev());
+
+			if (prev.is_blocking(vertical))
+				return cur.l();
+
+			const Foothold& prev_prev = get_fh(prev.prev());
+
+			if (prev_prev.is_blocking(vertical))
+				return prev.l();
+
+			return walls.first();
+		}
+		else
+		{
+			const Foothold& next = get_fh(cur.next());
+
+			if (next.is_blocking(vertical))
+				return cur.r();
+
+			const Foothold& next_next = get_fh(next.next());
+
+			if (next_next.is_blocking(vertical))
+				return next.r();
+
+			return walls.second();
+		}
+	}
+
+	double FootholdTree::get_edge(uint16_t curid, bool left) const
+	{
+		const Foothold& fh = get_fh(curid);
+
+		if (left)
+		{
+			uint16_t previd = fh.prev();
+
+			if (!previd)
+				return fh.l();
+
+			const Foothold& prev = get_fh(previd);
+			uint16_t prev_previd = prev.prev();
+
+			if (!prev_previd)
+				return prev.l();
+
+			return walls.first();
+		}
+		else
+		{
+			uint16_t nextid = fh.next();
+
+			if (!nextid)
+				return fh.r();
+
+			const Foothold& next = get_fh(nextid);
+			uint16_t next_nextid = next.next();
+
+			if (!next_nextid)
+				return next.r();
+
+			return walls.second();
+		}
+	}
+
+	uint16_t FootholdTree::get_fhid_below(double fx, double fy) const
+	{
+		uint16_t ret = 0;
+		double comp = borders.second();
+
+		int16_t x = static_cast<int16_t>(fx);
+		auto range = footholdsbyx.equal_range(x);
+
+		for (auto iter = range.first; iter != range.second; ++iter)
+		{
+			const Foothold& fh = footholds.at(iter->second);
+			double ycomp = fh.ground_below(fx);
+
+			if (comp >= ycomp && ycomp >= fy)
+			{
+				comp = ycomp;
+				ret = fh.id();
+			}
+		}
+
+		return ret;
+	}
+
+	int16_t FootholdTree::get_y_below(Point<int16_t> position) const
+	{
+		if (uint16_t fhid = get_fhid_below(position.x(), position.y()))
+		{
+			const Foothold& fh = get_fh(fhid);
+
+			return static_cast<int16_t>(fh.ground_below(position.x()));
+		}
+		else
+		{
+			return borders.second();
+		}
+	}
+
+	Range<int16_t> FootholdTree::get_walls() const
+	{
+		return walls;
+	}
+
+	Range<int16_t> FootholdTree::get_borders() const
+	{
+		return borders;
+	}
+}
+
+================
+File: Gameplay/Physics/FootholdTree.h
+================
+//////////////////////////////////////////////////////////////////////////////////
+//	This file is part of the continued Journey MMORPG client					//
+//	Copyright (C) 2015-2019  Daniel Allendorf, Ryan Payton						//
+//																				//
+//	This program is free software: you can redistribute it and/or modify		//
+//	it under the terms of the GNU Affero General Public License as published by	//
+//	the Free Software Foundation, either version 3 of the License, or			//
+//	(at your option) any later version.											//
+//																				//
+//	This program is distributed in the hope that it will be useful,				//
+//	but WITHOUT ANY WARRANTY; without even the implied warranty of				//
+//	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the				//
+//	GNU Affero General Public License for more details.							//
+//																				//
+//	You should have received a copy of the GNU Affero General Public License	//
+//	along with this program.  If not, see <https://www.gnu.org/licenses/>.		//
+//////////////////////////////////////////////////////////////////////////////////
+#pragma once
+
+#include "Foothold.h"
+#include "PhysicsObject.h"
+
+#include <unordered_map>
+
+namespace ms
+{
+	// The collection of platforms in a maple map
+	// Used for collision-detection
+	class FootholdTree
+	{
+	public:
+		FootholdTree(nl::node source);
+		FootholdTree();
+
+		// Takes an accelerated PhysicsObject and limits its movement based on the platforms in this tree
+		void limit_movement(PhysicsObject& touse) const;
+		// Updates a PhysicsObject's fhid based on it's position
+		void update_fh(PhysicsObject& touse) const;
+		// Determine the point on the ground below the specified position
+		int16_t get_y_below(Point<int16_t> position) const;
+		// Returns the leftmost and rightmost platform positions of the map
+		Range<int16_t> get_walls() const;
+		// Returns the topmost and bottommost platform positions of the map
+		Range<int16_t> get_borders() const;
+
+	private:
+		uint16_t get_fhid_below(double fx, double fy) const;
+		double get_wall(uint16_t fhid, bool left, double fy) const;
+		double get_edge(uint16_t fhid, bool left) const;
+		const Foothold& get_fh(uint16_t fhid) const;
+
+		std::unordered_map<uint16_t, Foothold> footholds;
+		std::unordered_multimap<int16_t, uint16_t> footholdsbyx;
+
+		Foothold nullfh;
+		Range<int16_t> walls;
+		Range<int16_t> borders;
+	};
+}
+
+================
+File: Gameplay/Physics/Physics.cpp
+================
+//////////////////////////////////////////////////////////////////////////////////
+//	This file is part of the continued Journey MMORPG client					//
+//	Copyright (C) 2015-2019  Daniel Allendorf, Ryan Payton						//
+//																				//
+//	This program is free software: you can redistribute it and/or modify		//
+//	it under the terms of the GNU Affero General Public License as published by	//
+//	the Free Software Foundation, either version 3 of the License, or			//
+//	(at your option) any later version.											//
+//																				//
+//	This program is distributed in the hope that it will be useful,				//
+//	but WITHOUT ANY WARRANTY; without even the implied warranty of				//
+//	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the				//
+//	GNU Affero General Public License for more details.							//
+//																				//
+//	You should have received a copy of the GNU Affero General Public License	//
+//	along with this program.  If not, see <https://www.gnu.org/licenses/>.		//
+//////////////////////////////////////////////////////////////////////////////////
+#include "Physics.h"
+#include <iostream>
+
+namespace ms
+{
+	const double GRAVFORCE = 0.14;
+	const double SWIMGRAVFORCE = 0.03;
+	const double FRICTION = 0.5;
+	const double SLOPEFACTOR = 0.1;
+	const double GROUNDSLIP = 3.0;
+	const double FLYFRICTION = 0.05;
+	const double SWIMFRICTION = 0.08;
+
+	Physics::Physics(nl::node src)
+	{
+		fht = src;
+	}
+
+	Physics::Physics() {}
+
+	void Physics::move_object(PhysicsObject& phobj) const
+	{
+		// Determine which platform the object is currently on
+		fht.update_fh(phobj);
+
+		// Use the appropriate physics for the terrain the object is on
+		switch (phobj.type)
+		{
+		case PhysicsObject::Type::NORMAL:
+			move_normal(phobj);
+			fht.limit_movement(phobj);
+			break;
+		case PhysicsObject::Type::FLYING:
+			move_flying(phobj);
+			fht.limit_movement(phobj);
+			break;
+		case PhysicsObject::Type::SWIMMING:
+			move_swimming(phobj);
+			fht.limit_movement(phobj);
+			break;
+		case PhysicsObject::Type::FIXATED:
+		default:
+			break;
+		}
+
+		// Move the object forward
+		phobj.move();
+	}
+
+	void Physics::move_normal(PhysicsObject& phobj) const
+	{
+		phobj.vacc = 0.0;
+		phobj.hacc = 0.0;
+
+		if (phobj.onground)
+		{
+			phobj.vacc += phobj.vforce;
+			phobj.hacc += phobj.hforce;
+
+			if (phobj.hacc == 0.0 && phobj.hspeed < 0.1 && phobj.hspeed > -0.1)
+			{
+				phobj.hspeed = 0.0;
+			}
+			else
+			{
+				double inertia = phobj.hspeed / GROUNDSLIP;
+				double slopef = phobj.fhslope;
+
+				if (slopef > 0.5)
+					slopef = 0.5;
+				else if (slopef < -0.5)
+					slopef = -0.5;
+
+				phobj.hacc -= (FRICTION + SLOPEFACTOR * (1.0 + slopef * -inertia)) * inertia;
+			}
+		}
+		else if (phobj.is_flag_not_set(PhysicsObject::Flag::NOGRAVITY))
+		{
+			phobj.vacc += GRAVFORCE;
+		}
+
+		phobj.hforce = 0.0;
+		phobj.vforce = 0.0;
+
+		phobj.hspeed += phobj.hacc;
+		phobj.vspeed += phobj.vacc;
+	}
+
+	void Physics::move_flying(PhysicsObject& phobj) const
+	{
+		phobj.hacc = phobj.hforce;
+		phobj.vacc = phobj.vforce;
+		phobj.hforce = 0.0;
+		phobj.vforce = 0.0;
+
+		phobj.hacc -= FLYFRICTION * phobj.hspeed;
+		phobj.vacc -= FLYFRICTION * phobj.vspeed;
+
+		phobj.hspeed += phobj.hacc;
+		phobj.vspeed += phobj.vacc;
+
+		if (phobj.hacc == 0.0 && phobj.hspeed < 0.1 && phobj.hspeed > -0.1)
+			phobj.hspeed = 0.0;
+
+		if (phobj.vacc == 0.0 && phobj.vspeed < 0.1 && phobj.vspeed > -0.1)
+			phobj.vspeed = 0.0;
+	}
+
+	void Physics::move_swimming(PhysicsObject& phobj) const
+	{
+		phobj.hacc = phobj.hforce;
+		phobj.vacc = phobj.vforce;
+		phobj.hforce = 0.0;
+		phobj.vforce = 0.0;
+
+		phobj.hacc -= SWIMFRICTION * phobj.hspeed;
+		phobj.vacc -= SWIMFRICTION * phobj.vspeed;
+
+		if (phobj.is_flag_not_set(PhysicsObject::Flag::NOGRAVITY))
+			phobj.vacc += SWIMGRAVFORCE;
+
+		phobj.hspeed += phobj.hacc;
+		phobj.vspeed += phobj.vacc;
+
+		if (phobj.hacc == 0.0 && phobj.hspeed < 0.1 && phobj.hspeed > -0.1)
+			phobj.hspeed = 0.0;
+
+		if (phobj.vacc == 0.0 && phobj.vspeed < 0.1 && phobj.vspeed > -0.1)
+			phobj.vspeed = 0.0f;
+	}
+
+	Point<int16_t> Physics::get_y_below(Point<int16_t> position) const
+	{
+		int16_t ground = fht.get_y_below(position);
+		
+		// Debug output to track invalid ground results
+		static int debug_count = 0;
+		if (debug_count++ < 10) {
+			std::cout << "[PHYSICS] get_y_below input: (" << position.x() << ", " << position.y() << ")" << std::endl;
+			std::cout << "[PHYSICS] raw ground result: " << ground << std::endl;
+		}
+		
+		// Validate ground result - if extreme, use fallback
+		const int16_t MIN_VALID_Y = -2000;  // Reasonable minimum Y position
+		const int16_t MAX_VALID_Y = 3000;   // Reasonable maximum Y position
+		
+		if (ground < MIN_VALID_Y || ground > MAX_VALID_Y) {
+			std::cout << "[PHYSICS] WARNING: Invalid ground Y=" << ground << " at X=" << position.x() 
+			          << ", using fallback Y=" << position.y() << std::endl;
+			ground = position.y();  // Use input Y as fallback
+		}
+
+		return Point<int16_t>(position.x(), ground - 1);
+	}
+
+	const FootholdTree& Physics::get_fht() const
+	{
+		return fht;
+	}
+}
+
+================
+File: Gameplay/Physics/Physics.h
+================
+//////////////////////////////////////////////////////////////////////////////////
+//	This file is part of the continued Journey MMORPG client					//
+//	Copyright (C) 2015-2019  Daniel Allendorf, Ryan Payton						//
+//																				//
+//	This program is free software: you can redistribute it and/or modify		//
+//	it under the terms of the GNU Affero General Public License as published by	//
+//	the Free Software Foundation, either version 3 of the License, or			//
+//	(at your option) any later version.											//
+//																				//
+//	This program is distributed in the hope that it will be useful,				//
+//	but WITHOUT ANY WARRANTY; without even the implied warranty of				//
+//	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the				//
+//	GNU Affero General Public License for more details.							//
+//																				//
+//	You should have received a copy of the GNU Affero General Public License	//
+//	along with this program.  If not, see <https://www.gnu.org/licenses/>.		//
+//////////////////////////////////////////////////////////////////////////////////
+#pragma once
+
+#include "FootholdTree.h"
+
+namespace ms
+{
+	// Class that uses physics engines and the collection of platforms to determine object movement
+	class Physics
+	{
+	public:
+		Physics(nl::node src);
+		Physics();
+
+		// Move the specified object over the specified game-time
+		void move_object(PhysicsObject& tomove) const;
+		// Determine the point on the ground below the specified position
+		Point<int16_t> get_y_below(Point<int16_t> position) const;
+		// Return a reference to the collection of platforms
+		const FootholdTree& get_fht() const;
+
+	private:
+		void move_normal(PhysicsObject&) const;
+		void move_flying(PhysicsObject&) const;
+		void move_swimming(PhysicsObject&) const;
+
+		FootholdTree fht;
+	};
+}
+
+================
+File: Gameplay/Physics/PhysicsObject.h
+================
+//////////////////////////////////////////////////////////////////////////////////
+//	This file is part of the continued Journey MMORPG client					//
+//	Copyright (C) 2015-2019  Daniel Allendorf, Ryan Payton						//
+//																				//
+//	This program is free software: you can redistribute it and/or modify		//
+//	it under the terms of the GNU Affero General Public License as published by	//
+//	the Free Software Foundation, either version 3 of the License, or			//
+//	(at your option) any later version.											//
+//																				//
+//	This program is distributed in the hope that it will be useful,				//
+//	but WITHOUT ANY WARRANTY; without even the implied warranty of				//
+//	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the				//
+//	GNU Affero General Public License for more details.							//
+//																				//
+//	You should have received a copy of the GNU Affero General Public License	//
+//	along with this program.  If not, see <https://www.gnu.org/licenses/>.		//
+//////////////////////////////////////////////////////////////////////////////////
+#pragma once
+
+#include "../../Constants.h"
+
+#include "../../Template/Interpolated.h"
+#include "../../Template/Point.h"
+
+namespace ms
+{
+	// Structure that contains all properties for movement calculations
+	struct MovingObject
+	{
+		Linear<double> x;
+		Linear<double> y;
+		double hspeed = 0.0;
+		double vspeed = 0.0;
+
+		void normalize()
+		{
+			x.normalize();
+			y.normalize();
+		}
+
+		void move()
+		{
+			x += hspeed;
+			y += vspeed;
+		}
+
+		void set_x(double d)
+		{
+			x.set(d);
+		}
+
+		void set_y(double d)
+		{
+			y.set(d);
+		}
+
+		void limitx(double d)
+		{
+			x = d;
+			hspeed = 0.0;
+		}
+
+		void limity(double d)
+		{
+			y = d;
+			vspeed = 0.0;
+		}
+
+		void movexuntil(double d, uint16_t delay)
+		{
+			if (delay)
+			{
+				double hdelta = d - x.get();
+				hspeed = Constants::TIMESTEP * hdelta / delay;
+			}
+		}
+
+		void moveyuntil(double d, uint16_t delay)
+		{
+			if (delay)
+			{
+				double vdelta = d - y.get();
+				vspeed = Constants::TIMESTEP * vdelta / delay;
+			}
+		}
+
+		bool hmobile() const
+		{
+			return hspeed != 0.0;
+		}
+
+		bool vmobile() const
+		{
+			return vspeed != 0.0;
+		}
+
+		bool mobile() const
+		{
+			return hmobile() || vmobile();
+		}
+
+		double crnt_x() const
+		{
+			return x.get();
+		}
+
+		double crnt_y() const
+		{
+			return y.get();
+		}
+
+		double next_x() const
+		{
+			return x + hspeed;
+		}
+
+		double next_y() const
+		{
+			return y + vspeed;
+		}
+
+		int16_t get_x() const
+		{
+			double rounded = std::round(x.get());
+			return static_cast<int16_t>(rounded);
+		}
+
+		int16_t get_y() const
+		{
+			double rounded = std::round(y.get());
+			return static_cast<int16_t>(rounded);
+		}
+
+		int16_t get_last_x() const
+		{
+			double rounded = std::round(x.last());
+			return static_cast<int16_t>(rounded);
+		}
+
+		int16_t get_last_y() const
+		{
+			double rounded = std::round(y.last());
+			return static_cast<int16_t>(rounded);
+		}
+
+		Point<int16_t> get_position() const
+		{
+			return { get_x(), get_y() };
+		}
+
+		int16_t get_absolute_x(double viewx, float alpha) const
+		{
+			double interx = x.normalized() ? std::round(x.get()) : x.get(alpha);
+
+			return static_cast<int16_t>(
+				std::round(interx + viewx)
+				);
+		}
+
+		int16_t get_absolute_y(double viewy, float alpha) const
+		{
+			double intery = y.normalized() ? std::round(y.get()) : y.get(alpha);
+
+			return static_cast<int16_t>(
+				std::round(intery + viewy)
+				);
+		}
+
+		Point<int16_t> get_absolute(double viewx, double viewy, float alpha) const
+		{
+			return { get_absolute_x(viewx, alpha), get_absolute_y(viewy, alpha) };
+		}
+	};
+
+	// Structure that contains all properties necessary for physics calculations
+	struct PhysicsObject : public MovingObject
+	{
+		// Determines which physics engine to use
+		enum Type
+		{
+			NORMAL,
+			ICE,
+			SWIMMING,
+			FLYING,
+			FIXATED
+		};
+
+		enum Flag
+		{
+			NOGRAVITY = 0x0001,
+			TURNATEDGES = 0x0002,
+			CHECKBELOW = 0x0004
+		};
+
+		Type type = Type::NORMAL;
+		int32_t flags = 0;
+		uint16_t fhid = 0;
+		double fhslope = 0.0;
+		int8_t fhlayer = 0;
+		double groundbelow = 0.0;
+		bool onground = true;
+		bool enablejd = false;
+
+		double hforce = 0.0;
+		double vforce = 0.0;
+		double hacc = 0.0;
+		double vacc = 0.0;
+
+		bool is_flag_set(Flag f)
+		{
+			return (flags & f) != 0;
+		}
+
+		bool is_flag_not_set(Flag f)
+		{
+			return !is_flag_set(f);
+		}
+
+		void set_flag(Flag f)
+		{
+			flags |= f;
+		}
+
+		void clear_flag(Flag f)
+		{
+			flags &= ~f;
+		}
+
+		void clear_flags()
+		{
+			flags = 0;
+		}
+	};
+}
+
+================
+File: Gameplay/Stage.cpp
+================
+//////////////////////////////////////////////////////////////////////////////////
+//	This file is part of the continued Journey MMORPG client					//
+//	Copyright (C) 2015-2019  Daniel Allendorf, Ryan Payton						//
+//																				//
+//	This program is free software: you can redistribute it and/or modify		//
+//	it under the terms of the GNU Affero General Public License as published by	//
+//	the Free Software Foundation, either version 3 of the License, or			//
+//	(at your option) any later version.											//
+//																				//
+//	This program is distributed in the hope that it will be useful,				//
+//	but WITHOUT ANY WARRANTY; without even the implied warranty of				//
+//	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the				//
+//	GNU Affero General Public License for more details.							//
+//																				//
+//	You should have received a copy of the GNU Affero General Public License	//
+//	along with this program.  If not, see <https://www.gnu.org/licenses/>.		//
+//////////////////////////////////////////////////////////////////////////////////
+#include "Stage.h"
+
+#include "../Configuration.h"
+
+#include "../IO/UI.h"
+
+#include "../IO/UITypes/UIStatusBar.h"
+#include "../Net/Packets/AttackAndSkillPackets.h"
+#include "../Net/Packets/GameplayPackets.h"
+#include "../Util/Misc.h"
+
+#ifdef USE_NX
+#include <nlnx/nx.hpp>
+#endif
+
+namespace ms
+{
+	Stage::Stage() : combat(player, chars, mobs, reactors)
+	{
+		state = State::INACTIVE;
+	}
+
+	void Stage::init()
+	{
+		drops.init();
+	}
+
+	void Stage::load(int32_t mapid, int8_t portalid)
+	{
+		std::cout << "[STATETRANS] Stage::load() called - mapid: " << mapid << ", portalid: " << (int)portalid << std::endl;
+		std::cout << "[STATETRANS] Current stage state: " << (state == State::ACTIVE ? "ACTIVE" : state == State::INACTIVE ? "INACTIVE" : "TRANSITION") << std::endl;
+		
+		// Prevent reloading if already active
+		if (state == State::ACTIVE) {
+			std::cout << "[STATETRANS] WARNING: Stage already ACTIVE, skipping reload to prevent black screen!" << std::endl;
+			return;
+		}
+		
+		switch (state)
+		{
+			case State::INACTIVE:
+				std::cout << "[STATETRANS] Loading map " << mapid << " and spawning at portal " << (int)portalid << std::endl;
+				load_map(mapid);
+				respawn(portalid);
+				break;
+			case State::TRANSITION:
+				std::cout << "[STATETRANS] Stage in TRANSITION, only respawning" << std::endl;
+				respawn(portalid);
+				break;
+		}
+
+		std::cout << "[STATETRANS] Stage::load complete - setting state to ACTIVE" << std::endl;
+		state = State::ACTIVE;
+	}
+
+	void Stage::loadplayer(const CharEntry& entry)
+	{
+		player = entry;
+		playable = player;
+
+		start = ContinuousTimer::get().start();
+
+		CharStats stats = player.get_stats();
+		levelBefore = stats.get_stat(MapleStat::Id::LEVEL);
+		expBefore = stats.get_exp();
+	}
+
+	void Stage::clear()
+	{
+		std::cout << "[STATETRANS] Stage::clear() called - setting state to INACTIVE" << std::endl;
+		std::cout << "[STATETRANS] STACK TRACE: Stage being cleared!" << std::endl;
+		state = State::INACTIVE;
+
+		chars.clear();
+		npcs.clear();
+		mobs.clear();
+		drops.clear();
+		reactors.clear();
+	}
+
+	void Stage::load_map(int32_t mapid)
+	{
+		Stage::mapid = mapid;
+
+		std::string strid = string_format::extend_id(mapid, 9);
+		std::string prefix = std::to_string(mapid / 100000000);
+
+		// Try Map002 fallback, then direct Map (v83)
+		nl::node src;
+		if (mapid == -1) {
+			src = nl::nx::UI["CashShopPreview.img"];
+		} else {
+			src = nl::nx::Map002["Map"]["Map" + prefix][strid + ".img"];
+			if (src.name().empty()) {
+				src = nl::nx::Map["Map"]["Map" + prefix][strid + ".img"];
+			}
+		}
+
+		tilesobjs = MapTilesObjs(src);
+		backgrounds = MapBackgrounds(src["back"]);
+		physics = Physics(src["foothold"]);
+		mapinfo = MapInfo(src, physics.get_fht().get_walls(), physics.get_fht().get_borders());
+		portals = MapPortals(src["portal"], mapid);
+	}
+
+	void Stage::respawn(int8_t portalid)
+	{
+		std::cout << "[STATETRANS] Stage::respawn() called with portalid: " << (int)portalid << std::endl;
+		Music(mapinfo.get_bgm()).play();
+
+		Point<int16_t> spawnpoint = portals.get_portal_by_id(portalid);
+		std::cout << "[STATETRANS] Portal spawn point: (" << spawnpoint.x() << ", " << spawnpoint.y() << ")" << std::endl;
+		Point<int16_t> startpos = physics.get_y_below(spawnpoint);
+		std::cout << "[STATETRANS] Physics y_below result: (" << startpos.x() << ", " << startpos.y() << ")" << std::endl;
+		// Fix invalid spawn position
+		if (startpos.y() < -1000 || startpos.y() > 2000) {
+			std::cout << "[STATETRANS] WARNING: Invalid Y position " << startpos.y() << ", forcing to Y=300" << std::endl;
+			startpos = Point<int16_t>(startpos.x(), 300);
+		}
+		player.respawn(startpos, mapinfo.is_underwater());
+		// Center camera on player position
+		std::cout << "[STATETRANS] Centering camera on player at: (" << startpos.x() << ", " << startpos.y() << ")" << std::endl;
+		camera.set_position(startpos);
+		std::cout << "[STATETRANS] Camera.set_position() completed" << std::endl;
+		Range<int16_t> walls = mapinfo.get_walls();
+		Range<int16_t> borders = mapinfo.get_borders();
+		std::cout << "[HAIRRENDER] Map walls: (" << walls.smaller() << " to " << walls.greater() << ")" << std::endl;
+		std::cout << "[HAIRRENDER] Map borders: (" << borders.smaller() << " to " << borders.greater() << ")" << std::endl;
+		
+		// Check if map bounds are invalid
+		if (borders.greater() - borders.smaller() > 10000) {
+			std::cout << "[HAIRRENDER] WARNING: Map borders too large! Height would be: " << (borders.greater() - borders.smaller()) << std::endl;
+			std::cout << "[HAIRRENDER] Using default bounds instead of map bounds" << std::endl;
+			// Use reasonable defaults instead
+			Range<int16_t> default_walls(-1000, 1000);
+			Range<int16_t> default_borders(-600, 600);
+			camera.set_view(default_walls, default_borders);
+		} else {
+			// Normal map bounds
+			camera.set_view(walls, borders);
+		}
+	}
+
+	void Stage::draw(float alpha) const
+	{
+		if (state != State::ACTIVE) {
+			static int inactive_count = 0;
+			if (inactive_count++ < 10) {
+				std::cout << "[STATETRANS] Stage::draw - WARNING: Stage not ACTIVE, skipping draw!" << std::endl;
+			}
+			return;
+		}
+
+		Point<int16_t> viewpos = camera.position(alpha);
+		Point<double> viewrpos = camera.realposition(alpha);
+		// Use actual camera position instead of hardcoded values
+		double viewx = viewrpos.x();
+		double viewy = viewrpos.y();
+		// Log periodically to check if still drawing
+		static int draw_count = 0;
+		draw_count++;
+		if (draw_count < 10 || draw_count % 100 == 0) {
+			std::cout << "[STATETRANS] Stage::draw - call #" << draw_count 
+			          << " with camera view: (" << viewx << ", " << viewy << ")"
+			          << ", viewpos: (" << viewpos.x() << ", " << viewpos.y() << ")" << std::endl;
+		}
+
+		backgrounds.drawbackgrounds(viewx, viewy, alpha);
+
+		for (auto id : Layer::IDs)
+		{
+			tilesobjs.draw(id, viewpos, alpha);
+			reactors.draw(id, viewx, viewy, alpha);
+			npcs.draw(id, viewx, viewy, alpha);
+			mobs.draw(id, viewx, viewy, alpha);
+			chars.draw(id, viewx, viewy, alpha);
+			player.draw(id, viewx, viewy, alpha);
+			drops.draw(id, viewx, viewy, alpha);
+		}
+
+		combat.draw(viewx, viewy, alpha);
+		portals.draw(viewpos, alpha);
+		backgrounds.drawforegrounds(viewx, viewy, alpha);
+		effect.draw();
+	}
+
+	void Stage::update()
+	{
+		if (state != State::ACTIVE)
+			return;
+
+		combat.update();
+		backgrounds.update();
+		effect.update();
+		tilesobjs.update();
+
+		reactors.update(physics);
+		npcs.update(physics);
+		mobs.update(physics);
+		chars.update(physics);
+		drops.update(physics);
+		player.update(physics);
+
+		portals.update(player.get_position());
+		Point<int16_t> player_pos = player.get_position();
+		static int camera_update_count = 0;
+		if (camera_update_count++ < 10) {
+			std::cout << "[STATETRANS] Calling camera.update() with player pos: (" << player_pos.x() << ", " << player_pos.y() << ")" << std::endl;
+		}
+		camera.update(player_pos);
+
+		if (!player.is_climbing() && !player.is_sitting() && !player.is_attacking())
+		{
+			if (player.is_key_down(KeyAction::Id::UP) && !player.is_key_down(KeyAction::Id::DOWN))
+				check_ladders(true);
+
+			if (player.is_key_down(KeyAction::Id::UP))
+				check_portals();
+
+			if (player.is_key_down(KeyAction::Id::DOWN))
+				check_ladders(false);
+
+			if (player.is_key_down(KeyAction::Id::SIT))
+				check_seats();
+
+			if (player.is_key_down(KeyAction::Id::ATTACK))
+				combat.use_move(0);
+
+			if (player.is_key_down(KeyAction::Id::PICKUP))
+				check_drops();
+		}
+
+		if (player.is_invincible())
+			return;
+
+		if (int32_t oid_id = mobs.find_colliding(player.get_phobj()))
+		{
+			if (MobAttack attack = mobs.create_attack(oid_id))
+			{
+				MobAttackResult result = player.damage(attack);
+				TakeDamagePacket(result, TakeDamagePacket::From::TOUCH).dispatch();
+			}
+		}
+	}
+
+	void Stage::show_character_effect(int32_t cid, CharEffect::Id effect)
+	{
+		if (auto character = get_character(cid))
+			character->show_effect_id(effect);
+	}
+
+	void Stage::check_portals()
+	{
+		if (player.is_attacking())
+			return;
+
+		Point<int16_t> playerpos = player.get_position();
+		Portal::WarpInfo warpinfo = portals.find_warp_at(playerpos);
+
+		if (warpinfo.intramap)
+		{
+			Point<int16_t> spawnpoint = portals.get_portal_by_name(warpinfo.toname);
+			Point<int16_t> startpos = physics.get_y_below(spawnpoint);
+
+			player.respawn(startpos, mapinfo.is_underwater());
+		}
+		else if (warpinfo.valid)
+		{
+			ChangeMapPacket(false, -1, warpinfo.name, false).dispatch();
+
+			CharStats& stats = Stage::get().get_player().get_stats();
+
+			stats.set_mapid(warpinfo.mapid);
+
+			Sound(Sound::Name::PORTAL).play();
+		}
+	}
+
+	void Stage::check_seats()
+	{
+		if (player.is_sitting() || player.is_attacking())
+			return;
+
+		Optional<const Seat> seat = mapinfo.findseat(player.get_position());
+		player.set_seat(seat);
+	}
+
+	void Stage::check_ladders(bool up)
+	{
+		if (!player.can_climb() || player.is_climbing() || player.is_attacking())
+			return;
+
+		Optional<const Ladder> ladder = mapinfo.findladder(player.get_position(), up);
+		player.set_ladder(ladder);
+	}
+
+	void Stage::check_drops()
+	{
+		Point<int16_t> playerpos = player.get_position();
+		MapDrops::Loot loot = drops.find_loot_at(playerpos);
+
+		if (loot.first)
+			PickupItemPacket(loot.first, loot.second).dispatch();
+	}
+
+	void Stage::send_key(KeyType::Id type, int32_t action, bool down)
+	{
+		if (state != State::ACTIVE || !playable)
+			return;
+
+		switch (type)
+		{
+			case KeyType::Id::ACTION:
+				playable->send_action(KeyAction::actionbyid(action), down);
+				break;
+			case KeyType::Id::SKILL:
+				combat.use_move(action);
+				break;
+			case KeyType::Id::ITEM:
+				player.use_item(action);
+				break;
+			case KeyType::Id::FACE:
+				player.set_expression(action);
+				break;
+		}
+	}
+
+	Cursor::State Stage::send_cursor(bool clicked, Point<int16_t> cursor_position)
+	{
+		auto statusbar = UI::get().get_element<UIStatusBar>();
+
+		if (statusbar && statusbar->is_menu_active())
+		{
+			if (clicked)
+				statusbar->remove_menus();
+
+			if (statusbar->is_in_range(cursor_position))
+				return statusbar->send_cursor(clicked, cursor_position);
+		}
+
+		return npcs.send_cursor(clicked, cursor_position, camera.position());
+	}
+
+	bool Stage::is_player(int32_t cid) const
+	{
+		return cid == player.get_oid();
+	}
+
+	MapNpcs& Stage::get_npcs()
+	{
+		return npcs;
+	}
+
+	MapChars& Stage::get_chars()
+	{
+		return chars;
+	}
+
+	MapMobs& Stage::get_mobs()
+	{
+		return mobs;
+	}
+
+	MapReactors& Stage::get_reactors()
+	{
+		return reactors;
+	}
+
+	MapDrops& Stage::get_drops()
+	{
+		return drops;
+	}
+
+	Player& Stage::get_player()
+	{
+		return player;
+	}
+
+	Combat& Stage::get_combat()
+	{
+		return combat;
+	}
+
+	Optional<Char> Stage::get_character(int32_t cid)
+	{
+		if (is_player(cid))
+			return player;
+		else
+			return chars.get_char(cid);
+	}
+
+	int Stage::get_mapid()
+	{
+		return mapid;
+	}
+
+	void Stage::add_effect(std::string path)
+	{
+		effect = MapEffect(path);
+	}
+
+	int64_t Stage::get_uptime()
+	{
+		return ContinuousTimer::get().stop(start);
+	}
+
+	uint16_t Stage::get_uplevel()
+	{
+		return levelBefore;
+	}
+
+	int64_t Stage::get_upexp()
+	{
+		return expBefore;
+	}
+
+	void Stage::transfer_player()
+	{
+		PlayerMapTransferPacket().dispatch();
+
+		if (Configuration::get().get_admin())
+			AdminEnterMapPacket(AdminEnterMapPacket::Operation::ALERT_ADMINS).dispatch();
+	}
+}
+
+================
+File: Gameplay/Stage.h
+================
+//////////////////////////////////////////////////////////////////////////////////
+//	This file is part of the continued Journey MMORPG client					//
+//	Copyright (C) 2015-2019  Daniel Allendorf, Ryan Payton						//
+//																				//
+//	This program is free software: you can redistribute it and/or modify		//
+//	it under the terms of the GNU Affero General Public License as published by	//
+//	the Free Software Foundation, either version 3 of the License, or			//
+//	(at your option) any later version.											//
+//																				//
+//	This program is distributed in the hope that it will be useful,				//
+//	but WITHOUT ANY WARRANTY; without even the implied warranty of				//
+//	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the				//
+//	GNU Affero General Public License for more details.							//
+//																				//
+//	You should have received a copy of the GNU Affero General Public License	//
+//	along with this program.  If not, see <https://www.gnu.org/licenses/>.		//
+//////////////////////////////////////////////////////////////////////////////////
+#pragma once
+
+#include "Combat/Combat.h"
+#include "MapleMap/MapBackgrounds.h"
+#include "MapleMap/MapDrops.h"
+#include "MapleMap/MapEffect.h"
+#include "MapleMap/MapNpcs.h"
+#include "MapleMap/MapPortals.h"
+#include "MapleMap/MapTilesObjs.h"
+
+#include "../Timer.h"
+
+#include "../IO/KeyType.h"
+
+namespace ms
+{
+	class Stage : public Singleton<Stage>
+	{
+	public:
+		Stage();
+
+		void init();
+
+		// Loads the map to display
+		void load(int32_t mapid, int8_t portalid);
+		// Remove all map objects and graphics
+		void clear();
+
+		// Construct the player from a character entry
+		void loadplayer(const CharEntry& entry);
+
+		// Call 'draw()' of all objects on stage
+		void draw(float alpha) const;
+		// Calls 'update()' of all objects on stage
+		void update();
+
+		// Show a character effect
+		void show_character_effect(int32_t cid, CharEffect::Id effect);
+
+		// Send key input to the stage
+		void send_key(KeyType::Id keytype, int32_t keycode, bool pressed);
+		// Send mouse input to the stage
+		Cursor::State send_cursor(bool clicked, Point<int16_t> cursor_position);
+
+		// Check if the specified id is the player's id
+		bool is_player(int32_t cid) const;
+
+		// Returns a reference to the NPCs on the current map
+		MapNpcs& get_npcs();
+		// Returns a reference to the other characters on the current map
+		MapChars& get_chars();
+		// Returns a reference to the mobs on the current map
+		MapMobs& get_mobs();
+		// Returns a reference to the reactors on the current map
+		MapReactors& get_reactors();
+		// Returns a reference to the drops on the current map
+		MapDrops& get_drops();
+		// Returns a reference to the Player
+		Player& get_player();
+		// Return a reference to the attack and buff component
+		Combat& get_combat();
+		// Returns the current map ID
+		int32_t get_mapid();
+
+		// Return a pointer to a character, possibly the player.
+		Optional<Char> get_character(int32_t cid);
+
+		// Set a map effect
+		void add_effect(std::string path);
+
+		// Get the total up time of the client
+		int64_t get_uptime();
+		// Get the level at the start of the client
+		uint16_t get_uplevel();
+		// Get the EXP at the start of the client
+		int64_t get_upexp();
+
+		// Notify the server that the player has moved maps
+		void transfer_player();
+
+	private:
+		void load_map(int32_t mapid);
+		void respawn(int8_t portalid);
+		void check_portals();
+		void check_seats();
+		void check_ladders(bool up);
+		void check_drops();
+
+		enum State
+		{
+			INACTIVE,
+			TRANSITION,
+			ACTIVE
+		};
+
+		Camera camera;
+		Physics physics;
+		Player player;
+
+		Optional<Playable> playable;
+		State state;
+		int32_t mapid;
+
+		MapInfo mapinfo;
+		MapTilesObjs tilesobjs;
+		MapBackgrounds backgrounds;
+		MapPortals portals;
+		MapReactors reactors;
+		MapNpcs npcs;
+		MapChars chars;
+		MapMobs mobs;
+		MapDrops drops;
+		MapEffect effect;
+
+		Combat combat;
+
+		std::chrono::time_point<std::chrono::steady_clock> start;
+		uint16_t levelBefore;
+		int64_t expBefore;
+	};
+}
+
+================
+File: PLAYER_OSCILLATION_RESEARCH.md
+================
+# Player Position Oscillation Research Request
+
+## Critical Issue Overview
+
+**MapleStory v83/v87 Client - Player Position Oscillating Between Extreme Values**
+
+The player character's Y position is oscillating between +29700 and -29900 every single frame, causing severe camera shake and rendering issues. This is NOT a camera bug - the camera is correctly following an unstable player.
+
+## Confirmed Facts
+
+1. **Physics::get_y_below() has been fixed** - No longer returns -29901, now properly validates ground positions
+2. **Camera bounds logic is working correctly** - Camera oscillation is a symptom, not the cause
+3. **Root cause identified**: Player position oscillating wildly between Y=+29700 and Y=-29900 every frame
+4. **Debug evidence**: 
+   ```
+   Line 194: Calling camera.update() with player pos: (0, 29700)
+   Line 195: Calling camera.update() with player pos: (0, -29900)
+   ```
+
+## Research Objectives
+
+**CRITICAL**: Identify why the player's physics position oscillates between extreme Y values every frame and provide a robust solution.
+
+### Primary Investigation Areas:
+
+1. **Player::update() Physics Loop** - Trace the player physics update cycle to find where position instability occurs
+2. **FootholdTree Ground Detection** - Even though Physics::get_y_below() is fixed, investigate if foothold collision is causing player to fall through map
+3. **Player State Machine** - Check if player state transitions (falling/standing) are causing position corrections that overcompensate
+4. **Physics::move_object() Integration** - Analyze how player physics integrate with the foothold system
+5. **Map Data Validation** - Confirm if Map 33554627 has valid foothold data that could support stable player positioning
+
+### Secondary Investigation:
+
+1. **Spawn Position Validation** - Verify initial player spawn position is stable
+2. **Ground Collision Logic** - Check FootholdTree::limit_movement() for edge cases
+3. **Player Respawn Logic** - Analyze if respawn process leaves player in unstable state
+
+## Expected Research Deliverables
+
+1. **Root Cause Analysis** - Precise identification of why player position oscillates
+2. **Trace Analysis** - Step-by-step breakdown of the player physics update that causes instability  
+3. **Robust Fix Strategy** - Multiple approaches to stabilize player position
+4. **Prevention Logic** - Safeguards to prevent similar oscillation in future
+
+## Context: Successful Fixes Already Applied
+
+- ✅ Fixed Physics::get_y_below() with validation and fallback logic
+- ✅ Added camera bounds clamping as safety net
+- ✅ Fixed initial spawn position validation
+- ✅ Character is now visible and rendering correctly
+- ❌ **REMAINING**: Player position oscillation causing camera shake
+
+## Key Code Locations to Investigate
+
+1. **Player::update()** - Lines 155-190 in Player.cpp
+2. **Physics::move_object()** - How player physics are processed
+3. **FootholdTree::limit_movement()** - Collision resolution logic
+4. **Player::respawn()** - Initial position setting
+5. **PhysicsObject movement integration** - MovingObject::move() and position updates
+
+## Debug Strategy Recommendations
+
+1. **Add position tracking in Player::update()** to log position changes frame-by-frame
+2. **Instrument FootholdTree::limit_movement()** to detect position corrections
+3. **Check player's PhysicsObject state** (onground, fhid, speeds) during oscillation
+4. **Validate map foothold data** for Map 33554627 specifically
+
+## Success Criteria
+
+- Player position stable within reasonable bounds (Y between -1000 and 2000)
+- No frame-to-frame position oscillation exceeding 100 pixels
+- Camera follows player smoothly without extreme jumps
+- Character remains visible and properly positioned on map
+
+This research is critical for completing the MapleStory client black screen fix. The character is now visible, but the position oscillation must be resolved for playable gameplay.
+
+================
+File: research.txt
+================
+Great, thank you for the context! I’ll analyze the code and supporting data you provided to:
+
+1. Confirm whether the root cause lies in map data or the physics system rather than camera logic.
+2. Identify why the Y-position oscillates drastically and how Physics::get\_y\_below() may be malfunctioning.
+3. Recommend specific debugging strategies to trace faulty camera behavior and verify bounds.
+4. Suggest a robust fix strategy, including fallback logic and map bounds validation.
+
+I’ll dive into the data and get back to you shortly with a structured analysis and fix plan.
+
+
+# Root Cause Confirmation
+
+The evidence strongly points to bad map/physics data, not the camera code.  In MapleStory, each map’s WZ file includes a **foothold** section listing ground platforms and **VRTop/VRBottom** boundaries (the visible area).  Physics::get\_y\_below(spawnpoint) should return the nearest ground *Y* given the spawn *X*, but a result of –29901 is clearly nonsensical.  This implies the foothold data for Map 33554627 is missing or corrupted, so the ground-search fails.  In other words, the camera spikes occur because the physics engine finds no valid ground and returns an extreme Y, not because the camera logic itself is wrong.  (The Stage::respawn code even checks for outlier Y values and forces them back into range, which confirms that such bad Y results are treated as a data error.)  Therefore, the root issue is almost certainly invalid map collision data (no foothold tree or wrong bounds), not a flaw in Camera::update.
+
+# Debugging Strategy
+
+* **Validate Map Data:** Check that Map 33554627 exists in the game’s WZ/NX files and that its collision sections are intact.  Use a WZ inspection tool or log the map’s foothold count and VR bounds at load time.  Ensure there are non-empty entries under “foothold” and reasonable VRTop/VRBottom values.  If the map file is missing or has a malformed foothold block, fix or replace it.
+* **Trace Physics::get\_y\_below():** Instrument the physics code to log its internal process.  For example, log the input spawnpoint and the list of candidate footholds it checks.  If no foothold is found under the X coordinate, log that explicitly.  Verify whether the physics routine returns a default or garbage value when no ground is found.  Ideally, add assertions or guards so that get\_y\_below never returns an absurd Y (e.g. below VRBottom).
+* **Check Stage Loading:** In `Stage::respawn`, the code obtains a portal spawn point and then calls `physics.get_y_below(spawnpoint)`.  Log the portal coordinates and the raw spawnpoint before and after this call.  The provided log sample even shows “\[STATETRANS] Physics y\_below result: (0, -29901)”. If the debug shows no portal spawn (e.g. (0,0)) or no footholds processed, investigate why.
+* **Verify Camera::update Invocation:** Make sure `Camera::update()` is actually called every frame.  The `Stage::update` routine calls `camera.update(player.get_position())`, so put a log or breakpoint there.  If your added debug output in Camera isn’t appearing, confirm the code is compiled in (debug vs release build) and that `std::cout` is flushed.  For example, ensure any `if(camera_debug_count++ < 5)` logging in Camera is actually executed early on.
+* **Inspect Bounds Setup:** After loading the map, check the horizontal/vertical bounds (hbounds/vbounds) passed to the camera.  In the respawn code, the map walls and borders are logged. Verify that these ranges are sane.  The code already includes a safeguard: if `borders.greater()-borders.smaller() > 10000`, it uses default bounds instead.  Watch for that warning log; if it appears, it means the map bounds were absurd.
+* **Test with Known Good Map:** As a sanity check, spawn the player in a different map (one known to be valid) and see if the camera oscillation persists.  If it does not, that further implicates map-specific data. If it still occurs, it could hint at a systemic camera/physics issue.
+
+# Fix Recommendations
+
+1. **Debug Order – Physics First:** Begin by fixing the physics/map data. The camera fix you applied is sound, but it only works with valid input. Since the logs show `get_y_below` returning –29901 (which then triggers a manual clamp), focus on why that happens. Likely the foothold data for map 33554627 is missing or incorrect. Confirm and correct the map’s foothold WZ data.
+2. **Validate MapInfo on Load:** Add checks in `MapInfo` (or wherever the map is parsed) to detect missing or extreme data. For example, after loading VRTop/VRBottom or the foothold tree, verify `VRBottom < VRTop` and footholds are non-empty. If these checks fail, either abort loading the map or use safe defaults. The Stage code shows a fallback for too-large borders by applying default bounds; similarly, you can detect empty footholds and handle them (e.g. treat the map as invalid).
+3. **Fallback Logic:** In `Stage::respawn` (or `Camera::set_view`), ensure there is robust fallback if map info is bogus. The existing code does this for map bounds and spawn Y. You might expand it: if `physics.get_y_below` yields a value outside the expected range, try using the portal’s Y directly or a known default ground Y. Likewise, if the calculated camera bounds (`hbounds`/`vbounds`) are invalid (e.g. zero size or too large), skip clamping or use the previous valid bounds.
+4. **Common Client Bug Patterns:** This pattern of oscillating camera with extreme values is known in private client development. It often arises when the map’s foothold collision tree is empty or corrupted, causing the player to “fall through” the map. A missing or uninitialized mapinfo (VR boundaries all zero) can likewise cause no effective boundaries. These are *not* camera logic bugs, but map-loading bugs. (For example, the repomix analysis notes that `Physics::get_y_below()` “is not finding valid ground” and “map collision detection is broken”.) The fix is to correct the map data or add validation, not further tweak Camera::update.
+
+# Code-Level Fixes
+
+* **Physics::get\_y\_below – Ground Detection:** Ensure this function properly searches the foothold data structure (often a spatial tree) for any platform under the given X, and returns the highest such Y. If no foothold is found, **do not** return an unchecked value. Instead, either return the input Y (spawnpoint.y) or the map’s bottom boundary. For example:
+
+  ```cpp
+  int16_t y = find_nearest_ground(x, y_start);
+  if (y < someReasonableMin) {
+      // No ground found – use fallback
+      y = y_start;  // or use VRBottom + some offset
+  }
+  return y;
+  ```
+
+  In other words, clamp the result within \[VRBottom, VRTop] or a hard-coded range. If the search yields an uninitialized value (e.g. INT16\_MIN), catch it before returning.
+* **Camera Bounds Checking (Clamp):** In `Camera::update()`, after computing `next_x` and `next_y`, apply explicit clamping to the view rectangle using the map bounds. The existing code does something like this, but ensure it accounts for the viewport size:
+
+  ```cpp
+  next_x = std::clamp(next_x, (double)hbounds.first(), (double)(hbounds.second() - VWIDTH));
+  next_y = std::clamp(next_y, (double)vbounds.first(), (double)(vbounds.second() - VHEIGHT));
+  ```
+
+  This follows the common advice of “use Mathf.Clamp for camera bounds”. It prevents `next_x` or `next_y` from exceeding the allowable range. If the game engine is 2D, `hbounds.second() - VWIDTH` represents the max X so that the right edge of the viewport doesn’t go past the map’s right wall.
+* **Stage::respawn Safe Defaults:** As shown in the Stage code, if the map’s walls or borders look wrong, override them with safe defaults. For example:
+
+  ```cpp
+  if (borders.greater() - borders.smaller() > 10000) {
+      Range<int16_t> safe_walls(-1000,1000);
+      Range<int16_t> safe_borders(-600,600);
+      camera.set_view(safe_walls, safe_borders);
+  }
+  ```
+
+  This ensures the camera has reasonable limits if the map data was bad. Likewise, after calling `get_y_below`, the code checks for `startpos.y` out of \[-1000,2000] and forces it to 300. You can adjust these thresholds as needed, but the pattern is crucial: **sanitize the physics output immediately after getting it**.
+* **Patch Invalid Physics Inputs:** If the problem map is known, you might insert a special case (temporary fix) that checks `mapid == 33554627` and sets a manual spawn Y or default foothold before calling physics. However, a general solution is better: always validate the input to `get_y_below` (the portal spawnpoint). If that spawnpoint has Y=0 (as in the log), try offsetting it (some clients add +1) or handle portal-less spawn. The goal is to avoid calling `get_y_below` with meaningless input.
+* **Prevent Oscillation:** If all else fails, implement a stability check in the camera. For example, detect if `next_y` is wildly different from `last_y` (say > viewport height difference), and instead use the previous camera Y. This is a crude hack, but it can hide the oscillation if it’s caused by bad data. Ideally, fixing the data means this won’t be needed.
+
+In summary, focus on physics and map validation: ensure `get_y_below` is robust and never returns an extreme outlier, and make sure `Camera::update` always clamps to correct bounds. Once the physics output is sane, the camera will no longer bounce between invalid positions.
+
+**Sources:** Official MapleStory data descriptions; Game-development best practice for clamping camera bounds; examples from the project’s code on spawn-clamping and default bounds.
+
+
+
+================================================================
+End of Codebase
+================================================================

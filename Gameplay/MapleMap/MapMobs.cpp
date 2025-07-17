@@ -26,18 +26,22 @@ namespace ms
 {
 	void MapMobs::draw(Layer::Id layer, double viewx, double viewy, float alpha) const
 	{
+		static int draw_frame = 0;
 		mobs.draw(layer, viewx, viewy, alpha);
 	}
 
 	void MapMobs::update(const Physics& physics)
 	{
+		
 		for (; !spawns.empty(); spawns.pop())
 		{
 			const MobSpawn& spawn = spawns.front();
+			
 
 			if (Optional<Mob> mob = mobs.get(spawn.get_oid()))
 			{
 				int8_t mode = spawn.get_mode();
+				
 
 				if (mode > 0)
 					mob->set_control(mode);
@@ -46,7 +50,7 @@ namespace ms
 			}
 			else
 			{
-				mobs.add(spawn.instantiate());
+				mobs.add(spawn.instantiate(physics));
 			}
 		}
 

@@ -21,6 +21,8 @@
 
 #include "../../Net/Packets/GameplayPackets.h"
 
+#include <iostream>
+
 #ifdef USE_NX
 #include <nlnx/nx.hpp>
 #endif
@@ -30,7 +32,10 @@ namespace ms
 	Mob::Mob(int32_t oi, int32_t mid, int8_t mode, int8_t st, uint16_t fh, bool newspawn, int8_t tm, Point<int16_t> position) : MapObject(oi)
 	{
 		std::string strid = string_format::extend_id(mid, 7);
+		
 		nl::node src = nl::nx::Mob[strid + ".img"];
+		if (!src) {
+		}
 
 		nl::node info = src["info"];
 
@@ -66,6 +71,7 @@ namespace ms
 		{
 			animations[Stance::STAND] = link["stand"];
 			animations[Stance::MOVE] = link["move"];
+			
 		}
 
 		animations[Stance::JUMP] = link["jump"];
@@ -90,10 +96,13 @@ namespace ms
 
 		id = mid;
 		team = tm;
+		
+		
 		set_position(position);
 		set_control(mode);
 		phobj.fhid = fh;
 		phobj.set_flag(PhysicsObject::Flag::TURNATEDGES);
+		
 
 		hppercent = 0;
 		dying = false;
@@ -122,6 +131,13 @@ namespace ms
 
 	void Mob::set_stance(uint8_t stancebyte)
 	{
+		// Handle invalid stance values (like -1/0xFF from server)
+		if (stancebyte == 0xFF || stancebyte > Stance::DIE + 1)
+		{
+			// Default to STAND facing right
+			stancebyte = Stance::STAND;
+		}
+		
 		flip = (stancebyte % 2) == 0;
 
 		if (!flip)
@@ -147,6 +163,7 @@ namespace ms
 	{
 		if (!active)
 			return phobj.fhlayer;
+			
 
 		bool aniend = animations.at(stance).update();
 
@@ -266,8 +283,11 @@ namespace ms
 		}
 		else
 		{
+			Point<int16_t> pos_before = phobj.get_position();
 			phobj.normalize();
 			physics.get_fht().update_fh(phobj);
+			Point<int16_t> pos_after = phobj.get_position();
+			
 		}
 
 		return phobj.fhlayer;
@@ -331,6 +351,8 @@ namespace ms
 
 	void Mob::draw(double viewx, double viewy, float alpha) const
 	{
+		static int draw_count = 0;
+		
 		Point<int16_t> absp = phobj.get_absolute(viewx, viewy, alpha);
 		Point<int16_t> headpos = get_head_position(absp);
 

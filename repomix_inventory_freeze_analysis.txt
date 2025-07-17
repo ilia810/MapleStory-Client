@@ -1,0 +1,3300 @@
+This file is a merged representation of a subset of the codebase, containing specifically included files, combined into a single document by Repomix.
+
+================================================================
+File Summary
+================================================================
+
+Purpose:
+--------
+This file contains a packed representation of the entire repository's contents.
+It is designed to be easily consumable by AI systems for analysis, code review,
+or other automated processes.
+
+File Format:
+------------
+The content is organized as follows:
+1. This summary section
+2. Repository information
+3. Directory structure
+4. Multiple file entries, each consisting of:
+  a. A separator line (================)
+  b. The file path (File: path/to/file)
+  c. Another separator line
+  d. The full contents of the file
+  e. A blank line
+
+Usage Guidelines:
+-----------------
+- This file should be treated as read-only. Any changes should be made to the
+  original repository files, not this packed version.
+- When processing this file, use the file path to distinguish
+  between different files in the repository.
+- Be aware that this file may contain sensitive information. Handle it with
+  the same level of security as you would the original repository.
+
+Notes:
+------
+- Some files may have been excluded based on .gitignore rules and Repomix's configuration
+- Binary files are not included in this packed representation. Please refer to the Repository Structure section for a complete list of file paths, including binary files
+- Only files matching these patterns are included: IO/UITypes/UIItemInventory.cpp, IO/UITypes/UIItemInventory.h, IO/UIStateGame.cpp, IO/UIStateGame.h, IO/UIElement.cpp, IO/UIElement.h, IO/UIDragElement.h, IO/UI.cpp, IO/UI.h
+- Files matching patterns in .gitignore are excluded
+- Files matching default ignore patterns are excluded
+
+Additional Info:
+----------------
+
+================================================================
+Directory Structure
+================================================================
+IO/UI.cpp
+IO/UI.h
+IO/UIDragElement.h
+IO/UIElement.cpp
+IO/UIElement.h
+IO/UIStateGame.cpp
+IO/UIStateGame.h
+IO/UITypes/UIItemInventory.cpp
+IO/UITypes/UIItemInventory.h
+
+================================================================
+Files
+================================================================
+
+================
+File: IO/UI.cpp
+================
+//////////////////////////////////////////////////////////////////////////////////
+//	This file is part of the continued Journey MMORPG client					//
+//	Copyright (C) 2015-2019  Daniel Allendorf, Ryan Payton						//
+//																				//
+//	This program is free software: you can redistribute it and/or modify		//
+//	it under the terms of the GNU Affero General Public License as published by	//
+//	the Free Software Foundation, either version 3 of the License, or			//
+//	(at your option) any later version.											//
+//																				//
+//	This program is distributed in the hope that it will be useful,				//
+//	but WITHOUT ANY WARRANTY; without even the implied warranty of				//
+//	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the				//
+//	GNU Affero General Public License for more details.							//
+//																				//
+//	You should have received a copy of the GNU Affero General Public License	//
+//	along with this program.  If not, see <https://www.gnu.org/licenses/>.		//
+//////////////////////////////////////////////////////////////////////////////////
+#include "UI.h"
+
+#include "UIStateCashShop.h"
+#include "UIStateGame.h"
+#include "UIStateLogin.h"
+#include "Window.h"
+#include "../Graphics/GraphicsGL.h"
+
+#include <iostream>
+
+#include "UITypes/UIChannel.h"
+#include "UITypes/UIChat.h"
+#include "UITypes/UIChatBar.h"
+#include "UITypes/UIJoypad.h"
+#include "UITypes/UINpcTalk.h"
+#include "UITypes/UIOptionMenu.h"
+#include "UITypes/UIQuit.h"
+#include "UITypes/UIShop.h"
+#include "UITypes/UIStatusBar.h"
+#include "UITypes/UIWorldMap.h"
+
+namespace ms
+{
+	UI::UI()
+	{
+		state = std::make_unique<UIStateNull>();
+		enabled = true;
+	}
+
+	void UI::init()
+	{
+		caps_lock_enabled = Configuration::get().get_caps_lock_enabled();
+	
+		cursor.init();
+
+		change_state(State::LOGIN);
+	}
+
+	void UI::draw(float alpha) const
+	{
+		// Drawing UI
+		state->draw(alpha, cursor.get_position());
+
+		scrollingnotice.draw(alpha);
+
+		cursor.draw(alpha);
+	}
+
+	void UI::update()
+	{
+		state->update();
+
+		scrollingnotice.update();
+
+		cursor.update();
+	}
+
+	void UI::enable()
+	{
+		enabled = true;
+	}
+
+	void UI::disable()
+	{
+		enabled = false;
+	}
+
+	void UI::change_state(State id)
+	{
+		switch (id)
+		{
+			case State::LOGIN:
+				state = std::make_unique<UIStateLogin>();
+				break;
+			case State::GAME:
+				state = std::make_unique<UIStateGame>();
+				break;
+			case State::CASHSHOP:
+				state = std::make_unique<UIStateCashShop>();
+				break;
+		}
+	}
+
+	void UI::quit()
+	{
+		quitted = true;
+	}
+
+	bool UI::not_quitted() const
+	{
+		return !quitted;
+	}
+
+	bool UI::has_capslocks() const
+	{
+		return caps_lock_enabled;
+	}
+
+	void UI::send_cursor(Point<int16_t> cursor_position, Cursor::State cursor_state)
+	{
+		Cursor::State next_state = state->send_cursor(cursor_position, cursor_state);
+
+		cursor.set_state(next_state);
+		cursor.set_position(cursor_position);
+	}
+
+	void UI::send_focus(int focused)
+	{
+		if (focused)
+		{
+			// The window gained input focus
+			uint8_t sfxvolume = Setting<SFXVolume>::get().load();
+			Sound::set_sfxvolume(sfxvolume);
+
+			uint8_t bgmvolume = Setting<BGMVolume>::get().load();
+			Music::set_bgmvolume(bgmvolume);
+		}
+		else
+		{
+			// The window lost input focus
+			Sound::set_sfxvolume(0);
+			Music::set_bgmvolume(0);
+		}
+	}
+
+	void UI::send_scroll(double yoffset)
+	{
+		state->send_scroll(yoffset);
+	}
+
+	void UI::send_close()
+	{
+		state->send_close();
+	}
+
+	void UI::send_cursor(bool pressed)
+	{
+		Cursor::State cursorstate = (pressed && enabled) ? Cursor::State::CLICKING : Cursor::State::IDLE;
+		Point<int16_t> cursorpos = cursor.get_position();
+		send_cursor(cursorpos, cursorstate);
+
+		if (focusedtextfield && pressed)
+		{
+			Cursor::State tstate = focusedtextfield->send_cursor(cursorpos, pressed);
+
+			switch (tstate)
+			{
+				case Cursor::State::IDLE:
+					focusedtextfield = {};
+					break;
+			}
+		}
+	}
+
+	void UI::send_cursor(Point<int16_t> cursor_position)
+	{
+		send_cursor(cursor_position, cursor.get_state());
+	}
+
+	void UI::rightclick()
+	{
+		Point<int16_t> pos = cursor.get_position();
+		state->rightclick(pos);
+	}
+
+	void UI::doubleclick()
+	{
+		Point<int16_t> pos = cursor.get_position();
+		state->doubleclick(pos);
+	}
+
+	void UI::send_key(int32_t keycode, bool pressed)
+	{
+		if ((is_key_down[GLFW_KEY_LEFT_ALT] || is_key_down[GLFW_KEY_RIGHT_ALT]) && (is_key_down[GLFW_KEY_ENTER] || is_key_down[GLFW_KEY_KP_ENTER]))
+		{
+			Window::get().toggle_fullscreen();
+
+			is_key_down[GLFW_KEY_LEFT_ALT] = false;
+			is_key_down[GLFW_KEY_RIGHT_ALT] = false;
+			is_key_down[GLFW_KEY_ENTER] = false;
+			is_key_down[GLFW_KEY_KP_ENTER] = false;
+
+			return;
+		}
+
+		if (is_key_down[keyboard.capslockcode()])
+			caps_lock_enabled = !caps_lock_enabled;
+
+		if (focusedtextfield)
+		{
+			bool ctrl = is_key_down[keyboard.leftctrlcode()] || is_key_down[keyboard.rightctrlcode()];
+
+			if (ctrl && pressed)
+			{
+				KeyAction::Id action = keyboard.get_ctrl_action(keycode);
+
+				if (action == KeyAction::Id::COPY || action == KeyAction::Id::PASTE)
+				{
+					if (focusedtextfield->can_copy_paste())
+					{
+						switch (action)
+						{
+							case KeyAction::Id::COPY:
+								Window::get().setclipboard(focusedtextfield->get_text());
+								break;
+							case KeyAction::Id::PASTE:
+								focusedtextfield->add_string(Window::get().getclipboard());
+								break;
+						}
+					}
+				}
+			}
+			else
+			{
+				bool shift = is_key_down[keyboard.leftshiftcode()] || is_key_down[keyboard.rightshiftcode()] || caps_lock_enabled;
+				Keyboard::Mapping mapping = keyboard.get_text_mapping(keycode, shift);
+				focusedtextfield->send_key(mapping.type, mapping.action, pressed);
+			}
+		}
+		else
+		{
+			Keyboard::Mapping mapping = keyboard.get_mapping(keycode);
+
+			// Debug camera controls (WASD + R for reset)
+			if (pressed) {
+				switch (keycode) {
+					case GLFW_KEY_W:
+						GraphicsGL::get().move_camera(0, -20);
+						return;
+					case GLFW_KEY_A:
+						GraphicsGL::get().move_camera(-20, 0);
+						return;
+					case GLFW_KEY_S:
+						GraphicsGL::get().move_camera(0, 20);
+						return;
+					case GLFW_KEY_D:
+						GraphicsGL::get().move_camera(20, 0);
+						return;
+					case GLFW_KEY_R:
+						GraphicsGL::get().reset_camera();
+						return;
+					case GLFW_KEY_C:
+						GraphicsGL::get().clear_atlas_cache();
+						return;
+					case GLFW_KEY_T:
+						GraphicsGL::get().toggle_debug_mode();
+						return;
+				}
+			}
+
+			bool sent = false;
+			std::list<UIElement::Type> types;
+
+			bool escape = keycode == GLFW_KEY_ESCAPE;
+			bool tab = keycode == GLFW_KEY_TAB;
+			bool enter = keycode == GLFW_KEY_ENTER || keycode == GLFW_KEY_KP_ENTER;
+			bool up_down = keycode == GLFW_KEY_UP || keycode == GLFW_KEY_DOWN;
+			bool left_right = keycode == GLFW_KEY_LEFT || keycode == GLFW_KEY_RIGHT;
+			bool arrows = up_down || left_right;
+
+			auto statusbar = UI::get().get_element<UIStatusBar>();
+			auto channel = UI::get().get_element<UIChannel>();
+			auto worldmap = UI::get().get_element<UIWorldMap>();
+			auto optionmenu = UI::get().get_element<UIOptionMenu>();
+			auto shop = UI::get().get_element<UIShop>();
+			auto joypad = UI::get().get_element<UIJoypad>();
+			auto rank = UI::get().get_element<UIRank>();
+			auto quit = UI::get().get_element<UIQuit>();
+			auto npctalk = UI::get().get_element<UINpcTalk>();
+			//auto report = UI::get().get_element<UIReport>();
+			//auto whisper = UI::get().get_element<UIWhisper>();
+
+			if (npctalk && npctalk->is_active())
+			{
+				npctalk->send_key(mapping.action, pressed, escape);
+				sent = true;
+			}
+			else if (statusbar && statusbar->is_menu_active())
+			{
+				statusbar->send_key(mapping.action, pressed, escape);
+				sent = true;
+			}
+			else if (channel && channel->is_active() && mapping.action != KeyAction::Id::CHANGECHANNEL)
+			{
+				channel->send_key(mapping.action, pressed, escape);
+				sent = true;
+			}
+			else if (worldmap && worldmap->is_active() && mapping.action != KeyAction::Id::WORLDMAP)
+			{
+				worldmap->send_key(mapping.action, pressed, escape);
+				sent = true;
+			}
+			else if (optionmenu && optionmenu->is_active())
+			{
+				optionmenu->send_key(mapping.action, pressed, escape);
+				sent = true;
+			}
+			else if (shop && shop->is_active())
+			{
+				shop->send_key(mapping.action, pressed, escape);
+				sent = true;
+			}
+			else if (joypad && joypad->is_active())
+			{
+				joypad->send_key(mapping.action, pressed, escape);
+				sent = true;
+			}
+			else if (rank && rank->is_active())
+			{
+				rank->send_key(mapping.action, pressed, escape);
+				sent = true;
+			}
+			else if (quit && quit->is_active())
+			{
+				quit->send_key(mapping.action, pressed, escape);
+				sent = true;
+			}
+			else
+			{
+				// All
+				if (escape || tab || enter || arrows)
+				{
+					// Login
+					types.emplace_back(UIElement::Type::WORLDSELECT);
+					types.emplace_back(UIElement::Type::CHARSELECT);
+					types.emplace_back(UIElement::Type::RACESELECT);			// No tab
+					types.emplace_back(UIElement::Type::CLASSCREATION);			// No tab (No arrows, but shouldn't send else where)
+					types.emplace_back(UIElement::Type::LOGINNOTICE);			// No tab (No arrows, but shouldn't send else where)
+					types.emplace_back(UIElement::Type::LOGINNOTICE_CONFIRM);	// No tab (No arrows, but shouldn't send else where)
+					types.emplace_back(UIElement::Type::LOGINWAIT);				// No tab (No arrows, but shouldn't send else where)
+				}
+
+				if (escape)
+				{
+					// Login
+					types.emplace_back(UIElement::Type::SOFTKEYBOARD);
+
+					// Game
+					types.emplace_back(UIElement::Type::NOTICE);
+					types.emplace_back(UIElement::Type::KEYCONFIG);
+					types.emplace_back(UIElement::Type::CHAT);
+					types.emplace_back(UIElement::Type::EVENT);
+					types.emplace_back(UIElement::Type::STATSINFO);
+					types.emplace_back(UIElement::Type::ITEMINVENTORY);
+					types.emplace_back(UIElement::Type::EQUIPINVENTORY);
+					types.emplace_back(UIElement::Type::SKILLBOOK);
+					types.emplace_back(UIElement::Type::QUESTLOG);
+					types.emplace_back(UIElement::Type::USERLIST);
+					types.emplace_back(UIElement::Type::NPCTALK);
+					types.emplace_back(UIElement::Type::CHARINFO);
+				}
+				else if (enter)
+				{
+					// Login
+					types.emplace_back(UIElement::Type::SOFTKEYBOARD);
+
+					// Game
+					types.emplace_back(UIElement::Type::NOTICE);
+				}
+				else if (tab)
+				{
+					// Game
+					types.emplace_back(UIElement::Type::ITEMINVENTORY);
+					types.emplace_back(UIElement::Type::EQUIPINVENTORY);
+					types.emplace_back(UIElement::Type::SKILLBOOK);
+					types.emplace_back(UIElement::Type::QUESTLOG);
+					types.emplace_back(UIElement::Type::USERLIST);
+				}
+
+				if (types.size() > 0)
+				{
+					auto element = state->get_front(types);
+
+					if (element && element != nullptr)
+					{
+						element->send_key(mapping.action, pressed, escape);
+						sent = true;
+					}
+				}
+			}
+
+			if (!sent)
+			{
+				if (escape)
+				{
+					state->send_key(mapping.type, mapping.action, pressed, escape);
+				}
+				else if (enter)
+				{
+					if (auto chatbar = UI::get().get_element<UIChatBar>())
+						chatbar->send_key(mapping.action, pressed, escape);
+					else
+						state->send_key(mapping.type, mapping.action, pressed, escape);
+				}
+				else
+				{
+					state->send_key(mapping.type, mapping.action, pressed, escape);
+				}
+			}
+		}
+
+		is_key_down[keycode] = pressed;
+	}
+
+	void UI::set_scrollnotice(const std::string& notice)
+	{
+		scrollingnotice.setnotice(notice);
+	}
+
+	void UI::focus_textfield(Textfield* tofocus)
+	{
+		if (focusedtextfield)
+			focusedtextfield->set_state(Textfield::State::NORMAL);
+
+		focusedtextfield = tofocus;
+	}
+
+	void UI::remove_textfield()
+	{
+		if (focusedtextfield)
+			focusedtextfield->set_state(Textfield::State::NORMAL);
+
+		focusedtextfield = {};
+	}
+
+	void UI::drag_icon(Icon* icon)
+	{
+		state->drag_icon(icon);
+	}
+
+	void UI::add_keymapping(uint8_t no, uint8_t type, int32_t action)
+	{
+		keyboard.assign(no, type, action);
+	}
+
+	void UI::clear_tooltip(Tooltip::Parent parent)
+	{
+		state->clear_tooltip(parent);
+	}
+
+	void UI::show_equip(Tooltip::Parent parent, int16_t slot)
+	{
+		state->show_equip(parent, slot);
+	}
+
+	void UI::show_item(Tooltip::Parent parent, int32_t item_id)
+	{
+		state->show_item(parent, item_id);
+	}
+
+	void UI::show_skill(Tooltip::Parent parent, int32_t skill_id, int32_t level, int32_t masterlevel, int64_t expiration)
+	{
+		state->show_skill(parent, skill_id, level, masterlevel, expiration);
+	}
+
+	void UI::show_text(Tooltip::Parent parent, std::string text)
+	{
+		state->show_text(parent, text);
+	}
+
+	void UI::show_map(Tooltip::Parent parent, std::string title, std::string description, int32_t mapid, bool bolded, bool portal)
+	{
+		state->show_map(parent, title, description, mapid, bolded, portal);
+	}
+
+	Keyboard& UI::get_keyboard()
+	{
+		return keyboard;
+	}
+
+	Point<int16_t> UI::get_cursor_position() const
+	{
+		return cursor.get_position();
+	}
+
+	void UI::remove(UIElement::Type type)
+	{
+		focusedtextfield = {};
+
+		state->remove(type);
+	}
+}
+
+================
+File: IO/UI.h
+================
+//////////////////////////////////////////////////////////////////////////////////
+//	This file is part of the continued Journey MMORPG client					//
+//	Copyright (C) 2015-2019  Daniel Allendorf, Ryan Payton						//
+//																				//
+//	This program is free software: you can redistribute it and/or modify		//
+//	it under the terms of the GNU Affero General Public License as published by	//
+//	the Free Software Foundation, either version 3 of the License, or			//
+//	(at your option) any later version.											//
+//																				//
+//	This program is distributed in the hope that it will be useful,				//
+//	but WITHOUT ANY WARRANTY; without even the implied warranty of				//
+//	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the				//
+//	GNU Affero General Public License for more details.							//
+//																				//
+//	You should have received a copy of the GNU Affero General Public License	//
+//	along with this program.  If not, see <https://www.gnu.org/licenses/>.		//
+//////////////////////////////////////////////////////////////////////////////////
+#pragma once
+
+#include "UIState.h"
+
+#include "Components/ScrollingNotice.h"
+#include "Components/Textfield.h"
+
+namespace ms
+{
+	class UI : public Singleton<UI>
+	{
+	public:
+		enum State
+		{
+			LOGIN,
+			GAME,
+			CASHSHOP
+		};
+
+		UI();
+
+		void init();
+		void draw(float alpha) const;
+		void update();
+
+		void enable();
+		void disable();
+		void change_state(State state);
+
+		void quit();
+		bool not_quitted() const;
+		bool has_capslocks() const;
+
+		void send_cursor(Point<int16_t> cursor_position);
+		void send_cursor(bool pressed);
+		void send_cursor(Point<int16_t> cursor_position, Cursor::State cursor_state);
+		void send_focus(int focused);
+		void send_scroll(double yoffset);
+		void send_close();
+		void rightclick();
+		void doubleclick();
+		void send_key(int32_t keycode, bool pressed);
+
+		void set_scrollnotice(const std::string& notice);
+		void focus_textfield(Textfield* textfield);
+		void remove_textfield();
+		void drag_icon(Icon* icon);
+
+		void add_keymapping(uint8_t no, uint8_t type, int32_t action);
+
+		void clear_tooltip(Tooltip::Parent parent);
+		void show_equip(Tooltip::Parent parent, int16_t slot);
+		void show_item(Tooltip::Parent parent, int32_t item_id);
+		void show_skill(Tooltip::Parent parent, int32_t skill_id, int32_t level, int32_t masterlevel, int64_t expiration);
+		void show_text(Tooltip::Parent parent, std::string text);
+		void show_map(Tooltip::Parent parent, std::string title, std::string description, int32_t mapid, bool bolded, bool portal);
+
+		Keyboard& get_keyboard();
+		Point<int16_t> get_cursor_position() const;
+
+		template <class T, typename...Args>
+		Optional<T> emplace(Args&& ...args)
+		{
+			if (auto iter = state->pre_add(T::TYPE, T::TOGGLED, T::FOCUSED))
+			{
+				(*iter).second = std::make_unique<T>(
+					std::forward<Args>(args)...
+					);
+			}
+
+			return state->get(T::TYPE);
+		}
+
+		template <class T>
+		Optional<T> get_element()
+		{
+			UIElement::Type type = T::TYPE;
+			UIElement* element = state->get(type);
+
+			return static_cast<T*>(element);
+		}
+
+		void remove(UIElement::Type type);
+
+	private:
+		std::unique_ptr<UIState> state;
+		Keyboard keyboard;
+		Cursor cursor;
+		ScrollingNotice scrollingnotice;
+
+		Optional<Textfield> focusedtextfield;
+		std::unordered_map<int32_t, bool> is_key_down;
+
+		bool enabled;
+		bool quitted;
+		bool caps_lock_enabled;
+	};
+}
+
+================
+File: IO/UIDragElement.h
+================
+//////////////////////////////////////////////////////////////////////////////////
+//	This file is part of the continued Journey MMORPG client					//
+//	Copyright (C) 2015-2019  Daniel Allendorf, Ryan Payton						//
+//																				//
+//	This program is free software: you can redistribute it and/or modify		//
+//	it under the terms of the GNU Affero General Public License as published by	//
+//	the Free Software Foundation, either version 3 of the License, or			//
+//	(at your option) any later version.											//
+//																				//
+//	This program is distributed in the hope that it will be useful,				//
+//	but WITHOUT ANY WARRANTY; without even the implied warranty of				//
+//	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the				//
+//	GNU Affero General Public License for more details.							//
+//																				//
+//	You should have received a copy of the GNU Affero General Public License	//
+//	along with this program.  If not, see <https://www.gnu.org/licenses/>.		//
+//////////////////////////////////////////////////////////////////////////////////
+#pragma once
+
+#include "UIElement.h"
+
+#include "../Configuration.h"
+
+namespace ms
+{
+	template <typename T>
+	// Base class for UI Windows which can be moved with the mouse cursor.
+	class UIDragElement : public UIElement
+	{
+	public:
+		void remove_cursor() override
+		{
+			UIElement::remove_cursor();
+
+			if (dragged)
+			{
+				dragged = false;
+
+				Setting<T>::get().save(position);
+			}
+		}
+
+		Cursor::State send_cursor(bool clicked, Point<int16_t> cursorpos) override
+		{
+			if (clicked)
+			{
+				if (dragged)
+				{
+					position = cursorpos - cursoroffset;
+
+					return Cursor::State::CLICKING;
+				}
+				else if (indragrange(cursorpos))
+				{
+					cursoroffset = cursorpos - position;
+					dragged = true;
+
+					return UIElement::send_cursor(clicked, cursorpos);
+				}
+			}
+			else
+			{
+				if (dragged)
+				{
+					dragged = false;
+
+					Setting<T>::get().save(position);
+				}
+			}
+
+			return UIElement::send_cursor(clicked, cursorpos);
+		}
+
+	protected:
+		UIDragElement() : UIDragElement(Point<int16_t>(0, 0)) {}
+
+		UIDragElement(Point<int16_t> d) : dragarea(d)
+		{
+			position = Setting<T>::get().load();
+		}
+
+		bool dragged = false;
+		Point<int16_t> dragarea;
+		Point<int16_t> cursoroffset;
+
+	private:
+		virtual bool indragrange(Point<int16_t> cursorpos) const
+		{
+			auto bounds = Rectangle<int16_t>(position, position + dragarea);
+
+			return bounds.contains(cursorpos);
+		}
+	};
+}
+
+================
+File: IO/UIElement.cpp
+================
+//////////////////////////////////////////////////////////////////////////////////
+//	This file is part of the continued Journey MMORPG client					//
+//	Copyright (C) 2015-2019  Daniel Allendorf, Ryan Payton						//
+//																				//
+//	This program is free software: you can redistribute it and/or modify		//
+//	it under the terms of the GNU Affero General Public License as published by	//
+//	the Free Software Foundation, either version 3 of the License, or			//
+//	(at your option) any later version.											//
+//																				//
+//	This program is distributed in the hope that it will be useful,				//
+//	but WITHOUT ANY WARRANTY; without even the implied warranty of				//
+//	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the				//
+//	GNU Affero General Public License for more details.							//
+//																				//
+//	You should have received a copy of the GNU Affero General Public License	//
+//	along with this program.  If not, see <https://www.gnu.org/licenses/>.		//
+//////////////////////////////////////////////////////////////////////////////////
+#include "UIElement.h"
+
+#include "../Audio/Audio.h"
+#include <iostream>
+
+namespace ms
+{
+	UIElement::UIElement(Point<int16_t> p, Point<int16_t> d, bool a) : position(p), dimension(d), active(a) {}
+	UIElement::UIElement(Point<int16_t> p, Point<int16_t> d) : UIElement(p, d, true) {}
+	UIElement::UIElement() : UIElement(Point<int16_t>(), Point<int16_t>()) {}
+
+	void UIElement::draw(float alpha) const
+	{
+		draw_sprites(alpha);
+		draw_buttons(alpha);
+	}
+
+	void UIElement::draw_sprites(float alpha) const
+	{
+		// Drawing sprites
+		for (const Sprite& sprite : sprites)
+		{
+			// Drawing sprite
+			sprite.draw(position, alpha);
+		}
+	}
+
+	void UIElement::draw_buttons(float) const
+	{
+		for (auto& iter : buttons)
+			if (const Button* button = iter.second.get())
+				button->draw(position);
+	}
+
+	void UIElement::update()
+	{
+		for (auto& sprite : sprites)
+			sprite.update();
+
+		for (auto& iter : buttons)
+			if (Button* button = iter.second.get())
+				button->update();
+	}
+
+	void UIElement::makeactive()
+	{
+		active = true;
+	}
+
+	void UIElement::deactivate()
+	{
+		active = false;
+	}
+
+	bool UIElement::is_active() const
+	{
+		return active;
+	}
+
+	void UIElement::toggle_active()
+	{
+		if (active)
+			deactivate();
+		else
+			makeactive();
+	}
+
+	bool UIElement::is_in_range(Point<int16_t> cursor_position) const
+	{
+		auto bounds = Rectangle<int16_t>(position, position + dimension);
+
+		return bounds.contains(cursor_position);
+	}
+
+	void UIElement::remove_cursor()
+	{
+		for (auto& btit : buttons)
+		{
+			auto button = btit.second.get();
+
+			if (button && button->get_state() == Button::State::MOUSEOVER)
+				button->set_state(Button::State::NORMAL);
+		}
+	}
+
+	Cursor::State UIElement::send_cursor(bool clicked, Point<int16_t> cursor_position)
+	{
+		Cursor::State ret = clicked ? Cursor::State::CLICKING : Cursor::State::IDLE;
+
+		for (auto& btit : buttons)
+		{
+			if (btit.second->is_active() && btit.second->bounds(position).contains(cursor_position))
+			{
+				if (btit.second->get_state() == Button::State::NORMAL)
+				{
+					Sound(Sound::Name::BUTTONOVER).play();
+
+					btit.second->set_state(Button::State::MOUSEOVER);
+					ret = Cursor::State::CANCLICK;
+				}
+				else if (btit.second->get_state() == Button::State::MOUSEOVER)
+				{
+					if (clicked)
+					{
+						Sound(Sound::Name::BUTTONCLICK).play();
+
+						btit.second->set_state(button_pressed(btit.first));
+
+						ret = Cursor::State::IDLE;
+					}
+					else
+					{
+						ret = Cursor::State::CANCLICK;
+					}
+				}
+			}
+			else if (btit.second->get_state() == Button::State::MOUSEOVER)
+			{
+				btit.second->set_state(Button::State::NORMAL);
+			}
+		}
+
+		return ret;
+	}
+}
+
+================
+File: IO/UIElement.h
+================
+//////////////////////////////////////////////////////////////////////////////////
+//	This file is part of the continued Journey MMORPG client					//
+//	Copyright (C) 2015-2019  Daniel Allendorf, Ryan Payton						//
+//																				//
+//	This program is free software: you can redistribute it and/or modify		//
+//	it under the terms of the GNU Affero General Public License as published by	//
+//	the Free Software Foundation, either version 3 of the License, or			//
+//	(at your option) any later version.											//
+//																				//
+//	This program is distributed in the hope that it will be useful,				//
+//	but WITHOUT ANY WARRANTY; without even the implied warranty of				//
+//	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the				//
+//	GNU Affero General Public License for more details.							//
+//																				//
+//	You should have received a copy of the GNU Affero General Public License	//
+//	along with this program.  If not, see <https://www.gnu.org/licenses/>.		//
+//////////////////////////////////////////////////////////////////////////////////
+#pragma once
+
+#include "Components/Button.h"
+#include "Components/Icon.h"
+
+#include "../Graphics/Sprite.h"
+
+namespace ms
+{
+	// Base class for all types of user interfaces on screen.
+	class UIElement
+	{
+	public:
+		using UPtr = std::unique_ptr<UIElement>;
+
+		enum Type
+		{
+			NONE,
+			START,
+			LOGIN,
+			TOS,
+			GENDER,
+			WORLDSELECT,
+			REGION,
+			CHARSELECT,
+			LOGINWAIT,
+			RACESELECT,
+			CLASSCREATION,
+			SOFTKEYBOARD,
+			LOGINNOTICE,
+			LOGINNOTICE_CONFIRM,
+			STATUSMESSENGER,
+			STATUSBAR,
+			CHATBAR,
+			BUFFLIST,
+			NOTICE,
+			NPCTALK,
+			SHOP,
+			STATSINFO,
+			ITEMINVENTORY,
+			EQUIPINVENTORY,
+			SKILLBOOK,
+			QUESTLOG,
+			WORLDMAP,
+			USERLIST,
+			MINIMAP,
+			CHANNEL,
+			CHAT,
+			CHATRANK,
+			JOYPAD,
+			EVENT,
+			KEYCONFIG,
+			OPTIONMENU,
+			QUIT,
+			CHARINFO,
+			CASHSHOP,
+			NUM_TYPES
+		};
+
+		virtual ~UIElement() {}
+
+		virtual void draw(float inter) const;
+		virtual void update();
+		virtual void update_screen(int16_t new_width, int16_t new_height) {}
+
+		void makeactive();
+		void deactivate();
+		bool is_active() const;
+
+		virtual void toggle_active();
+		virtual Button::State button_pressed(uint16_t buttonid) { return Button::State::DISABLED; }
+		virtual bool send_icon(const Icon& icon, Point<int16_t> cursor_position) { return true; }
+
+		virtual void doubleclick(Point<int16_t> cursorpos) {}
+		virtual void rightclick(Point<int16_t> cursorpos) {}
+		virtual bool is_in_range(Point<int16_t> cursor_position) const;
+		virtual void remove_cursor();
+		virtual Cursor::State send_cursor(bool clicked, Point<int16_t> cursor_position);
+		virtual void send_scroll(double yoffset) {}
+		virtual void send_key(int32_t keycode, bool pressed, bool escape) {}
+
+		virtual UIElement::Type get_type() const = 0;
+
+	protected:
+		UIElement(Point<int16_t> position, Point<int16_t> dimension, bool active);
+		UIElement(Point<int16_t> position, Point<int16_t> dimension);
+		UIElement();
+
+		void draw_sprites(float alpha) const;
+		void draw_buttons(float alpha) const;
+
+		std::map<uint16_t, std::unique_ptr<Button>> buttons;
+		std::vector<Sprite> sprites;
+		Point<int16_t> position;
+		Point<int16_t> dimension;
+		bool active;
+	};
+}
+
+================
+File: IO/UIStateGame.cpp
+================
+//////////////////////////////////////////////////////////////////////////////////
+//	This file is part of the continued Journey MMORPG client					//
+//	Copyright (C) 2015-2019  Daniel Allendorf, Ryan Payton						//
+//																				//
+//	This program is free software: you can redistribute it and/or modify		//
+//	it under the terms of the GNU Affero General Public License as published by	//
+//	the Free Software Foundation, either version 3 of the License, or			//
+//	(at your option) any later version.											//
+//																				//
+//	This program is distributed in the hope that it will be useful,				//
+//	but WITHOUT ANY WARRANTY; without even the implied warranty of				//
+//	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the				//
+//	GNU Affero General Public License for more details.							//
+//																				//
+//	You should have received a copy of the GNU Affero General Public License	//
+//	along with this program.  If not, see <https://www.gnu.org/licenses/>.		//
+//////////////////////////////////////////////////////////////////////////////////
+#include "UIStateGame.h"
+
+#include "UI.h"
+
+#include "UITypes/UIBuffList.h"
+#include "UITypes/UIChannel.h"
+#include "UITypes/UICharInfo.h"
+#include "UITypes/UIChat.h"
+#include "UITypes/UIChatBar.h"
+#include "UITypes/UIEquipInventory.h"
+#include "UITypes/UIEvent.h"
+#include "UITypes/UIItemInventory.h"
+#include "UITypes/UIKeyConfig.h"
+#include "UITypes/UIMiniMap.h"
+#include "UITypes/UIQuestLog.h"
+#include "UITypes/UIQuit.h"
+#include "UITypes/UIShop.h"
+#include "UITypes/UISkillBook.h"
+#include "UITypes/UIStatsInfo.h"
+#include "UITypes/UIStatusBar.h"
+#include "UITypes/UIStatusMessenger.h"
+#include "UITypes/UIUserList.h"
+#include "UITypes/UIWorldMap.h"
+
+#include "../Net/Packets/GameplayPackets.h"
+#include "../Gameplay/Stage.h"
+#include "../Util/Misc.h"
+
+namespace ms
+{
+	UIStateGame::UIStateGame() : stats(Stage::get().get_player().get_stats()), dragged(nullptr)
+	{
+		std::cout << "[STATETRANS] UIStateGame constructor called" << std::endl;
+		
+		// Ensure Stage is loaded - SetFieldHandler might not have loaded it yet
+		// due to fadeout callback timing
+		int32_t mapid = stats.get_mapid();
+		uint8_t portalid = stats.get_portal();
+		std::cout << "[STATETRANS] UIStateGame: Checking if Stage needs loading for map " << mapid << std::endl;
+		Stage::get().load(mapid, portalid);
+		
+		focused = UIElement::Type::NONE;
+		tooltipparent = Tooltip::Parent::NONE;
+
+		const CharLook& look = Stage::get().get_player().get_look();
+		const Inventory& inventory = Stage::get().get_player().get_inventory();
+
+		emplace<UIStatusMessenger>();
+		emplace<UIStatusBar>(stats);
+		emplace<UIChatBar>();
+		emplace<UIMiniMap>(stats);
+		emplace<UIBuffList>();
+		emplace<UIShop>(look, inventory);
+
+		VWIDTH = Constants::Constants::get().get_viewwidth();
+		VHEIGHT = Constants::Constants::get().get_viewheight();
+	}
+
+	void UIStateGame::draw(float inter, Point<int16_t> cursor) const
+	{
+		// Log periodically to check if we're still drawing
+		static int draw_count = 0;
+		draw_count++;
+		if (draw_count < 10 || draw_count % 100 == 0) {
+			std::cout << "[STATETRANS] UIStateGame::draw() - call #" << draw_count << ", calling Stage::draw()" << std::endl;
+		}
+		
+		// Draw the game world first (backgrounds, tiles, characters, etc)
+		Stage::get().draw(inter);
+		
+		// Then draw UI elements on top
+		for (auto& type : elementorder)
+		{
+			auto& element = elements[type];
+
+			if (element && element->is_active())
+				element->draw(inter);
+		}
+
+		if (tooltip)
+			tooltip->draw(cursor + Point<int16_t>(0, 22));
+
+		if (draggedicon)
+			draggedicon->dragdraw(cursor);
+	}
+
+	void UIStateGame::update()
+	{
+		// Update the game world (NPCs, monsters, player, animations)
+		Stage::get().update();
+
+		bool update_screen = false;
+		int16_t new_width = Constants::Constants::get().get_viewwidth();
+		int16_t new_height = Constants::Constants::get().get_viewheight();
+
+		if (VWIDTH != new_width || VHEIGHT != new_height)
+		{
+			update_screen = true;
+			VWIDTH = new_width;
+			VHEIGHT = new_height;
+
+			UI::get().remove(UIElement::Type::STATUSBAR);
+
+			const CharStats& stats = Stage::get().get_player().get_stats();
+			emplace<UIStatusBar>(stats);
+		}
+
+		for (auto& type : elementorder)
+		{
+			auto& element = elements[type];
+
+			if (element && element->is_active())
+			{
+				element->update();
+
+				if (update_screen)
+					element->update_screen(new_width, new_height);
+			}
+		}
+	}
+
+	bool UIStateGame::drop_icon(const Icon& icon, Point<int16_t> cursor_position)
+	{
+		if (UIElement* front = get_front(cursor_position))
+			return front->send_icon(icon, cursor_position);
+		else
+			icon.drop_on_stage();
+
+		return true;
+	}
+
+	void UIStateGame::remove_icon()
+	{
+		draggedicon->reset();
+		draggedicon = {};
+	}
+
+	void UIStateGame::remove_cursors()
+	{
+		for (auto type : elementorder)
+		{
+			auto element = elements[type].get();
+
+			if (element && element->is_active())
+				element->remove_cursor();
+		}
+	}
+
+	void UIStateGame::remove_cursor(UIElement::Type t)
+	{
+		for (auto type : elementorder)
+		{
+			auto element = elements[type].get();
+
+			if (element && element->is_active() && element->get_type() != t)
+				element->remove_cursor();
+		}
+	}
+
+	void UIStateGame::doubleclick(Point<int16_t> pos)
+	{
+		if (UIElement* front = get_front(pos))
+			front->doubleclick(pos);
+	}
+
+	void UIStateGame::rightclick(Point<int16_t> pos)
+	{
+		if (UIElement* front = get_front(pos))
+			front->rightclick(pos);
+	}
+
+	void UIStateGame::send_key(KeyType::Id type, int32_t action, bool pressed, bool escape)
+	{
+		if (UIElement* focusedelement = get(focused))
+		{
+			if (focusedelement->is_active())
+			{
+				return focusedelement->send_key(action, pressed, escape);
+			}
+			else
+			{
+				focused = UIElement::NONE;
+
+				return;
+			}
+		}
+		else
+		{
+			switch (type)
+			{
+				case KeyType::Id::MENU:
+				{
+					if (pressed)
+					{
+						switch (action)
+						{
+							case KeyAction::Id::EQUIPMENT:
+							{
+								emplace<UIEquipInventory>(
+									Stage::get().get_player().get_inventory()
+									);
+
+								break;
+							}
+							case KeyAction::Id::ITEMS:
+							{
+								std::cout << "[INVENTORY] About to create UIItemInventory..." << std::endl;
+								std::cout << "[INVENTORY] Getting player inventory..." << std::endl;
+								const Inventory& inv = Stage::get().get_player().get_inventory();
+								std::cout << "[INVENTORY] Got inventory, calling emplace..." << std::endl;
+								std::cout << "[INVENTORY] About to call emplace..." << std::endl;
+								emplace<UIItemInventory>(inv);
+								std::cout << "[INVENTORY] Emplace returned successfully!" << std::endl;
+								std::cout << "[INVENTORY] UIItemInventory created successfully!" << std::endl;
+
+								break;
+							}
+							case KeyAction::Id::STATS:
+							{
+								emplace<UIStatsInfo>(
+									Stage::get().get_player().get_stats()
+									);
+
+								break;
+							}
+							case KeyAction::Id::SKILLS:
+							{
+								emplace<UISkillBook>(
+									Stage::get().get_player().get_stats(),
+									Stage::get().get_player().get_skills()
+									);
+
+								break;
+							}
+							case KeyAction::Id::FRIENDS:
+							case KeyAction::Id::PARTY:
+							case KeyAction::Id::BOSSPARTY:
+							{
+								UIUserList::Tab tab;
+
+								switch (action)
+								{
+									case KeyAction::Id::FRIENDS:
+										tab = UIUserList::Tab::FRIEND;
+										break;
+									case KeyAction::Id::PARTY:
+										tab = UIUserList::Tab::PARTY;
+										break;
+									case KeyAction::Id::BOSSPARTY:
+										tab = UIUserList::Tab::BOSS;
+										break;
+								}
+
+								auto userlist = UI::get().get_element<UIUserList>();
+
+								if (userlist && userlist->get_tab() != tab && userlist->is_active())
+								{
+									userlist->change_tab(tab);
+								}
+								else
+								{
+									emplace<UIUserList>(tab);
+
+									if (userlist && userlist->get_tab() != tab && userlist->is_active())
+										userlist->change_tab(tab);
+								}
+
+								break;
+							}
+							case KeyAction::Id::WORLDMAP:
+							{
+								emplace<UIWorldMap>();
+								break;
+							}
+							case KeyAction::Id::MAPLECHAT:
+							{
+								auto chat = UI::get().get_element<UIChat>();
+
+								if (!chat || !chat->is_active())
+									emplace<UIChat>();
+
+								break;
+							}
+							case KeyAction::Id::MINIMAP:
+							{
+								if (auto minimap = UI::get().get_element<UIMiniMap>())
+									minimap->send_key(action, pressed, escape);
+
+								break;
+							}
+							case KeyAction::Id::QUESTLOG:
+							{
+								emplace<UIQuestLog>(
+									Stage::get().get_player().get_quests()
+									);
+
+								break;
+							}
+							case KeyAction::Id::KEYBINDINGS:
+							{
+								auto keyconfig = UI::get().get_element<UIKeyConfig>();
+
+								if (!keyconfig || !keyconfig->is_active())
+								{
+									emplace<UIKeyConfig>(
+										Stage::get().get_player().get_inventory(),
+										Stage::get().get_player().get_skills()
+										);
+								}
+								else if (keyconfig && keyconfig->is_active())
+								{
+									keyconfig->close();
+								}
+
+								break;
+							}
+							case KeyAction::Id::SAY:
+							case KeyAction::Id::PARTYCHAT:
+							case KeyAction::Id::FRIENDSCHAT:
+							case KeyAction::Id::GUILDCHAT:
+							case KeyAction::Id::ALLIANCECHAT:
+							case KeyAction::Id::TOSPOUSE:
+							{
+								if (auto chatbar = UI::get().get_element<UIChatBar>())
+									chatbar->change_target(action);
+
+								break;
+							}
+							case KeyAction::Id::MENU:
+							{
+								if (auto statusbar = UI::get().get_element<UIStatusBar>())
+									statusbar->toggle_menu();
+
+								break;
+							}
+							case KeyAction::Id::QUICKSLOTS:
+							{
+								if (auto statusbar = UI::get().get_element<UIStatusBar>())
+									statusbar->toggle_qs();
+
+								break;
+							}
+							case KeyAction::Id::TOGGLECHAT:
+							{
+								if (auto chatbar = UI::get().get_element<UIChatBar>())
+								{
+									if (chatbar->has_input())
+										chatbar->send_key(action, pressed, escape);
+									else
+										chatbar->toggle_view();
+								}
+
+								break;
+							}
+							case KeyAction::Id::CASHSHOP:
+							{
+								EnterCashShopPacket().dispatch();
+								break;
+							}
+							case KeyAction::Id::EVENT:
+							{
+								emplace<UIEvent>();
+								break;
+							}
+							case KeyAction::Id::CHARINFO:
+							{
+								emplace<UICharInfo>(
+									Stage::get().get_player().get_oid()
+									);
+
+								break;
+							}
+							case KeyAction::Id::CHANGECHANNEL:
+							{
+								emplace<UIChannel>();
+								break;
+							}
+							case KeyAction::Id::MAINMENU:
+							{
+								if (auto statusbar = UI::get().get_element<UIStatusBar>())
+									statusbar->send_key(action, pressed, escape);
+
+								break;
+							}
+							default:
+							{
+								LOG(LOG_DEBUG, "Unknown KeyAction::Id action: [" << action << "]");
+								break;
+							}
+						}
+					}
+
+					break;
+				}
+				case KeyType::Id::ACTION:
+				case KeyType::Id::FACE:
+				case KeyType::Id::ITEM:
+				case KeyType::Id::SKILL:
+				{
+					Stage::get().send_key(type, action, pressed);
+					break;
+				}
+			}
+		}
+	}
+
+	Cursor::State UIStateGame::send_cursor(Point<int16_t> cursor_position, Cursor::State cursor_state)
+	{
+		if (draggedicon)
+		{
+			if (cursor_state == Cursor::State::CLICKING)
+			{
+				if (drop_icon(*draggedicon, cursor_position))
+					remove_icon();
+
+				return cursor_state;
+			}
+
+			return Cursor::State::GRABBING;
+		}
+		else
+		{
+			bool clicked = cursor_state == Cursor::State::CLICKING || cursor_state == Cursor::State::VSCROLLIDLE || (dragged && (cursor_state == Cursor::State::CHATBARMOVE || cursor_state == Cursor::State::CHATBARVDRAG || cursor_state == Cursor::State::CHATBARHDRAG || cursor_state == Cursor::State::CHATBARBLTRDRAG || cursor_state == Cursor::State::CHATBARBRTLDRAG));
+
+			if (auto focusedelement = get(focused))
+			{
+				if (focusedelement->is_active())
+				{
+					remove_cursor(focusedelement->get_type());
+
+					return focusedelement->send_cursor(clicked, cursor_position);
+				}
+				else
+				{
+					focused = UIElement::Type::NONE;
+
+					return cursor_state;
+				}
+			}
+			else
+			{
+				if (!clicked)
+				{
+					dragged = nullptr;
+
+					if (auto front = get_front(cursor_position))
+					{
+						UIElement::Type front_type = front->get_type();
+
+						if (tooltipparent != UIElement::Type::NONE)
+							if (front_type != tooltipparent)
+								clear_tooltip(tooltipparent);
+
+						remove_cursor(front_type);
+
+						return front->send_cursor(clicked, cursor_position);
+					}
+					else
+					{
+						remove_cursors();
+
+						return Stage::get().send_cursor(clicked, cursor_position);
+					}
+				}
+				else
+				{
+					if (!dragged)
+					{
+						UIElement::Type drag_element_type = UIElement::Type::NONE;
+
+						for (auto iter = elementorder.rbegin(); iter != elementorder.rend(); ++iter)
+						{
+							auto& element = elements[*iter];
+
+							if (element && element->is_active() && element->is_in_range(cursor_position))
+							{
+								dragged = element.get();
+								drag_element_type = *iter;
+								break;
+							}
+						}
+
+						if (drag_element_type != UIElement::Type::NONE)
+						{
+							elementorder.remove(drag_element_type);
+							elementorder.push_back(drag_element_type);
+						}
+					}
+
+					if (dragged)
+						return dragged->send_cursor(clicked, cursor_position);
+					else
+						return Stage::get().send_cursor(clicked, cursor_position);
+				}
+			}
+		}
+	}
+
+	void UIStateGame::send_scroll(double yoffset)
+	{
+		for (auto& type : elementorder)
+		{
+			auto& element = elements[type];
+
+			if (element && element->is_active())
+				element->send_scroll(yoffset);
+		}
+	}
+
+	void UIStateGame::send_close()
+	{
+		UI::get().emplace<UIQuit>(stats);
+	}
+
+	void UIStateGame::drag_icon(Icon* drgic)
+	{
+		draggedicon = drgic;
+	}
+
+	void UIStateGame::clear_tooltip(Tooltip::Parent parent)
+	{
+		if (parent == tooltipparent)
+		{
+			eqtooltip.set_equip(Tooltip::Parent::NONE, 0);
+			ittooltip.set_item(0);
+			tetooltip.set_text("");
+			matooltip.reset();
+			tooltip = {};
+			tooltipparent = Tooltip::Parent::NONE;
+		}
+	}
+
+	void UIStateGame::show_equip(Tooltip::Parent parent, int16_t slot)
+	{
+		eqtooltip.set_equip(parent, slot);
+
+		if (slot)
+		{
+			tooltip = eqtooltip;
+			tooltipparent = parent;
+		}
+	}
+
+	void UIStateGame::show_item(Tooltip::Parent parent, int32_t itemid)
+	{
+		ittooltip.set_item(itemid);
+
+		if (itemid)
+		{
+			tooltip = ittooltip;
+			tooltipparent = parent;
+		}
+	}
+
+	void UIStateGame::show_skill(Tooltip::Parent parent, int32_t skill_id, int32_t level, int32_t masterlevel, int64_t expiration)
+	{
+		sktooltip.set_skill(skill_id, level, masterlevel, expiration);
+
+		if (skill_id)
+		{
+			tooltip = sktooltip;
+			tooltipparent = parent;
+		}
+	}
+
+	void UIStateGame::show_text(Tooltip::Parent parent, std::string text)
+	{
+		tetooltip.set_text(text);
+
+		if (!text.empty())
+		{
+			tooltip = tetooltip;
+			tooltipparent = parent;
+		}
+	}
+
+	void UIStateGame::show_map(Tooltip::Parent parent, std::string title, std::string description, int32_t mapid, bool bolded, bool portal)
+	{
+		matooltip.set_title(parent, title, bolded);
+		matooltip.set_desc(description);
+		matooltip.set_mapid(mapid, portal);
+
+		if (!title.empty())
+		{
+			tooltip = matooltip;
+			tooltipparent = parent;
+		}
+	}
+
+	template <class T, typename...Args>
+	void UIStateGame::emplace(Args&& ...args)
+	{
+		if (auto iter = pre_add(T::TYPE, T::TOGGLED, T::FOCUSED))
+		{
+			(*iter).second = std::make_unique<T>(
+				std::forward<Args>(args)...
+				);
+
+			auto silent_types = {
+				UIElement::Type::STATUSMESSENGER,
+				UIElement::Type::STATUSBAR,
+				UIElement::Type::CHATBAR,
+				UIElement::Type::MINIMAP,
+				UIElement::Type::BUFFLIST,
+				UIElement::Type::NPCTALK,
+				UIElement::Type::SHOP
+			};
+
+			if (std::find(silent_types.begin(), silent_types.end(), T::TYPE) == silent_types.end())
+			{
+				if (T::TYPE == UIElement::Type::WORLDMAP)
+					Sound(Sound::Name::WORLDMAPOPEN).play();
+				else
+					Sound(Sound::Name::MENUUP).play();
+
+				UI::get().send_cursor(false);
+			}
+		}
+	}
+
+	UIState::Iterator UIStateGame::pre_add(UIElement::Type type, bool is_toggled, bool is_focused)
+	{
+		auto& element = elements[type];
+
+		if (element && is_toggled)
+		{
+			elementorder.remove(type);
+			elementorder.push_back(type);
+
+			bool active = element->is_active();
+
+			element->toggle_active();
+
+			if (active != element->is_active())
+			{
+				if (element->is_active())
+				{
+					if (type == UIElement::Type::WORLDMAP)
+						Sound(Sound::Name::WORLDMAPOPEN).play();
+					else
+						Sound(Sound::Name::MENUUP).play();
+
+					UI::get().send_cursor(false);
+				}
+				else
+				{
+					if (type == UIElement::Type::WORLDMAP)
+						Sound(Sound::Name::WORLDMAPCLOSE).play();
+					else
+						Sound(Sound::Name::MENUDOWN).play();
+
+					element->remove_cursor();
+
+					if (draggedicon)
+						if (element->get_type() == icon_map[draggedicon.get()->get_type()])
+							remove_icon();
+
+					UI::get().send_cursor(false);
+				}
+			}
+
+			return elements.end();
+		}
+		else
+		{
+			remove(type);
+			elementorder.push_back(type);
+
+			if (is_focused)
+				focused = type;
+
+			return elements.find(type);
+		}
+	}
+
+	void UIStateGame::remove(UIElement::Type type)
+	{
+		if (type == focused)
+			focused = UIElement::Type::NONE;
+
+		if (type == tooltipparent)
+			clear_tooltip(tooltipparent);
+
+		elementorder.remove(type);
+
+		if (auto& element = elements[type])
+		{
+			element->deactivate();
+			element.release();
+		}
+	}
+
+	UIElement* UIStateGame::get(UIElement::Type type)
+	{
+		return elements[type].get();
+	}
+
+	UIElement* UIStateGame::get_front(std::list<UIElement::Type> types)
+	{
+		auto begin = elementorder.rbegin();
+		auto end = elementorder.rend();
+
+		for (auto& iter = begin; iter != end; ++iter)
+		{
+			if (std::find(types.begin(), types.end(), *iter) != types.end())
+			{
+				auto& element = elements[*iter];
+
+				if (element && element->is_active())
+					return element.get();
+			}
+		}
+
+		return nullptr;
+	}
+
+	UIElement* UIStateGame::get_front(Point<int16_t> cursor_position)
+	{
+		auto begin = elementorder.rbegin();
+		auto end = elementorder.rend();
+
+		for (auto& iter = begin; iter != end; ++iter)
+		{
+			auto& element = elements[*iter];
+
+			if (element && element->is_active() && element->is_in_range(cursor_position))
+				return element.get();
+		}
+
+		return nullptr;
+	}
+}
+
+================
+File: IO/UIStateGame.h
+================
+//////////////////////////////////////////////////////////////////////////////////
+//	This file is part of the continued Journey MMORPG client					//
+//	Copyright (C) 2015-2019  Daniel Allendorf, Ryan Payton						//
+//																				//
+//	This program is free software: you can redistribute it and/or modify		//
+//	it under the terms of the GNU Affero General Public License as published by	//
+//	the Free Software Foundation, either version 3 of the License, or			//
+//	(at your option) any later version.											//
+//																				//
+//	This program is distributed in the hope that it will be useful,				//
+//	but WITHOUT ANY WARRANTY; without even the implied warranty of				//
+//	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the				//
+//	GNU Affero General Public License for more details.							//
+//																				//
+//	You should have received a copy of the GNU Affero General Public License	//
+//	along with this program.  If not, see <https://www.gnu.org/licenses/>.		//
+//////////////////////////////////////////////////////////////////////////////////
+#pragma once
+
+#include "UIState.h"
+
+#include "Components/EquipTooltip.h"
+#include "Components/ItemTooltip.h"
+#include "Components/MapTooltip.h"
+#include "Components/SkillTooltip.h"
+#include "Components/TextTooltip.h"
+
+#include "../Character/CharStats.h"
+
+namespace ms
+{
+	class UIStateGame : public UIState
+	{
+	public:
+		UIStateGame();
+
+		void draw(float inter, Point<int16_t> cursor) const override;
+		void update() override;
+
+		void doubleclick(Point<int16_t> pos) override;
+		void rightclick(Point<int16_t> pos) override;
+		void send_key(KeyType::Id type, int32_t action, bool pressed, bool escape) override;
+		Cursor::State send_cursor(Point<int16_t> cursor_position, Cursor::State cursor_state) override;
+		void send_scroll(double yoffset) override;
+		void send_close() override;
+
+		void drag_icon(Icon* icon) override;
+		void clear_tooltip(Tooltip::Parent parent) override;
+		void show_equip(Tooltip::Parent parent, int16_t slot) override;
+		void show_item(Tooltip::Parent parent, int32_t itemid) override;
+		void show_skill(Tooltip::Parent parent, int32_t skill_id, int32_t level, int32_t masterlevel, int64_t expiration) override;
+		void show_text(Tooltip::Parent parent, std::string text) override;
+		void show_map(Tooltip::Parent parent, std::string title, std::string description, int32_t mapid, bool bolded, bool portal) override;
+
+		Iterator pre_add(UIElement::Type type, bool toggled, bool focused);
+		void remove(UIElement::Type type) override;
+		UIElement* get(UIElement::Type type) override;
+		UIElement* get_front(std::list<UIElement::Type> types) override;
+		UIElement* get_front(Point<int16_t> cursor_position) override;
+
+	private:
+		const CharStats& stats;
+
+		bool drop_icon(const Icon& icon, Point<int16_t> cursor_position);
+		void remove_icon();
+		void remove_cursors();
+		void remove_cursor(UIElement::Type type);
+
+		template <class T, typename...Args>
+		void emplace(Args&& ...args);
+
+		EnumMap<UIElement::Type, UIElement::UPtr, UIElement::Type::NUM_TYPES> elements;
+		std::list<UIElement::Type> elementorder;
+		UIElement::Type focused;
+		UIElement* dragged;
+
+		EquipTooltip eqtooltip;
+		ItemTooltip ittooltip;
+		SkillTooltip sktooltip;
+		TextTooltip tetooltip;
+		MapTooltip matooltip;
+		Optional<Tooltip> tooltip;
+		Tooltip::Parent tooltipparent;
+
+		Optional<Icon> draggedicon;
+
+		std::map<Icon::IconType, UIElement::Type> icon_map =
+		{
+			{ Icon::IconType::NONE,			UIElement::Type::NONE			},
+			{ Icon::IconType::SKILL,		UIElement::Type::SKILLBOOK		},
+			{ Icon::IconType::EQUIP,		UIElement::Type::EQUIPINVENTORY	},
+			{ Icon::IconType::ITEM,			UIElement::Type::ITEMINVENTORY	},
+			{ Icon::IconType::KEY,			UIElement::Type::KEYCONFIG		},
+			{ Icon::IconType::NUM_TYPES,	UIElement::Type::NUM_TYPES		}
+		};
+
+		int16_t VWIDTH;
+		int16_t VHEIGHT;
+	};
+}
+
+================
+File: IO/UITypes/UIItemInventory.cpp
+================
+//////////////////////////////////////////////////////////////////////////////////
+//	This file is part of the continued Journey MMORPG client					//
+//	Copyright (C) 2015-2019  Daniel Allendorf, Ryan Payton						//
+//																				//
+//	This program is free software: you can redistribute it and/or modify		//
+//	it under the terms of the GNU Affero General Public License as published by	//
+//	the Free Software Foundation, either version 3 of the License, or			//
+//	(at your option) any later version.											//
+//																				//
+//	This program is distributed in the hope that it will be useful,				//
+//	but WITHOUT ANY WARRANTY; without even the implied warranty of				//
+//	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the				//
+//	GNU Affero General Public License for more details.							//
+//																				//
+//	You should have received a copy of the GNU Affero General Public License	//
+//	along with this program.  If not, see <https://www.gnu.org/licenses/>.		//
+//////////////////////////////////////////////////////////////////////////////////
+#include "UIItemInventory.h"
+
+#include "UINotice.h"
+
+#include "../UI.h"
+
+#include "../Components/MapleButton.h"
+#include "../UITypes/UIKeyConfig.h"
+
+#include "../../Data/EquipData.h"
+#include "../../Gameplay/Stage.h"
+
+#include "../../Net/Packets/InventoryPackets.h"
+
+#ifdef USE_NX
+#include <nlnx/nx.hpp>
+#endif
+
+namespace ms
+{
+	UIItemInventory::UIItemInventory(const Inventory& invent) : UIDragElement<PosINV>(), inventory(invent), ignore_tooltip(false), tab(InventoryType::Id::EQUIP), sort_enabled(true)
+	{
+		std::cout << "[INVENTORY] UIItemInventory constructor starting..." << std::endl;
+		nl::node Item = nl::nx::UI["UIWindow2.img"]["Item"];
+		nl::node pos = Item["pos"];
+
+		slot_col = pos["slot_col"];
+		slot_pos = pos["slot_pos"];
+		slot_row = pos["slot_row"];
+		slot_space_x = pos["slot_space_x"];
+		slot_space_y = pos["slot_space_y"];
+
+		// Initialize with default values in case NX data is missing
+		max_slots = 24;
+		max_full_slots = 96;
+
+		nl::node AutoBuild = Item["AutoBuild"];
+		nl::node FullAutoBuild = Item["FullAutoBuild"];
+
+		backgrnd = Item["productionBackgrnd"];
+		backgrnd2 = Item["productionBackgrnd2"];
+		backgrnd3 = Item["productionBackgrnd3"];
+
+		full_backgrnd = Item["FullBackgrnd"];
+		full_backgrnd2 = Item["FullBackgrnd2"];
+		full_backgrnd3 = Item["FullBackgrnd3"];
+
+		bg_dimensions = backgrnd.get_dimensions();
+		bg_full_dimensions = full_backgrnd.get_dimensions();
+
+		nl::node New = Item["New"];
+		newitemslot = New["inventory"];
+		newitemtabdis = New["Tab0"];
+		newitemtaben = New["Tab1"];
+
+		projectile = Item["activeIcon"];
+		disabled = Item["disabled"];
+
+		Point<int16_t> icon_dimensions = disabled.get_dimensions();
+		icon_width = icon_dimensions.x();
+		icon_height = icon_dimensions.y();
+
+		nl::node Tab = Item["Tab"];
+		nl::node taben = Tab["enabled"];
+		nl::node tabdis = Tab["disabled"];
+
+		Point<int16_t> tab_pos0 = Texture(taben["0"]).get_origin() * -1;
+		Point<int16_t> tab_pos1 = Texture(taben["1"]).get_origin() * -1;
+		Point<int16_t> tab_pos2 = Texture(taben["2"]).get_origin() * -1;
+		Point<int16_t> tab_pos3 = Texture(taben["3"]).get_origin() * -1;
+		Point<int16_t> tab_pos4 = Texture(taben["4"]).get_origin() * -1;
+		Point<int16_t> tab_pos5 = Texture(taben["5"]).get_origin() * -1;
+		Point<int16_t> tab_pos_adj = Point<int16_t>(9, 26);
+
+		nl::node close = nl::nx::UI["Basic.img"]["BtClose3"];
+		buttons[Buttons::BT_CLOSE] = std::make_unique<MapleButton>(close);
+
+		buttons[Buttons::BT_TAB_EQUIP] = std::make_unique<TwoSpriteButton>(tabdis["0"], taben["0"], tab_pos0 - tab_pos_adj, Point<int16_t>(0, 0));
+		buttons[Buttons::BT_TAB_USE] = std::make_unique<TwoSpriteButton>(tabdis["1"], taben["1"], tab_pos1 - tab_pos_adj, Point<int16_t>(0, 0));
+		buttons[Buttons::BT_TAB_ETC] = std::make_unique<TwoSpriteButton>(tabdis["2"], taben["2"], tab_pos2 - tab_pos_adj, Point<int16_t>(0, 0));
+		buttons[Buttons::BT_TAB_SETUP] = std::make_unique<TwoSpriteButton>(tabdis["3"], taben["3"], tab_pos3 - tab_pos_adj, Point<int16_t>(0, 0));
+		buttons[Buttons::BT_TAB_CASH] = std::make_unique<TwoSpriteButton>(tabdis["4"], taben["4"], tab_pos4 - tab_pos_adj, Point<int16_t>(0, 0));
+		buttons[Buttons::BT_TAB_DEC] = std::make_unique<TwoSpriteButton>(tabdis["5"], taben["5"], tab_pos5 - tab_pos_adj, Point<int16_t>(0, 0));
+
+		buttons[Buttons::BT_COIN] = std::make_unique<MapleButton>(AutoBuild["button:Coin"]);
+		buttons[Buttons::BT_POINT] = std::make_unique<MapleButton>(AutoBuild["button:Point"]);
+		buttons[Buttons::BT_GATHER] = std::make_unique<MapleButton>(AutoBuild["button:Gather"]);
+		buttons[Buttons::BT_SORT] = std::make_unique<MapleButton>(AutoBuild["button:Sort"]);
+		buttons[Buttons::BT_FULL] = std::make_unique<MapleButton>(AutoBuild["button:Full"]);
+		buttons[Buttons::BT_UPGRADE] = std::make_unique<MapleButton>(AutoBuild["button:Upgrade"]);
+		buttons[Buttons::BT_APPRAISE] = std::make_unique<MapleButton>(AutoBuild["button:Appraise"]);
+		buttons[Buttons::BT_EXTRACT] = std::make_unique<MapleButton>(AutoBuild["button:Extract"]);
+		buttons[Buttons::BT_DISASSEMBLE] = std::make_unique<MapleButton>(AutoBuild["button:Disassemble"]);
+		buttons[Buttons::BT_TOAD] = std::make_unique<MapleButton>(AutoBuild["anibutton:Toad"]);
+
+		buttons[Buttons::BT_SMALL] = std::make_unique<MapleButton>(FullAutoBuild["button:Small"]);
+		buttons[Buttons::BT_COIN_SM] = std::make_unique<MapleButton>(FullAutoBuild["button:Coin"]);
+		buttons[Buttons::BT_POINT_SM] = std::make_unique<MapleButton>(FullAutoBuild["button:Point"]);
+		buttons[Buttons::BT_GATHER_SM] = std::make_unique<MapleButton>(FullAutoBuild["button:Gather"]);
+		buttons[Buttons::BT_SORT_SM] = std::make_unique<MapleButton>(FullAutoBuild["button:Sort"]);
+		buttons[Buttons::BT_UPGRADE_SM] = std::make_unique<MapleButton>(FullAutoBuild["button:Upgrade"]);
+		buttons[Buttons::BT_APPRAISE_SM] = std::make_unique<MapleButton>(FullAutoBuild["button:Appraise"]);
+		buttons[Buttons::BT_EXTRACT_SM] = std::make_unique<MapleButton>(FullAutoBuild["button:Extract"]);
+		buttons[Buttons::BT_DISASSEMBLE_SM] = std::make_unique<MapleButton>(FullAutoBuild["button:Disassemble"]);
+		buttons[Buttons::BT_TOAD_SM] = std::make_unique<MapleButton>(FullAutoBuild["anibutton:Toad"]);
+		buttons[Buttons::BT_CASHSHOP] = std::make_unique<MapleButton>(FullAutoBuild["button:Cashshop"]);
+
+		buttons[Buttons::BT_EXTRACT]->set_state(Button::State::DISABLED);
+		buttons[Buttons::BT_EXTRACT_SM]->set_state(Button::State::DISABLED);
+		buttons[Buttons::BT_DISASSEMBLE]->set_state(Button::State::DISABLED);
+		buttons[Buttons::BT_DISASSEMBLE_SM]->set_state(Button::State::DISABLED);
+		buttons[button_by_tab(tab)]->set_state(Button::State::PRESSED);
+
+		mesolabel = Text(Text::Font::A11M, Text::Alignment::RIGHT, Color::Name::BLACK);
+		maplepointslabel = Text(Text::Font::A11M, Text::Alignment::RIGHT, Color::Name::BLACK);
+		maplepointslabel.change_text("0"); // TODO: Implement
+
+		for (size_t i = 0; i < InventoryType::Id::LENGTH; i++)
+		{
+			InventoryType::Id id = InventoryType::by_value(i);
+			slotrange[id] = std::pair<int16_t, int16_t>(1, 24);
+		}
+
+		// Add safety check for inventory slot access
+		int16_t slotmax = 0;
+		try {
+			slotmax = inventory.get_slotmax(tab);
+		} catch (...) {
+			slotmax = 24; // Default to 24 slots if inventory access fails
+		}
+		
+		if (slotmax <= 0) {
+			slotmax = 24; // Ensure we have a positive slot count
+		}
+		
+		// Add safety checks for all variables used in calculations
+		if (slot_col <= 0) slot_col = 4;  // Default to 4 columns
+		if (icon_height <= 0) icon_height = 32;  // Default icon height
+		if (slot_space_y <= 0) slot_space_y = 35;  // Default Y spacing
+		
+		int16_t second = (icon_height + slot_space_y) * slotmax / slot_col + 24;
+		// Add safety checks for remaining variables
+		if (icon_width <= 0) icon_width = 32;  // Default icon width
+		if (slot_space_x <= 0) slot_space_x = 36;  // Default X spacing  
+		if (slot_row <= 2) slot_row = 6;  // Default to 6 rows minimum
+		
+		// Recalculate slot counts after safety checks
+		max_slots = slot_row * slot_col;
+		max_full_slots = slot_col * max_slots;
+		
+		std::cout << "[INVENTORY] Final values: slot_col=" << slot_col << ", slot_row=" << slot_row 
+		          << ", max_slots=" << max_slots << ", max_full_slots=" << max_full_slots << std::endl;
+		
+		int16_t x = slot_col * (icon_width + slot_space_x) + 4;
+		int16_t unitrows = slot_row - 2;
+		int16_t rowmax = slotmax / slot_col;
+
+		slider = Slider(
+			Slider::Type::DEFAULT_SILVER, Range<int16_t>(slot_pos.y(), second), x, unitrows, rowmax,
+			[&](bool upwards)
+			{
+				int16_t shift = upwards ? -slot_col : slot_col;
+
+				slotrange[tab].first += shift;
+				slotrange[tab].second += shift;
+			}
+		);
+
+#if LOG_LEVEL >= LOG_UI
+		for (size_t i = 0; i < max_full_slots; i++)
+			slot_labels[i] = Text(Text::Font::A11M, Text::Alignment::LEFT, Color::Name::BLACK, std::to_string(i + 1));
+#endif
+
+		std::cout << "[INVENTORY] About to call set_full()..." << std::endl;
+		set_full(false);
+		clear_new();
+		std::cout << "[INVENTORY] UIItemInventory constructor completed!" << std::endl;
+		
+		// Test if the freeze happens during destruction
+		std::cout << "[INVENTORY] Constructor about to return..." << std::endl;
+	}
+
+	void UIItemInventory::draw(float alpha) const
+	{
+		static int draw_count = 0;
+		if (++draw_count % 100 == 0) {
+			std::cout << "[INVENTORY] draw() called " << draw_count << " times" << std::endl;
+		}
+		UIElement::draw_sprites(alpha);
+
+		Point<int16_t> mesolabel_pos = position + Point<int16_t>(144, 305);
+		Point<int16_t> maplepointslabel_pos = position + Point<int16_t>(179, 323);
+
+		if (full_enabled)
+		{
+			full_backgrnd.draw(position);
+			full_backgrnd2.draw(position);
+			full_backgrnd3.draw(position);
+
+			mesolabel.draw(mesolabel_pos + Point<int16_t>(0, 84));
+			maplepointslabel.draw(maplepointslabel_pos + Point<int16_t>(220, 66));
+		}
+		else
+		{
+			backgrnd.draw(position);
+			backgrnd2.draw(position);
+			backgrnd3.draw(position);
+
+			slider.draw(position + Point<int16_t>(0, 1));
+
+			mesolabel.draw(mesolabel_pos);
+			maplepointslabel.draw(maplepointslabel_pos);
+		}
+
+		auto& range = slotrange.at(tab);
+
+		size_t numslots = inventory.get_slotmax(tab);
+		size_t firstslot = full_enabled ? 1 : range.first;
+		size_t lastslot = full_enabled ? max_full_slots : range.second;
+
+		for (size_t i = 0; i <= max_full_slots; i++)
+		{
+			Point<int16_t> slotpos = get_slotpos(i);
+
+			if (icons.find(i) != icons.end())
+			{
+				auto& icon = icons.at(i);
+
+				if (icon && i >= firstslot && i <= lastslot)
+					icon->draw(position + slotpos);
+			}
+			else
+			{
+				if (i > numslots && i <= lastslot)
+					disabled.draw(position + slotpos);
+			}
+
+#if LOG_LEVEL >= LOG_UI
+			if (i <= lastslot && i < max_full_slots)
+				slot_labels[i].draw(position + get_slotpos(i + 1) - Point<int16_t>(0, 5));
+#endif
+		}
+
+		int16_t bulletslot = inventory.get_bulletslot();
+
+		if (tab == InventoryType::Id::USE && is_visible(bulletslot))
+			projectile.draw(position + get_slotpos(bulletslot));
+
+		UIElement::draw_buttons(alpha);
+
+		if (newtab != InventoryType::Id::NONE)
+		{
+			if (newtab == tab)
+			{
+				newitemtaben.draw(position + get_tabpos(newtab) - Point<int16_t>(2, 3), alpha);
+
+				if (is_visible(newslot))
+					newitemslot.draw(position + get_slotpos(newslot) + Point<int16_t>(1, 1), alpha);
+			}
+			else
+			{
+				newitemtabdis.draw(position + get_tabpos(newtab) - Point<int16_t>(2, 1), alpha);
+			}
+		}
+	}
+
+	void UIItemInventory::update()
+	{
+		static int update_count = 0;
+		if (++update_count % 100 == 0) {
+			std::cout << "[INVENTORY] update() called " << update_count << " times" << std::endl;
+		}
+		UIElement::update();
+
+		newitemtaben.update(6);
+		newitemtabdis.update(6);
+		newitemslot.update(6);
+
+		std::string meso_str = std::to_string(inventory.get_meso());
+		string_format::split_number(meso_str);
+
+		mesolabel.change_text(meso_str);
+	}
+
+	void UIItemInventory::update_slot(int16_t slot)
+	{
+		if (slot % 20 == 0) {
+			std::cout << "[INVENTORY] update_slot called for slot " << slot << std::endl;
+		}
+		
+		if (int32_t item_id = inventory.get_item_id(tab, slot))
+		{
+			int16_t count;
+
+			if (tab == InventoryType::Id::EQUIP)
+				count = -1;
+			else
+				count = inventory.get_item_count(tab, slot);
+
+			const bool untradable = ItemData::get(item_id).is_untradable();
+			const bool cashitem = ItemData::get(item_id).is_cashitem();
+			const Texture& texture = ItemData::get(item_id).get_icon(false);
+			EquipSlot::Id eqslot = inventory.find_equipslot(item_id);
+
+			icons[slot] = std::make_unique<Icon>(
+				std::make_unique<ItemIcon>(*this, tab, eqslot, slot, item_id, count, untradable, cashitem),
+				texture, count
+			);
+		}
+		else if (icons.count(slot))
+		{
+			icons.erase(slot);
+		}
+	}
+
+	void UIItemInventory::load_icons()
+	{
+		std::cout << "[INVENTORY] load_icons() started, max_full_slots=" << max_full_slots << std::endl;
+		icons.clear();
+
+		// TEMP FIX: Disable icon loading entirely to test if this causes the freeze
+		std::cout << "[INVENTORY] Skipping icon loading to test freeze issue..." << std::endl;
+		std::cout << "[INVENTORY] load_icons() completed!" << std::endl;
+		return;
+
+		uint8_t numslots = inventory.get_slotmax(tab);
+		std::cout << "[INVENTORY] numslots=" << numslots << std::endl;
+
+		for (size_t i = 0; i <= max_full_slots; i++) {
+			if (i % 10 == 0) {
+				std::cout << "[INVENTORY] Processing slot " << i << " of " << max_full_slots << std::endl;
+			}
+			if (i <= numslots)
+				update_slot(i);
+		}
+		std::cout << "[INVENTORY] load_icons() completed!" << std::endl;
+	}
+
+	Button::State UIItemInventory::button_pressed(uint16_t buttonid)
+	{
+		InventoryType::Id oldtab = tab;
+
+		switch (buttonid)
+		{
+			case Buttons::BT_CLOSE:
+			{
+				toggle_active();
+
+				return Button::State::NORMAL;
+			}
+			case Buttons::BT_TAB_EQUIP:
+			{
+				tab = InventoryType::Id::EQUIP;
+				break;
+			}
+			case Buttons::BT_TAB_USE:
+			{
+				tab = InventoryType::Id::USE;
+				break;
+			}
+			case Buttons::BT_TAB_SETUP:
+			{
+				tab = InventoryType::Id::SETUP;
+				break;
+			}
+			case Buttons::BT_TAB_ETC:
+			{
+				tab = InventoryType::Id::ETC;
+				break;
+			}
+			case Buttons::BT_TAB_CASH:
+			{
+				tab = InventoryType::Id::CASH;
+				break;
+			}
+			case Buttons::BT_TAB_DEC:
+			{
+				tab = InventoryType::Id::DEC;
+				break;
+			}
+			case Buttons::BT_GATHER:
+			case Buttons::BT_GATHER_SM:
+			{
+				GatherItemsPacket(tab).dispatch();
+				break;
+			}
+			case Buttons::BT_SORT:
+			case Buttons::BT_SORT_SM:
+			{
+				SortItemsPacket(tab).dispatch();
+				break;
+			}
+			case Buttons::BT_FULL:
+			{
+				set_full(true);
+
+				return Button::State::NORMAL;
+			}
+			case Buttons::BT_SMALL:
+			{
+				set_full(false);
+
+				return Button::State::NORMAL;
+			}
+			case Buttons::BT_COIN:
+			case Buttons::BT_COIN_SM:
+			case Buttons::BT_POINT:
+			case Buttons::BT_POINT_SM:
+			case Buttons::BT_UPGRADE:
+			case Buttons::BT_UPGRADE_SM:
+			case Buttons::BT_APPRAISE:
+			case Buttons::BT_APPRAISE_SM:
+			case Buttons::BT_EXTRACT:
+			case Buttons::BT_EXTRACT_SM:
+			case Buttons::BT_DISASSEMBLE:
+			case Buttons::BT_DISASSEMBLE_SM:
+			case Buttons::BT_TOAD:
+			case Buttons::BT_TOAD_SM:
+			case Buttons::BT_CASHSHOP:
+			{
+				return Button::State::NORMAL;
+			}
+		}
+
+		if (tab != oldtab)
+		{
+			uint16_t row = slotrange.at(tab).first / slot_col;
+			slider.setrows(row, 6, inventory.get_slotmax(tab) / slot_col);
+
+			buttons[button_by_tab(oldtab)]->set_state(Button::State::NORMAL);
+			buttons[button_by_tab(tab)]->set_state(Button::State::PRESSED);
+
+			load_icons();
+			set_sort(false);
+		}
+
+		return Button::State::IDENTITY;
+	}
+
+	void UIItemInventory::doubleclick(Point<int16_t> cursorpos)
+	{
+		int16_t slot = slot_by_position(cursorpos - position);
+
+		if (icons.count(slot) && is_visible(slot))
+		{
+			if (int32_t item_id = inventory.get_item_id(tab, slot))
+			{
+				switch (tab)
+				{
+					case InventoryType::Id::EQUIP:
+					{
+						if (can_wear_equip(slot))
+						{
+							EquipSlot::Id equipslot = inventory.find_equipslot(item_id);
+
+							if (equipslot == EquipSlot::Id::NONE)
+							{
+								LOG(LOG_DEBUG, "Could not find appropriate EquipSlot::Id for item [" << item_id << "]. Equip would be dropped.");
+								break;
+							}
+
+							EquipItemPacket(slot, equipslot).dispatch();
+						}
+
+						break;
+					}
+					case InventoryType::Id::USE:
+					{
+						UseItemPacket(slot, item_id).dispatch();
+						break;
+					}
+				}
+			}
+		}
+	}
+
+	bool UIItemInventory::send_icon(const Icon& icon, Point<int16_t> cursorpos)
+	{
+		int16_t slot = slot_by_position(cursorpos - position);
+
+		if (slot > 0)
+		{
+			int32_t item_id = inventory.get_item_id(tab, slot);
+			EquipSlot::Id eqslot;
+			bool equip;
+
+			if (item_id && tab == InventoryType::Id::EQUIP)
+			{
+				eqslot = inventory.find_equipslot(item_id);
+				equip = true;
+			}
+			else
+			{
+				eqslot = EquipSlot::Id::NONE;
+				equip = false;
+			}
+
+			ignore_tooltip = true;
+
+			return icon.drop_on_items(tab, eqslot, slot, equip);
+		}
+
+		return true;
+	}
+
+	Cursor::State UIItemInventory::send_cursor(bool pressed, Point<int16_t> cursorpos)
+	{
+		Cursor::State dstate = UIDragElement::send_cursor(pressed, cursorpos);
+
+		if (dragged)
+		{
+			clear_tooltip();
+
+			return dstate;
+		}
+
+		Point<int16_t> cursor_relative = cursorpos - position;
+
+		if (!full_enabled && slider.isenabled())
+		{
+			Cursor::State sstate = slider.send_cursor(cursor_relative, pressed);
+
+			if (sstate != Cursor::State::IDLE)
+			{
+				clear_tooltip();
+
+				return sstate;
+			}
+		}
+
+		int16_t slot = slot_by_position(cursor_relative);
+		Icon* icon = get_icon(slot);
+		bool is_icon = icon && is_visible(slot);
+
+		if (is_icon)
+		{
+			if (pressed)
+			{
+				Point<int16_t> slotpos = get_slotpos(slot);
+				icon->start_drag(cursor_relative - slotpos);
+
+				UI::get().drag_icon(icon);
+
+				clear_tooltip();
+
+				return Cursor::State::GRABBING;
+			}
+			else if (!ignore_tooltip)
+			{
+				show_item(slot);
+
+				return Cursor::State::CANGRAB;
+			}
+			else
+			{
+				ignore_tooltip = false;
+
+				return Cursor::State::CANGRAB;
+			}
+		}
+		else
+		{
+			clear_tooltip();
+
+			return UIElement::send_cursor(pressed, cursorpos);
+		}
+	}
+
+	void UIItemInventory::send_key(int32_t keycode, bool pressed, bool escape)
+	{
+		if (pressed)
+		{
+			if (escape)
+			{
+				toggle_active();
+			}
+			else if (keycode == KeyAction::Id::TAB)
+			{
+				clear_tooltip();
+
+				InventoryType::Id newtab;
+
+				switch (tab)
+				{
+					case InventoryType::Id::EQUIP:
+						newtab = InventoryType::Id::USE;
+						break;
+					case InventoryType::Id::USE:
+						newtab = InventoryType::Id::ETC;
+						break;
+					case InventoryType::Id::ETC:
+						newtab = InventoryType::Id::SETUP;
+						break;
+					case InventoryType::Id::SETUP:
+						newtab = InventoryType::Id::CASH;
+						break;
+					case InventoryType::Id::CASH:
+						newtab = InventoryType::Id::DEC;
+						break;
+					case InventoryType::Id::DEC:
+						newtab = InventoryType::Id::EQUIP;
+						break;
+				}
+
+				button_pressed(button_by_tab(newtab));
+			}
+		}
+	}
+
+	UIElement::Type UIItemInventory::get_type() const
+	{
+		return TYPE;
+	}
+
+	void UIItemInventory::modify(InventoryType::Id type, int16_t slot, int8_t mode, int16_t arg)
+	{
+		if (slot <= 0)
+			return;
+
+		if (type == tab)
+		{
+			switch (mode)
+			{
+				case Inventory::Modification::ADD:
+				{
+					update_slot(slot);
+
+					newtab = type;
+					newslot = slot;
+					break;
+				}
+				case Inventory::Modification::CHANGECOUNT:
+				case Inventory::Modification::ADDCOUNT:
+				{
+					if (auto icon = get_icon(slot))
+						icon->set_count(arg);
+
+					break;
+				}
+				case Inventory::Modification::SWAP:
+				{
+					if (arg != slot)
+					{
+						update_slot(slot);
+						update_slot(arg);
+					}
+
+					break;
+				}
+				case Inventory::Modification::REMOVE:
+				{
+					update_slot(slot);
+					break;
+				}
+			}
+		}
+
+		switch (mode)
+		{
+			case Inventory::Modification::ADD:
+			case Inventory::Modification::ADDCOUNT:
+			{
+				newtab = type;
+				newslot = slot;
+				break;
+			}
+			case Inventory::Modification::CHANGECOUNT:
+			case Inventory::Modification::SWAP:
+			case Inventory::Modification::REMOVE:
+			{
+				if (newslot == slot && newtab == type)
+					clear_new();
+
+				break;
+			}
+		}
+	}
+
+	void UIItemInventory::set_sort(bool enabled)
+	{
+		sort_enabled = enabled;
+
+		if (full_enabled)
+		{
+			if (sort_enabled)
+			{
+				buttons[Buttons::BT_SORT]->set_active(false);
+				buttons[Buttons::BT_SORT_SM]->set_active(true);
+				buttons[Buttons::BT_GATHER]->set_active(false);
+				buttons[Buttons::BT_GATHER_SM]->set_active(false);
+			}
+			else
+			{
+				buttons[Buttons::BT_SORT]->set_active(false);
+				buttons[Buttons::BT_SORT_SM]->set_active(false);
+				buttons[Buttons::BT_GATHER]->set_active(false);
+				buttons[Buttons::BT_GATHER_SM]->set_active(true);
+			}
+		}
+		else
+		{
+			if (sort_enabled)
+			{
+				buttons[Buttons::BT_SORT]->set_active(true);
+				buttons[Buttons::BT_SORT_SM]->set_active(false);
+				buttons[Buttons::BT_GATHER]->set_active(false);
+				buttons[Buttons::BT_GATHER_SM]->set_active(false);
+			}
+			else
+			{
+				buttons[Buttons::BT_SORT]->set_active(false);
+				buttons[Buttons::BT_SORT_SM]->set_active(false);
+				buttons[Buttons::BT_GATHER]->set_active(true);
+				buttons[Buttons::BT_GATHER_SM]->set_active(false);
+			}
+		}
+	}
+
+	void UIItemInventory::change_tab(InventoryType::Id type)
+	{
+		button_pressed(button_by_tab(type));
+	}
+
+	void UIItemInventory::clear_new()
+	{
+		newtab = InventoryType::Id::NONE;
+		newslot = 0;
+	}
+
+	void UIItemInventory::toggle_active()
+	{
+		UIElement::toggle_active();
+
+		if (!active)
+		{
+			clear_new();
+			clear_tooltip();
+		}
+	}
+
+	void UIItemInventory::remove_cursor()
+	{
+		UIDragElement::remove_cursor();
+
+		slider.remove_cursor();
+	}
+
+	void UIItemInventory::show_item(int16_t slot)
+	{
+		if (tab == InventoryType::Id::EQUIP)
+		{
+			UI::get().show_equip(Tooltip::Parent::ITEMINVENTORY, slot);
+		}
+		else
+		{
+			int32_t item_id = inventory.get_item_id(tab, slot);
+			UI::get().show_item(Tooltip::Parent::ITEMINVENTORY, item_id);
+		}
+	}
+
+	void UIItemInventory::clear_tooltip()
+	{
+		UI::get().clear_tooltip(Tooltip::Parent::ITEMINVENTORY);
+	}
+
+	bool UIItemInventory::is_visible(int16_t slot) const
+	{
+		return !is_not_visible(slot);
+	}
+
+	bool UIItemInventory::is_not_visible(int16_t slot) const
+	{
+		auto& range = slotrange.at(tab);
+
+		if (full_enabled)
+			return slot < 1 || slot > max_full_slots;
+		else
+			return slot < range.first || slot > range.second;
+	}
+
+	bool UIItemInventory::can_wear_equip(int16_t slot) const
+	{
+		const Player& player = Stage::get().get_player();
+		const CharStats& stats = player.get_stats();
+		const CharLook& look = player.get_look();
+		const bool alerted = look.get_alerted();
+
+		if (alerted)
+		{
+			UI::get().emplace<UIOk>("You cannot complete this action right now.\\nEvade the attack and try again.", [](bool) {});
+			return false;
+		}
+
+		const int32_t item_id = inventory.get_item_id(InventoryType::Id::EQUIP, slot);
+		const EquipData& equipdata = EquipData::get(item_id);
+		const ItemData& itemdata = equipdata.get_itemdata();
+
+		const int8_t reqGender = itemdata.get_gender();
+		const bool female = stats.get_female();
+
+		switch (reqGender)
+		{
+			// Male
+			case 0:
+			{
+				if (female)
+					return false;
+
+				break;
+			}
+			// Female
+			case 1:
+			{
+				if (!female)
+					return false;
+
+				break;
+			}
+			// Unisex
+			case 2:
+			default:
+			{
+				break;
+			}
+		}
+
+		const std::string jobname = stats.get_jobname();
+
+		if (jobname == "GM" || jobname == "SuperGM")
+			return true;
+
+		// TODO: Remove from EquipTooltip and move into Job?
+		bool can_wear = false;
+
+		uint16_t job = stats.get_stat(MapleStat::Id::JOB) / 100;
+		int16_t reqJOB = equipdata.get_reqstat(MapleStat::Id::JOB);
+
+		switch (reqJOB)
+		{
+			case 0: // Common
+			{
+				can_wear = true;
+				break;
+			}
+			case 1: // Warrior
+			{
+				if (job == 1 || job >= 20)
+					can_wear = true;
+
+				break;
+			}
+			case 2: // Magician
+			{
+				if (job == 2)
+					can_wear = true;
+
+				break;
+			}
+			case 3: // Magician, Warrior
+			{
+				if (job == 1 || job >= 20 || job == 2)
+					can_wear = true;
+
+				break;
+			}
+			case 4: // Bowman
+			{
+				if (job == 3)
+					can_wear = true;
+
+				break;
+			}
+			case 8: // Thief
+			{
+				if (job == 4)
+					can_wear = true;
+
+				break;
+			}
+			case 16: // Pirate
+			{
+				if (job == 5)
+					can_wear = true;
+
+				break;
+			}
+			default:
+			{
+				can_wear = false;
+			}
+		}
+
+		if (!can_wear)
+		{
+			UI::get().emplace<UIOk>("Your current job\\ncannot equip the selected item.", [](bool) {});
+			return false;
+		}
+		// End of TODO
+
+		int16_t reqLevel = equipdata.get_reqstat(MapleStat::Id::LEVEL);
+		int16_t reqDEX = equipdata.get_reqstat(MapleStat::Id::DEX);
+		int16_t reqSTR = equipdata.get_reqstat(MapleStat::Id::STR);
+		int16_t reqLUK = equipdata.get_reqstat(MapleStat::Id::LUK);
+		int16_t reqINT = equipdata.get_reqstat(MapleStat::Id::INT);
+		int16_t reqFAME = equipdata.get_reqstat(MapleStat::Id::FAME);
+
+		int8_t i = 0;
+
+		if (reqLevel > stats.get_stat(MapleStat::Id::LEVEL))
+			i++;
+		else if (reqDEX > stats.get_total(EquipStat::Id::DEX))
+			i++;
+		else if (reqSTR > stats.get_total(EquipStat::Id::STR))
+			i++;
+		else if (reqLUK > stats.get_total(EquipStat::Id::LUK))
+			i++;
+		else if (reqINT > stats.get_total(EquipStat::Id::INT))
+			i++;
+		else if (reqFAME > stats.get_honor())
+			i++;
+
+		if (i > 0)
+		{
+			UI::get().emplace<UIOk>("Your stats are too low to equip this item\\nor you do not meet the job requirement.", [](bool) {});
+			return false;
+		}
+
+		return true;
+	}
+
+	int16_t UIItemInventory::slot_by_position(Point<int16_t> cursorpos) const
+	{
+		Point<int16_t> cursor_offset = cursorpos - slot_pos;
+
+		int16_t xoff = cursor_offset.x();
+		int16_t yoff = cursor_offset.y();
+
+		int16_t cur_x = cursorpos.x();
+		int16_t slot_x = slot_pos.x();
+		int16_t xmin = slot_x;
+		int16_t xmax = (icon_width + slot_space_x) * (full_enabled ? slot_col * 4 : slot_col) - (full_enabled ? slot_space_x : 0);
+
+		int16_t cur_y = cursorpos.y();
+		int16_t slot_y = slot_pos.y();
+		int16_t ymin = slot_y;
+		int16_t ymax = (icon_height + slot_space_y) * (full_enabled ? slot_row + 1 : slot_row - 1) - (full_enabled ? slot_space_y : 0);
+
+		int16_t slot = 0;
+		int16_t absslot = full_enabled ? 1 : slotrange.at(tab).first;
+
+		int16_t col = cur_x / (icon_width + slot_space_x);
+		int16_t row = cur_y / (icon_height + slot_space_y) - 1;
+
+		div_t div = std::div(col, 4);
+		slot = col + absslot + (4 * row) + (div.quot * 28);
+
+		if (cur_x < xmin || cur_x > xmax || cur_y < ymin || cur_y > ymax)
+			slot = 0;
+
+		LOG(LOG_UI,
+			"Slot: " << slot << " Col: " << col << " Row: " << row << " "
+			<< cur_x << " < (" << xmin << ") || "
+			<< cur_x << " > (" << xmax << ") || "
+			<< cur_y << " < (" << ymin << ") && "
+			<< cur_y << " > (" << ymax << ")");
+
+		if (is_visible(slot))
+			return slot;
+
+		return 0;
+	}
+
+	Point<int16_t> UIItemInventory::get_slotpos(int16_t slot) const
+	{
+		int16_t absslot = slot - (full_enabled ? 1 : slotrange.at(tab).first);
+
+		div_t div4 = std::div(absslot, 4);
+		div_t div32 = std::div(absslot, 32);
+
+		int16_t row = div4.quot - (8 * div32.quot);
+		int16_t col = div4.rem + (4 * div32.quot);
+
+		return slot_pos + Point<int16_t>((col * 10) + (col * 32), (row * 10) + (row * 32));
+	}
+
+	Point<int16_t> UIItemInventory::get_tabpos(InventoryType::Id tb) const
+	{
+		int8_t fixed_tab = tb;
+
+		switch (tb)
+		{
+			case InventoryType::Id::ETC:
+				fixed_tab = 3;
+				break;
+			case InventoryType::Id::SETUP:
+				fixed_tab = 4;
+				break;
+		}
+
+		return Point<int16_t>(10 + ((fixed_tab - 1) * 31), 29);
+	}
+
+	uint16_t UIItemInventory::button_by_tab(InventoryType::Id tb) const
+	{
+		switch (tb)
+		{
+			case InventoryType::Id::EQUIP:
+				return Buttons::BT_TAB_EQUIP;
+			case InventoryType::Id::USE:
+				return Buttons::BT_TAB_USE;
+			case InventoryType::Id::SETUP:
+				return Buttons::BT_TAB_SETUP;
+			case InventoryType::Id::ETC:
+				return Buttons::BT_TAB_ETC;
+			case InventoryType::Id::CASH:
+				return Buttons::BT_TAB_CASH;
+			default:
+				return Buttons::BT_TAB_DEC;
+		}
+	}
+
+	Icon* UIItemInventory::get_icon(int16_t slot)
+	{
+		auto iter = icons.find(slot);
+
+		if (iter != icons.end())
+			return iter->second.get();
+		else
+			return nullptr;
+	}
+
+	void UIItemInventory::set_full(bool enabled)
+	{
+		full_enabled = enabled;
+
+		if (full_enabled)
+		{
+			dimension = bg_full_dimensions;
+
+			buttons[Buttons::BT_FULL]->set_active(false);
+			buttons[Buttons::BT_SMALL]->set_active(true);
+		}
+		else
+		{
+			dimension = bg_dimensions;
+
+			buttons[Buttons::BT_FULL]->set_active(true);
+			buttons[Buttons::BT_SMALL]->set_active(false);
+		}
+
+		dragarea = Point<int16_t>(dimension.x(), 20);
+
+		buttons[Buttons::BT_CLOSE]->set_position(Point<int16_t>(dimension.x() - 20, 6));
+
+		buttons[Buttons::BT_COIN]->set_active(!enabled);
+		buttons[Buttons::BT_POINT]->set_active(!enabled);
+		buttons[Buttons::BT_UPGRADE]->set_active(!enabled);
+		buttons[Buttons::BT_APPRAISE]->set_active(!enabled);
+		buttons[Buttons::BT_EXTRACT]->set_active(!enabled);
+		buttons[Buttons::BT_DISASSEMBLE]->set_active(!enabled);
+		buttons[Buttons::BT_TOAD]->set_active(!enabled);
+		buttons[Buttons::BT_CASHSHOP]->set_active(!enabled);
+
+		buttons[Buttons::BT_COIN_SM]->set_active(enabled);
+		buttons[Buttons::BT_POINT_SM]->set_active(enabled);
+		buttons[Buttons::BT_UPGRADE_SM]->set_active(enabled);
+		buttons[Buttons::BT_APPRAISE_SM]->set_active(enabled);
+		buttons[Buttons::BT_EXTRACT_SM]->set_active(enabled);
+		buttons[Buttons::BT_DISASSEMBLE_SM]->set_active(enabled);
+		buttons[Buttons::BT_TOAD_SM]->set_active(enabled);
+		buttons[Buttons::BT_CASHSHOP]->set_active(enabled);
+
+		set_sort(sort_enabled);
+		load_icons();
+	}
+
+	void UIItemInventory::ItemIcon::set_count(int16_t c)
+	{
+		count = c;
+	}
+
+	Icon::IconType UIItemInventory::ItemIcon::get_type()
+	{
+		return Icon::IconType::ITEM;
+	}
+
+	UIItemInventory::ItemIcon::ItemIcon(const UIItemInventory& parent, InventoryType::Id st, EquipSlot::Id eqs, int16_t s, int32_t iid, int16_t c, bool u, bool cash) : parent(parent)
+	{
+		sourcetab = st;
+		eqsource = eqs;
+		source = s;
+		item_id = iid;
+		count = c;
+		untradable = u;
+		cashitem = cash;
+	}
+
+	void UIItemInventory::ItemIcon::drop_on_stage() const
+	{
+		constexpr const char* dropmessage = "How many will you drop?";
+		constexpr const char* untradablemessage = "This item can't be taken back once thrown away.\\nWill you still drop it?";
+		constexpr const char* cashmessage = "You can't drop this item.";
+
+		if (cashitem)
+		{
+			UI::get().emplace<UIOk>(cashmessage, [](bool) {});
+		}
+		else
+		{
+			if (untradable)
+			{
+				auto onok = [&, dropmessage](bool ok)
+				{
+					if (ok)
+					{
+						if (count <= 1)
+						{
+							MoveItemPacket(sourcetab, source, 0, 1).dispatch();
+						}
+						else
+						{
+							auto onenter = [&](int32_t qty)
+							{
+								MoveItemPacket(sourcetab, source, 0, qty).dispatch();
+							};
+
+							UI::get().emplace<UIEnterNumber>(dropmessage, onenter, count, count);
+						}
+					}
+				};
+
+				UI::get().emplace<UIYesNo>(untradablemessage, onok);
+			}
+			else
+			{
+				if (count <= 1)
+				{
+					MoveItemPacket(sourcetab, source, 0, 1).dispatch();
+				}
+				else
+				{
+					auto onenter = [&](int32_t qty)
+					{
+						MoveItemPacket(sourcetab, source, 0, qty).dispatch();
+					};
+
+					UI::get().emplace<UIEnterNumber>(dropmessage, onenter, count, count);
+				}
+			}
+		}
+	}
+
+	void UIItemInventory::ItemIcon::drop_on_equips(EquipSlot::Id eqslot) const
+	{
+		switch (sourcetab)
+		{
+			case InventoryType::Id::EQUIP:
+			{
+				if (eqsource == eqslot)
+					if (parent.can_wear_equip(source))
+						EquipItemPacket(source, eqslot).dispatch();
+
+				Sound(Sound::Name::DRAGEND).play();
+				break;
+			}
+			case InventoryType::Id::USE:
+			{
+				ScrollEquipPacket(source, eqslot).dispatch();
+				break;
+			}
+		}
+	}
+
+	bool UIItemInventory::ItemIcon::drop_on_items(InventoryType::Id tab, EquipSlot::Id, int16_t slot, bool) const
+	{
+		if (tab != sourcetab || slot == source)
+			return true;
+
+		MoveItemPacket(tab, source, slot, 1).dispatch();
+
+		return true;
+	}
+
+	void UIItemInventory::ItemIcon::drop_on_bindings(Point<int16_t> cursorposition, bool remove) const
+	{
+		if (sourcetab == InventoryType::Id::USE || sourcetab == InventoryType::Id::SETUP)
+		{
+			auto keyconfig = UI::get().get_element<UIKeyConfig>();
+			Keyboard::Mapping mapping = Keyboard::Mapping(KeyType::ITEM, item_id);
+
+			if (remove)
+				keyconfig->unstage_mapping(mapping);
+			else
+				keyconfig->stage_mapping(cursorposition, mapping);
+		}
+	}
+}
+
+================
+File: IO/UITypes/UIItemInventory.h
+================
+//////////////////////////////////////////////////////////////////////////////////
+//	This file is part of the continued Journey MMORPG client					//
+//	Copyright (C) 2015-2019  Daniel Allendorf, Ryan Payton						//
+//																				//
+//	This program is free software: you can redistribute it and/or modify		//
+//	it under the terms of the GNU Affero General Public License as published by	//
+//	the Free Software Foundation, either version 3 of the License, or			//
+//	(at your option) any later version.											//
+//																				//
+//	This program is distributed in the hope that it will be useful,				//
+//	but WITHOUT ANY WARRANTY; without even the implied warranty of				//
+//	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the				//
+//	GNU Affero General Public License for more details.							//
+//																				//
+//	You should have received a copy of the GNU Affero General Public License	//
+//	along with this program.  If not, see <https://www.gnu.org/licenses/>.		//
+//////////////////////////////////////////////////////////////////////////////////
+#pragma once
+
+#include "../UIDragElement.h"
+
+#include "../Components/Slider.h"
+
+namespace ms
+{
+	// The Item inventory
+	class UIItemInventory : public UIDragElement<PosINV>
+	{
+	public:
+		static constexpr Type TYPE = UIElement::Type::ITEMINVENTORY;
+		static constexpr bool FOCUSED = false;
+		static constexpr bool TOGGLED = true;
+
+		UIItemInventory(const Inventory& inventory);
+
+		void draw(float inter) const override;
+		void update() override;
+
+		void doubleclick(Point<int16_t> position) override;
+		bool send_icon(const Icon& icon, Point<int16_t> position) override;
+		void toggle_active() override;
+		void remove_cursor() override;
+		Cursor::State send_cursor(bool pressed, Point<int16_t> position) override;
+		void send_key(int32_t keycode, bool pressed, bool escape) override;
+
+		UIElement::Type get_type() const override;
+
+		void modify(InventoryType::Id type, int16_t pos, int8_t mode, int16_t arg);
+		void set_sort(bool enabled);
+		void change_tab(InventoryType::Id type);
+		void clear_new();
+
+	protected:
+		Button::State button_pressed(uint16_t buttonid) override;
+
+	private:
+		void show_item(int16_t slot);
+		void clear_tooltip();
+		void load_icons();
+		void update_slot(int16_t slot);
+		bool is_visible(int16_t slot) const;
+		bool is_not_visible(int16_t slot) const;
+		bool can_wear_equip(int16_t slot) const;
+		int16_t slot_by_position(Point<int16_t> position) const;
+		uint16_t button_by_tab(InventoryType::Id tab) const;
+		Point<int16_t> get_slotpos(int16_t slot) const;
+		Point<int16_t> get_tabpos(InventoryType::Id tab) const;
+		Icon* get_icon(int16_t slot);
+		void set_full(bool enabled);
+
+		class ItemIcon : public Icon::Type
+		{
+		public:
+			ItemIcon(const UIItemInventory& parent, InventoryType::Id sourcetab, EquipSlot::Id eqsource, int16_t source, int32_t item_id, int16_t count, bool untradable, bool cashitem);
+
+			void drop_on_stage() const override;
+			void drop_on_equips(EquipSlot::Id eqslot) const override;
+			bool drop_on_items(InventoryType::Id tab, EquipSlot::Id eqslot, int16_t slot, bool equip) const override;
+			void drop_on_bindings(Point<int16_t> cursorposition, bool remove) const override;
+			void set_count(int16_t count) override;
+			Icon::IconType get_type() override;
+
+		private:
+			InventoryType::Id sourcetab;
+			EquipSlot::Id eqsource;
+			int16_t source;
+			int32_t item_id;
+			int16_t count;
+			bool untradable;
+			bool cashitem;
+			const UIItemInventory& parent;
+		};
+
+		enum Buttons
+		{
+			BT_CLOSE,
+			BT_TAB_EQUIP,
+			BT_TAB_USE,
+			BT_TAB_ETC,
+			BT_TAB_SETUP,
+			BT_TAB_CASH,
+			BT_TAB_DEC,
+			BT_COIN,
+			BT_POINT,
+			BT_GATHER,
+			BT_SORT,
+			BT_FULL,
+			BT_SMALL,
+			BT_UPGRADE,
+			BT_APPRAISE,
+			BT_EXTRACT,
+			BT_DISASSEMBLE,
+			BT_TOAD,
+			BT_COIN_SM,
+			BT_POINT_SM,
+			BT_GATHER_SM,
+			BT_SORT_SM,
+			BT_UPGRADE_SM,
+			BT_APPRAISE_SM,
+			BT_EXTRACT_SM,
+			BT_DISASSEMBLE_SM,
+			BT_TOAD_SM,
+			BT_CASHSHOP
+		};
+
+		const Inventory& inventory;
+
+		Animation newitemslot;
+		Animation newitemtaben;
+		Animation newitemtabdis;
+		Texture projectile;
+		Texture disabled;
+		Text mesolabel;
+		Text maplepointslabel;
+		Slider slider;
+
+		std::map<int16_t, std::unique_ptr<Icon>> icons;
+		std::map<InventoryType::Id, std::pair<int16_t, int16_t>> slotrange;
+
+		InventoryType::Id tab;
+		InventoryType::Id newtab;
+		int16_t newslot;
+		int16_t slot_col;
+		int16_t slot_row;
+		int16_t slot_space_x;
+		int16_t slot_space_y;
+		int16_t max_slots;
+		int16_t max_full_slots;
+		int16_t icon_width;
+		int16_t icon_height;
+		bool ignore_tooltip;
+
+		bool sort_enabled;
+		bool full_enabled;
+		Texture backgrnd;
+		Texture backgrnd2;
+		Texture backgrnd3;
+		Texture full_backgrnd;
+		Texture full_backgrnd2;
+		Texture full_backgrnd3;
+		Point<int16_t> bg_dimensions;
+		Point<int16_t> bg_full_dimensions;
+		Point<int16_t> slot_pos;
+
+#if LOG_LEVEL >= LOG_UI
+		Text slot_labels[128];
+#endif
+	};
+}
+
+
+
+================================================================
+End of Codebase
+================================================================

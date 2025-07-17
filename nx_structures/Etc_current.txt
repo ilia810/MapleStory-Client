@@ -1,0 +1,5219 @@
+🗂️ NX STRUCTURE ANALYSIS: Etc.nx
+📅 Generated: Current HeavenMS v83 Client Session
+🎯 Purpose: AssetRegistry Development & Asset Management
+================================================================================
+📊 Overview:
+   📦 Root children: 22
+   🏗️ Structure optimized for manageable file size
+   ⭐ Important assets prioritized (Login, UI, Buttons)
+
+├─  📁 (22 items)
+  ├─ BlockReason.img 📁 (13 items)
+    ├─ 1 📁 (2 items)
+      ├─ msg 📝 = "Your account has been block..."
+      ├─ type 📝 = "HACK"
+    ├─ 10 📁 (2 items)
+      ├─ msg 📝 = "Your account has been block..."
+      ├─ type 📝 = "TEMP"
+    ├─ 11 📁 (2 items)
+      ├─ msg 📝 = "Your account has been block..."
+      ├─ type 📝 = "GM"
+    ├─ 12 📁 (2 items)
+      ├─ msg 📝 = "Your account has been block..."
+      ├─ type 📝 = "IPROGRAM"
+    ├─ 13 📁 (2 items)
+      ├─ msg 📝 = "Your account has been block..."
+      ├─ type 📝 = "MEGAPHONE"
+    ├─ 2 📁 (2 items)
+      ├─ msg 📝 = "Your account has been block..."
+      ├─ type 📝 = "BOT"
+    ├─ 3 📁 (2 items)
+      ├─ msg 📝 = "Your account has been block..."
+      ├─ type 📝 = "AD"
+    ├─ 4 📁 (2 items)
+      ├─ msg 📝 = "Your account has been block..."
+      ├─ type 📝 = "HARASS"
+    ├─ 5 📁 (2 items)
+      ├─ msg 📝 = "Your account has been block..."
+      ├─ type 📝 = "CURSE"
+    ├─ 6 📁 (2 items)
+      ├─ msg 📝 = "Your account has been block..."
+      ├─ type 📝 = "SCAM"
+    ├─ 7 📁 (2 items)
+      ├─ msg 📝 = "Your account has been block..."
+      ├─ type 📝 = "MISCONDUCT"
+    ├─ 8 📁 (2 items)
+      ├─ msg 📝 = "Your account has been block..."
+      ├─ type 📝 = "SELL"
+    ├─ 9 📁 (2 items)
+      ├─ msg 📝 = "Your account has been block..."
+      ├─ type 📝 = "ICASH"
+  ├─ CashPackage.img 📁 (435 items)
+    ├─ 9100000 📁 (1 items)
+      ├─ SN 📁 (7 items)
+        ├─ 0 🔢
+        ├─ 1 🔢
+        ├─ 2 🔢
+        ├─ 3 🔢
+        ├─ 4 🔢
+        ├─ 5 🔢
+        ├─ 6 🔢
+    ├─ 9101000 📁 (1 items)
+      ├─ SN 📁 (3 items)
+        ├─ 0 🔢
+        ├─ 1 🔢
+        ├─ 2 🔢
+    ├─ 9101001 📁 (1 items)
+      ├─ SN 📁 (3 items)
+        ├─ 0 🔢
+        ├─ 1 🔢
+        ├─ 2 🔢
+    ├─ 9101002 📁 (1 items)
+      ├─ SN 📁 (3 items)
+        ├─ 0 🔢
+        ├─ 1 🔢
+        ├─ 2 🔢
+    ├─ 9101003 📁 (1 items)
+      ├─ SN 📁 (3 items)
+        ├─ 0 🔢
+        ├─ 1 🔢
+        ├─ 2 🔢
+    ├─ 9101004 📁 (1 items)
+      ├─ SN 📁 (3 items)
+        ├─ 0 🔢
+        ├─ 1 🔢
+        ├─ 2 🔢
+    ├─ 9101005 📁 (1 items)
+      ├─ SN 📁 (3 items)
+        ├─ 0 🔢
+        ├─ 1 🔢
+        ├─ 2 🔢
+    ├─ 9101006 📁 (1 items)
+      ├─ SN 📁 (3 items)
+        ├─ 0 🔢
+        ├─ 1 🔢
+        ├─ 2 🔢
+    ├─ 9101007 📁 (1 items)
+      ├─ SN 📁 (3 items)
+        ├─ 0 🔢
+        ├─ 1 🔢
+        ├─ 2 🔢
+    ├─ 9101008 📁 (1 items)
+      ├─ SN 📁 (3 items)
+        ├─ 0 🔢
+        ├─ 1 🔢
+        ├─ 2 🔢
+    ├─ 9101009 📁 (1 items)
+      ├─ SN 📁 (4 items)
+        ├─ 0 🔢
+        ├─ 1 🔢
+        ├─ 2 🔢
+        ├─ 3 🔢
+    ├─ 9101010 📁 (1 items)
+      ├─ SN 📁 (4 items)
+        ├─ 0 🔢
+        ├─ 1 🔢
+        ├─ 2 🔢
+        ├─ 3 🔢
+    ├─ 9101011 📁 (1 items)
+      ├─ SN 📁 (2 items)
+        ├─ 0 🔢
+        ├─ 1 🔢
+    ├─ 9101012 📁 (1 items)
+      ├─ SN 📁 (3 items)
+        ├─ 0 🔢
+        ├─ 1 🔢
+        ├─ 2 🔢
+    ├─ 9101013 📁 (1 items)
+      ├─ SN 📁 (3 items)
+        ├─ 0 🔢
+        ├─ 1 🔢
+        ├─ 2 🔢
+    ├─ 9101108 📁 (1 items)
+      ├─ SN 📁 (3 items)
+        ├─ 0 🔢
+        ├─ 1 🔢
+        ├─ 2 🔢
+    ├─ 9101109 📁 (1 items)
+      ├─ SN 📁 (3 items)
+        ├─ 0 🔢
+        ├─ 1 🔢
+        ├─ 2 🔢
+    ├─ 9101110 📁 (1 items)
+      ├─ SN 📁 (4 items)
+        ├─ 0 🔢
+        ├─ 1 🔢
+        ├─ 2 🔢
+        ├─ 3 🔢
+    ├─ 9101111 📁 (1 items)
+      ├─ SN 📁 (5 items)
+        ├─ 0 🔢
+        ├─ 1 🔢
+        ├─ 2 🔢
+        ├─ 3 🔢
+        ├─ 4 🔢
+    ├─ 9101121 📁 (1 items)
+      ├─ SN 📁 (3 items)
+        ├─ 0 🔢
+        ├─ 1 🔢
+        ├─ 2 🔢
+    ├─ 9101122 📁 (1 items)
+      ├─ SN 📁 (3 items)
+        ├─ 0 🔢
+        ├─ 1 🔢
+        ├─ 2 🔢
+    ├─ 9101123 📁 (1 items)
+      ├─ SN 📁 (4 items)
+        ├─ 0 🔢
+        ├─ 1 🔢
+        ├─ 2 🔢
+        ├─ 3 🔢
+    ├─ 9101124 📁 (1 items)
+      ├─ SN 📁 (4 items)
+        ├─ 0 🔢
+        ├─ 1 🔢
+        ├─ 2 🔢
+        ├─ 3 🔢
+    ├─ 9101129 📁 (1 items)
+      ├─ SN 📁 (4 items)
+        ├─ 0 🔢
+        ├─ 1 🔢
+        ├─ 2 🔢
+        ├─ 3 🔢
+    ├─ 9101130 📁 (1 items)
+      ├─ SN 📁 (4 items)
+        ├─ 0 🔢
+        ├─ 1 🔢
+        ├─ 2 🔢
+        ├─ 3 🔢
+    ├─ 9101131 📁 (1 items)
+      ├─ SN 📁 (2 items)
+        ├─ 0 🔢
+        ├─ 1 🔢
+    ├─ 9101132 📁 (1 items)
+      ├─ SN 📁 (5 items)
+        ├─ 0 🔢
+        ├─ 1 🔢
+        ├─ 2 🔢
+        ├─ 3 🔢
+        ├─ 4 🔢
+    ├─ 9101133 📁 (1 items)
+      ├─ SN 📁 (5 items)
+        ├─ 0 🔢
+        ├─ 1 🔢
+        ├─ 2 🔢
+        ├─ 3 🔢
+        ├─ 4 🔢
+    ├─ 9101134 📁 (1 items)
+      ├─ SN 📁 (3 items)
+        ├─ 0 🔢
+        ├─ 1 🔢
+        ├─ 2 🔢
+    ├─ 9101135 📁 (1 items)
+      ├─ SN 📁 (3 items)
+        ├─ 0 🔢
+        ├─ 1 🔢
+        ├─ 2 🔢
+    └─ ... (405 more items)
+  ├─ Category.img 📁 (30 items)
+    ├─ 0 📁 (3 items)
+      ├─ Category 🔢 = 1
+      ├─ CategorySub 🔢 = 0
+      ├─ Name 📝 = "New"
+    ├─ 1 📁 (3 items)
+      ├─ Category 🔢 = 1
+      ├─ CategorySub 🔢 = 1
+      ├─ Name 📝 = "Event"
+    ├─ 10 📁 (3 items)
+      ├─ Category 🔢 = 2
+      ├─ CategorySub 🔢 = 8
+      ├─ Name 📝 = "Weapon"
+    ├─ 11 📁 (3 items)
+      ├─ Category 🔢 = 2
+      ├─ CategorySub 🔢 = 9
+      ├─ Name 📝 = "Ring"
+    ├─ 12 📁 (3 items)
+      ├─ Category 🔢 = 2
+      ├─ CategorySub 🔢 = 10
+      ├─ Name 📝 = "Premium"
+    ├─ 13 📁 (3 items)
+      ├─ Category 🔢 = 2
+      ├─ CategorySub 🔢 = 11
+      ├─ Name 📝 = "Cape"
+    ├─ 14 📁 (3 items)
+      ├─ Category 🔢 = 3
+      ├─ CategorySub 🔢 = 0
+      ├─ Name 📝 = "Scroll"
+    ├─ 15 📁 (3 items)
+      ├─ Category 🔢 = 3
+      ├─ CategorySub 🔢 = 1
+      ├─ Name 📝 = "Messenger"
+    ├─ 16 📁 (3 items)
+      ├─ Category 🔢 = 3
+      ├─ CategorySub 🔢 = 2
+      ├─ Name 📝 = "Weather"
+    ├─ 17 📁 (3 items)
+      ├─ Category 🔢 = 5
+      ├─ CategorySub 🔢 = 0
+      ├─ Name 📝 = "Beauty Parlor"
+    ├─ 18 📁 (3 items)
+      ├─ Category 🔢 = 5
+      ├─ CategorySub 🔢 = 1
+      ├─ Name 📝 = "Store"
+    ├─ 19 📁 (3 items)
+      ├─ Category 🔢 = 5
+      ├─ CategorySub 🔢 = 2
+      ├─ Name 📝 = "Game"
+    ├─ 2 📁 (3 items)
+      ├─ Category 🔢 = 2
+      ├─ CategorySub 🔢 = 0
+      ├─ Name 📝 = "Hat"
+    ├─ 20 📁 (3 items)
+      ├─ Category 🔢 = 5
+      ├─ CategorySub 🔢 = 3
+      ├─ Name 📝 = "Facial Expression"
+    ├─ 21 📁 (3 items)
+      ├─ Category 🔢 = 5
+      ├─ CategorySub 🔢 = 4
+      ├─ Name 📝 = "Wedding"
+    ├─ 22 📁 (3 items)
+      ├─ Category 🔢 = 5
+      ├─ CategorySub 🔢 = 5
+      ├─ Name 📝 = "Effect"
+    ├─ 23 📁 (3 items)
+      ├─ Category 🔢 = 5
+      ├─ CategorySub 🔢 = 6
+      ├─ Name 📝 = "Character"
+    ├─ 24 📁 (3 items)
+      ├─ Category 🔢 = 6
+      ├─ CategorySub 🔢 = 0
+      ├─ Name 📝 = "Pet"
+    ├─ 25 📁 (3 items)
+      ├─ Category 🔢 = 6
+      ├─ CategorySub 🔢 = 1
+      ├─ Name 📝 = "Pet Equip."
+    ├─ 26 📁 (3 items)
+      ├─ Category 🔢 = 6
+      ├─ CategorySub 🔢 = 2
+      ├─ Name 📝 = "Pet "Use""
+    ├─ 27 📁 (3 items)
+      ├─ Category 🔢 = 7
+      ├─ CategorySub 🔢 = 0
+      ├─ Name 📝 = "Package"
+    ├─ 28 📁 (3 items)
+      ├─ Category 📝 = "8"
+      ├─ CategorySub 🔢 = 0
+      ├─ Name 📝 = "How to Use the Cashshop"
+    ├─ 29 📁 (3 items)
+      ├─ Category 📝 = "8"
+      ├─ CategorySub 🔢 = 1
+      ├─ Name 📝 = "How to Gift"
+    ├─ 3 📁 (3 items)
+      ├─ Category 🔢 = 2
+      ├─ CategorySub 🔢 = 1
+      ├─ Name 📝 = "Face"
+    ├─ 4 📁 (3 items)
+      ├─ Category 🔢 = 2
+      ├─ CategorySub 🔢 = 2
+      ├─ Name 📝 = "Eye"
+    ├─ 5 📁 (3 items)
+      ├─ Category 🔢 = 2
+      ├─ CategorySub 🔢 = 3
+      ├─ Name 📝 = "Overall"
+    ├─ 6 📁 (3 items)
+      ├─ Category 🔢 = 2
+      ├─ CategorySub 🔢 = 4
+      ├─ Name 📝 = "Top"
+    ├─ 7 📁 (3 items)
+      ├─ Category 🔢 = 2
+      ├─ CategorySub 🔢 = 5
+      ├─ Name 📝 = "Bottom"
+    ├─ 8 📁 (3 items)
+      ├─ Category 🔢 = 2
+      ├─ CategorySub 🔢 = 6
+      ├─ Name 📝 = "Shoes"
+    ├─ 9 📁 (3 items)
+      ├─ Category 🔢 = 2
+      ├─ CategorySub 🔢 = 7
+      ├─ Name 📝 = "Glove"
+  ├─ ChatBlockReason.img 📁 (6 items)
+    ├─ 1 📁 (2 items)
+      ├─ msg 📝 = "Foul language/Harrassment"
+      ├─ type 📝 = "Foul Language"
+    ├─ 2 📁 (2 items)
+      ├─ msg 📝 = "Advertising websites"
+      ├─ type 📝 = "Advertising"
+    ├─ 3 📁 (2 items)
+      ├─ msg 📝 = "Fake GM"
+      ├─ type 📝 = "Hack"
+    ├─ 4 📁 (2 items)
+      ├─ msg 📝 = "Trading or selling account"
+      ├─ type 📝 = "Account Trading"
+    ├─ 5 📁 (2 items)
+      ├─ msg 📝 = "Do not report fame scams an..."
+      ├─ type 📝 = "Trading"
+    ├─ 6 📁 (2 items)
+      ├─ msg 📝 = "The reporter's conversation..."
+      ├─ type 📝 = "Penalty Alert"
+  ├─ Commodity.img 📁 (8941 items)
+    ├─ 0 📁 (8 items)
+      ├─ Count 🔢 = 1
+      ├─ Gender 🔢 = 2
+      ├─ ItemId 🔢 = 1002000
+      ├─ OnSale 🔢 = 0
+      ├─ Period 🔢 = 14
+      ├─ Price 🔢 = 300
+      ├─ Priority 🔢 = 8
+      ├─ SN 🔢 = 10000000
+    ├─ 1 📁 (8 items)
+      ├─ Count 🔢 = 1
+      ├─ Gender 🔢 = 2
+      ├─ ItemId 🔢 = 1002015
+      ├─ OnSale 🔢 = 0
+      ├─ Period 🔢 = 14
+      ├─ Price 🔢 = 300
+      ├─ Priority 🔢 = 8
+      ├─ SN 🔢 = 10000001
+    ├─ 10 📁 (8 items)
+      ├─ Count 🔢 = 1
+      ├─ Gender 🔢 = 1
+      ├─ ItemId 🔢 = 1001002
+      ├─ OnSale 🔢 = 0
+      ├─ Period 🔢 = 14
+      ├─ Price 🔢 = 300
+      ├─ Priority 🔢 = 9
+      ├─ SN 🔢 = 10000010
+    ├─ 100 📁 (8 items)
+      ├─ Count 🔢 = 1
+      ├─ Gender 🔢 = 2
+      ├─ ItemId 🔢 = 1702026
+      ├─ OnSale 🔢 = 0
+      ├─ Period 🔢 = 90
+      ├─ Price 🔢 = 3900
+      ├─ Priority 🔢 = 9
+      ├─ SN 🔢 = 10000100
+    ├─ 1000 📁 (8 items)
+      ├─ Count 🔢 = 11
+      ├─ Gender 🔢 = 2
+      ├─ ItemId 🔢 = 5240001
+      ├─ OnSale 🔢 = 0
+      ├─ Period 🔢 = 90
+      ├─ Price 🔢 = 10000
+      ├─ Priority 🔢 = 9
+      ├─ SN 🔢 = 10001002
+    ├─ 1001 📁 (11 items)
+      ├─ Count 🔢 = 1
+      ├─ Gender 🔢 = 2
+      ├─ ItemId 🔢 = 5000017
+      ├─ OnSale 🔢 = 0
+      ├─ PbCash 🔢 = 30
+      ├─ PbGift 🔢 = 30
+      ├─ PbPoint 🔢 = 30
+      ├─ Period 🔢 = 0
+      ├─ Price 🔢 = 6000
+      ├─ Priority 🔢 = 9
+      ├─ SN 🔢 = 10001003
+    ├─ 1002 📁 (8 items)
+      ├─ Count 🔢 = 1
+      ├─ Gender 🔢 = 2
+      ├─ ItemId 🔢 = 1040135
+      ├─ OnSale 🔢 = 0
+      ├─ Period 🔢 = 90
+      ├─ Price 🔢 = 3400
+      ├─ Priority 🔢 = 9
+      ├─ SN 🔢 = 10001004
+    ├─ 1003 📁 (8 items)
+      ├─ Count 🔢 = 1
+      ├─ Gender 🔢 = 2
+      ├─ ItemId 🔢 = 1042076
+      ├─ OnSale 🔢 = 0
+      ├─ Period 🔢 = 90
+      ├─ Price 🔢 = 2500
+      ├─ Priority 🔢 = 9
+      ├─ SN 🔢 = 10001005
+    ├─ 1004 📁 (8 items)
+      ├─ Count 🔢 = 1
+      ├─ Gender 🔢 = 2
+      ├─ ItemId 🔢 = 1042075
+      ├─ OnSale 🔢 = 0
+      ├─ Period 🔢 = 90
+      ├─ Price 🔢 = 2700
+      ├─ Priority 🔢 = 9
+      ├─ SN 🔢 = 10001006
+    ├─ 1005 📁 (8 items)
+      ├─ Count 🔢 = 1
+      ├─ Gender 🔢 = 2
+      ├─ ItemId 🔢 = 1042082
+      ├─ OnSale 🔢 = 0
+      ├─ Period 🔢 = 90
+      ├─ Price 🔢 = 3400
+      ├─ Priority 🔢 = 9
+      ├─ SN 🔢 = 10001007
+    ├─ 1006 📁 (8 items)
+      ├─ Count 🔢 = 1
+      ├─ Gender 🔢 = 2
+      ├─ ItemId 🔢 = 1082162
+      ├─ OnSale 🔢 = 0
+      ├─ Period 🔢 = 90
+      ├─ Price 🔢 = 2300
+      ├─ Priority 🔢 = 9
+      ├─ SN 🔢 = 10001008
+    ├─ 1007 📁 (8 items)
+      ├─ Count 🔢 = 1
+      ├─ Gender 🔢 = 2
+      ├─ ItemId 🔢 = 1002519
+      ├─ OnSale 🔢 = 0
+      ├─ Period 🔢 = 90
+      ├─ Price 🔢 = 3000
+      ├─ Priority 🔢 = 9
+      ├─ SN 🔢 = 10001009
+    ├─ 1008 📁 (8 items)
+      ├─ Count 🔢 = 1
+      ├─ Gender 🔢 = 2
+      ├─ ItemId 🔢 = 1002521
+      ├─ OnSale 🔢 = 0
+      ├─ Period 🔢 = 90
+      ├─ Price 🔢 = 2700
+      ├─ Priority 🔢 = 9
+      ├─ SN 🔢 = 10001010
+    ├─ 1009 📁 (8 items)
+      ├─ Count 🔢 = 1
+      ├─ Gender 🔢 = 2
+      ├─ ItemId 🔢 = 1062061
+      ├─ OnSale 🔢 = 0
+      ├─ Period 🔢 = 90
+      ├─ Price 🔢 = 2500
+      ├─ Priority 🔢 = 9
+      ├─ SN 🔢 = 10001011
+    ├─ 101 📁 (8 items)
+      ├─ Count 🔢 = 1
+      ├─ Gender 🔢 = 2
+      ├─ ItemId 🔢 = 1112001
+      ├─ OnSale 🔢 = 0
+      ├─ Period 🔢 = 90
+      ├─ Price 🔢 = 6000
+      ├─ Priority 🔢 = 9
+      ├─ SN 🔢 = 10000101
+    ├─ 1010 📁 (8 items)
+      ├─ Count 🔢 = 1
+      ├─ Gender 🔢 = 2
+      ├─ ItemId 🔢 = 1062062
+      ├─ OnSale 🔢 = 0
+      ├─ Period 🔢 = 90
+      ├─ Price 🔢 = 2500
+      ├─ Priority 🔢 = 9
+      ├─ SN 🔢 = 10001012
+    ├─ 1011 📁 (8 items)
+      ├─ Count 🔢 = 1
+      ├─ Gender 🔢 = 2
+      ├─ ItemId 🔢 = 1702081
+      ├─ OnSale 🔢 = 0
+      ├─ Period 🔢 = 90
+      ├─ Price 🔢 = 4500
+      ├─ Priority 🔢 = 9
+      ├─ SN 🔢 = 10001013
+    ├─ 1012 📁 (8 items)
+      ├─ Count 🔢 = 1
+      ├─ Gender 🔢 = 2
+      ├─ ItemId 🔢 = 1102074
+      ├─ OnSale 🔢 = 0
+      ├─ Period 🔢 = 90
+      ├─ Price 🔢 = 4200
+      ├─ Priority 🔢 = 9
+      ├─ SN 🔢 = 10001014
+    ├─ 1013 📁 (8 items)
+      ├─ Count 🔢 = 1
+      ├─ Gender 🔢 = 2
+      ├─ ItemId 🔢 = 5010024
+      ├─ OnSale 🔢 = 0
+      ├─ Period 🔢 = 90
+      ├─ Price 🔢 = 3000
+      ├─ Priority 🔢 = 9
+      ├─ SN 🔢 = 10001015
+    ├─ 1014 📁 (8 items)
+      ├─ Count 🔢 = 1
+      ├─ Gender 🔢 = 2
+      ├─ ItemId 🔢 = 1002468
+      ├─ OnSale 🔢 = 0
+      ├─ Period 🔢 = 90
+      ├─ Price 🔢 = 3500
+      ├─ Priority 🔢 = 9
+      ├─ SN 🔢 = 10001016
+    ├─ 1015 📁 (8 items)
+      ├─ Count 🔢 = 1
+      ├─ Gender 🔢 = 2
+      ├─ ItemId 🔢 = 1002557
+      ├─ OnSale 🔢 = 0
+      ├─ Period 🔢 = 90
+      ├─ Price 🔢 = 3500
+      ├─ Priority 🔢 = 9
+      ├─ SN 🔢 = 10001017
+    ├─ 1016 📁 (8 items)
+      ├─ Count 🔢 = 1
+      ├─ Gender 🔢 = 2
+      ├─ ItemId 🔢 = 1000023
+      ├─ OnSale 🔢 = 0
+      ├─ Period 🔢 = 90
+      ├─ Price 🔢 = 3700
+      ├─ Priority 🔢 = 9
+      ├─ SN 🔢 = 10001018
+    ├─ 1017 📁 (8 items)
+      ├─ Count 🔢 = 1
+      ├─ Gender 🔢 = 2
+      ├─ ItemId 🔢 = 1002477
+      ├─ OnSale 🔢 = 0
+      ├─ Period 🔢 = 90
+      ├─ Price 🔢 = 2400
+      ├─ Priority 🔢 = 9
+      ├─ SN 🔢 = 10001019
+    ├─ 1018 📁 (8 items)
+      ├─ Count 🔢 = 1
+      ├─ Gender 🔢 = 2
+      ├─ ItemId 🔢 = 1012053
+      ├─ OnSale 🔢 = 0
+      ├─ Period 🔢 = 90
+      ├─ Price 🔢 = 2200
+      ├─ Priority 🔢 = 9
+      ├─ SN 🔢 = 10001020
+    ├─ 1019 📁 (8 items)
+      ├─ Count 🔢 = 1
+      ├─ Gender 🔢 = 2
+      ├─ ItemId 🔢 = 1082171
+      ├─ OnSale 🔢 = 0
+      ├─ Period 🔢 = 90
+      ├─ Price 🔢 = 2800
+      ├─ Priority 🔢 = 9
+      ├─ SN 🔢 = 10001021
+    ├─ 102 📁 (8 items)
+      ├─ Count 🔢 = 11
+      ├─ Gender 🔢 = 2
+      ├─ ItemId 🔢 = 5120005
+      ├─ OnSale 🔢 = 0
+      ├─ Period 🔢 = 90
+      ├─ Price 🔢 = 3000
+      ├─ Priority 🔢 = 9
+      ├─ SN 🔢 = 10000102
+    ├─ 1020 📁 (8 items)
+      ├─ Count 🔢 = 1
+      ├─ Gender 🔢 = 2
+      ├─ ItemId 🔢 = 1051116
+      ├─ OnSale 🔢 = 0
+      ├─ Period 🔢 = 90
+      ├─ Price 🔢 = 3600
+      ├─ Priority 🔢 = 9
+      ├─ SN 🔢 = 10001022
+    ├─ 1021 📁 (8 items)
+      ├─ Count 🔢 = 1
+      ├─ Gender 🔢 = 2
+      ├─ ItemId 🔢 = 1050116
+      ├─ OnSale 🔢 = 0
+      ├─ Period 🔢 = 90
+      ├─ Price 🔢 = 3600
+      ├─ Priority 🔢 = 9
+      ├─ SN 🔢 = 10001023
+    ├─ 1022 📁 (8 items)
+      ├─ Count 🔢 = 1
+      ├─ Gender 🔢 = 2
+      ├─ ItemId 🔢 = 1071011
+      ├─ OnSale 🔢 = 0
+      ├─ Period 🔢 = 90
+      ├─ Price 🔢 = 1700
+      ├─ Priority 🔢 = 9
+      ├─ SN 🔢 = 10001024
+    ├─ 1023 📁 (8 items)
+      ├─ Count 🔢 = 1
+      ├─ Gender 🔢 = 2
+      ├─ ItemId 🔢 = 1061135
+      ├─ OnSale 🔢 = 0
+      ├─ Period 🔢 = 90
+      ├─ Price 🔢 = 2000
+      ├─ Priority 🔢 = 9
+      ├─ SN 🔢 = 10001025
+    └─ ... (8911 more items)
+  ├─ Curse.img 📁 (572 items)
+    ├─ 0 📝 = "1esb1an"
+    ├─ 1 📝 = "455h0Ie"
+    ├─ 10 📝 = "4ssh0Ie"
+    ├─ 100 📝 = "blowme"
+    ├─ 101 📝 = "bltch"
+    ├─ 102 📝 = "bltch4ss"
+    ├─ 103 📝 = "bltcha55"
+    ├─ 104 📝 = "bltchass"
+    ├─ 105 📝 = "bly0tch"
+    ├─ 106 📝 = "blyotch"
+    ├─ 107 📝 = "blz4tch"
+    ├─ 108 📝 = "blzatch"
+    ├─ 109 📝 = "blzn4tch"
+    ├─ 11 📝 = "4ssh0le"
+    ├─ 110 📝 = "blznatch"
+    ├─ 111 📝 = "buttmunch"
+    ├─ 112 📝 = "bytch"
+    ├─ 113 📝 = "c8"
+    ├─ 114 📝 = "ch00ch1e"
+    ├─ 115 📝 = "ch00chie"
+    ├─ 116 📝 = "ch00chle"
+    ├─ 117 📝 = "ch1nk"
+    ├─ 118 📝 = "chink"
+    ├─ 119 📝 = "choochie"
+    ├─ 12 📝 = "4ssm4ster"
+    ├─ 120 📝 = "cI1t0r1s"
+    ├─ 121 📝 = "cIit"
+    ├─ 122 📝 = "cIit0ri5"
+    ├─ 123 📝 = "cIit0ris"
+    ├─ 124 📝 = "cl1t0r1s"
+    └─ ... (542 more items)
+  ├─ EmotionEffect.img 📁 (10 items)
+    ├─ angry 📄
+    ├─ bewildered 📄
+    ├─ blink 📄
+    ├─ cry 📄
+    ├─ hit 📄
+    ├─ oops 📁 (10 items)
+      ├─ 0 🖼️ (4 items)
+        ├─ a0 🔢
+        ├─ a1 🔢
+        ├─ delay 🔢
+        ├─ origin 📍
+      ├─ 1 🖼️ (2 items)
+        ├─ delay 🔢
+        ├─ origin 📍
+      ├─ 2 🖼️ (2 items)
+        ├─ delay 🔢
+        ├─ origin 📍
+      ├─ 3 🖼️ (2 items)
+        ├─ delay 🔢
+        ├─ origin 📍
+      ├─ 4 🖼️ (2 items)
+        ├─ delay 🔢
+        ├─ origin 📍
+      ├─ 5 🖼️ (2 items)
+        ├─ delay 🔢
+        ├─ origin 📍
+      ├─ 6 🖼️ (2 items)
+        ├─ delay 🔢
+        ├─ origin 📍
+      ├─ 7 🖼️ (2 items)
+        ├─ delay 🔢
+        ├─ origin 📍
+      ├─ 8 🖼️ (2 items)
+        ├─ delay 🔢
+        ├─ origin 📍
+      ├─ 9 🖼️ (4 items)
+        ├─ a0 🔢
+        ├─ a1 🔢
+        ├─ delay 🔢
+        ├─ origin 📍
+    ├─ smile 📄
+    ├─ stunned 📄
+    ├─ troubled 📄
+    ├─ vomit 📄
+  ├─ ForbiddenName.img 📁 (179 items)
+    ├─ 0 📝 = "admin"
+    ├─ 1 📝 = "administrator"
+    ├─ 10 📝 = "Mapole"
+    ├─ 100 📝 = "clit"
+    ├─ 101 📝 = "asshole"
+    ├─ 102 📝 = "chink"
+    ├─ 103 📝 = "fatass"
+    ├─ 104 📝 = "bitch"
+    ├─ 105 📝 = "support"
+    ├─ 106 📝 = "vvizet"
+    ├─ 107 📝 = "maaple"
+    ├─ 108 📝 = "mapple"
+    ├─ 109 📝 = "maaster"
+    ├─ 11 📝 = "mapale"
+    ├─ 110 📝 = "gmmaster"
+    ├─ 111 📝 = "gaamemaster"
+    ├─ 112 📝 = "wzmaster"
+    ├─ 113 📝 = "wzgm"
+    ├─ 114 📝 = "wzgamem"
+    ├─ 115 📝 = "cock"
+    ├─ 116 📝 = "wiener"
+    ├─ 117 📝 = "longjohnson"
+    ├─ 118 📝 = "gaay"
+    ├─ 119 📝 = "gaaay"
+    ├─ 12 📝 = "mable"
+    ├─ 120 📝 = "bltch"
+    ├─ 121 📝 = "Bellocan"
+    ├─ 122 📝 = "Demethus"
+    ├─ 123 📝 = "Yellonde"
+    ├─ 124 📝 = "Kastia"
+    └─ ... (149 more items)
+  ├─ Halloween.img 📁 (1 items)
+    ├─ HalloweenItem 📁 (120 items)
+      ├─ 0 🔢 = 1022029
+      ├─ 1 🔢 = 1022028
+      ├─ 10 🔢 = 1002470
+      ├─ 100 🔢 = 9101478
+      ├─ 101 🔢 = 9101479
+      ├─ 102 🔢 = 9101480
+      ├─ 103 🔢 = 9101481
+      ├─ 104 🔢 = 9101482
+      ├─ 105 🔢 = 9101483
+      ├─ 106 🔢 = 9101484
+      ├─ 107 🔢 = 9101485
+      ├─ 108 🔢 = 9101486
+      ├─ 109 🔢 = 9101487
+      ├─ 11 🔢 = 1002469
+      ├─ 110 🔢 = 9101488
+      ├─ 111 🔢 = 9101489
+      ├─ 112 🔢 = 9101490
+      ├─ 113 🔢 = 9101491
+      ├─ 114 🔢 = 9101492
+      ├─ 115 🔢 = 9101493
+      ├─ 116 🔢 = 9101494
+      ├─ 117 🔢 = 9101495
+      ├─ 118 🔢 = 9101496
+      ├─ 119 🔢 = 9101497
+      ├─ 12 🔢 = 1002224
+      ├─ 13 🔢 = 1002493
+      ├─ 14 🔢 = 1002556
+      ├─ 15 🔢 = 1002536
+      ├─ 16 🔢 = 1002544
+      ├─ 17 🔢 = 1002526
+      ├─ 18 🔢 = 1022046
+      ├─ 19 🔢 = 1022047
+      ├─ 2 🔢 = 1022010
+      ├─ 20 🔢 = 1012021
+      ├─ 21 🔢 = 1012022
+      ├─ 22 🔢 = 1012023
+      ├─ 23 🔢 = 1002678
+      ├─ 24 🔢 = 1012050
+      ├─ 25 🔢 = 1012051
+      ├─ 26 🔢 = 1012049
+      ├─ 27 🔢 = 1012029
+      ├─ 28 🔢 = 1102075
+      ├─ 29 🔢 = 1102066
+      ├─ 3 🔢 = 1022011
+      ├─ 30 🔢 = 1102066
+      ├─ 31 🔢 = 1102068
+      ├─ 32 🔢 = 1102098
+      ├─ 33 🔢 = 1102150
+      ├─ 34 🔢 = 1051076
+      ├─ 35 🔢 = 1050057
+      └─ ... (70 more items)
+  ├─ ItemMake.img 📁 (6 items)
+    ├─ 0 📁 (60 items)
+      ├─ 02040727 📁 (7 items)
+        ├─ itemNum 🔢
+        ├─ meso 🔢
+        ├─ recipe 📁 (2 items)
+        ├─ reqEquip 🔢
+        ├─ reqLevel 🔢
+        ├─ reqSkillLevel 🔢
+        ├─ tuc 🔢
+      ├─ 02041058 📁 (7 items)
+        ├─ itemNum 🔢
+        ├─ meso 🔢
+        ├─ recipe 📁 (2 items)
+        ├─ reqEquip 🔢
+        ├─ reqLevel 🔢
+        ├─ reqSkillLevel 🔢
+        ├─ tuc 🔢
+      ├─ 04001174 📁 (7 items)
+        ├─ itemNum 🔢
+        ├─ meso 🔢
+        ├─ recipe 📁 (4 items)
+        ├─ reqItem 🔢
+        ├─ reqLevel 🔢
+        ├─ reqSkillLevel 🔢
+        ├─ tuc 🔢
+      ├─ 04001175 📁 (7 items)
+        ├─ itemNum 🔢
+        ├─ meso 🔢
+        ├─ recipe 📁 (3 items)
+        ├─ reqItem 🔢
+        ├─ reqLevel 🔢
+        ├─ reqSkillLevel 🔢
+        ├─ tuc 🔢
+      ├─ 04001176 📁 (7 items)
+        ├─ itemNum 🔢
+        ├─ meso 🔢
+        ├─ recipe 📁 (4 items)
+        ├─ reqItem 🔢
+        ├─ reqLevel 🔢
+        ├─ reqSkillLevel 🔢
+        ├─ tuc 🔢
+      ├─ 04001177 📁 (7 items)
+        ├─ itemNum 🔢
+        ├─ meso 🔢
+        ├─ recipe 📁 (3 items)
+        ├─ reqItem 🔢
+        ├─ reqLevel 🔢
+        ├─ reqSkillLevel 🔢
+        ├─ tuc 🔢
+      ├─ 04001178 📁 (7 items)
+        ├─ itemNum 🔢
+        ├─ meso 🔢
+        ├─ recipe 📁 (4 items)
+        ├─ reqItem 🔢
+        ├─ reqLevel 🔢
+        ├─ reqSkillLevel 🔢
+        ├─ tuc 🔢
+      ├─ 04001179 📁 (7 items)
+        ├─ itemNum 🔢
+        ├─ meso 🔢
+        ├─ recipe 📁 (4 items)
+        ├─ reqItem 🔢
+        ├─ reqLevel 🔢
+        ├─ reqSkillLevel 🔢
+        ├─ tuc 🔢
+      ├─ 04001180 📁 (7 items)
+        ├─ itemNum 🔢
+        ├─ meso 🔢
+        ├─ recipe 📁 (4 items)
+        ├─ reqItem 🔢
+        ├─ reqLevel 🔢
+        ├─ reqSkillLevel 🔢
+        ├─ tuc 🔢
+      ├─ 04001181 📁 (7 items)
+        ├─ itemNum 🔢
+        ├─ meso 🔢
+        ├─ recipe 📁 (4 items)
+        ├─ reqItem 🔢
+        ├─ reqLevel 🔢
+        ├─ reqSkillLevel 🔢
+        ├─ tuc 🔢
+      ├─ 04001182 📁 (7 items)
+        ├─ itemNum 🔢
+        ├─ meso 🔢
+        ├─ recipe 📁 (5 items)
+        ├─ reqItem 🔢
+        ├─ reqLevel 🔢
+        ├─ reqSkillLevel 🔢
+        ├─ tuc 🔢
+      ├─ 04001183 📁 (7 items)
+        ├─ itemNum 🔢
+        ├─ meso 🔢
+        ├─ recipe 📁 (4 items)
+        ├─ reqItem 🔢
+        ├─ reqLevel 🔢
+        ├─ reqSkillLevel 🔢
+        ├─ tuc 🔢
+      ├─ 04001184 📁 (7 items)
+        ├─ itemNum 🔢
+        ├─ meso 🔢
+        ├─ recipe 📁 (4 items)
+        ├─ reqItem 🔢
+        ├─ reqLevel 🔢
+        ├─ reqSkillLevel 🔢
+        ├─ tuc 🔢
+      ├─ 04001185 📁 (7 items)
+        ├─ itemNum 🔢
+        ├─ meso 🔢
+        ├─ recipe 📁 (4 items)
+        ├─ reqItem 🔢
+        ├─ reqLevel 🔢
+        ├─ reqSkillLevel 🔢
+        ├─ tuc 🔢
+      ├─ 04001186 📁 (7 items)
+        ├─ itemNum 🔢
+        ├─ meso 🔢
+        ├─ recipe 📁 (5 items)
+        ├─ reqItem 🔢
+        ├─ reqLevel 🔢
+        ├─ reqSkillLevel 🔢
+        ├─ tuc 🔢
+      ├─ 04031980 📁 (7 items)
+        ├─ itemNum 🔢
+        ├─ meso 🔢
+        ├─ recipe 📁 (4 items)
+        ├─ reqItem 🔢
+        ├─ reqLevel 🔢
+        ├─ reqSkillLevel 🔢
+        ├─ tuc 🔢
+      ├─ 04032312 📁 (7 items)
+        ├─ itemNum 🔢
+        ├─ meso 🔢
+        ├─ recipe 📁 (3 items)
+        ├─ reqLevel 🔢
+        ├─ reqQuest 📁 (1 items)
+        ├─ reqSkillLevel 🔢
+        ├─ tuc 🔢
+      ├─ 04032334 📁 (7 items)
+        ├─ itemNum 🔢
+        ├─ meso 🔢
+        ├─ recipe 📁 (4 items)
+        ├─ reqLevel 🔢
+        ├─ reqQuest 📁 (1 items)
+        ├─ reqSkillLevel 🔢
+        ├─ tuc 🔢
+      ├─ 04250000 📁 (7 items)
+        ├─ itemNum 🔢
+        ├─ meso 🔢
+        ├─ randomReward 📁 (3 items)
+        ├─ recipe 📁 (1 items)
+        ├─ reqLevel 🔢
+        ├─ reqSkillLevel 🔢
+        ├─ tuc 🔢
+      ├─ 04250001 📁 (7 items)
+        ├─ itemNum 🔢
+        ├─ meso 🔢
+        ├─ randomReward 📁 (2 items)
+        ├─ recipe 📁 (1 items)
+        ├─ reqLevel 🔢
+        ├─ reqSkillLevel 🔢
+        ├─ tuc 🔢
+      ├─ 04250002 📁 (7 items)
+        ├─ itemNum 🔢
+        ├─ meso 🔢
+        ├─ randomReward 📁 (2 items)
+        ├─ recipe 📁 (1 items)
+        ├─ reqLevel 🔢
+        ├─ reqSkillLevel 🔢
+        ├─ tuc 🔢
+      ├─ 04250100 📁 (7 items)
+        ├─ itemNum 🔢
+        ├─ meso 🔢
+        ├─ randomReward 📁 (3 items)
+        ├─ recipe 📁 (1 items)
+        ├─ reqLevel 🔢
+        ├─ reqSkillLevel 🔢
+        ├─ tuc 🔢
+      ├─ 04250101 📁 (7 items)
+        ├─ itemNum 🔢
+        ├─ meso 🔢
+        ├─ randomReward 📁 (2 items)
+        ├─ recipe 📁 (1 items)
+        ├─ reqLevel 🔢
+        ├─ reqSkillLevel 🔢
+        ├─ tuc 🔢
+      ├─ 04250102 📁 (7 items)
+        ├─ itemNum 🔢
+        ├─ meso 🔢
+        ├─ randomReward 📁 (2 items)
+        ├─ recipe 📁 (1 items)
+        ├─ reqLevel 🔢
+        ├─ reqSkillLevel 🔢
+        ├─ tuc 🔢
+      ├─ 04250200 📁 (7 items)
+        ├─ itemNum 🔢
+        ├─ meso 🔢
+        ├─ randomReward 📁 (3 items)
+        ├─ recipe 📁 (1 items)
+        ├─ reqLevel 🔢
+        ├─ reqSkillLevel 🔢
+        ├─ tuc 🔢
+      ├─ 04250201 📁 (7 items)
+        ├─ itemNum 🔢
+        ├─ meso 🔢
+        ├─ randomReward 📁 (2 items)
+        ├─ recipe 📁 (1 items)
+        ├─ reqLevel 🔢
+        ├─ reqSkillLevel 🔢
+        ├─ tuc 🔢
+      ├─ 04250202 📁 (7 items)
+        ├─ itemNum 🔢
+        ├─ meso 🔢
+        ├─ randomReward 📁 (2 items)
+        ├─ recipe 📁 (1 items)
+        ├─ reqLevel 🔢
+        ├─ reqSkillLevel 🔢
+        ├─ tuc 🔢
+      ├─ 04250300 📁 (7 items)
+        ├─ itemNum 🔢
+        ├─ meso 🔢
+        ├─ randomReward 📁 (3 items)
+        ├─ recipe 📁 (1 items)
+        ├─ reqLevel 🔢
+        ├─ reqSkillLevel 🔢
+        ├─ tuc 🔢
+      ├─ 04250301 📁 (7 items)
+        ├─ itemNum 🔢
+        ├─ meso 🔢
+        ├─ randomReward 📁 (2 items)
+        ├─ recipe 📁 (1 items)
+        ├─ reqLevel 🔢
+        ├─ reqSkillLevel 🔢
+        ├─ tuc 🔢
+      ├─ 04250302 📁 (7 items)
+        ├─ itemNum 🔢
+        ├─ meso 🔢
+        ├─ randomReward 📁 (2 items)
+        ├─ recipe 📁 (1 items)
+        ├─ reqLevel 🔢
+        ├─ reqSkillLevel 🔢
+        ├─ tuc 🔢
+      ├─ 04250400 📁 (7 items)
+        ├─ itemNum 🔢
+        ├─ meso 🔢
+        ├─ randomReward 📁 (3 items)
+        ├─ recipe 📁 (1 items)
+        ├─ reqLevel 🔢
+        ├─ reqSkillLevel 🔢
+        ├─ tuc 🔢
+      ├─ 04250401 📁 (7 items)
+        ├─ itemNum 🔢
+        ├─ meso 🔢
+        ├─ randomReward 📁 (2 items)
+        ├─ recipe 📁 (1 items)
+        ├─ reqLevel 🔢
+        ├─ reqSkillLevel 🔢
+        ├─ tuc 🔢
+      ├─ 04250402 📁 (7 items)
+        ├─ itemNum 🔢
+        ├─ meso 🔢
+        ├─ randomReward 📁 (2 items)
+        ├─ recipe 📁 (1 items)
+        ├─ reqLevel 🔢
+        ├─ reqSkillLevel 🔢
+        ├─ tuc 🔢
+      ├─ 04250500 📁 (7 items)
+        ├─ itemNum 🔢
+        ├─ meso 🔢
+        ├─ randomReward 📁 (3 items)
+        ├─ recipe 📁 (1 items)
+        ├─ reqLevel 🔢
+        ├─ reqSkillLevel 🔢
+        ├─ tuc 🔢
+      ├─ 04250501 📁 (7 items)
+        ├─ itemNum 🔢
+        ├─ meso 🔢
+        ├─ randomReward 📁 (2 items)
+        ├─ recipe 📁 (1 items)
+        ├─ reqLevel 🔢
+        ├─ reqSkillLevel 🔢
+        ├─ tuc 🔢
+      ├─ 04250502 📁 (7 items)
+        ├─ itemNum 🔢
+        ├─ meso 🔢
+        ├─ randomReward 📁 (2 items)
+        ├─ recipe 📁 (1 items)
+        ├─ reqLevel 🔢
+        ├─ reqSkillLevel 🔢
+        ├─ tuc 🔢
+      ├─ 04250600 📁 (7 items)
+        ├─ itemNum 🔢
+        ├─ meso 🔢
+        ├─ randomReward 📁 (3 items)
+        ├─ recipe 📁 (1 items)
+        ├─ reqLevel 🔢
+        ├─ reqSkillLevel 🔢
+        ├─ tuc 🔢
+      ├─ 04250601 📁 (7 items)
+        ├─ itemNum 🔢
+        ├─ meso 🔢
+        ├─ randomReward 📁 (2 items)
+        ├─ recipe 📁 (1 items)
+        ├─ reqLevel 🔢
+        ├─ reqSkillLevel 🔢
+        ├─ tuc 🔢
+      ├─ 04250602 📁 (7 items)
+        ├─ itemNum 🔢
+        ├─ meso 🔢
+        ├─ randomReward 📁 (2 items)
+        ├─ recipe 📁 (1 items)
+        ├─ reqLevel 🔢
+        ├─ reqSkillLevel 🔢
+        ├─ tuc 🔢
+      ├─ 04250700 📁 (7 items)
+        ├─ itemNum 🔢
+        ├─ meso 🔢
+        ├─ randomReward 📁 (3 items)
+        ├─ recipe 📁 (1 items)
+        ├─ reqLevel 🔢
+        ├─ reqSkillLevel 🔢
+        ├─ tuc 🔢
+      ├─ 04250701 📁 (7 items)
+        ├─ itemNum 🔢
+        ├─ meso 🔢
+        ├─ randomReward 📁 (2 items)
+        ├─ recipe 📁 (1 items)
+        ├─ reqLevel 🔢
+        ├─ reqSkillLevel 🔢
+        ├─ tuc 🔢
+      ├─ 04250702 📁 (7 items)
+        ├─ itemNum 🔢
+        ├─ meso 🔢
+        ├─ randomReward 📁 (2 items)
+        ├─ recipe 📁 (1 items)
+        ├─ reqLevel 🔢
+        ├─ reqSkillLevel 🔢
+        ├─ tuc 🔢
+      ├─ 04250800 📁 (7 items)
+        ├─ itemNum 🔢
+        ├─ meso 🔢
+        ├─ randomReward 📁 (3 items)
+        ├─ recipe 📁 (1 items)
+        ├─ reqLevel 🔢
+        ├─ reqSkillLevel 🔢
+        ├─ tuc 🔢
+      ├─ 04250801 📁 (7 items)
+        ├─ itemNum 🔢
+        ├─ meso 🔢
+        ├─ randomReward 📁 (2 items)
+        ├─ recipe 📁 (1 items)
+        ├─ reqLevel 🔢
+        ├─ reqSkillLevel 🔢
+        ├─ tuc 🔢
+      ├─ 04250802 📁 (7 items)
+        ├─ itemNum 🔢
+        ├─ meso 🔢
+        ├─ randomReward 📁 (2 items)
+        ├─ recipe 📁 (1 items)
+        ├─ reqLevel 🔢
+        ├─ reqSkillLevel 🔢
+        ├─ tuc 🔢
+      ├─ 04250900 📁 (7 items)
+        ├─ itemNum 🔢
+        ├─ meso 🔢
+        ├─ randomReward 📁 (3 items)
+        ├─ recipe 📁 (1 items)
+        ├─ reqLevel 🔢
+        ├─ reqSkillLevel 🔢
+        ├─ tuc 🔢
+      ├─ 04250901 📁 (7 items)
+        ├─ itemNum 🔢
+        ├─ meso 🔢
+        ├─ randomReward 📁 (2 items)
+        ├─ recipe 📁 (1 items)
+        ├─ reqLevel 🔢
+        ├─ reqSkillLevel 🔢
+        ├─ tuc 🔢
+      ├─ 04250902 📁 (7 items)
+        ├─ itemNum 🔢
+        ├─ meso 🔢
+        ├─ randomReward 📁 (2 items)
+        ├─ recipe 📁 (1 items)
+        ├─ reqLevel 🔢
+        ├─ reqSkillLevel 🔢
+        ├─ tuc 🔢
+      ├─ 04251000 📁 (7 items)
+        ├─ itemNum 🔢
+        ├─ meso 🔢
+        ├─ randomReward 📁 (3 items)
+        ├─ recipe 📁 (1 items)
+        ├─ reqLevel 🔢
+        ├─ reqSkillLevel 🔢
+        ├─ tuc 🔢
+      ├─ 04251001 📁 (7 items)
+        ├─ itemNum 🔢
+        ├─ meso 🔢
+        ├─ randomReward 📁 (2 items)
+        ├─ recipe 📁 (1 items)
+        ├─ reqLevel 🔢
+        ├─ reqSkillLevel 🔢
+        ├─ tuc 🔢
+      └─ ... (10 more items)
+    ├─ 1 📁 (235 items)
+      ├─ 01002022 📁 (7 items)
+        ├─ catalyst 🔢
+        ├─ itemNum 🔢
+        ├─ meso 🔢
+        ├─ recipe 📁 (2 items)
+        ├─ reqLevel 🔢
+        ├─ reqSkillLevel 🔢
+        ├─ tuc 🔢
+      ├─ 01002028 📁 (7 items)
+        ├─ catalyst 🔢
+        ├─ itemNum 🔢
+        ├─ meso 🔢
+        ├─ recipe 📁 (2 items)
+        ├─ reqLevel 🔢
+        ├─ reqSkillLevel 🔢
+        ├─ tuc 🔢
+      ├─ 01002029 📁 (7 items)
+        ├─ catalyst 🔢
+        ├─ itemNum 🔢
+        ├─ meso 🔢
+        ├─ recipe 📁 (2 items)
+        ├─ reqLevel 🔢
+        ├─ reqSkillLevel 🔢
+        ├─ tuc 🔢
+      ├─ 01002030 📁 (7 items)
+        ├─ catalyst 🔢
+        ├─ itemNum 🔢
+        ├─ meso 🔢
+        ├─ recipe 📁 (2 items)
+        ├─ reqLevel 🔢
+        ├─ reqSkillLevel 🔢
+        ├─ tuc 🔢
+      ├─ 01002084 📁 (7 items)
+        ├─ catalyst 🔢
+        ├─ itemNum 🔢
+        ├─ meso 🔢
+        ├─ recipe 📁 (2 items)
+        ├─ reqLevel 🔢
+        ├─ reqSkillLevel 🔢
+        ├─ tuc 🔢
+      ├─ 01002085 📁 (7 items)
+        ├─ catalyst 🔢
+        ├─ itemNum 🔢
+        ├─ meso 🔢
+        ├─ recipe 📁 (2 items)
+        ├─ reqLevel 🔢
+        ├─ reqSkillLevel 🔢
+        ├─ tuc 🔢
+      ├─ 01002086 📁 (7 items)
+        ├─ catalyst 🔢
+        ├─ itemNum 🔢
+        ├─ meso 🔢
+        ├─ recipe 📁 (2 items)
+        ├─ reqLevel 🔢
+        ├─ reqSkillLevel 🔢
+        ├─ tuc 🔢
+      ├─ 01002094 📁 (7 items)
+        ├─ catalyst 🔢
+        ├─ itemNum 🔢
+        ├─ meso 🔢
+        ├─ recipe 📁 (2 items)
+        ├─ reqLevel 🔢
+        ├─ reqSkillLevel 🔢
+        ├─ tuc 🔢
+      ├─ 01002095 📁 (7 items)
+        ├─ catalyst 🔢
+        ├─ itemNum 🔢
+        ├─ meso 🔢
+        ├─ recipe 📁 (2 items)
+        ├─ reqLevel 🔢
+        ├─ reqSkillLevel 🔢
+        ├─ tuc 🔢
+      ├─ 01002100 📁 (7 items)
+        ├─ catalyst 🔢
+        ├─ itemNum 🔢
+        ├─ meso 🔢
+        ├─ recipe 📁 (2 items)
+        ├─ reqLevel 🔢
+        ├─ reqSkillLevel 🔢
+        ├─ tuc 🔢
+      ├─ 01002101 📁 (7 items)
+        ├─ catalyst 🔢
+        ├─ itemNum 🔢
+        ├─ meso 🔢
+        ├─ recipe 📁 (2 items)
+        ├─ reqLevel 🔢
+        ├─ reqSkillLevel 🔢
+        ├─ tuc 🔢
+      ├─ 01002338 📁 (7 items)
+        ├─ catalyst 🔢
+        ├─ itemNum 🔢
+        ├─ meso 🔢
+        ├─ recipe 📁 (2 items)
+        ├─ reqLevel 🔢
+        ├─ reqSkillLevel 🔢
+        ├─ tuc 🔢
+      ├─ 01002339 📁 (7 items)
+        ├─ catalyst 🔢
+        ├─ itemNum 🔢
+        ├─ meso 🔢
+        ├─ recipe 📁 (2 items)
+        ├─ reqLevel 🔢
+        ├─ reqSkillLevel 🔢
+        ├─ tuc 🔢
+      ├─ 01002340 📁 (7 items)
+        ├─ catalyst 🔢
+        ├─ itemNum 🔢
+        ├─ meso 🔢
+        ├─ recipe 📁 (2 items)
+        ├─ reqLevel 🔢
+        ├─ reqSkillLevel 🔢
+        ├─ tuc 🔢
+      ├─ 01002377 📁 (7 items)
+        ├─ catalyst 🔢
+        ├─ itemNum 🔢
+        ├─ meso 🔢
+        ├─ recipe 📁 (2 items)
+        ├─ reqLevel 🔢
+        ├─ reqSkillLevel 🔢
+        ├─ tuc 🔢
+      ├─ 01002378 📁 (7 items)
+        ├─ catalyst 🔢
+        ├─ itemNum 🔢
+        ├─ meso 🔢
+        ├─ recipe 📁 (2 items)
+        ├─ reqLevel 🔢
+        ├─ reqSkillLevel 🔢
+        ├─ tuc 🔢
+      ├─ 01002379 📁 (7 items)
+        ├─ catalyst 🔢
+        ├─ itemNum 🔢
+        ├─ meso 🔢
+        ├─ recipe 📁 (2 items)
+        ├─ reqLevel 🔢
+        ├─ reqSkillLevel 🔢
+        ├─ tuc 🔢
+      ├─ 01002528 📁 (7 items)
+        ├─ catalyst 🔢
+        ├─ itemNum 🔢
+        ├─ meso 🔢
+        ├─ recipe 📁 (2 items)
+        ├─ reqLevel 🔢
+        ├─ reqSkillLevel 🔢
+        ├─ tuc 🔢
+      ├─ 01002529 📁 (7 items)
+        ├─ catalyst 🔢
+        ├─ itemNum 🔢
+        ├─ meso 🔢
+        ├─ recipe 📁 (2 items)
+        ├─ reqLevel 🔢
+        ├─ reqSkillLevel 🔢
+        ├─ tuc 🔢
+      ├─ 01002530 📁 (7 items)
+        ├─ catalyst 🔢
+        ├─ itemNum 🔢
+        ├─ meso 🔢
+        ├─ recipe 📁 (2 items)
+        ├─ reqLevel 🔢
+        ├─ reqSkillLevel 🔢
+        ├─ tuc 🔢
+      ├─ 01002531 📁 (7 items)
+        ├─ catalyst 🔢
+        ├─ itemNum 🔢
+        ├─ meso 🔢
+        ├─ recipe 📁 (2 items)
+        ├─ reqLevel 🔢
+        ├─ reqSkillLevel 🔢
+        ├─ tuc 🔢
+      ├─ 01002532 📁 (7 items)
+        ├─ catalyst 🔢
+        ├─ itemNum 🔢
+        ├─ meso 🔢
+        ├─ recipe 📁 (2 items)
+        ├─ reqLevel 🔢
+        ├─ reqSkillLevel 🔢
+        ├─ tuc 🔢
+      ├─ 01002551 📁 (7 items)
+        ├─ catalyst 🔢
+        ├─ itemNum 🔢
+        ├─ meso 🔢
+        ├─ recipe 📁 (4 items)
+        ├─ reqLevel 🔢
+        ├─ reqSkillLevel 🔢
+        ├─ tuc 🔢
+      ├─ 01002776 📁 (7 items)
+        ├─ catalyst 🔢
+        ├─ itemNum 🔢
+        ├─ meso 🔢
+        ├─ recipe 📁 (4 items)
+        ├─ reqLevel 🔢
+        ├─ reqSkillLevel 🔢
+        ├─ tuc 🔢
+      ├─ 01002790 📁 (7 items)
+        ├─ catalyst 🔢
+        ├─ itemNum 🔢
+        ├─ meso 🔢
+        ├─ recipe 📁 (4 items)
+        ├─ reqLevel 🔢
+        ├─ reqSkillLevel 🔢
+        ├─ tuc 🔢
+      ├─ 01040087 📁 (7 items)
+        ├─ catalyst 🔢
+        ├─ itemNum 🔢
+        ├─ meso 🔢
+        ├─ recipe 📁 (2 items)
+        ├─ reqLevel 🔢
+        ├─ reqSkillLevel 🔢
+        ├─ tuc 🔢
+      ├─ 01040088 📁 (7 items)
+        ├─ catalyst 🔢
+        ├─ itemNum 🔢
+        ├─ meso 🔢
+        ├─ recipe 📁 (2 items)
+        ├─ reqLevel 🔢
+        ├─ reqSkillLevel 🔢
+        ├─ tuc 🔢
+      ├─ 01040089 📁 (7 items)
+        ├─ catalyst 🔢
+        ├─ itemNum 🔢
+        ├─ meso 🔢
+        ├─ recipe 📁 (2 items)
+        ├─ reqLevel 🔢
+        ├─ reqSkillLevel 🔢
+        ├─ tuc 🔢
+      ├─ 01040090 📁 (7 items)
+        ├─ catalyst 🔢
+        ├─ itemNum 🔢
+        ├─ meso 🔢
+        ├─ recipe 📁 (2 items)
+        ├─ reqLevel 🔢
+        ├─ reqSkillLevel 🔢
+        ├─ tuc 🔢
+      ├─ 01040091 📁 (7 items)
+        ├─ catalyst 🔢
+        ├─ itemNum 🔢
+        ├─ meso 🔢
+        ├─ recipe 📁 (2 items)
+        ├─ reqLevel 🔢
+        ├─ reqSkillLevel 🔢
+        ├─ tuc 🔢
+      ├─ 01040092 📁 (7 items)
+        ├─ catalyst 🔢
+        ├─ itemNum 🔢
+        ├─ meso 🔢
+        ├─ recipe 📁 (2 items)
+        ├─ reqLevel 🔢
+        ├─ reqSkillLevel 🔢
+        ├─ tuc 🔢
+      ├─ 01040093 📁 (7 items)
+        ├─ catalyst 🔢
+        ├─ itemNum 🔢
+        ├─ meso 🔢
+        ├─ recipe 📁 (2 items)
+        ├─ reqLevel 🔢
+        ├─ reqSkillLevel 🔢
+        ├─ tuc 🔢
+      ├─ 01040102 📁 (7 items)
+        ├─ catalyst 🔢
+        ├─ itemNum 🔢
+        ├─ meso 🔢
+        ├─ recipe 📁 (2 items)
+        ├─ reqLevel 🔢
+        ├─ reqSkillLevel 🔢
+        ├─ tuc 🔢
+      ├─ 01040103 📁 (7 items)
+        ├─ catalyst 🔢
+        ├─ itemNum 🔢
+        ├─ meso 🔢
+        ├─ recipe 📁 (2 items)
+        ├─ reqLevel 🔢
+        ├─ reqSkillLevel 🔢
+        ├─ tuc 🔢
+      ├─ 01040104 📁 (7 items)
+        ├─ catalyst 🔢
+        ├─ itemNum 🔢
+        ├─ meso 🔢
+        ├─ recipe 📁 (2 items)
+        ├─ reqLevel 🔢
+        ├─ reqSkillLevel 🔢
+        ├─ tuc 🔢
+      ├─ 01040111 📁 (7 items)
+        ├─ catalyst 🔢
+        ├─ itemNum 🔢
+        ├─ meso 🔢
+        ├─ recipe 📁 (2 items)
+        ├─ reqLevel 🔢
+        ├─ reqSkillLevel 🔢
+        ├─ tuc 🔢
+      ├─ 01040112 📁 (7 items)
+        ├─ catalyst 🔢
+        ├─ itemNum 🔢
+        ├─ meso 🔢
+        ├─ recipe 📁 (2 items)
+        ├─ reqLevel 🔢
+        ├─ reqSkillLevel 🔢
+        ├─ tuc 🔢
+      ├─ 01040113 📁 (7 items)
+        ├─ catalyst 🔢
+        ├─ itemNum 🔢
+        ├─ meso 🔢
+        ├─ recipe 📁 (2 items)
+        ├─ reqLevel 🔢
+        ├─ reqSkillLevel 🔢
+        ├─ tuc 🔢
+      ├─ 01040120 📁 (7 items)
+        ├─ catalyst 🔢
+        ├─ itemNum 🔢
+        ├─ meso 🔢
+        ├─ recipe 📁 (2 items)
+        ├─ reqLevel 🔢
+        ├─ reqSkillLevel 🔢
+        ├─ tuc 🔢
+      ├─ 01040121 📁 (7 items)
+        ├─ catalyst 🔢
+        ├─ itemNum 🔢
+        ├─ meso 🔢
+        ├─ recipe 📁 (2 items)
+        ├─ reqLevel 🔢
+        ├─ reqSkillLevel 🔢
+        ├─ tuc 🔢
+      ├─ 01040122 📁 (7 items)
+        ├─ catalyst 🔢
+        ├─ itemNum 🔢
+        ├─ meso 🔢
+        ├─ recipe 📁 (2 items)
+        ├─ reqLevel 🔢
+        ├─ reqSkillLevel 🔢
+        ├─ tuc 🔢
+      ├─ 01041087 📁 (7 items)
+        ├─ catalyst 🔢
+        ├─ itemNum 🔢
+        ├─ meso 🔢
+        ├─ recipe 📁 (2 items)
+        ├─ reqLevel 🔢
+        ├─ reqSkillLevel 🔢
+        ├─ tuc 🔢
+      ├─ 01041088 📁 (7 items)
+        ├─ catalyst 🔢
+        ├─ itemNum 🔢
+        ├─ meso 🔢
+        ├─ recipe 📁 (2 items)
+        ├─ reqLevel 🔢
+        ├─ reqSkillLevel 🔢
+        ├─ tuc 🔢
+      ├─ 01041089 📁 (7 items)
+        ├─ catalyst 🔢
+        ├─ itemNum 🔢
+        ├─ meso 🔢
+        ├─ recipe 📁 (2 items)
+        ├─ reqLevel 🔢
+        ├─ reqSkillLevel 🔢
+        ├─ tuc 🔢
+      ├─ 01041091 📁 (7 items)
+        ├─ catalyst 🔢
+        ├─ itemNum 🔢
+        ├─ meso 🔢
+        ├─ recipe 📁 (2 items)
+        ├─ reqLevel 🔢
+        ├─ reqSkillLevel 🔢
+        ├─ tuc 🔢
+      ├─ 01041092 📁 (7 items)
+        ├─ catalyst 🔢
+        ├─ itemNum 🔢
+        ├─ meso 🔢
+        ├─ recipe 📁 (2 items)
+        ├─ reqLevel 🔢
+        ├─ reqSkillLevel 🔢
+        ├─ tuc 🔢
+      ├─ 01041093 📁 (7 items)
+        ├─ catalyst 🔢
+        ├─ itemNum 🔢
+        ├─ meso 🔢
+        ├─ recipe 📁 (2 items)
+        ├─ reqLevel 🔢
+        ├─ reqSkillLevel 🔢
+        ├─ tuc 🔢
+      ├─ 01041097 📁 (7 items)
+        ├─ catalyst 🔢
+        ├─ itemNum 🔢
+        ├─ meso 🔢
+        ├─ recipe 📁 (2 items)
+        ├─ reqLevel 🔢
+        ├─ reqSkillLevel 🔢
+        ├─ tuc 🔢
+      ├─ 01041098 📁 (7 items)
+        ├─ catalyst 🔢
+        ├─ itemNum 🔢
+        ├─ meso 🔢
+        ├─ recipe 📁 (2 items)
+        ├─ reqLevel 🔢
+        ├─ reqSkillLevel 🔢
+        ├─ tuc 🔢
+      ├─ 01041099 📁 (7 items)
+        ├─ catalyst 🔢
+        ├─ itemNum 🔢
+        ├─ meso 🔢
+        ├─ recipe 📁 (2 items)
+        ├─ reqLevel 🔢
+        ├─ reqSkillLevel 🔢
+        ├─ tuc 🔢
+      └─ ... (185 more items)
+    ├─ 16 📁 (54 items)
+      ├─ 01002631 📁 (7 items)
+        ├─ catalyst 🔢
+        ├─ itemNum 🔢
+        ├─ meso 🔢
+        ├─ recipe 📁 (2 items)
+        ├─ reqLevel 🔢
+        ├─ reqSkillLevel 🔢
+        ├─ tuc 🔢
+      ├─ 01002634 📁 (7 items)
+        ├─ catalyst 🔢
+        ├─ itemNum 🔢
+        ├─ meso 🔢
+        ├─ recipe 📁 (2 items)
+        ├─ reqLevel 🔢
+        ├─ reqSkillLevel 🔢
+        ├─ tuc 🔢
+      ├─ 01002637 📁 (7 items)
+        ├─ catalyst 🔢
+        ├─ itemNum 🔢
+        ├─ meso 🔢
+        ├─ recipe 📁 (2 items)
+        ├─ reqLevel 🔢
+        ├─ reqSkillLevel 🔢
+        ├─ tuc 🔢
+      ├─ 01002640 📁 (7 items)
+        ├─ catalyst 🔢
+        ├─ itemNum 🔢
+        ├─ meso 🔢
+        ├─ recipe 📁 (2 items)
+        ├─ reqLevel 🔢
+        ├─ reqSkillLevel 🔢
+        ├─ tuc 🔢
+      ├─ 01002643 📁 (7 items)
+        ├─ catalyst 🔢
+        ├─ itemNum 🔢
+        ├─ meso 🔢
+        ├─ recipe 📁 (2 items)
+        ├─ reqLevel 🔢
+        ├─ reqSkillLevel 🔢
+        ├─ tuc 🔢
+      ├─ 01002646 📁 (7 items)
+        ├─ catalyst 🔢
+        ├─ itemNum 🔢
+        ├─ meso 🔢
+        ├─ recipe 📁 (2 items)
+        ├─ reqLevel 🔢
+        ├─ reqSkillLevel 🔢
+        ├─ tuc 🔢
+      ├─ 01002649 📁 (7 items)
+        ├─ catalyst 🔢
+        ├─ itemNum 🔢
+        ├─ meso 🔢
+        ├─ recipe 📁 (4 items)
+        ├─ reqLevel 🔢
+        ├─ reqSkillLevel 🔢
+        ├─ tuc 🔢
+      ├─ 01002780 📁 (7 items)
+        ├─ catalyst 🔢
+        ├─ itemNum 🔢
+        ├─ meso 🔢
+        ├─ recipe 📁 (4 items)
+        ├─ reqLevel 🔢
+        ├─ reqSkillLevel 🔢
+        ├─ tuc 🔢
+      ├─ 01002794 📁 (7 items)
+        ├─ catalyst 🔢
+        ├─ itemNum 🔢
+        ├─ meso 🔢
+        ├─ recipe 📁 (4 items)
+        ├─ reqLevel 🔢
+        ├─ reqSkillLevel 🔢
+        ├─ tuc 🔢
+      ├─ 01052116 📁 (7 items)
+        ├─ catalyst 🔢
+        ├─ itemNum 🔢
+        ├─ meso 🔢
+        ├─ recipe 📁 (2 items)
+        ├─ reqLevel 🔢
+        ├─ reqSkillLevel 🔢
+        ├─ tuc 🔢
+      ├─ 01052119 📁 (7 items)
+        ├─ catalyst 🔢
+        ├─ itemNum 🔢
+        ├─ meso 🔢
+        ├─ recipe 📁 (2 items)
+        ├─ reqLevel 🔢
+        ├─ reqSkillLevel 🔢
+        ├─ tuc 🔢
+      ├─ 01052122 📁 (7 items)
+        ├─ catalyst 🔢
+        ├─ itemNum 🔢
+        ├─ meso 🔢
+        ├─ recipe 📁 (2 items)
+        ├─ reqLevel 🔢
+        ├─ reqSkillLevel 🔢
+        ├─ tuc 🔢
+      ├─ 01052125 📁 (7 items)
+        ├─ catalyst 🔢
+        ├─ itemNum 🔢
+        ├─ meso 🔢
+        ├─ recipe 📁 (2 items)
+        ├─ reqLevel 🔢
+        ├─ reqSkillLevel 🔢
+        ├─ tuc 🔢
+      ├─ 01052128 📁 (7 items)
+        ├─ catalyst 🔢
+        ├─ itemNum 🔢
+        ├─ meso 🔢
+        ├─ recipe 📁 (2 items)
+        ├─ reqLevel 🔢
+        ├─ reqSkillLevel 🔢
+        ├─ tuc 🔢
+      ├─ 01052131 📁 (7 items)
+        ├─ catalyst 🔢
+        ├─ itemNum 🔢
+        ├─ meso 🔢
+        ├─ recipe 📁 (2 items)
+        ├─ reqLevel 🔢
+        ├─ reqSkillLevel 🔢
+        ├─ tuc 🔢
+      ├─ 01052134 📁 (7 items)
+        ├─ catalyst 🔢
+        ├─ itemNum 🔢
+        ├─ meso 🔢
+        ├─ recipe 📁 (4 items)
+        ├─ reqLevel 🔢
+        ├─ reqSkillLevel 🔢
+        ├─ tuc 🔢
+      ├─ 01052159 📁 (7 items)
+        ├─ catalyst 🔢
+        ├─ itemNum 🔢
+        ├─ meso 🔢
+        ├─ recipe 📁 (4 items)
+        ├─ reqLevel 🔢
+        ├─ reqSkillLevel 🔢
+        ├─ tuc 🔢
+      ├─ 01052164 📁 (7 items)
+        ├─ catalyst 🔢
+        ├─ itemNum 🔢
+        ├─ meso 🔢
+        ├─ recipe 📁 (4 items)
+        ├─ reqLevel 🔢
+        ├─ reqSkillLevel 🔢
+        ├─ tuc 🔢
+      ├─ 01072303 📁 (7 items)
+        ├─ catalyst 🔢
+        ├─ itemNum 🔢
+        ├─ meso 🔢
+        ├─ recipe 📁 (2 items)
+        ├─ reqLevel 🔢
+        ├─ reqSkillLevel 🔢
+        ├─ tuc 🔢
+      ├─ 01072306 📁 (7 items)
+        ├─ catalyst 🔢
+        ├─ itemNum 🔢
+        ├─ meso 🔢
+        ├─ recipe 📁 (2 items)
+        ├─ reqLevel 🔢
+        ├─ reqSkillLevel 🔢
+        ├─ tuc 🔢
+      ├─ 01072309 📁 (7 items)
+        ├─ catalyst 🔢
+        ├─ itemNum 🔢
+        ├─ meso 🔢
+        ├─ recipe 📁 (2 items)
+        ├─ reqLevel 🔢
+        ├─ reqSkillLevel 🔢
+        ├─ tuc 🔢
+      ├─ 01072312 📁 (7 items)
+        ├─ catalyst 🔢
+        ├─ itemNum 🔢
+        ├─ meso 🔢
+        ├─ recipe 📁 (2 items)
+        ├─ reqLevel 🔢
+        ├─ reqSkillLevel 🔢
+        ├─ tuc 🔢
+      ├─ 01072315 📁 (7 items)
+        ├─ catalyst 🔢
+        ├─ itemNum 🔢
+        ├─ meso 🔢
+        ├─ recipe 📁 (2 items)
+        ├─ reqLevel 🔢
+        ├─ reqSkillLevel 🔢
+        ├─ tuc 🔢
+      ├─ 01072318 📁 (7 items)
+        ├─ catalyst 🔢
+        ├─ itemNum 🔢
+        ├─ meso 🔢
+        ├─ recipe 📁 (2 items)
+        ├─ reqLevel 🔢
+        ├─ reqSkillLevel 🔢
+        ├─ tuc 🔢
+      ├─ 01072321 📁 (7 items)
+        ├─ catalyst 🔢
+        ├─ itemNum 🔢
+        ├─ meso 🔢
+        ├─ recipe 📁 (4 items)
+        ├─ reqLevel 🔢
+        ├─ reqSkillLevel 🔢
+        ├─ tuc 🔢
+      ├─ 01072359 📁 (7 items)
+        ├─ catalyst 🔢
+        ├─ itemNum 🔢
+        ├─ meso 🔢
+        ├─ recipe 📁 (4 items)
+        ├─ reqLevel 🔢
+        ├─ reqSkillLevel 🔢
+        ├─ tuc 🔢
+      ├─ 01072365 📁 (7 items)
+        ├─ catalyst 🔢
+        ├─ itemNum 🔢
+        ├─ meso 🔢
+        ├─ recipe 📁 (4 items)
+        ├─ reqLevel 🔢
+        ├─ reqSkillLevel 🔢
+        ├─ tuc 🔢
+      ├─ 01082198 📁 (7 items)
+        ├─ catalyst 🔢
+        ├─ itemNum 🔢
+        ├─ meso 🔢
+        ├─ recipe 📁 (2 items)
+        ├─ reqLevel 🔢
+        ├─ reqSkillLevel 🔢
+        ├─ tuc 🔢
+      ├─ 01082201 📁 (7 items)
+        ├─ catalyst 🔢
+        ├─ itemNum 🔢
+        ├─ meso 🔢
+        ├─ recipe 📁 (2 items)
+        ├─ reqLevel 🔢
+        ├─ reqSkillLevel 🔢
+        ├─ tuc 🔢
+      ├─ 01082204 📁 (7 items)
+        ├─ catalyst 🔢
+        ├─ itemNum 🔢
+        ├─ meso 🔢
+        ├─ recipe 📁 (2 items)
+        ├─ reqLevel 🔢
+        ├─ reqSkillLevel 🔢
+        ├─ tuc 🔢
+      ├─ 01082207 📁 (7 items)
+        ├─ catalyst 🔢
+        ├─ itemNum 🔢
+        ├─ meso 🔢
+        ├─ recipe 📁 (2 items)
+        ├─ reqLevel 🔢
+        ├─ reqSkillLevel 🔢
+        ├─ tuc 🔢
+      ├─ 01082210 📁 (7 items)
+        ├─ catalyst 🔢
+        ├─ itemNum 🔢
+        ├─ meso 🔢
+        ├─ recipe 📁 (2 items)
+        ├─ reqLevel 🔢
+        ├─ reqSkillLevel 🔢
+        ├─ tuc 🔢
+      ├─ 01082213 📁 (7 items)
+        ├─ catalyst 🔢
+        ├─ itemNum 🔢
+        ├─ meso 🔢
+        ├─ recipe 📁 (2 items)
+        ├─ reqLevel 🔢
+        ├─ reqSkillLevel 🔢
+        ├─ tuc 🔢
+      ├─ 01082216 📁 (7 items)
+        ├─ catalyst 🔢
+        ├─ itemNum 🔢
+        ├─ meso 🔢
+        ├─ recipe 📁 (4 items)
+        ├─ reqLevel 🔢
+        ├─ reqSkillLevel 🔢
+        ├─ tuc 🔢
+      ├─ 01082238 📁 (7 items)
+        ├─ catalyst 🔢
+        ├─ itemNum 🔢
+        ├─ meso 🔢
+        ├─ recipe 📁 (4 items)
+        ├─ reqLevel 🔢
+        ├─ reqSkillLevel 🔢
+        ├─ tuc 🔢
+      ├─ 01082243 📁 (7 items)
+        ├─ catalyst 🔢
+        ├─ itemNum 🔢
+        ├─ meso 🔢
+        ├─ recipe 📁 (4 items)
+        ├─ reqLevel 🔢
+        ├─ reqSkillLevel 🔢
+        ├─ tuc 🔢
+      ├─ 01482007 📁 (7 items)
+        ├─ catalyst 🔢
+        ├─ itemNum 🔢
+        ├─ meso 🔢
+        ├─ recipe 📁 (2 items)
+        ├─ reqLevel 🔢
+        ├─ reqSkillLevel 🔢
+        ├─ tuc 🔢
+      ├─ 01482008 📁 (7 items)
+        ├─ catalyst 🔢
+        ├─ itemNum 🔢
+        ├─ meso 🔢
+        ├─ recipe 📁 (2 items)
+        ├─ reqLevel 🔢
+        ├─ reqSkillLevel 🔢
+        ├─ tuc 🔢
+      ├─ 01482009 📁 (7 items)
+        ├─ catalyst 🔢
+        ├─ itemNum 🔢
+        ├─ meso 🔢
+        ├─ recipe 📁 (2 items)
+        ├─ reqLevel 🔢
+        ├─ reqSkillLevel 🔢
+        ├─ tuc 🔢
+      ├─ 01482010 📁 (7 items)
+        ├─ catalyst 🔢
+        ├─ itemNum 🔢
+        ├─ meso 🔢
+        ├─ recipe 📁 (2 items)
+        ├─ reqLevel 🔢
+        ├─ reqSkillLevel 🔢
+        ├─ tuc 🔢
+      ├─ 01482011 📁 (7 items)
+        ├─ catalyst 🔢
+        ├─ itemNum 🔢
+        ├─ meso 🔢
+        ├─ recipe 📁 (2 items)
+        ├─ reqLevel 🔢
+        ├─ reqSkillLevel 🔢
+        ├─ tuc 🔢
+      ├─ 01482012 📁 (7 items)
+        ├─ catalyst 🔢
+        ├─ itemNum 🔢
+        ├─ meso 🔢
+        ├─ recipe 📁 (2 items)
+        ├─ reqLevel 🔢
+        ├─ reqSkillLevel 🔢
+        ├─ tuc 🔢
+      ├─ 01482013 📁 (7 items)
+        ├─ catalyst 🔢
+        ├─ itemNum 🔢
+        ├─ meso 🔢
+        ├─ recipe 📁 (4 items)
+        ├─ reqLevel 🔢
+        ├─ reqSkillLevel 🔢
+        ├─ tuc 🔢
+      ├─ 01482023 📁 (7 items)
+        ├─ catalyst 🔢
+        ├─ itemNum 🔢
+        ├─ meso 🔢
+        ├─ recipe 📁 (4 items)
+        ├─ reqLevel 🔢
+        ├─ reqSkillLevel 🔢
+        ├─ tuc 🔢
+      ├─ 01482024 📁 (7 items)
+        ├─ catalyst 🔢
+        ├─ itemNum 🔢
+        ├─ meso 🔢
+        ├─ recipe 📁 (4 items)
+        ├─ reqLevel 🔢
+        ├─ reqSkillLevel 🔢
+        ├─ tuc 🔢
+      ├─ 01492007 📁 (7 items)
+        ├─ catalyst 🔢
+        ├─ itemNum 🔢
+        ├─ meso 🔢
+        ├─ recipe 📁 (2 items)
+        ├─ reqLevel 🔢
+        ├─ reqSkillLevel 🔢
+        ├─ tuc 🔢
+      ├─ 01492008 📁 (7 items)
+        ├─ catalyst 🔢
+        ├─ itemNum 🔢
+        ├─ meso 🔢
+        ├─ recipe 📁 (2 items)
+        ├─ reqLevel 🔢
+        ├─ reqSkillLevel 🔢
+        ├─ tuc 🔢
+      ├─ 01492009 📁 (7 items)
+        ├─ catalyst 🔢
+        ├─ itemNum 🔢
+        ├─ meso 🔢
+        ├─ recipe 📁 (2 items)
+        ├─ reqLevel 🔢
+        ├─ reqSkillLevel 🔢
+        ├─ tuc 🔢
+      ├─ 01492010 📁 (7 items)
+        ├─ catalyst 🔢
+        ├─ itemNum 🔢
+        ├─ meso 🔢
+        ├─ recipe 📁 (2 items)
+        ├─ reqLevel 🔢
+        ├─ reqSkillLevel 🔢
+        ├─ tuc 🔢
+      ├─ 01492011 📁 (7 items)
+        ├─ catalyst 🔢
+        ├─ itemNum 🔢
+        ├─ meso 🔢
+        ├─ recipe 📁 (2 items)
+        ├─ reqLevel 🔢
+        ├─ reqSkillLevel 🔢
+        ├─ tuc 🔢
+      └─ ... (4 more items)
+    ├─ 2 📁 (145 items)
+      ├─ 01002215 📁 (7 items)
+        ├─ catalyst 🔢
+        ├─ itemNum 🔢
+        ├─ meso 🔢
+        ├─ recipe 📁 (2 items)
+        ├─ reqLevel 🔢
+        ├─ reqSkillLevel 🔢
+        ├─ tuc 🔢
+      ├─ 01002216 📁 (7 items)
+        ├─ catalyst 🔢
+        ├─ itemNum 🔢
+        ├─ meso 🔢
+        ├─ recipe 📁 (2 items)
+        ├─ reqLevel 🔢
+        ├─ reqSkillLevel 🔢
+        ├─ tuc 🔢
+      ├─ 01002217 📁 (7 items)
+        ├─ catalyst 🔢
+        ├─ itemNum 🔢
+        ├─ meso 🔢
+        ├─ recipe 📁 (2 items)
+        ├─ reqLevel 🔢
+        ├─ reqSkillLevel 🔢
+        ├─ tuc 🔢
+      ├─ 01002218 📁 (7 items)
+        ├─ catalyst 🔢
+        ├─ itemNum 🔢
+        ├─ meso 🔢
+        ├─ recipe 📁 (2 items)
+        ├─ reqLevel 🔢
+        ├─ reqSkillLevel 🔢
+        ├─ tuc 🔢
+      ├─ 01002242 📁 (7 items)
+        ├─ catalyst 🔢
+        ├─ itemNum 🔢
+        ├─ meso 🔢
+        ├─ recipe 📁 (2 items)
+        ├─ reqLevel 🔢
+        ├─ reqSkillLevel 🔢
+        ├─ tuc 🔢
+      ├─ 01002243 📁 (7 items)
+        ├─ catalyst 🔢
+        ├─ itemNum 🔢
+        ├─ meso 🔢
+        ├─ recipe 📁 (2 items)
+        ├─ reqLevel 🔢
+        ├─ reqSkillLevel 🔢
+        ├─ tuc 🔢
+      ├─ 01002244 📁 (7 items)
+        ├─ catalyst 🔢
+        ├─ itemNum 🔢
+        ├─ meso 🔢
+        ├─ recipe 📁 (2 items)
+        ├─ reqLevel 🔢
+        ├─ reqSkillLevel 🔢
+        ├─ tuc 🔢
+      ├─ 01002245 📁 (7 items)
+        ├─ catalyst 🔢
+        ├─ itemNum 🔢
+        ├─ meso 🔢
+        ├─ recipe 📁 (2 items)
+        ├─ reqLevel 🔢
+        ├─ reqSkillLevel 🔢
+        ├─ tuc 🔢
+      ├─ 01002246 📁 (7 items)
+        ├─ catalyst 🔢
+        ├─ itemNum 🔢
+        ├─ meso 🔢
+        ├─ recipe 📁 (2 items)
+        ├─ reqLevel 🔢
+        ├─ reqSkillLevel 🔢
+        ├─ tuc 🔢
+      ├─ 01002252 📁 (7 items)
+        ├─ catalyst 🔢
+        ├─ itemNum 🔢
+        ├─ meso 🔢
+        ├─ recipe 📁 (2 items)
+        ├─ reqLevel 🔢
+        ├─ reqSkillLevel 🔢
+        ├─ tuc 🔢
+      ├─ 01002253 📁 (7 items)
+        ├─ catalyst 🔢
+        ├─ itemNum 🔢
+        ├─ meso 🔢
+        ├─ recipe 📁 (2 items)
+        ├─ reqLevel 🔢
+        ├─ reqSkillLevel 🔢
+        ├─ tuc 🔢
+      ├─ 01002254 📁 (7 items)
+        ├─ catalyst 🔢
+        ├─ itemNum 🔢
+        ├─ meso 🔢
+        ├─ recipe 📁 (2 items)
+        ├─ reqLevel 🔢
+        ├─ reqSkillLevel 🔢
+        ├─ tuc 🔢
+      ├─ 01002271 📁 (7 items)
+        ├─ catalyst 🔢
+        ├─ itemNum 🔢
+        ├─ meso 🔢
+        ├─ recipe 📁 (2 items)
+        ├─ reqLevel 🔢
+        ├─ reqSkillLevel 🔢
+        ├─ tuc 🔢
+      ├─ 01002272 📁 (7 items)
+        ├─ catalyst 🔢
+        ├─ itemNum 🔢
+        ├─ meso 🔢
+        ├─ recipe 📁 (2 items)
+        ├─ reqLevel 🔢
+        ├─ reqSkillLevel 🔢
+        ├─ tuc 🔢
+      ├─ 01002273 📁 (7 items)
+        ├─ catalyst 🔢
+        ├─ itemNum 🔢
+        ├─ meso 🔢
+        ├─ recipe 📁 (2 items)
+        ├─ reqLevel 🔢
+        ├─ reqSkillLevel 🔢
+        ├─ tuc 🔢
+      ├─ 01002274 📁 (7 items)
+        ├─ catalyst 🔢
+        ├─ itemNum 🔢
+        ├─ meso 🔢
+        ├─ recipe 📁 (2 items)
+        ├─ reqLevel 🔢
+        ├─ reqSkillLevel 🔢
+        ├─ tuc 🔢
+      ├─ 01002363 📁 (7 items)
+        ├─ catalyst 🔢
+        ├─ itemNum 🔢
+        ├─ meso 🔢
+        ├─ recipe 📁 (2 items)
+        ├─ reqLevel 🔢
+        ├─ reqSkillLevel 🔢
+        ├─ tuc 🔢
+      ├─ 01002364 📁 (7 items)
+        ├─ catalyst 🔢
+        ├─ itemNum 🔢
+        ├─ meso 🔢
+        ├─ recipe 📁 (2 items)
+        ├─ reqLevel 🔢
+        ├─ reqSkillLevel 🔢
+        ├─ tuc 🔢
+      ├─ 01002365 📁 (7 items)
+        ├─ catalyst 🔢
+        ├─ itemNum 🔢
+        ├─ meso 🔢
+        ├─ recipe 📁 (2 items)
+        ├─ reqLevel 🔢
+        ├─ reqSkillLevel 🔢
+        ├─ tuc 🔢
+      ├─ 01002366 📁 (7 items)
+        ├─ catalyst 🔢
+        ├─ itemNum 🔢
+        ├─ meso 🔢
+        ├─ recipe 📁 (2 items)
+        ├─ reqLevel 🔢
+        ├─ reqSkillLevel 🔢
+        ├─ tuc 🔢
+      ├─ 01002398 📁 (7 items)
+        ├─ catalyst 🔢
+        ├─ itemNum 🔢
+        ├─ meso 🔢
+        ├─ recipe 📁 (2 items)
+        ├─ reqLevel 🔢
+        ├─ reqSkillLevel 🔢
+        ├─ tuc 🔢
+      ├─ 01002399 📁 (7 items)
+        ├─ catalyst 🔢
+        ├─ itemNum 🔢
+        ├─ meso 🔢
+        ├─ recipe 📁 (2 items)
+        ├─ reqLevel 🔢
+        ├─ reqSkillLevel 🔢
+        ├─ tuc 🔢
+      ├─ 01002400 📁 (7 items)
+        ├─ catalyst 🔢
+        ├─ itemNum 🔢
+        ├─ meso 🔢
+        ├─ recipe 📁 (2 items)
+        ├─ reqLevel 🔢
+        ├─ reqSkillLevel 🔢
+        ├─ tuc 🔢
+      ├─ 01002401 📁 (7 items)
+        ├─ catalyst 🔢
+        ├─ itemNum 🔢
+        ├─ meso 🔢
+        ├─ recipe 📁 (2 items)
+        ├─ reqLevel 🔢
+        ├─ reqSkillLevel 🔢
+        ├─ tuc 🔢
+      ├─ 01002773 📁 (7 items)
+        ├─ catalyst 🔢
+        ├─ itemNum 🔢
+        ├─ meso 🔢
+        ├─ recipe 📁 (4 items)
+        ├─ reqLevel 🔢
+        ├─ reqSkillLevel 🔢
+        ├─ tuc 🔢
+      ├─ 01002777 📁 (7 items)
+        ├─ catalyst 🔢
+        ├─ itemNum 🔢
+        ├─ meso 🔢
+        ├─ recipe 📁 (4 items)
+        ├─ reqLevel 🔢
+        ├─ reqSkillLevel 🔢
+        ├─ tuc 🔢
+      ├─ 01002791 📁 (7 items)
+        ├─ catalyst 🔢
+        ├─ itemNum 🔢
+        ├─ meso 🔢
+        ├─ recipe 📁 (4 items)
+        ├─ reqLevel 🔢
+        ├─ reqSkillLevel 🔢
+        ├─ tuc 🔢
+      ├─ 01050045 📁 (7 items)
+        ├─ catalyst 🔢
+        ├─ itemNum 🔢
+        ├─ meso 🔢
+        ├─ recipe 📁 (2 items)
+        ├─ reqLevel 🔢
+        ├─ reqSkillLevel 🔢
+        ├─ tuc 🔢
+      ├─ 01050046 📁 (7 items)
+        ├─ catalyst 🔢
+        ├─ itemNum 🔢
+        ├─ meso 🔢
+        ├─ recipe 📁 (2 items)
+        ├─ reqLevel 🔢
+        ├─ reqSkillLevel 🔢
+        ├─ tuc 🔢
+      ├─ 01050047 📁 (7 items)
+        ├─ catalyst 🔢
+        ├─ itemNum 🔢
+        ├─ meso 🔢
+        ├─ recipe 📁 (2 items)
+        ├─ reqLevel 🔢
+        ├─ reqSkillLevel 🔢
+        ├─ tuc 🔢
+      ├─ 01050048 📁 (7 items)
+        ├─ catalyst 🔢
+        ├─ itemNum 🔢
+        ├─ meso 🔢
+        ├─ recipe 📁 (2 items)
+        ├─ reqLevel 🔢
+        ├─ reqSkillLevel 🔢
+        ├─ tuc 🔢
+      ├─ 01050049 📁 (7 items)
+        ├─ catalyst 🔢
+        ├─ itemNum 🔢
+        ├─ meso 🔢
+        ├─ recipe 📁 (2 items)
+        ├─ reqLevel 🔢
+        ├─ reqSkillLevel 🔢
+        ├─ tuc 🔢
+      ├─ 01050053 📁 (7 items)
+        ├─ catalyst 🔢
+        ├─ itemNum 🔢
+        ├─ meso 🔢
+        ├─ recipe 📁 (2 items)
+        ├─ reqLevel 🔢
+        ├─ reqSkillLevel 🔢
+        ├─ tuc 🔢
+      ├─ 01050054 📁 (7 items)
+        ├─ catalyst 🔢
+        ├─ itemNum 🔢
+        ├─ meso 🔢
+        ├─ recipe 📁 (2 items)
+        ├─ reqLevel 🔢
+        ├─ reqSkillLevel 🔢
+        ├─ tuc 🔢
+      ├─ 01050055 📁 (7 items)
+        ├─ catalyst 🔢
+        ├─ itemNum 🔢
+        ├─ meso 🔢
+        ├─ recipe 📁 (2 items)
+        ├─ reqLevel 🔢
+        ├─ reqSkillLevel 🔢
+        ├─ tuc 🔢
+      ├─ 01050056 📁 (7 items)
+        ├─ catalyst 🔢
+        ├─ itemNum 🔢
+        ├─ meso 🔢
+        ├─ recipe 📁 (2 items)
+        ├─ reqLevel 🔢
+        ├─ reqSkillLevel 🔢
+        ├─ tuc 🔢
+      ├─ 01050067 📁 (7 items)
+        ├─ catalyst 🔢
+        ├─ itemNum 🔢
+        ├─ meso 🔢
+        ├─ recipe 📁 (2 items)
+        ├─ reqLevel 🔢
+        ├─ reqSkillLevel 🔢
+        ├─ tuc 🔢
+      ├─ 01050068 📁 (7 items)
+        ├─ catalyst 🔢
+        ├─ itemNum 🔢
+        ├─ meso 🔢
+        ├─ recipe 📁 (2 items)
+        ├─ reqLevel 🔢
+        ├─ reqSkillLevel 🔢
+        ├─ tuc 🔢
+      ├─ 01050069 📁 (7 items)
+        ├─ catalyst 🔢
+        ├─ itemNum 🔢
+        ├─ meso 🔢
+        ├─ recipe 📁 (2 items)
+        ├─ reqLevel 🔢
+        ├─ reqSkillLevel 🔢
+        ├─ tuc 🔢
+      ├─ 01050070 📁 (7 items)
+        ├─ catalyst 🔢
+        ├─ itemNum 🔢
+        ├─ meso 🔢
+        ├─ recipe 📁 (2 items)
+        ├─ reqLevel 🔢
+        ├─ reqSkillLevel 🔢
+        ├─ tuc 🔢
+      ├─ 01050072 📁 (7 items)
+        ├─ catalyst 🔢
+        ├─ itemNum 🔢
+        ├─ meso 🔢
+        ├─ recipe 📁 (2 items)
+        ├─ reqLevel 🔢
+        ├─ reqSkillLevel 🔢
+        ├─ tuc 🔢
+      ├─ 01050073 📁 (7 items)
+        ├─ catalyst 🔢
+        ├─ itemNum 🔢
+        ├─ meso 🔢
+        ├─ recipe 📁 (2 items)
+        ├─ reqLevel 🔢
+        ├─ reqSkillLevel 🔢
+        ├─ tuc 🔢
+      ├─ 01050074 📁 (7 items)
+        ├─ catalyst 🔢
+        ├─ itemNum 🔢
+        ├─ meso 🔢
+        ├─ recipe 📁 (2 items)
+        ├─ reqLevel 🔢
+        ├─ reqSkillLevel 🔢
+        ├─ tuc 🔢
+      ├─ 01050092 📁 (7 items)
+        ├─ catalyst 🔢
+        ├─ itemNum 🔢
+        ├─ meso 🔢
+        ├─ recipe 📁 (2 items)
+        ├─ reqLevel 🔢
+        ├─ reqSkillLevel 🔢
+        ├─ tuc 🔢
+      ├─ 01050093 📁 (7 items)
+        ├─ catalyst 🔢
+        ├─ itemNum 🔢
+        ├─ meso 🔢
+        ├─ recipe 📁 (2 items)
+        ├─ reqLevel 🔢
+        ├─ reqSkillLevel 🔢
+        ├─ tuc 🔢
+      ├─ 01050094 📁 (7 items)
+        ├─ catalyst 🔢
+        ├─ itemNum 🔢
+        ├─ meso 🔢
+        ├─ recipe 📁 (2 items)
+        ├─ reqLevel 🔢
+        ├─ reqSkillLevel 🔢
+        ├─ tuc 🔢
+      ├─ 01050095 📁 (7 items)
+        ├─ catalyst 🔢
+        ├─ itemNum 🔢
+        ├─ meso 🔢
+        ├─ recipe 📁 (2 items)
+        ├─ reqLevel 🔢
+        ├─ reqSkillLevel 🔢
+        ├─ tuc 🔢
+      ├─ 01050102 📁 (7 items)
+        ├─ catalyst 🔢
+        ├─ itemNum 🔢
+        ├─ meso 🔢
+        ├─ recipe 📁 (2 items)
+        ├─ reqLevel 🔢
+        ├─ reqSkillLevel 🔢
+        ├─ tuc 🔢
+      ├─ 01050103 📁 (7 items)
+        ├─ catalyst 🔢
+        ├─ itemNum 🔢
+        ├─ meso 🔢
+        ├─ recipe 📁 (2 items)
+        ├─ reqLevel 🔢
+        ├─ reqSkillLevel 🔢
+        ├─ tuc 🔢
+      ├─ 01050104 📁 (7 items)
+        ├─ catalyst 🔢
+        ├─ itemNum 🔢
+        ├─ meso 🔢
+        ├─ recipe 📁 (2 items)
+        ├─ reqLevel 🔢
+        ├─ reqSkillLevel 🔢
+        ├─ tuc 🔢
+      └─ ... (95 more items)
+    ├─ 4 📁 (146 items)
+      ├─ 01002211 📁 (7 items)
+        ├─ catalyst 🔢
+        ├─ itemNum 🔢
+        ├─ meso 🔢
+        ├─ recipe 📁 (2 items)
+        ├─ reqLevel 🔢
+        ├─ reqSkillLevel 🔢
+        ├─ tuc 🔢
+      ├─ 01002212 📁 (7 items)
+        ├─ catalyst 🔢
+        ├─ itemNum 🔢
+        ├─ meso 🔢
+        ├─ recipe 📁 (2 items)
+        ├─ reqLevel 🔢
+        ├─ reqSkillLevel 🔢
+        ├─ tuc 🔢
+      ├─ 01002213 📁 (7 items)
+        ├─ catalyst 🔢
+        ├─ itemNum 🔢
+        ├─ meso 🔢
+        ├─ recipe 📁 (2 items)
+        ├─ reqLevel 🔢
+        ├─ reqSkillLevel 🔢
+        ├─ tuc 🔢
+      ├─ 01002214 📁 (7 items)
+        ├─ catalyst 🔢
+        ├─ itemNum 🔢
+        ├─ meso 🔢
+        ├─ recipe 📁 (2 items)
+        ├─ reqLevel 🔢
+        ├─ reqSkillLevel 🔢
+        ├─ tuc 🔢
+      ├─ 01002267 📁 (7 items)
+        ├─ catalyst 🔢
+        ├─ itemNum 🔢
+        ├─ meso 🔢
+        ├─ recipe 📁 (2 items)
+        ├─ reqLevel 🔢
+        ├─ reqSkillLevel 🔢
+        ├─ tuc 🔢
+      ├─ 01002268 📁 (7 items)
+        ├─ catalyst 🔢
+        ├─ itemNum 🔢
+        ├─ meso 🔢
+        ├─ recipe 📁 (2 items)
+        ├─ reqLevel 🔢
+        ├─ reqSkillLevel 🔢
+        ├─ tuc 🔢
+      ├─ 01002269 📁 (7 items)
+        ├─ catalyst 🔢
+        ├─ itemNum 🔢
+        ├─ meso 🔢
+        ├─ recipe 📁 (2 items)
+        ├─ reqLevel 🔢
+        ├─ reqSkillLevel 🔢
+        ├─ tuc 🔢
+      ├─ 01002270 📁 (7 items)
+        ├─ catalyst 🔢
+        ├─ itemNum 🔢
+        ├─ meso 🔢
+        ├─ recipe 📁 (2 items)
+        ├─ reqLevel 🔢
+        ├─ reqSkillLevel 🔢
+        ├─ tuc 🔢
+      ├─ 01002275 📁 (7 items)
+        ├─ catalyst 🔢
+        ├─ itemNum 🔢
+        ├─ meso 🔢
+        ├─ recipe 📁 (2 items)
+        ├─ reqLevel 🔢
+        ├─ reqSkillLevel 🔢
+        ├─ tuc 🔢
+      ├─ 01002276 📁 (7 items)
+        ├─ catalyst 🔢
+        ├─ itemNum 🔢
+        ├─ meso 🔢
+        ├─ recipe 📁 (2 items)
+        ├─ reqLevel 🔢
+        ├─ reqSkillLevel 🔢
+        ├─ tuc 🔢
+      ├─ 01002277 📁 (7 items)
+        ├─ catalyst 🔢
+        ├─ itemNum 🔢
+        ├─ meso 🔢
+        ├─ recipe 📁 (2 items)
+        ├─ reqLevel 🔢
+        ├─ reqSkillLevel 🔢
+        ├─ tuc 🔢
+      ├─ 01002278 📁 (7 items)
+        ├─ catalyst 🔢
+        ├─ itemNum 🔢
+        ├─ meso 🔢
+        ├─ recipe 📁 (2 items)
+        ├─ reqLevel 🔢
+        ├─ reqSkillLevel 🔢
+        ├─ tuc 🔢
+      ├─ 01002286 📁 (7 items)
+        ├─ catalyst 🔢
+        ├─ itemNum 🔢
+        ├─ meso 🔢
+        ├─ recipe 📁 (2 items)
+        ├─ reqLevel 🔢
+        ├─ reqSkillLevel 🔢
+        ├─ tuc 🔢
+      ├─ 01002287 📁 (7 items)
+        ├─ catalyst 🔢
+        ├─ itemNum 🔢
+        ├─ meso 🔢
+        ├─ recipe 📁 (3 items)
+        ├─ reqLevel 🔢
+        ├─ reqSkillLevel 🔢
+        ├─ tuc 🔢
+      ├─ 01002288 📁 (7 items)
+        ├─ catalyst 🔢
+        ├─ itemNum 🔢
+        ├─ meso 🔢
+        ├─ recipe 📁 (2 items)
+        ├─ reqLevel 🔢
+        ├─ reqSkillLevel 🔢
+        ├─ tuc 🔢
+      ├─ 01002289 📁 (7 items)
+        ├─ catalyst 🔢
+        ├─ itemNum 🔢
+        ├─ meso 🔢
+        ├─ recipe 📁 (2 items)
+        ├─ reqLevel 🔢
+        ├─ reqSkillLevel 🔢
+        ├─ tuc 🔢
+      ├─ 01002402 📁 (7 items)
+        ├─ catalyst 🔢
+        ├─ itemNum 🔢
+        ├─ meso 🔢
+        ├─ recipe 📁 (2 items)
+        ├─ reqLevel 🔢
+        ├─ reqSkillLevel 🔢
+        ├─ tuc 🔢
+      ├─ 01002403 📁 (7 items)
+        ├─ catalyst 🔢
+        ├─ itemNum 🔢
+        ├─ meso 🔢
+        ├─ recipe 📁 (2 items)
+        ├─ reqLevel 🔢
+        ├─ reqSkillLevel 🔢
+        ├─ tuc 🔢
+      ├─ 01002404 📁 (7 items)
+        ├─ catalyst 🔢
+        ├─ itemNum 🔢
+        ├─ meso 🔢
+        ├─ recipe 📁 (2 items)
+        ├─ reqLevel 🔢
+        ├─ reqSkillLevel 🔢
+        ├─ tuc 🔢
+      ├─ 01002405 📁 (7 items)
+        ├─ catalyst 🔢
+        ├─ itemNum 🔢
+        ├─ meso 🔢
+        ├─ recipe 📁 (2 items)
+        ├─ reqLevel 🔢
+        ├─ reqSkillLevel 🔢
+        ├─ tuc 🔢
+      ├─ 01002406 📁 (7 items)
+        ├─ catalyst 🔢
+        ├─ itemNum 🔢
+        ├─ meso 🔢
+        ├─ recipe 📁 (2 items)
+        ├─ reqLevel 🔢
+        ├─ reqSkillLevel 🔢
+        ├─ tuc 🔢
+      ├─ 01002407 📁 (7 items)
+        ├─ catalyst 🔢
+        ├─ itemNum 🔢
+        ├─ meso 🔢
+        ├─ recipe 📁 (2 items)
+        ├─ reqLevel 🔢
+        ├─ reqSkillLevel 🔢
+        ├─ tuc 🔢
+      ├─ 01002408 📁 (7 items)
+        ├─ catalyst 🔢
+        ├─ itemNum 🔢
+        ├─ meso 🔢
+        ├─ recipe 📁 (2 items)
+        ├─ reqLevel 🔢
+        ├─ reqSkillLevel 🔢
+        ├─ tuc 🔢
+      ├─ 01002547 📁 (7 items)
+        ├─ catalyst 🔢
+        ├─ itemNum 🔢
+        ├─ meso 🔢
+        ├─ recipe 📁 (4 items)
+        ├─ reqLevel 🔢
+        ├─ reqSkillLevel 🔢
+        ├─ tuc 🔢
+      ├─ 01002778 📁 (7 items)
+        ├─ catalyst 🔢
+        ├─ itemNum 🔢
+        ├─ meso 🔢
+        ├─ recipe 📁 (4 items)
+        ├─ reqLevel 🔢
+        ├─ reqSkillLevel 🔢
+        ├─ tuc 🔢
+      ├─ 01002792 📁 (7 items)
+        ├─ catalyst 🔢
+        ├─ itemNum 🔢
+        ├─ meso 🔢
+        ├─ recipe 📁 (4 items)
+        ├─ reqLevel 🔢
+        ├─ reqSkillLevel 🔢
+        ├─ tuc 🔢
+      ├─ 01050051 📁 (7 items)
+        ├─ catalyst 🔢
+        ├─ itemNum 🔢
+        ├─ meso 🔢
+        ├─ recipe 📁 (2 items)
+        ├─ reqLevel 🔢
+        ├─ reqSkillLevel 🔢
+        ├─ tuc 🔢
+      ├─ 01050052 📁 (7 items)
+        ├─ catalyst 🔢
+        ├─ itemNum 🔢
+        ├─ meso 🔢
+        ├─ recipe 📁 (2 items)
+        ├─ reqLevel 🔢
+        ├─ reqSkillLevel 🔢
+        ├─ tuc 🔢
+      ├─ 01050058 📁 (7 items)
+        ├─ catalyst 🔢
+        ├─ itemNum 🔢
+        ├─ meso 🔢
+        ├─ recipe 📁 (2 items)
+        ├─ reqLevel 🔢
+        ├─ reqSkillLevel 🔢
+        ├─ tuc 🔢
+      ├─ 01050059 📁 (7 items)
+        ├─ catalyst 🔢
+        ├─ itemNum 🔢
+        ├─ meso 🔢
+        ├─ recipe 📁 (2 items)
+        ├─ reqLevel 🔢
+        ├─ reqSkillLevel 🔢
+        ├─ tuc 🔢
+      ├─ 01050060 📁 (7 items)
+        ├─ catalyst 🔢
+        ├─ itemNum 🔢
+        ├─ meso 🔢
+        ├─ recipe 📁 (2 items)
+        ├─ reqLevel 🔢
+        ├─ reqSkillLevel 🔢
+        ├─ tuc 🔢
+      ├─ 01050061 📁 (7 items)
+        ├─ catalyst 🔢
+        ├─ itemNum 🔢
+        ├─ meso 🔢
+        ├─ recipe 📁 (2 items)
+        ├─ reqLevel 🔢
+        ├─ reqSkillLevel 🔢
+        ├─ tuc 🔢
+      ├─ 01050062 📁 (7 items)
+        ├─ catalyst 🔢
+        ├─ itemNum 🔢
+        ├─ meso 🔢
+        ├─ recipe 📁 (3 items)
+        ├─ reqLevel 🔢
+        ├─ reqSkillLevel 🔢
+        ├─ tuc 🔢
+      ├─ 01050063 📁 (7 items)
+        ├─ catalyst 🔢
+        ├─ itemNum 🔢
+        ├─ meso 🔢
+        ├─ recipe 📁 (2 items)
+        ├─ reqLevel 🔢
+        ├─ reqSkillLevel 🔢
+        ├─ tuc 🔢
+      ├─ 01050064 📁 (7 items)
+        ├─ catalyst 🔢
+        ├─ itemNum 🔢
+        ├─ meso 🔢
+        ├─ recipe 📁 (2 items)
+        ├─ reqLevel 🔢
+        ├─ reqSkillLevel 🔢
+        ├─ tuc 🔢
+      ├─ 01050075 📁 (7 items)
+        ├─ catalyst 🔢
+        ├─ itemNum 🔢
+        ├─ meso 🔢
+        ├─ recipe 📁 (2 items)
+        ├─ reqLevel 🔢
+        ├─ reqSkillLevel 🔢
+        ├─ tuc 🔢
+      ├─ 01050076 📁 (7 items)
+        ├─ catalyst 🔢
+        ├─ itemNum 🔢
+        ├─ meso 🔢
+        ├─ recipe 📁 (2 items)
+        ├─ reqLevel 🔢
+        ├─ reqSkillLevel 🔢
+        ├─ tuc 🔢
+      ├─ 01050077 📁 (7 items)
+        ├─ catalyst 🔢
+        ├─ itemNum 🔢
+        ├─ meso 🔢
+        ├─ recipe 📁 (2 items)
+        ├─ reqLevel 🔢
+        ├─ reqSkillLevel 🔢
+        ├─ tuc 🔢
+      ├─ 01050078 📁 (7 items)
+        ├─ catalyst 🔢
+        ├─ itemNum 🔢
+        ├─ meso 🔢
+        ├─ recipe 📁 (2 items)
+        ├─ reqLevel 🔢
+        ├─ reqSkillLevel 🔢
+        ├─ tuc 🔢
+      ├─ 01050088 📁 (7 items)
+        ├─ catalyst 🔢
+        ├─ itemNum 🔢
+        ├─ meso 🔢
+        ├─ recipe 📁 (2 items)
+        ├─ reqLevel 🔢
+        ├─ reqSkillLevel 🔢
+        ├─ tuc 🔢
+      ├─ 01050089 📁 (7 items)
+        ├─ catalyst 🔢
+        ├─ itemNum 🔢
+        ├─ meso 🔢
+        ├─ recipe 📁 (2 items)
+        ├─ reqLevel 🔢
+        ├─ reqSkillLevel 🔢
+        ├─ tuc 🔢
+      ├─ 01050090 📁 (7 items)
+        ├─ catalyst 🔢
+        ├─ itemNum 🔢
+        ├─ meso 🔢
+        ├─ recipe 📁 (2 items)
+        ├─ reqLevel 🔢
+        ├─ reqSkillLevel 🔢
+        ├─ tuc 🔢
+      ├─ 01050091 📁 (7 items)
+        ├─ catalyst 🔢
+        ├─ itemNum 🔢
+        ├─ meso 🔢
+        ├─ recipe 📁 (2 items)
+        ├─ reqLevel 🔢
+        ├─ reqSkillLevel 🔢
+        ├─ tuc 🔢
+      ├─ 01050106 📁 (7 items)
+        ├─ catalyst 🔢
+        ├─ itemNum 🔢
+        ├─ meso 🔢
+        ├─ recipe 📁 (2 items)
+        ├─ reqLevel 🔢
+        ├─ reqSkillLevel 🔢
+        ├─ tuc 🔢
+      ├─ 01050107 📁 (7 items)
+        ├─ catalyst 🔢
+        ├─ itemNum 🔢
+        ├─ meso 🔢
+        ├─ recipe 📁 (2 items)
+        ├─ reqLevel 🔢
+        ├─ reqSkillLevel 🔢
+        ├─ tuc 🔢
+      ├─ 01050108 📁 (7 items)
+        ├─ catalyst 🔢
+        ├─ itemNum 🔢
+        ├─ meso 🔢
+        ├─ recipe 📁 (2 items)
+        ├─ reqLevel 🔢
+        ├─ reqSkillLevel 🔢
+        ├─ tuc 🔢
+      ├─ 01051037 📁 (7 items)
+        ├─ catalyst 🔢
+        ├─ itemNum 🔢
+        ├─ meso 🔢
+        ├─ recipe 📁 (2 items)
+        ├─ reqLevel 🔢
+        ├─ reqSkillLevel 🔢
+        ├─ tuc 🔢
+      ├─ 01051038 📁 (7 items)
+        ├─ catalyst 🔢
+        ├─ itemNum 🔢
+        ├─ meso 🔢
+        ├─ recipe 📁 (2 items)
+        ├─ reqLevel 🔢
+        ├─ reqSkillLevel 🔢
+        ├─ tuc 🔢
+      ├─ 01051039 📁 (7 items)
+        ├─ catalyst 🔢
+        ├─ itemNum 🔢
+        ├─ meso 🔢
+        ├─ recipe 📁 (2 items)
+        ├─ reqLevel 🔢
+        ├─ reqSkillLevel 🔢
+        ├─ tuc 🔢
+      ├─ 01051041 📁 (7 items)
+        ├─ catalyst 🔢
+        ├─ itemNum 🔢
+        ├─ meso 🔢
+        ├─ recipe 📁 (2 items)
+        ├─ reqLevel 🔢
+        ├─ reqSkillLevel 🔢
+        ├─ tuc 🔢
+      └─ ... (96 more items)
+    ├─ 8 📁 (192 items)
+      ├─ 01002207 📁 (7 items)
+        ├─ catalyst 🔢
+        ├─ itemNum 🔢
+        ├─ meso 🔢
+        ├─ recipe 📁 (2 items)
+        ├─ reqLevel 🔢
+        ├─ reqSkillLevel 🔢
+        ├─ tuc 🔢
+      ├─ 01002208 📁 (7 items)
+        ├─ catalyst 🔢
+        ├─ itemNum 🔢
+        ├─ meso 🔢
+        ├─ recipe 📁 (2 items)
+        ├─ reqLevel 🔢
+        ├─ reqSkillLevel 🔢
+        ├─ tuc 🔢
+      ├─ 01002209 📁 (7 items)
+        ├─ catalyst 🔢
+        ├─ itemNum 🔢
+        ├─ meso 🔢
+        ├─ recipe 📁 (2 items)
+        ├─ reqLevel 🔢
+        ├─ reqSkillLevel 🔢
+        ├─ tuc 🔢
+      ├─ 01002210 📁 (7 items)
+        ├─ catalyst 🔢
+        ├─ itemNum 🔢
+        ├─ meso 🔢
+        ├─ recipe 📁 (2 items)
+        ├─ reqLevel 🔢
+        ├─ reqSkillLevel 🔢
+        ├─ tuc 🔢
+      ├─ 01002247 📁 (7 items)
+        ├─ catalyst 🔢
+        ├─ itemNum 🔢
+        ├─ meso 🔢
+        ├─ recipe 📁 (2 items)
+        ├─ reqLevel 🔢
+        ├─ reqSkillLevel 🔢
+        ├─ tuc 🔢
+      ├─ 01002248 📁 (7 items)
+        ├─ catalyst 🔢
+        ├─ itemNum 🔢
+        ├─ meso 🔢
+        ├─ recipe 📁 (2 items)
+        ├─ reqLevel 🔢
+        ├─ reqSkillLevel 🔢
+        ├─ tuc 🔢
+      ├─ 01002249 📁 (7 items)
+        ├─ catalyst 🔢
+        ├─ itemNum 🔢
+        ├─ meso 🔢
+        ├─ recipe 📁 (2 items)
+        ├─ reqLevel 🔢
+        ├─ reqSkillLevel 🔢
+        ├─ tuc 🔢
+      ├─ 01002281 📁 (7 items)
+        ├─ catalyst 🔢
+        ├─ itemNum 🔢
+        ├─ meso 🔢
+        ├─ recipe 📁 (2 items)
+        ├─ reqLevel 🔢
+        ├─ reqSkillLevel 🔢
+        ├─ tuc 🔢
+      ├─ 01002282 📁 (7 items)
+        ├─ catalyst 🔢
+        ├─ itemNum 🔢
+        ├─ meso 🔢
+        ├─ recipe 📁 (2 items)
+        ├─ reqLevel 🔢
+        ├─ reqSkillLevel 🔢
+        ├─ tuc 🔢
+      ├─ 01002283 📁 (7 items)
+        ├─ catalyst 🔢
+        ├─ itemNum 🔢
+        ├─ meso 🔢
+        ├─ recipe 📁 (2 items)
+        ├─ reqLevel 🔢
+        ├─ reqSkillLevel 🔢
+        ├─ tuc 🔢
+      ├─ 01002284 📁 (7 items)
+        ├─ catalyst 🔢
+        ├─ itemNum 🔢
+        ├─ meso 🔢
+        ├─ recipe 📁 (2 items)
+        ├─ reqLevel 🔢
+        ├─ reqSkillLevel 🔢
+        ├─ tuc 🔢
+      ├─ 01002285 📁 (7 items)
+        ├─ catalyst 🔢
+        ├─ itemNum 🔢
+        ├─ meso 🔢
+        ├─ recipe 📁 (2 items)
+        ├─ reqLevel 🔢
+        ├─ reqSkillLevel 🔢
+        ├─ tuc 🔢
+      ├─ 01002323 📁 (7 items)
+        ├─ catalyst 🔢
+        ├─ itemNum 🔢
+        ├─ meso 🔢
+        ├─ recipe 📁 (2 items)
+        ├─ reqLevel 🔢
+        ├─ reqSkillLevel 🔢
+        ├─ tuc 🔢
+      ├─ 01002324 📁 (7 items)
+        ├─ catalyst 🔢
+        ├─ itemNum 🔢
+        ├─ meso 🔢
+        ├─ recipe 📁 (2 items)
+        ├─ reqLevel 🔢
+        ├─ reqSkillLevel 🔢
+        ├─ tuc 🔢
+      ├─ 01002325 📁 (7 items)
+        ├─ catalyst 🔢
+        ├─ itemNum 🔢
+        ├─ meso 🔢
+        ├─ recipe 📁 (2 items)
+        ├─ reqLevel 🔢
+        ├─ reqSkillLevel 🔢
+        ├─ tuc 🔢
+      ├─ 01002326 📁 (7 items)
+        ├─ catalyst 🔢
+        ├─ itemNum 🔢
+        ├─ meso 🔢
+        ├─ recipe 📁 (2 items)
+        ├─ reqLevel 🔢
+        ├─ reqSkillLevel 🔢
+        ├─ tuc 🔢
+      ├─ 01002327 📁 (7 items)
+        ├─ catalyst 🔢
+        ├─ itemNum 🔢
+        ├─ meso 🔢
+        ├─ recipe 📁 (2 items)
+        ├─ reqLevel 🔢
+        ├─ reqSkillLevel 🔢
+        ├─ tuc 🔢
+      ├─ 01002328 📁 (7 items)
+        ├─ catalyst 🔢
+        ├─ itemNum 🔢
+        ├─ meso 🔢
+        ├─ recipe 📁 (2 items)
+        ├─ reqLevel 🔢
+        ├─ reqSkillLevel 🔢
+        ├─ tuc 🔢
+      ├─ 01002329 📁 (7 items)
+        ├─ catalyst 🔢
+        ├─ itemNum 🔢
+        ├─ meso 🔢
+        ├─ recipe 📁 (2 items)
+        ├─ reqLevel 🔢
+        ├─ reqSkillLevel 🔢
+        ├─ tuc 🔢
+      ├─ 01002330 📁 (7 items)
+        ├─ catalyst 🔢
+        ├─ itemNum 🔢
+        ├─ meso 🔢
+        ├─ recipe 📁 (2 items)
+        ├─ reqLevel 🔢
+        ├─ reqSkillLevel 🔢
+        ├─ tuc 🔢
+      ├─ 01002380 📁 (7 items)
+        ├─ catalyst 🔢
+        ├─ itemNum 🔢
+        ├─ meso 🔢
+        ├─ recipe 📁 (2 items)
+        ├─ reqLevel 🔢
+        ├─ reqSkillLevel 🔢
+        ├─ tuc 🔢
+      ├─ 01002381 📁 (7 items)
+        ├─ catalyst 🔢
+        ├─ itemNum 🔢
+        ├─ meso 🔢
+        ├─ recipe 📁 (2 items)
+        ├─ reqLevel 🔢
+        ├─ reqSkillLevel 🔢
+        ├─ tuc 🔢
+      ├─ 01002382 📁 (7 items)
+        ├─ catalyst 🔢
+        ├─ itemNum 🔢
+        ├─ meso 🔢
+        ├─ recipe 📁 (2 items)
+        ├─ reqLevel 🔢
+        ├─ reqSkillLevel 🔢
+        ├─ tuc 🔢
+      ├─ 01002383 📁 (7 items)
+        ├─ catalyst 🔢
+        ├─ itemNum 🔢
+        ├─ meso 🔢
+        ├─ recipe 📁 (2 items)
+        ├─ reqLevel 🔢
+        ├─ reqSkillLevel 🔢
+        ├─ tuc 🔢
+      ├─ 01002550 📁 (7 items)
+        ├─ catalyst 🔢
+        ├─ itemNum 🔢
+        ├─ meso 🔢
+        ├─ recipe 📁 (4 items)
+        ├─ reqLevel 🔢
+        ├─ reqSkillLevel 🔢
+        ├─ tuc 🔢
+      ├─ 01002779 📁 (7 items)
+        ├─ catalyst 🔢
+        ├─ itemNum 🔢
+        ├─ meso 🔢
+        ├─ recipe 📁 (4 items)
+        ├─ reqLevel 🔢
+        ├─ reqSkillLevel 🔢
+        ├─ tuc 🔢
+      ├─ 01002793 📁 (7 items)
+        ├─ catalyst 🔢
+        ├─ itemNum 🔢
+        ├─ meso 🔢
+        ├─ recipe 📁 (4 items)
+        ├─ reqLevel 🔢
+        ├─ reqSkillLevel 🔢
+        ├─ tuc 🔢
+      ├─ 01040094 📁 (7 items)
+        ├─ catalyst 🔢
+        ├─ itemNum 🔢
+        ├─ meso 🔢
+        ├─ recipe 📁 (2 items)
+        ├─ reqLevel 🔢
+        ├─ reqSkillLevel 🔢
+        ├─ tuc 🔢
+      ├─ 01040095 📁 (7 items)
+        ├─ catalyst 🔢
+        ├─ itemNum 🔢
+        ├─ meso 🔢
+        ├─ recipe 📁 (2 items)
+        ├─ reqLevel 🔢
+        ├─ reqSkillLevel 🔢
+        ├─ tuc 🔢
+      ├─ 01040096 📁 (7 items)
+        ├─ catalyst 🔢
+        ├─ itemNum 🔢
+        ├─ meso 🔢
+        ├─ recipe 📁 (2 items)
+        ├─ reqLevel 🔢
+        ├─ reqSkillLevel 🔢
+        ├─ tuc 🔢
+      ├─ 01040097 📁 (7 items)
+        ├─ catalyst 🔢
+        ├─ itemNum 🔢
+        ├─ meso 🔢
+        ├─ recipe 📁 (2 items)
+        ├─ reqLevel 🔢
+        ├─ reqSkillLevel 🔢
+        ├─ tuc 🔢
+      ├─ 01040098 📁 (7 items)
+        ├─ catalyst 🔢
+        ├─ itemNum 🔢
+        ├─ meso 🔢
+        ├─ recipe 📁 (2 items)
+        ├─ reqLevel 🔢
+        ├─ reqSkillLevel 🔢
+        ├─ tuc 🔢
+      ├─ 01040099 📁 (7 items)
+        ├─ catalyst 🔢
+        ├─ itemNum 🔢
+        ├─ meso 🔢
+        ├─ recipe 📁 (2 items)
+        ├─ reqLevel 🔢
+        ├─ reqSkillLevel 🔢
+        ├─ tuc 🔢
+      ├─ 01040100 📁 (7 items)
+        ├─ catalyst 🔢
+        ├─ itemNum 🔢
+        ├─ meso 🔢
+        ├─ recipe 📁 (2 items)
+        ├─ reqLevel 🔢
+        ├─ reqSkillLevel 🔢
+        ├─ tuc 🔢
+      ├─ 01040105 📁 (7 items)
+        ├─ catalyst 🔢
+        ├─ itemNum 🔢
+        ├─ meso 🔢
+        ├─ recipe 📁 (2 items)
+        ├─ reqLevel 🔢
+        ├─ reqSkillLevel 🔢
+        ├─ tuc 🔢
+      ├─ 01040106 📁 (7 items)
+        ├─ catalyst 🔢
+        ├─ itemNum 🔢
+        ├─ meso 🔢
+        ├─ recipe 📁 (2 items)
+        ├─ reqLevel 🔢
+        ├─ reqSkillLevel 🔢
+        ├─ tuc 🔢
+      ├─ 01040107 📁 (7 items)
+        ├─ catalyst 🔢
+        ├─ itemNum 🔢
+        ├─ meso 🔢
+        ├─ recipe 📁 (2 items)
+        ├─ reqLevel 🔢
+        ├─ reqSkillLevel 🔢
+        ├─ tuc 🔢
+      ├─ 01040108 📁 (7 items)
+        ├─ catalyst 🔢
+        ├─ itemNum 🔢
+        ├─ meso 🔢
+        ├─ recipe 📁 (2 items)
+        ├─ reqLevel 🔢
+        ├─ reqSkillLevel 🔢
+        ├─ tuc 🔢
+      ├─ 01040109 📁 (7 items)
+        ├─ catalyst 🔢
+        ├─ itemNum 🔢
+        ├─ meso 🔢
+        ├─ recipe 📁 (2 items)
+        ├─ reqLevel 🔢
+        ├─ reqSkillLevel 🔢
+        ├─ tuc 🔢
+      ├─ 01040110 📁 (7 items)
+        ├─ catalyst 🔢
+        ├─ itemNum 🔢
+        ├─ meso 🔢
+        ├─ recipe 📁 (2 items)
+        ├─ reqLevel 🔢
+        ├─ reqSkillLevel 🔢
+        ├─ tuc 🔢
+      ├─ 01040115 📁 (7 items)
+        ├─ catalyst 🔢
+        ├─ itemNum 🔢
+        ├─ meso 🔢
+        ├─ recipe 📁 (2 items)
+        ├─ reqLevel 🔢
+        ├─ reqSkillLevel 🔢
+        ├─ tuc 🔢
+      ├─ 01040116 📁 (7 items)
+        ├─ catalyst 🔢
+        ├─ itemNum 🔢
+        ├─ meso 🔢
+        ├─ recipe 📁 (2 items)
+        ├─ reqLevel 🔢
+        ├─ reqSkillLevel 🔢
+        ├─ tuc 🔢
+      ├─ 01040117 📁 (7 items)
+        ├─ catalyst 🔢
+        ├─ itemNum 🔢
+        ├─ meso 🔢
+        ├─ recipe 📁 (2 items)
+        ├─ reqLevel 🔢
+        ├─ reqSkillLevel 🔢
+        ├─ tuc 🔢
+      ├─ 01040118 📁 (7 items)
+        ├─ catalyst 🔢
+        ├─ itemNum 🔢
+        ├─ meso 🔢
+        ├─ recipe 📁 (2 items)
+        ├─ reqLevel 🔢
+        ├─ reqSkillLevel 🔢
+        ├─ tuc 🔢
+      ├─ 01041077 📁 (7 items)
+        ├─ catalyst 🔢
+        ├─ itemNum 🔢
+        ├─ meso 🔢
+        ├─ recipe 📁 (2 items)
+        ├─ reqLevel 🔢
+        ├─ reqSkillLevel 🔢
+        ├─ tuc 🔢
+      ├─ 01041078 📁 (7 items)
+        ├─ catalyst 🔢
+        ├─ itemNum 🔢
+        ├─ meso 🔢
+        ├─ recipe 📁 (2 items)
+        ├─ reqLevel 🔢
+        ├─ reqSkillLevel 🔢
+        ├─ tuc 🔢
+      ├─ 01041079 📁 (7 items)
+        ├─ catalyst 🔢
+        ├─ itemNum 🔢
+        ├─ meso 🔢
+        ├─ recipe 📁 (2 items)
+        ├─ reqLevel 🔢
+        ├─ reqSkillLevel 🔢
+        ├─ tuc 🔢
+      ├─ 01041080 📁 (7 items)
+        ├─ catalyst 🔢
+        ├─ itemNum 🔢
+        ├─ meso 🔢
+        ├─ recipe 📁 (2 items)
+        ├─ reqLevel 🔢
+        ├─ reqSkillLevel 🔢
+        ├─ tuc 🔢
+      ├─ 01041094 📁 (7 items)
+        ├─ catalyst 🔢
+        ├─ itemNum 🔢
+        ├─ meso 🔢
+        ├─ recipe 📁 (2 items)
+        ├─ reqLevel 🔢
+        ├─ reqSkillLevel 🔢
+        ├─ tuc 🔢
+      ├─ 01041095 📁 (7 items)
+        ├─ catalyst 🔢
+        ├─ itemNum 🔢
+        ├─ meso 🔢
+        ├─ recipe 📁 (2 items)
+        ├─ reqLevel 🔢
+        ├─ reqSkillLevel 🔢
+        ├─ tuc 🔢
+      └─ ... (142 more items)
+  ├─ MakeCharInfo.img 📁 (6 items)
+    ├─ Info 📁 (2 items)
+      ├─ CharFemale 📁 (8 items)
+        ├─ 0 📁 (3 items)
+        ├─ 1 📁 (3 items)
+        ├─ 2 📁 (4 items)
+        ├─ 3 📁 (4 items)
+        ├─ 4 📁 (4 items)
+        ├─ 5 📁 (2 items)
+        ├─ 6 📁 (4 items)
+        ├─ 7 📁 (3 items)
+      ├─ CharMale 📁 (8 items)
+        ├─ 0 📁 (3 items)
+        ├─ 1 📁 (3 items)
+        ├─ 2 📁 (4 items)
+        ├─ 3 📁 (4 items)
+        ├─ 4 📁 (3 items)
+        ├─ 5 📁 (2 items)
+        ├─ 6 📁 (4 items)
+        ├─ 7 📁 (3 items)
+    ├─ Name 📁 (4 items)
+      ├─ CharFemale 📁 (3 items)
+        ├─ 1 📁 (3 items)
+        ├─ 2 📁 (4 items)
+        ├─ 3 📁 (4 items)
+      ├─ CharMale 📁 (3 items)
+        ├─ 1 📁 (3 items)
+        ├─ 2 📁 (4 items)
+        ├─ 3 📁 (4 items)
+      ├─ PremiumCharFemale 📁 (3 items)
+        ├─ 1 📁 (3 items)
+        ├─ 2 📁 (4 items)
+        ├─ 3 📁 (4 items)
+      ├─ PremiumCharMale 📁 (3 items)
+        ├─ 1 📁 (3 items)
+        ├─ 2 📁 (4 items)
+        ├─ 3 📁 (4 items)
+    ├─ OrientCharFemale 📁 (8 items)
+      ├─ 0 📁 (3 items)
+        ├─ 0 🔢
+        ├─ 1 🔢
+        ├─ 2 🔢
+      ├─ 1 📁 (3 items)
+        ├─ 0 🔢
+        ├─ 1 🔢
+        ├─ 2 🔢
+      ├─ 2 📁 (4 items)
+        ├─ 0 🔢
+        ├─ 1 🔢
+        ├─ 2 🔢
+        ├─ 3 🔢
+      ├─ 3 📁 (4 items)
+        ├─ 0 🔢
+        ├─ 1 🔢
+        ├─ 2 🔢
+        ├─ 3 🔢
+      ├─ 4 📁 (1 items)
+        ├─ 0 🔢
+      ├─ 5 📁 (1 items)
+        ├─ 0 🔢
+      ├─ 6 📁 (1 items)
+        ├─ 0 🔢
+      ├─ 7 📁 (1 items)
+        ├─ 0 🔢
+    ├─ OrientCharMale 📁 (8 items)
+      ├─ 0 📁 (3 items)
+        ├─ 0 🔢
+        ├─ 1 🔢
+        ├─ 2 🔢
+      ├─ 1 📁 (3 items)
+        ├─ 0 🔢
+        ├─ 1 🔢
+        ├─ 2 🔢
+      ├─ 2 📁 (4 items)
+        ├─ 0 🔢
+        ├─ 1 🔢
+        ├─ 2 🔢
+        ├─ 3 🔢
+      ├─ 3 📁 (4 items)
+        ├─ 0 🔢
+        ├─ 1 🔢
+        ├─ 2 🔢
+        ├─ 3 🔢
+      ├─ 4 📁 (1 items)
+        ├─ 0 🔢
+      ├─ 5 📁 (1 items)
+        ├─ 0 🔢
+      ├─ 6 📁 (1 items)
+        ├─ 0 🔢
+      ├─ 7 📁 (1 items)
+        ├─ 0 🔢
+    ├─ PremiumCharFemale 📁 (8 items)
+      ├─ 0 📁 (3 items)
+        ├─ 0 🔢
+        ├─ 1 🔢
+        ├─ 2 🔢
+      ├─ 1 📁 (3 items)
+        ├─ 0 🔢
+        ├─ 1 🔢
+        ├─ 2 🔢
+      ├─ 2 📁 (4 items)
+        ├─ 0 🔢
+        ├─ 1 🔢
+        ├─ 2 🔢
+        ├─ 3 🔢
+      ├─ 3 📁 (4 items)
+        ├─ 0 🔢
+        ├─ 1 🔢
+        ├─ 2 🔢
+        ├─ 3 🔢
+      ├─ 4 📁 (4 items)
+        ├─ 0 🔢
+        ├─ 1 🔢
+        ├─ 2 🔢
+        ├─ 3 🔢
+      ├─ 5 📁 (2 items)
+        ├─ 0 🔢
+        ├─ 1 🔢
+      ├─ 6 📁 (4 items)
+        ├─ 0 🔢
+        ├─ 1 🔢
+        ├─ 2 🔢
+        ├─ 3 🔢
+      ├─ 7 📁 (3 items)
+        ├─ 0 🔢
+        ├─ 1 🔢
+        ├─ 2 🔢
+    ├─ PremiumCharMale 📁 (8 items)
+      ├─ 0 📁 (3 items)
+        ├─ 0 🔢
+        ├─ 1 🔢
+        ├─ 2 🔢
+      ├─ 1 📁 (3 items)
+        ├─ 0 🔢
+        ├─ 1 🔢
+        ├─ 2 🔢
+      ├─ 2 📁 (4 items)
+        ├─ 0 🔢
+        ├─ 1 🔢
+        ├─ 2 🔢
+        ├─ 3 🔢
+      ├─ 3 📁 (4 items)
+        ├─ 0 🔢
+        ├─ 1 🔢
+        ├─ 2 🔢
+        ├─ 3 🔢
+      ├─ 4 📁 (3 items)
+        ├─ 0 🔢
+        ├─ 1 🔢
+        ├─ 2 🔢
+      ├─ 5 📁 (2 items)
+        ├─ 0 🔢
+        ├─ 1 🔢
+      ├─ 6 📁 (4 items)
+        ├─ 0 🔢
+        ├─ 1 🔢
+        ├─ 2 🔢
+        ├─ 3 🔢
+      ├─ 7 📁 (3 items)
+        ├─ 0 🔢
+        ├─ 1 🔢
+        ├─ 2 🔢
+  ├─ MedalQuestCategory.img 📁 (4 items)
+    ├─ 0 📝 = "직업"
+    ├─ 1 📝 = "일반"
+    ├─ 2 📝 = "도전"
+    ├─ 3 📝 = "이벤트"
+  ├─ NPT_exception.img 📁 (2089 items)
+    ├─ 0 🔢 = 1002046
+    ├─ 1 🔢 = 1002054
+    ├─ 10 🔢 = 1002357
+    ├─ 100 🔢 = 1052163
+    ├─ 1000 🔢 = 2044608
+    ├─ 1001 🔢 = 2044612
+    ├─ 1002 🔢 = 2044706
+    ├─ 1003 🔢 = 2044707
+    ├─ 1004 🔢 = 2044708
+    ├─ 1005 🔢 = 2044712
+    ├─ 1006 🔢 = 2048006
+    ├─ 1007 🔢 = 2048007
+    ├─ 1008 🔢 = 2048008
+    ├─ 1009 🔢 = 2048009
+    ├─ 101 🔢 = 1052164
+    ├─ 1010 🔢 = 2050000
+    ├─ 1011 🔢 = 2050001
+    ├─ 1012 🔢 = 2050002
+    ├─ 1013 🔢 = 2050003
+    ├─ 1014 🔢 = 2050004
+    ├─ 1015 🔢 = 2050005
+    ├─ 1016 🔢 = 2050006
+    ├─ 1017 🔢 = 2050098
+    ├─ 1018 🔢 = 2050099
+    ├─ 1019 🔢 = 2060003
+    ├─ 102 🔢 = 1060026
+    ├─ 1020 🔢 = 2060005
+    ├─ 1021 🔢 = 2060006
+    ├─ 1022 🔢 = 2070007
+    ├─ 1023 🔢 = 2070011
+    └─ ... (2059 more items)
+  ├─ NpcLocation.img 📁 (1695 items)
+    ├─ 10000 📁 (1 items)
+      ├─ 0 🔢 = 1000000
+    ├─ 1001000 📁 (1 items)
+      ├─ 0 🔢 = 104000003
+    ├─ 1001001 📁 (1 items)
+      ├─ 0 🔢 = 104000001
+    ├─ 1001100 📁 (1 items)
+      ├─ 0 🔢 = 104000002
+    ├─ 1002000 📁 (1 items)
+      ├─ 0 🔢 = 104000000
+    ├─ 1002001 📁 (1 items)
+      ├─ 0 🔢 = 104000000
+    ├─ 1002002 📁 (1 items)
+      ├─ 0 🔢 = 104000000
+    ├─ 1002003 📁 (1 items)
+      ├─ 0 🔢 = 104000000
+    ├─ 1002004 📁 (1 items)
+      ├─ 0 🔢 = 104000000
+    ├─ 1002005 📁 (1 items)
+      ├─ 0 🔢 = 104000000
+    ├─ 1002006 📁 (1 items)
+      ├─ 0 🔢 = 104000000
+    ├─ 1002007 📁 (1 items)
+      ├─ 0 🔢 = 104000000
+    ├─ 1002100 📁 (1 items)
+      ├─ 0 🔢 = 104000000
+    ├─ 1002101 📁 (1 items)
+      ├─ 0 🔢 = 104000000
+    ├─ 1002102 📁 (1 items)
+      ├─ 0 🔢 = -1
+    ├─ 1002103 📁 (2 items)
+      ├─ 0 🔢 = 104000000
+      ├─ 1 🔢 = 200000200
+    ├─ 1002104 📁 (1 items)
+      ├─ 0 🔢 = 104000004
+    ├─ 1010100 📁 (1 items)
+      ├─ 0 🔢 = 100000000
+    ├─ 1011000 📁 (1 items)
+      ├─ 0 🔢 = 100000101
+    ├─ 1011001 📁 (1 items)
+      ├─ 0 🔢 = 100000101
+    ├─ 1011100 📁 (1 items)
+      ├─ 0 🔢 = 100000102
+    ├─ 1012000 📁 (1 items)
+      ├─ 0 🔢 = 100000000
+    ├─ 1012001 📁 (1 items)
+      ├─ 0 🔢 = -1
+    ├─ 1012002 📁 (1 items)
+      ├─ 0 🔢 = 100000100
+    ├─ 1012003 📁 (1 items)
+      ├─ 0 🔢 = 100000000
+    ├─ 1012004 📁 (2 items)
+      ├─ 0 🔢 = 100000100
+      ├─ 1 🔢 = 100000202
+    ├─ 1012005 📁 (1 items)
+      ├─ 0 🔢 = 100000200
+    ├─ 1012006 📁 (1 items)
+      ├─ 0 🔢 = 100000202
+    ├─ 1012007 📁 (1 items)
+      ├─ 0 🔢 = 100000202
+    ├─ 1012008 📁 (1 items)
+      ├─ 0 🔢 = 100000203
+    └─ ... (1665 more items)
+  ├─ OXQuiz.img 📁 (9 items)
+    ├─ 1 📁 (50 items)
+      ├─ 1 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 10 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 100 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 101 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 102 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 103 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 104 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 105 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 106 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 107 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 108 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 109 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 11 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 110 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 111 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 112 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 113 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 114 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 115 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 116 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 117 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 118 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 119 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 12 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 120 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 13 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 14 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 15 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 16 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 17 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 18 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 19 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 2 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 20 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 21 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 22 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 23 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 24 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 25 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 26 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 27 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 28 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 29 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 3 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 4 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 5 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 6 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 7 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 8 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 9 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+    ├─ 2 📁 (42 items)
+      ├─ 1 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 10 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 100 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 101 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 102 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 103 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 104 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 105 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 106 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 107 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 108 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 109 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 11 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 110 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 111 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 112 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 113 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 114 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 115 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 116 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 117 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 118 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 119 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 12 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 120 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 121 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 122 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 123 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 124 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 13 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 14 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 15 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 16 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 17 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 2 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 3 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 4 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 5 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 6 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 7 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 8 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 9 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+    ├─ 3 📁 (107 items)
+      ├─ 1 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 10 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 100 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 101 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 102 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 103 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 104 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 105 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 106 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 107 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 108 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 109 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 11 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 110 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 111 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 112 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 113 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 114 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 115 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 116 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 117 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 118 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 119 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 12 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 120 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 121 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 122 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 123 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 124 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 125 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 126 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 127 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 128 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 129 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 13 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 130 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 131 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 132 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 133 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 134 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 135 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 136 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 137 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 138 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 139 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 14 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 140 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 141 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 142 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 143 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      └─ ... (57 more items)
+    ├─ 4 📁 (25 items)
+      ├─ 1 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 10 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 100 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 101 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 102 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 103 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 104 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 105 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 106 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 107 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 108 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 109 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 11 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 110 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 111 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 112 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 12 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 2 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 3 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 4 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 5 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 6 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 7 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 8 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 9 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+    ├─ 5 📁 (56 items)
+      ├─ 1 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 10 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 100 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 101 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 102 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 103 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 104 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 105 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 106 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 107 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 108 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 109 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 11 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 110 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 111 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 112 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 113 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 114 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 115 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 116 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 117 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 118 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 119 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 12 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 120 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 121 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 122 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 123 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 124 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 125 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 126 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 127 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 128 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 129 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 13 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 14 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 15 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 16 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 17 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 18 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 19 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 2 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 20 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 21 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 22 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 23 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 24 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 25 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 26 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 3 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      └─ ... (6 more items)
+    ├─ 6 📁 (32 items)
+      ├─ 1 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 10 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 100 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 101 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 102 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 103 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 104 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 105 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 106 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 107 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 108 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 109 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 11 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 110 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 111 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 112 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 113 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 114 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 115 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 12 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 13 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 14 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 15 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 16 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 2 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 3 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 4 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 5 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 6 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 7 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 8 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 9 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+    ├─ 7 📁 (83 items)
+      ├─ 1 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 10 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 100 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 101 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 102 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 103 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 104 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 105 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 106 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 107 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 108 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 109 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 11 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 110 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 111 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 112 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 113 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 114 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 115 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 116 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 117 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 118 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 119 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 12 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 120 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 121 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 122 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 123 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 124 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 125 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 126 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 127 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 128 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 129 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 13 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 130 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 131 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 132 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 133 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 134 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 135 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 136 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 137 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 138 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 139 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 14 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 140 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 141 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 142 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 143 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      └─ ... (33 more items)
+    ├─ 8 📁 (28 items)
+      ├─ 1 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 10 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 100 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 101 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 102 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 103 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 104 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 105 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 106 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 107 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 108 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 109 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 11 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 110 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 111 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 112 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 113 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 114 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 115 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 12 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 2 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 3 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 4 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 5 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 6 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 7 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 8 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 9 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+    ├─ 9 📁 (130 items)
+      ├─ 1 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 10 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 100 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 101 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 102 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 103 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 104 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 105 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 106 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 107 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 108 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 109 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 11 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 110 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 111 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 112 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 113 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 114 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 115 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 116 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 117 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 118 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 119 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 12 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 120 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 121 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 122 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 123 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 124 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 125 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 126 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 127 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 128 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 129 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 13 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 130 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 131 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 132 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 133 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 134 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 135 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 136 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 137 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 138 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 139 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 14 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 140 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 141 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 142 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      ├─ 143 📁 (3 items)
+        ├─ a 🔢
+        ├─ d 📝
+        ├─ q 📝
+      └─ ... (80 more items)
+  ├─ QuestCategory.img 📁 (52 items)
+    ├─ 0 📝 = "empty"
+    ├─ 1 📝 = "empty"
+    ├─ 10 📝 = "Job"
+    ├─ 11 📝 = "empty"
+    ├─ 12 📝 = "empty"
+    ├─ 13 📝 = "empty"
+    ├─ 14 📝 = "empty"
+    ├─ 15 📝 = "Cygnus Knights"
+    ├─ 16 📝 = "empty"
+    ├─ 17 📝 = "empty"
+    ├─ 18 📝 = "empty"
+    ├─ 19 📝 = "empty"
+    ├─ 2 📝 = "empty"
+    ├─ 20 📝 = "Maple Island"
+    ├─ 21 📝 = "empty"
+    ├─ 22 📝 = "empty"
+    ├─ 23 📝 = "empty"
+    ├─ 24 📝 = "empty"
+    ├─ 25 📝 = "empty"
+    ├─ 26 📝 = "empty"
+    ├─ 27 📝 = "empty"
+    ├─ 28 📝 = "empty"
+    ├─ 29 📝 = "empty"
+    ├─ 3 📝 = "empty"
+    ├─ 30 📝 = "Victoria Island"
+    ├─ 31 📝 = "empty"
+    ├─ 32 📝 = "empty"
+    ├─ 33 📝 = "Elnath Mt. + Aquaroad"
+    ├─ 34 📝 = "empty"
+    ├─ 35 📝 = "empty"
+    └─ ... (22 more items)
+  ├─ RecommendSkill.img 📁 (11 items)
+    ├─ 100 📁 (6 items)
+      ├─ 0 🔢 = 1001004
+      ├─ 1 🔢 = 1000000
+      ├─ 16 🔢 = 1001004
+      ├─ 35 🔢 = 1001005
+      ├─ 54 🔢 = 1001005
+      ├─ 6 🔢 = 1000001
+    ├─ 1100 📁 (5 items)
+      ├─ 0 🔢 = 11000000
+      ├─ 10 🔢 = 11001002
+      ├─ 30 🔢 = 11001003
+      ├─ 50 🔢 = 11001004
+      ├─ 60 🔢 = 11001004
+    ├─ 1200 📁 (7 items)
+      ├─ 0 🔢 = 12001003
+      ├─ 1 🔢 = 12000000
+      ├─ 11 🔢 = 12001003
+      ├─ 30 🔢 = 12001004
+      ├─ 41 🔢 = 12001001
+      ├─ 51 🔢 = 12001002
+      ├─ 60 🔢 = 12001002
+    ├─ 1300 📁 (7 items)
+      ├─ 0 🔢 = 13001004
+      ├─ 1 🔢 = 13001003
+      ├─ 10 🔢 = 13000000
+      ├─ 2 🔢 = 13000001
+      ├─ 30 🔢 = 13001003
+      ├─ 49 🔢 = 13001004
+      ├─ 60 🔢 = 13001004
+    ├─ 1400 📁 (10 items)
+      ├─ 0 🔢 = 14001005
+      ├─ 1 🔢 = 14001004
+      ├─ 13 🔢 = 14001004
+      ├─ 2 🔢 = 14000000
+      ├─ 32 🔢 = 14000000
+      ├─ 39 🔢 = 14001002
+      ├─ 42 🔢 = 14001003
+      ├─ 5 🔢 = 14000001
+      ├─ 52 🔢 = 14001005
+      ├─ 60 🔢 = 14001005
+    ├─ 1500 📁 (6 items)
+      ├─ 0 🔢 = 15001004
+      ├─ 1 🔢 = 15001001
+      ├─ 21 🔢 = 15000000
+      ├─ 31 🔢 = 15001002
+      ├─ 51 🔢 = 15001003
+      ├─ 60 🔢 = 15001003
+    ├─ 200 📁 (7 items)
+      ├─ 0 🔢 = 2001004
+      ├─ 1 🔢 = 2000000
+      ├─ 16 🔢 = 2001005
+      ├─ 36 🔢 = 2000000
+      ├─ 47 🔢 = 2001002
+      ├─ 6 🔢 = 2000001
+      ├─ 66 🔢 = 2001002
+    ├─ 2100 📁 (8 items)
+      ├─ 0 🔢 = 21000002
+      ├─ 10 🔢 = 21000000
+      ├─ 11 🔢 = 21000002
+      ├─ 21 🔢 = 21000000
+      ├─ 30 🔢 = 21001001
+      ├─ 36 🔢 = 21001003
+      ├─ 56 🔢 = 21001001
+      ├─ 60 🔢 = 21001001
+    ├─ 300 📁 (7 items)
+      ├─ 0 🔢 = 3001004
+      ├─ 1 🔢 = 3000000
+      ├─ 12 🔢 = 3000001
+      ├─ 32 🔢 = 3001005
+      ├─ 4 🔢 = 3000002
+      ├─ 52 🔢 = 3001003
+      ├─ 60 🔢 = 3001003
+    ├─ 400 📁 (8 items)
+      ├─ 0 🔢 = 4001344
+      ├─ 1 🔢 = 4000000
+      ├─ 12 🔢 = 4001344
+      ├─ 31 🔢 = 4000000
+      ├─ 4 🔢 = 4000001
+      ├─ 48 🔢 = 4001002
+      ├─ 51 🔢 = 4001003
+      ├─ 60 🔢 = 4001003
+    ├─ 500 📁 (6 items)
+      ├─ 0 🔢 = 5001005
+      ├─ 1 🔢 = 5001001
+      ├─ 11 🔢 = 5001002
+      ├─ 31 🔢 = 5001001
+      ├─ 41 🔢 = 5000000
+      ├─ 60 🔢 = 5000000
+  ├─ ScanBlock.img 📄
+  ├─ ScriptInfo.img 📁 (259 items)
+    ├─ 120weapon_test 📝 = "I want to receive a weapon."
+    ├─ 2000Day_point 📝 = "I've gathered the stories."
+    ├─ 4th_mapleWeapon 📝 = "I would like to get the 4th..."
+    ├─ 4th_scroll 📝 = "I would like to exchange fo..."
+    ├─ 5th_gift 📝 = "View 4th Anniversary Event ..."
+    ├─ 5th_mapleWeapon 📝 = "Receive Maple Anniversary I..."
+    ├─ A_office 📝 = "Talk to Agent E"
+    ├─ About_NLC 📝 = "Welcome to New Leaf City!!!"
+    ├─ AranGift 📝 = "Click here to check if you'..."
+    ├─ BF_enter 📝 = "Ask Cassandra about Event d..."
+    ├─ Brewing_Storm 📝 = "The Days of Yore"
+    ├─ DeliveryP1 📝 = "Maple Claws - Visit Rowen t..."
+    ├─ DeliveryP2 📝 = "Maple Claws - Visit Ayan"
+    ├─ DeliveryP3 📝 = "Maple Claws - Visit Ericsson"
+    ├─ DeliveryP4 📝 = "Maple Claws - Visit Porter"
+    ├─ Depart_topFloorIn 📝 = "Please let me in."
+    ├─ EngageRing 📝 = "Wedding - Engagement Ring"
+    ├─ EnterMap_treasureHunter 📝 = "I want to get the Witch's t..."
+    ├─ Enter_Darkportal_H 📝 = "...."
+    ├─ Enter_Darkportal_M 📝 = "...."
+    ├─ Enter_Darkportal_P 📝 = "...."
+    ├─ Enter_Darkportal_T 📝 = "...."
+    ├─ Enter_Darkportal_W 📝 = "...."
+    ├─ Event00 📝 = "I want to join the event."
+    ├─ Event01 📝 = "Opening the Magic Box"
+    ├─ Event03_1 📝 = "Treasure Document"
+    ├─ Event04 📝 = "Please decode the Devil's d..."
+    ├─ Event05 📝 = "I would like to have the Ma..."
+    ├─ Event06 📝 = "Exchange the Treasure docum..."
+    ├─ Fallen_Woods 📝 = "Additional Info"
+    └─ ... (229 more items)
+  ├─ Swindle.img 📁 (6 items)
+    ├─ 0 📁 (2 items)
+      ├─ warn 📁 (3 items)
+        ├─ 0 📝
+        ├─ 1 📝
+        ├─ 2 📝
+      ├─ word 📁 (8 items)
+        ├─ 0 📝
+        ├─ 1 📝
+        ├─ 2 📝
+        ├─ 3 📝
+        ├─ 4 📝
+        ├─ 5 📝
+        ├─ 6 📝
+        ├─ 7 📝
+    ├─ 1 📁 (2 items)
+      ├─ warn 📁 (2 items)
+        ├─ 0 📝
+        ├─ 1 📝
+      ├─ word 📁 (6 items)
+        ├─ 0 📝
+        ├─ 1 📝
+        ├─ 2 📝
+        ├─ 3 📝
+        ├─ 4 📝
+        ├─ 5 📝
+    ├─ 2 📁 (2 items)
+      ├─ warn 📁 (2 items)
+        ├─ 0 📝
+        ├─ 1 📝
+      ├─ word 📁 (4 items)
+        ├─ 0 📝
+        ├─ 1 📝
+        ├─ 2 📝
+        ├─ 3 📝
+    ├─ 3 📁 (2 items)
+      ├─ warn 📁 (3 items)
+        ├─ 0 📝
+        ├─ 1 📝
+        ├─ 2 📝
+      ├─ word 📁 (8 items)
+        ├─ 0 📝
+        ├─ 1 📝
+        ├─ 2 📝
+        ├─ 3 📝
+        ├─ 4 📝
+        ├─ 5 📝
+        ├─ 6 📝
+        ├─ 7 📝
+    ├─ 4 📁 (2 items)
+      ├─ warn 📁 (2 items)
+        ├─ 0 📝
+        ├─ 1 📝
+      ├─ word 📁 (4 items)
+        ├─ 0 📝
+        ├─ 1 📝
+        ├─ 2 📝
+        ├─ 3 📝
+    ├─ 5 📁 (2 items)
+      ├─ warn 📁 (3 items)
+        ├─ 0 📝
+        ├─ 1 📝
+        ├─ 2 📝
+      ├─ word 📁 (4 items)
+        ├─ 0 📝
+        ├─ 1 📝
+        ├─ 2 📝
+        ├─ 3 📝
+  └─ ... (2 more items)
+
+================================================================================
+Total nodes: 5186
+================================================================================

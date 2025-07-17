@@ -1,0 +1,171 @@
+Below is a step‑by‑step plan you (or a teammate) can execute locally to **(a)** dump the real structure of the v83 NX files, **(b)** interpret the results, and **(c)** harden `V83UIAssets.h` and related code so that the login, world‑select and inventory screens render correctly.
+
+---
+
+## 1  Implement / run **NX\_STRUCTURE\_EXPLORER.cpp**
+
+### 1.1  What the tool must print
+
+| Column              | Purpose                                                                      |
+| ------------------- | ---------------------------------------------------------------------------- |
+| **Path**            | Full dotted path from the NX root (e.g. `UI/Login.img/BtLogin/0`)            |
+| **Type**            | `bitmap`, `container`, `property`, or `unknown`                              |
+| **Size / Children** | Bitmap: width×height, Container: number of children                          |
+| **Extra**           | Bitmap origin (`origin.x`,`origin.y`) if present; container properties count |
+
+Printing to stdout as CSV or aligned columns is fine; redirect to a file (`> Login_dump.txt`) for inspection.
+
+### 1.2  Minimal code skeleton
+
+```cpp
+// NX_STRUCTURE_EXPLORER.cpp
+#include <iostream>
+#include <iomanip>
+#include <nlnx/nx.hpp>
+#include <nlnx/node.hpp>
+
+void dump(const nl::node& n, const std::string& path = "") {
+    if (!n) return;
+    const char* typeStr[] = {"none","bitmap","audio","uol","property","container"};
+    std::string fullPath = path.empty() ? n.name() : path + "/" + n.name();
+
+    std::cout << std::left << std::setw(60) << fullPath
+              << std::setw(10) << typeStr[static_cast<int>(n.data_type())];
+
+    if (n.data_type() == nl::node::type::bitmap) {
+        auto dim = n.image_dimensions();
+        auto origin = n["origin"];
+        std::cout << std::setw(12) << (std::to_string(dim.x) + "x" + std::to_string(dim.y))
+                  << (origin ? (" origin=" + std::to_string(origin["x"].int32()) +
+                                                 "," + std::to_string(origin["y"].int32())) : "");
+    } else if (n.size() > 0) {
+        std::cout << std::setw(12) << (std::to_string(n.size()) + " children");
+    }
+    std::cout << "\n";
+
+    for (const auto& child : n) dump(child, fullPath);   // depth‑first
+}
+
+int main(int argc, char** argv) {
+    if (argc < 3) {
+        std::cerr << "Usage: NX_STRUCTURE_EXPLORER <NXRoot> <relative.img path>\n";
+        return 1;
+    }
+    nl::nx::init(argv[1]);                // e.g. "../Data" directory
+    nl::node img = nl::nx::UI[argv[2]];   // e.g. "Login.img"
+    dump(img);
+    return 0;
+}
+```
+
+Compile with your existing NLNX include/lib settings:
+
+```bash
+g++ -std=c++17 NX_STRUCTURE_EXPLORER.cpp -o nx_dump \
+    -I/path/to/nlnx/include -L/path/to/nlnx/lib -lnlnx
+```
+
+Run it for the primary suspects:
+
+```bash
+./nx_dump ../Data UI/Login.img        > Login_dump.txt
+./nx_dump ../Data Map/Obj/login.img   > Obj_login_dump.txt
+./nx_dump ../Data UI/UIWindow.img     > UIWindow_dump.txt
+```
+
+---
+
+## 2  Interpret the dump & update `V83UIAssets.h`
+
+Read the CSV / text and note **exact** node names (capitalisation matters) and whether the bitmaps live one level deeper (common in v83).  Typical discoveries:
+
+| Expected by code                          | Found in v83                                                 | Action                                                                  |
+| ----------------------------------------- | ------------------------------------------------------------ | ----------------------------------------------------------------------- |
+| `BtLogin` node directly under `Login.img` | `BtLogin/0`, `BtLogin/1` bitmaps                             | Change `getLoginButton()` to descend one level if parent is a container |
+| `Login.img/Common/frame/2` background     | Actually `Login.img/Common/frame/0`                          | Adjust search order                                                     |
+| No `Title_new`                            | Confirmed only `Title`                                       | Already fixed                                                           |
+| Background also in `Map/Back/login/0`     | Confirm if size matches 1024×768; keep as secondary fallback |                                                                         |
+
+### 2.1  Hardened helper functions (pseudo‑diff)
+
+```cpp
+// --- inside getLoginBackground()
+static const std::vector<std::string> bgCandidates = {
+    "Map/Obj/login.img/back/0",
+    "Map/Back/login/0",
+    "UI/Login.img/Common/frame/0",   // NEW – v83 uses 0 not 2
+    "UI/Login.img/Common/frame/2",   // old
+    "UI/Login.img/backgrnd",         // sometimes appears
+    "UI/Login.img/Title/effect"      // last‑resort modern
+};
+for (auto& p : bgCandidates) {
+    nl::node n = nl::nx::resolve(p);  // helper you have or write
+    if (n && n.data_type() == nl::node::type::bitmap) return n;
+}
+```
+
+```cpp
+// --- inside getLoginButton()
+for (auto& variant : variations) {
+    nl::node btn = login[variant];
+    // NEW: if parent is container with bitmap children, pick first bitmap
+    if (btn && btn.data_type() == nl::node::type::container && btn.size() > 0)
+        btn = btn[0];
+    if (btn && btn.data_type() == nl::node::type::bitmap) return btn;
+}
+```
+
+*(Make sure `resolve()` and container‑bitmap promotion are centralised so world‑select and inventory paths benefit too.)*
+
+---
+
+## 3  Additional Sprite / Texture diagnostics
+
+1. **Log after construction**
+
+```cpp
+Sprite::Sprite(nl::node src, const DrawArgument& args)
+{
+    texture = Texture(src);
+    if (!texture.is_valid()) {
+        LOG(LOG_ERROR, "[Sprite] invalid texture from node " << src.full_path());
+    }
+}
+```
+
+2. **Render outline** (development build only): draw a 1‑px rectangle around every sprite to reveal invisible out‑of‑bounds positions.
+
+3. **Origin handling**: For v83 many bitmaps store non‑zero `origin` properties.  Subtract `origin` from draw position:
+
+```cpp
+Point<int16_t> adjusted = pos - Point<int16_t>(src["origin"]["x"].int16(),
+                                               src["origin"]["y"].int16());
+```
+
+Add this to your `MapleButton` and generic sprite wrapper.
+
+---
+
+## 4  Quality‑of‑life improvements to the explorer
+
+* Accept a `‑‑bitmap-only` flag to filter bitmaps.
+* Accept `‑‑depth N` to truncate output.
+* Produce a `.dot` file (Graphviz) so you can visually inspect containers.
+
+---
+
+## 5  Next integration steps
+
+1. **Run explorer → edit `V83UIAssets.h` paths** as shown.
+2. Re‑run the client; the login background should now appear.
+3. Repeat the process for `UIWindow.img` (inventory) and for world‑select containers.
+4. Once each screen renders, remove the emergency “Press ENTER” text and unused fallbacks.
+
+---
+
+### References to user‑supplied material
+
+The path hypotheses and initial compatibility logic come from the files you provided .
+The debugging questions and success criteria originate from your prompt .
+
+This procedure should give you concrete data to close all remaining asset‑path mismatches and ensure sprites are both found and placed correctly.

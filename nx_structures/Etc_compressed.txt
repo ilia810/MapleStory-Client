@@ -1,0 +1,23 @@
+Compressed NX Structure
+Generated: 2025-07-14 12:21:51
+Note: Use states & frames to expand back to original structure
+
+BlockReason.img
+CashPackage.img
+Category.img
+ChatBlockReason.img
+Commodity.img
+Curse.img
+EmotionEffect.img
+ForbiddenName.img
+Halloween.img
+ItemMake.img
+MakeCharInfo.img
+MedalQuestCategory.img
+NPT_exception.img
+NpcLocation.img
+OXQuiz.img
+QuestCategory.img
+RecommendSkill.img
+ScriptInfo.img
+Swindle.img

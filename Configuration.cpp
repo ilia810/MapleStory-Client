@@ -31,6 +31,7 @@ namespace ms
 		settings.emplace<Width>();
 		settings.emplace<Height>();
 		settings.emplace<VSync>();
+		settings.emplace<Monitor>();
 		settings.emplace<FontPathNormal>();
 		settings.emplace<FontPathBold>();
 		settings.emplace<BGMVolume>();

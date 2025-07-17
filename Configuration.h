@@ -299,6 +299,12 @@ namespace ms
 		VSync() : BoolEntry("VSync", "true") {}
 	};
 
+	// The monitor to display the game on (0 = primary, 1 = secondary, etc.)
+	struct Monitor : public Configuration::ByteEntry
+	{
+		Monitor() : ByteEntry("Monitor", "2") {}
+	};
+
 	// The normal font which will be used
 	struct FontPathNormal : public Configuration::StringEntry
 	{

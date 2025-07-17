@@ -1,0 +1,94 @@
+# Configuration and Property Files
+
+## Server Configuration Files to Check
+
+### 1. world.yaml (or world.properties)
+Check for any map-related configurations:
+- Default spawn map
+- Map validation settings
+- Auto-save intervals
+
+### 2. channel.yaml (or channel.properties)
+Look for:
+- Map loading cache settings
+- Character save intervals
+- Map instance management
+
+### 3. login.yaml (or login.properties)
+Check for:
+- Character loading behavior
+- Default map assignments
+
+## Common Configuration Issues
+
+1. **Auto-save disabled or interval too long**
+   - Characters might disconnect before saves occur
+   - Map changes might not persist
+
+2. **Map cache settings**
+   - Aggressive caching might serve stale map data
+   - Missing maps might be cached as "non-existent"
+
+3. **WZ file path configuration**
+   - Incorrect paths might cause maps to fail loading
+   - Version mismatches between WZ files and server
+
+## Log Files to Monitor
+
+1. **Server startup logs**
+   - Look for "Failed to load map" errors
+   - WZ file loading errors
+   - Database connection issues
+
+2. **Runtime logs**
+   - Character save confirmations
+   - Map loading failures
+   - Portal usage logs
+
+3. **Error logs**
+   - NullPointerExceptions in MapFactory
+   - Database update failures
+   - Packet handling errors
+
+## Recommended Logging Additions
+
+Add these log statements to track the issue:
+
+```java
+// In Character.java saveCharToDB()
+log.info("AUTO-SAVE: {} - Starting save, current map: {}", getName(), mapid);
+log.info("AUTO-SAVE: {} - Save completed, saved map: {}", getName(), mapToSave);
+
+// In MapFactory.java getMap()
+log.debug("Loading map {} from cache/WZ", mapid);
+log.error("Failed to load map {}: {}", mapid, e.getMessage());
+
+// In ChangeMapHandler.java
+log.info("Map change: {} from {} to {}", chr.getName(), chr.getMapId(), targetMapId);
+
+// In PlayerLoggedinHandler.java
+log.info("Player login: {} at map {} (from DB)", player.getName(), player.getMapId());
+```
+
+## Testing Checklist
+
+1. **Create new character**
+   - Note starting map
+   - Change maps several times
+   - Log out and back in
+   - Verify spawn location
+
+2. **Test specific maps**
+   - Try common training maps
+   - Test town-to-town portals
+   - Check instance maps (boss rooms, etc.)
+
+3. **Database verification**
+   - Check map value after each change
+   - Monitor for value changes during login
+   - Look for triggers that might modify map
+
+4. **Load testing**
+   - Multiple map changes rapidly
+   - Server restart during map transition
+   - Concurrent players changing maps

@@ -34,6 +34,16 @@
 
 namespace ms
 {
+	// Helper function to safely convert string to integer
+	int32_t safe_stoi(const std::string& str, int32_t default_value = 0) {
+		try {
+			if (str.empty()) return default_value;
+			return std::stoi(str);
+		} catch (const std::exception&) {
+			return default_value;
+		}
+	}
+
 	UISkillBook::SkillIcon::SkillIcon(int32_t id) : skill_id(id) {}
 
 	void UISkillBook::SkillIcon::drop_on_bindings(Point<int16_t> cursorposition, bool remove) const
@@ -103,49 +113,89 @@ namespace ms
 
 	UISkillBook::UISkillBook(const CharStats& in_stats, const SkillBook& in_skillbook) : UIDragElement<PosSKILL>(), stats(in_stats), skillbook(in_skillbook), grabbing(false), tab(0), macro_enabled(false), sp_enabled(false)
 	{
-		nl::node Skill = nl::nx::UI["UIWindow2.img"]["Skill"];
-		nl::node main = Skill["main"];
-		nl::node ui_backgrnd = main["backgrnd"];
+		// Use UIWindow.img/Skill structure
+		nl::node Skill = nl::nx::UI["UIWindow.img"]["Skill"];
+		
+		if (!Skill) {
+			// If no Skills window assets found, create minimal window
+			return;
+		}
+		
+		// Load main background
+		nl::node ui_backgrnd = Skill["backgrnd"];
+		if (ui_backgrnd) {
+			bg_dimensions = Texture(ui_backgrnd).get_dimensions();
+		} else {
+			bg_dimensions = Point<int16_t>(400, 300); // Default size
+		}
 
-		bg_dimensions = Texture(ui_backgrnd).get_dimensions();
+		// Load skill display elements
+		skilld = Skill["skill0"];
+		skille = Skill["skill1"];
+		
+		nl::node skillBlankNode = Skill["skillBlank"];
+		if (skillBlankNode) {
+			skillb = skillBlankNode;
+		} else {
+			skillb = Skill["skill0"]; // Fallback if skillBlank doesn't exist
+		}
+		
+		line = Skill["line"];
 
-		skilld = main["skill0"];
-		skille = main["skill1"];
-		skillb = main["skillBlank"];
-		line = main["line"];
+		// Create buttons - these are in the Skill node directly, not in a main subnode
+		nl::node btHyper = Skill["BtHyper"];
+		if (btHyper) {
+			buttons[Buttons::BT_HYPER] = std::make_unique<MapleButton>(btHyper);
+			buttons[Buttons::BT_HYPER]->set_state(Button::State::DISABLED);
+		}
+		
+		nl::node btGuildSkill = Skill["BtGuildSkill"];
+		if (btGuildSkill) {
+			buttons[Buttons::BT_GUILDSKILL] = std::make_unique<MapleButton>(btGuildSkill);
+			buttons[Buttons::BT_GUILDSKILL]->set_state(Button::State::DISABLED);
+		}
+		
+		nl::node btRide = Skill["BtRide"];
+		if (btRide) {
+			buttons[Buttons::BT_RIDE] = std::make_unique<MapleButton>(btRide);
+			buttons[Buttons::BT_RIDE]->set_state(Button::State::DISABLED);
+		}
+		
+		nl::node btMacro = Skill["BtMacro"];
+		if (btMacro) {
+			buttons[Buttons::BT_MACRO] = std::make_unique<MapleButton>(btMacro);
+		}
 
-		buttons[Buttons::BT_HYPER] = std::make_unique<MapleButton>(main["BtHyper"]);
-		buttons[Buttons::BT_GUILDSKILL] = std::make_unique<MapleButton>(main["BtGuildSkill"]);
-		buttons[Buttons::BT_RIDE] = std::make_unique<MapleButton>(main["BtRide"]);
-		buttons[Buttons::BT_MACRO] = std::make_unique<MapleButton>(main["BtMacro"]);
+		// v92: Use UIWindow.img structure directly
+		nl::node skillPoint = Skill["skillPoint"];
 
-		buttons[Buttons::BT_HYPER]->set_state(Button::State::DISABLED);
-		buttons[Buttons::BT_GUILDSKILL]->set_state(Button::State::DISABLED);
-		buttons[Buttons::BT_RIDE]->set_state(Button::State::DISABLED);
+		if (skillPoint) {
+			sp_backgrnd = skillPoint["backgrnd"];
+			sp_backgrnd2 = skillPoint["backgrnd2"];
+			sp_backgrnd3 = skillPoint["backgrnd3"];
 
-		nl::node skillPoint = nl::nx::UI["UIWindow4.img"]["Skill"]["skillPoint"];
+			// Create skill point buttons only if nodes exist
+			if (skillPoint["BtCancle"]) buttons[Buttons::BT_CANCLE] = std::make_unique<MapleButton>(skillPoint["BtCancle"], Point<int16_t>(bg_dimensions.x(), 0));
+			if (skillPoint["BtOkay"]) buttons[Buttons::BT_OKAY] = std::make_unique<MapleButton>(skillPoint["BtOkay"], Point<int16_t>(bg_dimensions.x(), 0));
+			if (skillPoint["BtSpDown"]) {
+				buttons[Buttons::BT_SPDOWN] = std::make_unique<MapleButton>(skillPoint["BtSpDown"], Point<int16_t>(bg_dimensions.x(), 0));
+				buttons[Buttons::BT_SPDOWN]->set_state(Button::State::DISABLED);
+			}
+			if (skillPoint["BtSpMax"]) buttons[Buttons::BT_SPMAX] = std::make_unique<MapleButton>(skillPoint["BtSpMax"], Point<int16_t>(bg_dimensions.x(), 0));
+			if (skillPoint["BtSpUp"]) buttons[Buttons::BT_SPUP] = std::make_unique<MapleButton>(skillPoint["BtSpUp"], Point<int16_t>(bg_dimensions.x(), 0));
 
-		sp_backgrnd = skillPoint["backgrnd"];
-		sp_backgrnd2 = skillPoint["backgrnd2"];
-		sp_backgrnd3 = skillPoint["backgrnd3"];
+			if (skillPoint["num"]) {
+				sp_before = Charset(skillPoint["num"], Charset::Alignment::RIGHT);
+				sp_after = Charset(skillPoint["num"], Charset::Alignment::RIGHT);
+			}
+		}
 
-		buttons[Buttons::BT_CANCLE] = std::make_unique<MapleButton>(skillPoint["BtCancle"], Point<int16_t>(bg_dimensions.x(), 0));
-		buttons[Buttons::BT_OKAY] = std::make_unique<MapleButton>(skillPoint["BtOkay"], Point<int16_t>(bg_dimensions.x(), 0));
-		buttons[Buttons::BT_SPDOWN] = std::make_unique<MapleButton>(skillPoint["BtSpDown"], Point<int16_t>(bg_dimensions.x(), 0));
-		buttons[Buttons::BT_SPMAX] = std::make_unique<MapleButton>(skillPoint["BtSpMax"], Point<int16_t>(bg_dimensions.x(), 0));
-		buttons[Buttons::BT_SPUP] = std::make_unique<MapleButton>(skillPoint["BtSpUp"], Point<int16_t>(bg_dimensions.x(), 0));
-
-		buttons[Buttons::BT_SPDOWN]->set_state(Button::State::DISABLED);
-
-		sp_before = Charset(skillPoint["num"], Charset::Alignment::RIGHT);
-		sp_after = Charset(skillPoint["num"], Charset::Alignment::RIGHT);
 		sp_used = Text(Text::Font::A12B, Text::Alignment::RIGHT, Color::Name::WHITE);
 		sp_remaining = Text(Text::Font::A12B, Text::Alignment::LEFT, Color::Name::SUPERNOVA);
 		sp_name = Text(Text::Font::A12B, Text::Alignment::CENTER, Color::Name::WHITE);
 
-		sprites.emplace_back(ui_backgrnd, Point<int16_t>(1, 0));
-		sprites.emplace_back(main["backgrnd2"]);
-		sprites.emplace_back(main["backgrnd3"]);
+		// Add background sprite
+		if (ui_backgrnd) sprites.emplace_back(ui_backgrnd, Point<int16_t>(1, 0));
 
 		nl::node macro = Skill["macro"];
 
@@ -153,22 +203,37 @@ namespace ms
 		macro_backgrnd2 = macro["backgrnd2"];
 		macro_backgrnd3 = macro["backgrnd3"];
 
-		buttons[Buttons::BT_MACRO_OK] = std::make_unique<MapleButton>(macro["BtOK"], Point<int16_t>(bg_dimensions.x(), 0));
-
-		buttons[Buttons::BT_MACRO_OK]->set_state(Button::State::DISABLED);
+		if (macro["BtOK"]) {
+			buttons[Buttons::BT_MACRO_OK] = std::make_unique<MapleButton>(macro["BtOK"], Point<int16_t>(bg_dimensions.x(), 0));
+			buttons[Buttons::BT_MACRO_OK]->set_state(Button::State::DISABLED);
+		}
 
 		nl::node close = nl::nx::UI["Basic.img"]["BtClose3"];
 
-		buttons[Buttons::BT_CLOSE] = std::make_unique<MapleButton>(close, Point<int16_t>(bg_dimensions.x() - 23, 6));
+		if (close) {
+			buttons[Buttons::BT_CLOSE] = std::make_unique<MapleButton>(close, Point<int16_t>(bg_dimensions.x() - 23, 6));
+		}
 
-		nl::node Tab = main["Tab"];
-		nl::node enabled = Tab["enabled"];
-		nl::node disabled = Tab["disabled"];
+		nl::node Tab = Skill["Tab"];
+		if (Tab) {
+			nl::node enabled = Tab["enabled"];
+			nl::node disabled = Tab["disabled"];
 
-		for (uint16_t i = Buttons::BT_TAB0; i <= Buttons::BT_TAB4; ++i)
-		{
-			uint16_t tabid = i - Buttons::BT_TAB0;
-			buttons[i] = std::make_unique<TwoSpriteButton>(disabled[tabid], enabled[tabid]);
+			for (uint16_t i = Buttons::BT_TAB0; i <= Buttons::BT_TAB4; ++i)
+			{
+				uint16_t tabid = i - Buttons::BT_TAB0;
+				if (disabled[tabid] && enabled[tabid]) {
+					buttons[i] = std::make_unique<TwoSpriteButton>(disabled[tabid], enabled[tabid]);
+				}
+			}
+		} else {
+			// If no Tab structure exists, create invisible placeholder buttons
+			// This prevents crashes when change_tab is called
+			for (uint16_t i = Buttons::BT_TAB0; i <= Buttons::BT_TAB4; ++i)
+			{
+				// Create buttons that do nothing but prevent null pointer access
+				buttons[i] = nullptr;
+			}
 		}
 
 		uint16_t y_adj = 0;
@@ -182,7 +247,10 @@ namespace ms
 				x_adj = ROW_WIDTH;
 
 			Point<int16_t> spup_position = SKILL_OFFSET + Point<int16_t>(124 + x_adj, 20 + y_adj);
-			buttons[i] = std::make_unique<MapleButton>(main["BtSpUp"], spup_position);
+			nl::node btSpUp = Skill["BtSpUp"];
+			if (btSpUp) {
+				buttons[i] = std::make_unique<MapleButton>(btSpUp, spup_position);
+			}
 
 			if (spupid % 2)
 				y_adj += ROW_HEIGHT;
@@ -294,7 +362,7 @@ namespace ms
 
 	Button::State UISkillBook::button_pressed(uint16_t id)
 	{
-		int16_t cur_sp = std::stoi(splabel.get_text());
+		int16_t cur_sp = safe_stoi(splabel.get_text());
 
 		switch (id)
 		{
@@ -309,7 +377,7 @@ namespace ms
 			break;
 		case Buttons::BT_OKAY:
 		{
-			int32_t used = std::stoi(sp_used.get_text());
+			int32_t used = safe_stoi(sp_used.get_text());
 
 			while (used > 0)
 			{
@@ -323,9 +391,9 @@ namespace ms
 		break;
 		case Buttons::BT_SPDOWN:
 		{
-			int32_t used = std::stoi(sp_used.get_text());
-			int32_t sp_after = std::stoi(sp_after_text);
-			int32_t sp_before = std::stoi(sp_before_text);
+			int32_t used = safe_stoi(sp_used.get_text());
+			int32_t sp_after = safe_stoi(sp_after_text);
+			int32_t sp_before = safe_stoi(sp_before_text);
 			used--;
 			sp_after--;
 
@@ -333,8 +401,8 @@ namespace ms
 			sp_used.change_text(std::to_string(used));
 			sp_remaining.change_text(std::to_string(cur_sp - used));
 
-			buttons[Buttons::BT_SPUP]->set_state(Button::State::NORMAL);
-			buttons[Buttons::BT_SPMAX]->set_state(Button::State::NORMAL);
+			if (buttons[Buttons::BT_SPUP]) buttons[Buttons::BT_SPUP]->set_state(Button::State::NORMAL);
+			if (buttons[Buttons::BT_SPMAX]) buttons[Buttons::BT_SPMAX]->set_state(Button::State::NORMAL);
 
 			if (sp_after - 1 == sp_before)
 				return Button::State::DISABLED;
@@ -344,8 +412,8 @@ namespace ms
 		break;
 		case Buttons::BT_SPMAX:
 		{
-			int32_t used = std::stoi(sp_used.get_text());
-			int32_t sp_before = std::stoi(sp_before_text);
+			int32_t used = safe_stoi(sp_used.get_text());
+			int32_t sp_before = safe_stoi(sp_before_text);
 			int32_t sp_touse = sp_masterlevel - sp_before - used;
 
 			used += sp_touse;
@@ -354,16 +422,16 @@ namespace ms
 			sp_used.change_text(std::to_string(used));
 			sp_remaining.change_text(std::to_string(cur_sp - used));
 
-			buttons[Buttons::BT_SPUP]->set_state(Button::State::DISABLED);
-			buttons[Buttons::BT_SPDOWN]->set_state(Button::State::NORMAL);
+			if (buttons[Buttons::BT_SPUP]) buttons[Buttons::BT_SPUP]->set_state(Button::State::DISABLED);
+			if (buttons[Buttons::BT_SPDOWN]) buttons[Buttons::BT_SPDOWN]->set_state(Button::State::NORMAL);
 
 			return Button::State::DISABLED;
 		}
 		break;
 		case Buttons::BT_SPUP:
 		{
-			int32_t used = std::stoi(sp_used.get_text());
-			int32_t sp_after = std::stoi(sp_after_text);
+			int32_t used = safe_stoi(sp_used.get_text());
+			int32_t sp_after = safe_stoi(sp_after_text);
 			used++;
 			sp_after++;
 
@@ -371,11 +439,11 @@ namespace ms
 			sp_used.change_text(std::to_string(used));
 			sp_remaining.change_text(std::to_string(cur_sp - used));
 
-			buttons[Buttons::BT_SPDOWN]->set_state(Button::State::NORMAL);
+			if (buttons[Buttons::BT_SPDOWN]) buttons[Buttons::BT_SPDOWN]->set_state(Button::State::NORMAL);
 
 			if (sp_after == sp_masterlevel)
 			{
-				buttons[Buttons::BT_SPMAX]->set_state(Button::State::DISABLED);
+				if (buttons[Buttons::BT_SPMAX]) buttons[Buttons::BT_SPMAX]->set_state(Button::State::DISABLED);
 
 				return Button::State::DISABLED;
 			}
@@ -591,8 +659,11 @@ namespace ms
 
 		Job::Level level = job.get_level();
 
-		for (uint16_t i = 0; i <= Job::Level::FOURTH; i++)
-			buttons[Buttons::BT_TAB0 + i]->set_active(i <= level);
+		for (uint16_t i = 0; i <= Job::Level::FOURTH; i++) {
+			if (buttons[Buttons::BT_TAB0 + i]) {
+				buttons[Buttons::BT_TAB0 + i]->set_active(i <= level);
+			}
+		}
 
 		change_tab(level - Job::Level::BEGINNER);
 	}
@@ -634,8 +705,13 @@ namespace ms
 
 	void UISkillBook::change_tab(uint16_t new_tab)
 	{
-		buttons[Buttons::BT_TAB0 + tab]->set_state(Button::NORMAL);
-		buttons[Buttons::BT_TAB0 + new_tab]->set_state(Button::PRESSED);
+		// Only change button states if the buttons exist
+		if (buttons[Buttons::BT_TAB0 + tab]) {
+			buttons[Buttons::BT_TAB0 + tab]->set_state(Button::NORMAL);
+		}
+		if (buttons[Buttons::BT_TAB0 + new_tab]) {
+			buttons[Buttons::BT_TAB0 + new_tab]->set_state(Button::PRESSED);
+		}
 		tab = new_tab;
 
 		skills.clear();
@@ -748,7 +824,7 @@ namespace ms
 
 		const SkillData& skillData = SkillData::get(id);
 		std::string name = skillData.get_name();
-		int16_t cur_sp = std::stoi(splabel.get_text());
+		int16_t cur_sp = safe_stoi(splabel.get_text());
 
 		sp_before_text = std::to_string(level);
 		sp_after_text = std::to_string(level + used);
@@ -868,7 +944,9 @@ namespace ms
 		else if (!sp_enabled)
 			dimension = bg_dimensions;
 
-		buttons[Buttons::BT_MACRO_OK]->set_active(macro_enabled);
+		if (buttons[Buttons::BT_MACRO_OK]) {
+			buttons[Buttons::BT_MACRO_OK]->set_active(macro_enabled);
+		}
 
 		if (macro_enabled && sp_enabled)
 			set_skillpoint(false);
@@ -883,11 +961,11 @@ namespace ms
 		else if (!macro_enabled)
 			dimension = bg_dimensions;
 
-		buttons[Buttons::BT_CANCLE]->set_active(sp_enabled);
-		buttons[Buttons::BT_OKAY]->set_active(sp_enabled);
-		buttons[Buttons::BT_SPDOWN]->set_active(sp_enabled);
-		buttons[Buttons::BT_SPMAX]->set_active(sp_enabled);
-		buttons[Buttons::BT_SPUP]->set_active(sp_enabled);
+		if (buttons[Buttons::BT_CANCLE]) buttons[Buttons::BT_CANCLE]->set_active(sp_enabled);
+		if (buttons[Buttons::BT_OKAY]) buttons[Buttons::BT_OKAY]->set_active(sp_enabled);
+		if (buttons[Buttons::BT_SPDOWN]) buttons[Buttons::BT_SPDOWN]->set_active(sp_enabled);
+		if (buttons[Buttons::BT_SPMAX]) buttons[Buttons::BT_SPMAX]->set_active(sp_enabled);
+		if (buttons[Buttons::BT_SPUP]) buttons[Buttons::BT_SPUP]->set_active(sp_enabled);
 
 		if (sp_enabled && macro_enabled)
 			set_macro(false);

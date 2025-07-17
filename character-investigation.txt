@@ -1,0 +1,4404 @@
+This file is a merged representation of a subset of the codebase, containing specifically included files, combined into a single document by Repomix.
+
+================================================================
+File Summary
+================================================================
+
+Purpose:
+--------
+This file contains a packed representation of the entire repository's contents.
+It is designed to be easily consumable by AI systems for analysis, code review,
+or other automated processes.
+
+File Format:
+------------
+The content is organized as follows:
+1. This summary section
+2. Repository information
+3. Directory structure
+4. Multiple file entries, each consisting of:
+  a. A separator line (================)
+  b. The file path (File: path/to/file)
+  c. Another separator line
+  d. The full contents of the file
+  e. A blank line
+
+Usage Guidelines:
+-----------------
+- This file should be treated as read-only. Any changes should be made to the
+  original repository files, not this packed version.
+- When processing this file, use the file path to distinguish
+  between different files in the repository.
+- Be aware that this file may contain sensitive information. Handle it with
+  the same level of security as you would the original repository.
+
+Notes:
+------
+- Some files may have been excluded based on .gitignore rules and Repomix's configuration
+- Binary files are not included in this packed representation. Please refer to the Repository Structure section for a complete list of file paths, including binary files
+- Only files matching these patterns are included: Character/Look/*.cpp, Character/Look/*.h, Character/Look/*.hpp, Data/ItemData.cpp, Data/EquipData.cpp, Data/WeaponData.cpp, Gameplay/Stage.cpp, Gameplay/Player.cpp
+- Files matching patterns in .gitignore are excluded
+- Files matching default ignore patterns are excluded
+
+Additional Info:
+----------------
+
+================================================================
+Directory Structure
+================================================================
+Character/Look/Afterimage.cpp
+Character/Look/Afterimage.h
+Character/Look/Body.cpp
+Character/Look/Body.h
+Character/Look/BodyDrawInfo.cpp
+Character/Look/BodyDrawInfo.h
+Character/Look/CharEquips.cpp
+Character/Look/CharEquips.h
+Character/Look/CharLook.cpp
+Character/Look/CharLook.h
+Character/Look/Clothing.cpp
+Character/Look/Clothing.h
+Character/Look/EquipSlot.cpp
+Character/Look/EquipSlot.h
+Character/Look/Face.cpp
+Character/Look/Face.h
+Character/Look/Hair.cpp
+Character/Look/Hair.h
+Character/Look/PetLook.cpp
+Character/Look/PetLook.h
+Character/Look/Stance.cpp
+Character/Look/Stance.h
+Data/EquipData.cpp
+Data/ItemData.cpp
+Data/WeaponData.cpp
+Gameplay/Stage.cpp
+
+================================================================
+Files
+================================================================
+
+================
+File: Character/Look/Afterimage.cpp
+================
+//////////////////////////////////////////////////////////////////////////////////
+//	This file is part of the continued Journey MMORPG client					//
+//	Copyright (C) 2015-2019  Daniel Allendorf, Ryan Payton						//
+//																				//
+//	This program is free software: you can redistribute it and/or modify		//
+//	it under the terms of the GNU Affero General Public License as published by	//
+//	the Free Software Foundation, either version 3 of the License, or			//
+//	(at your option) any later version.											//
+//																				//
+//	This program is distributed in the hope that it will be useful,				//
+//	but WITHOUT ANY WARRANTY; without even the implied warranty of				//
+//	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the				//
+//	GNU Affero General Public License for more details.							//
+//																				//
+//	You should have received a copy of the GNU Affero General Public License	//
+//	along with this program.  If not, see <https://www.gnu.org/licenses/>.		//
+//////////////////////////////////////////////////////////////////////////////////
+#include "Afterimage.h"
+
+#include "../../Util/Misc.h"
+
+#ifdef USE_NX
+#include <nlnx/nx.hpp>
+#endif
+
+namespace ms
+{
+	Afterimage::Afterimage(int32_t skill_id, const std::string& name, const std::string& stance_name, int16_t level)
+	{
+		nl::node src;
+
+		if (skill_id > 0)
+		{
+			std::string strid = string_format::extend_id(skill_id, 7);
+			src = nl::nx::Skill[strid.substr(0, 3) + ".img"]["skill"][strid]["afterimage"][name][stance_name];
+		}
+
+		if (!src)
+			src = nl::nx::Character["Afterimage"][name + ".img"][level / 10][stance_name];
+
+		range = src;
+		firstframe = 0;
+		displayed = false;
+
+		for (nl::node sub : src)
+		{
+			uint8_t frame = string_conversion::or_default<uint8_t>(sub.name(), 255);
+
+			if (frame < 255)
+			{
+				animation = sub;
+				firstframe = frame;
+			}
+		}
+	}
+
+	Afterimage::Afterimage()
+	{
+		firstframe = 0;
+		displayed = true;
+	}
+
+	void Afterimage::draw(uint8_t stframe, const DrawArgument& args, float alpha) const
+	{
+		if (!displayed && stframe >= firstframe)
+			animation.draw(args, alpha);
+	}
+
+	void Afterimage::update(uint8_t stframe, uint16_t timestep)
+	{
+		if (!displayed && stframe >= firstframe)
+			displayed = animation.update(timestep);
+	}
+
+	uint8_t Afterimage::get_first_frame() const
+	{
+		return firstframe;
+	}
+
+	Rectangle<int16_t> Afterimage::get_range() const
+	{
+		return range;
+	}
+}
+
+================
+File: Character/Look/Afterimage.h
+================
+//////////////////////////////////////////////////////////////////////////////////
+//	This file is part of the continued Journey MMORPG client					//
+//	Copyright (C) 2015-2019  Daniel Allendorf, Ryan Payton						//
+//																				//
+//	This program is free software: you can redistribute it and/or modify		//
+//	it under the terms of the GNU Affero General Public License as published by	//
+//	the Free Software Foundation, either version 3 of the License, or			//
+//	(at your option) any later version.											//
+//																				//
+//	This program is distributed in the hope that it will be useful,				//
+//	but WITHOUT ANY WARRANTY; without even the implied warranty of				//
+//	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the				//
+//	GNU Affero General Public License for more details.							//
+//																				//
+//	You should have received a copy of the GNU Affero General Public License	//
+//	along with this program.  If not, see <https://www.gnu.org/licenses/>.		//
+//////////////////////////////////////////////////////////////////////////////////
+#pragma once
+
+#include "../../Graphics/Animation.h"
+
+namespace ms
+{
+	class Afterimage
+	{
+	public:
+		Afterimage(int32_t skill_id, const std::string& name, const std::string& stance, int16_t level);
+		Afterimage();
+
+		void draw(uint8_t stframe, const DrawArgument& args, float alpha) const;
+		void update(uint8_t stframe, uint16_t timestep);
+
+		uint8_t get_first_frame() const;
+		Rectangle<int16_t> get_range() const;
+
+	private:
+		Animation animation;
+		Rectangle<int16_t> range;
+		uint8_t firstframe;
+		bool displayed;
+	};
+}
+
+================
+File: Character/Look/Body.cpp
+================
+//////////////////////////////////////////////////////////////////////////////////
+//	This file is part of the continued Journey MMORPG client					//
+//	Copyright (C) 2015-2019  Daniel Allendorf, Ryan Payton						//
+//																				//
+//	This program is free software: you can redistribute it and/or modify		//
+//	it under the terms of the GNU Affero General Public License as published by	//
+//	the Free Software Foundation, either version 3 of the License, or			//
+//	(at your option) any later version.											//
+//																				//
+//	This program is distributed in the hope that it will be useful,				//
+//	but WITHOUT ANY WARRANTY; without even the implied warranty of				//
+//	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the				//
+//	GNU Affero General Public License for more details.							//
+//																				//
+//	You should have received a copy of the GNU Affero General Public License	//
+//	along with this program.  If not, see <https://www.gnu.org/licenses/>.		//
+//////////////////////////////////////////////////////////////////////////////////
+#include "Body.h"
+
+#include "../../Util/Misc.h"
+
+#ifdef USE_NX
+#include <nlnx/nx.hpp>
+#endif
+
+namespace ms
+{
+	Body::Body(int32_t skin, const BodyDrawInfo& drawinfo)
+	{
+		std::string strid = string_format::extend_id(skin, 2);
+		nl::node bodynode = nl::nx::Character["000020" + strid + ".img"];
+		nl::node headnode = nl::nx::Character["000120" + strid + ".img"];
+
+		for (auto iter : Stance::names)
+		{
+			Stance::Id stance = iter.first;
+			const std::string& stancename = iter.second;
+
+			nl::node stancenode = bodynode[stancename];
+
+			if (!stancenode)
+				continue;
+
+			for (uint8_t frame = 0; nl::node framenode = stancenode[frame]; ++frame)
+			{
+				for (nl::node partnode : framenode)
+				{
+					std::string part = partnode.name();
+
+					if (part != "delay" && part != "face")
+					{
+						std::string z = partnode["z"];
+						Body::Layer layer = layer_by_name(z);
+
+						if (layer == Body::Layer::NONE)
+							continue;
+
+						Point<int16_t> shift;
+
+						switch (layer)
+						{
+							case Body::Layer::HAND_BELOW_WEAPON:
+								shift = drawinfo.get_hand_position(stance, frame);
+								shift -= partnode["map"]["handMove"];
+								break;
+							default:
+								shift = drawinfo.get_body_position(stance, frame);
+								shift -= partnode["map"]["navel"];
+								break;
+						}
+
+						stances[stance][layer]
+							.emplace(frame, partnode)
+							.first->second.shift(shift);
+					}
+				}
+
+				for (nl::node partnode : headnode[stancename][frame])
+				{
+					std::string part = partnode.name();
+					Body::Layer layer = layer_by_name(part);
+
+					if (layer == Body::Layer::NONE)
+						continue;
+
+					Point<int16_t> shift = drawinfo.get_head_position(stance, frame);
+
+					stances[stance][layer]
+						.emplace(frame, partnode)
+						.first->second.shift(shift);
+				}
+			}
+		}
+
+		constexpr size_t NUM_SKINTYPES = 13;
+
+		constexpr const char* skintypes[NUM_SKINTYPES] =
+		{
+			"Light",
+			"Tan",
+			"Dark",
+			"Pale",
+			"Ashen",
+			"Green",
+			"",
+			"",
+			"",
+			"Ghostly",
+			"Pale Pink",
+			"Clay",
+			"Alabaster"
+		};
+
+		if (skin < NUM_SKINTYPES)
+			name = skintypes[skin];
+
+		if (name == "")
+		{
+			LOG(LOG_DEBUG, "Skin [" << skin << "] is using the default value.");
+
+			name = nl::nx::String["Eqp.img"]["Eqp"]["Skin"][skin]["name"];
+		}
+	}
+
+	void Body::draw(Layer layer, Stance::Id stance, uint8_t frame, const DrawArgument& args) const
+	{
+		auto frameit = stances[stance][layer].find(frame);
+
+		if (frameit == stances[stance][layer].end())
+			return;
+
+		frameit->second.draw(args);
+	}
+
+	const std::string& Body::get_name() const
+	{
+		return name;
+	}
+
+	Body::Layer Body::layer_by_name(const std::string& name)
+	{
+		auto layer_iter = layers_by_name.find(name);
+
+		if (layer_iter == layers_by_name.end())
+		{
+			if (name != "")
+				single_console::log_message("[Body::layer_by_name] Unknown Layer name: [" + name + "]");
+
+			return Body::Layer::NONE;
+		}
+
+		return layer_iter->second;
+	}
+
+	const std::unordered_map<std::string, Body::Layer> Body::layers_by_name =
+	{
+		{ "body",						Body::Layer::BODY						},
+		{ "backBody",					Body::Layer::BODY						},
+		{ "arm",						Body::Layer::ARM						},
+		{ "armBelowHead",				Body::Layer::ARM_BELOW_HEAD				},
+		{ "armBelowHeadOverMailChest",	Body::Layer::ARM_BELOW_HEAD_OVER_MAIL	},
+		{ "armOverHair",				Body::Layer::ARM_OVER_HAIR				},
+		{ "armOverHairBelowWeapon",		Body::Layer::ARM_OVER_HAIR_BELOW_WEAPON	},
+		{ "handBelowWeapon",			Body::Layer::HAND_BELOW_WEAPON			},
+		{ "handOverHair",				Body::Layer::HAND_OVER_HAIR				},
+		{ "handOverWeapon",				Body::Layer::HAND_OVER_WEAPON			},
+		{ "ear",						Body::Layer::EAR						},
+		{ "head",						Body::Layer::HEAD						},
+		{ "highlefEar",					Body::Layer::HIGH_LEF_EAR				},
+		{ "humanEar",					Body::Layer::HUMAN_EAR					},
+		{ "lefEar",						Body::Layer::LEF_EAR					}
+	};
+}
+
+================
+File: Character/Look/Body.h
+================
+//////////////////////////////////////////////////////////////////////////////////
+//	This file is part of the continued Journey MMORPG client					//
+//	Copyright (C) 2015-2019  Daniel Allendorf, Ryan Payton						//
+//																				//
+//	This program is free software: you can redistribute it and/or modify		//
+//	it under the terms of the GNU Affero General Public License as published by	//
+//	the Free Software Foundation, either version 3 of the License, or			//
+//	(at your option) any later version.											//
+//																				//
+//	This program is distributed in the hope that it will be useful,				//
+//	but WITHOUT ANY WARRANTY; without even the implied warranty of				//
+//	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the				//
+//	GNU Affero General Public License for more details.							//
+//																				//
+//	You should have received a copy of the GNU Affero General Public License	//
+//	along with this program.  If not, see <https://www.gnu.org/licenses/>.		//
+//////////////////////////////////////////////////////////////////////////////////
+#pragma once
+
+#include "BodyDrawInfo.h"
+
+#include "../../Graphics/Texture.h"
+
+namespace ms
+{
+	class Body
+	{
+	public:
+		enum Layer
+		{
+			NONE,
+			BODY,
+			ARM,
+			ARM_BELOW_HEAD,
+			ARM_BELOW_HEAD_OVER_MAIL,
+			ARM_OVER_HAIR,
+			ARM_OVER_HAIR_BELOW_WEAPON,
+			HAND_BELOW_WEAPON,
+			HAND_OVER_HAIR,
+			HAND_OVER_WEAPON,
+			EAR,
+			HEAD,
+			HIGH_LEF_EAR,
+			HUMAN_EAR,
+			LEF_EAR,
+			NUM_LAYERS
+		};
+
+		Body(int32_t skin, const BodyDrawInfo& drawinfo);
+
+		void draw(Layer layer, Stance::Id stance, uint8_t frame, const DrawArgument& args) const;
+
+		const std::string& get_name() const;
+
+		static Layer layer_by_name(const std::string& name);
+
+	private:
+		std::unordered_map<uint8_t, Texture> stances[Stance::Id::LENGTH][Layer::NUM_LAYERS];
+		std::string name;
+
+		static const std::unordered_map<std::string, Layer> layers_by_name;
+	};
+}
+
+================
+File: Character/Look/BodyDrawInfo.cpp
+================
+//////////////////////////////////////////////////////////////////////////////////
+//	This file is part of the continued Journey MMORPG client					//
+//	Copyright (C) 2015-2019  Daniel Allendorf, Ryan Payton						//
+//																				//
+//	This program is free software: you can redistribute it and/or modify		//
+//	it under the terms of the GNU Affero General Public License as published by	//
+//	the Free Software Foundation, either version 3 of the License, or			//
+//	(at your option) any later version.											//
+//																				//
+//	This program is distributed in the hope that it will be useful,				//
+//	but WITHOUT ANY WARRANTY; without even the implied warranty of				//
+//	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the				//
+//	GNU Affero General Public License for more details.							//
+//																				//
+//	You should have received a copy of the GNU Affero General Public License	//
+//	along with this program.  If not, see <https://www.gnu.org/licenses/>.		//
+//////////////////////////////////////////////////////////////////////////////////
+#include "BodyDrawInfo.h"
+
+#include "Body.h"
+
+#include "../../Util/Misc.h"
+
+#ifdef USE_NX
+#include <nlnx/nx.hpp>
+#endif
+
+namespace ms
+{
+	void BodyDrawInfo::init()
+	{
+		nl::node bodynode = nl::nx::Character["00002000.img"];
+		nl::node headnode = nl::nx::Character["00012000.img"];
+
+		for (nl::node stancenode : bodynode)
+		{
+			std::string ststr = stancenode.name();
+
+			uint16_t attackdelay = 0;
+
+			for (uint8_t frame = 0; nl::node framenode = stancenode[frame]; ++frame)
+			{
+				bool isaction = framenode["action"].data_type() == nl::node::type::string;
+
+				if (isaction)
+				{
+					BodyAction action = framenode;
+					body_actions[ststr][frame] = action;
+
+					if (action.isattackframe())
+						attack_delays[ststr].push_back(attackdelay);
+
+					attackdelay += action.get_delay();
+				}
+				else
+				{
+					Stance::Id stance = Stance::by_string(ststr);
+
+					if (stance == Stance::Id::NONE || stance == Stance::Id::LENGTH)
+					{
+						single_console::log_message("[BodyDrawInfo::init] Unknown Stance::Id name: [" + ststr + "]");
+						continue;
+					}
+
+					int16_t delay = framenode["delay"];
+
+					if (delay <= 0)
+						delay = 100;
+
+					stance_delays[stance][frame] = delay;
+
+					std::unordered_map<Body::Layer, std::unordered_map<std::string, Point<int16_t>>> bodyshiftmap;
+
+					for (auto partnode : framenode)
+					{
+						std::string part = partnode.name();
+
+						if (part != "delay" && part != "face")
+						{
+							std::string zstr = partnode["z"];
+							Body::Layer z = Body::layer_by_name(zstr);
+
+							for (auto mapnode : partnode["map"])
+								bodyshiftmap[z].emplace(mapnode.name(), mapnode);
+						}
+					}
+
+					nl::node headmap = headnode[ststr][frame]["head"]["map"];
+
+					for (auto mapnode : headmap)
+						bodyshiftmap[Body::Layer::HEAD].emplace(mapnode.name(), mapnode);
+
+					body_positions[stance][frame] = bodyshiftmap[Body::Layer::BODY]["navel"];
+
+					arm_positions[stance][frame] = bodyshiftmap.count(Body::Layer::ARM) ?
+						(bodyshiftmap[Body::Layer::ARM]["hand"] - bodyshiftmap[Body::Layer::ARM]["navel"] + bodyshiftmap[Body::Layer::BODY]["navel"]) :
+						(bodyshiftmap[Body::Layer::ARM_OVER_HAIR]["hand"] - bodyshiftmap[Body::Layer::ARM_OVER_HAIR]["navel"] + bodyshiftmap[Body::Layer::BODY]["navel"]);
+
+					hand_positions[stance][frame] = bodyshiftmap[Body::Layer::HAND_BELOW_WEAPON]["handMove"];
+					head_positions[stance][frame] = bodyshiftmap[Body::Layer::BODY]["neck"] - bodyshiftmap[Body::Layer::HEAD]["neck"];
+					face_positions[stance][frame] = bodyshiftmap[Body::Layer::BODY]["neck"] - bodyshiftmap[Body::Layer::HEAD]["neck"] + bodyshiftmap[Body::Layer::HEAD]["brow"];
+					hair_positions[stance][frame] = bodyshiftmap[Body::Layer::HEAD]["brow"] - bodyshiftmap[Body::Layer::HEAD]["neck"] + bodyshiftmap[Body::Layer::BODY]["neck"];
+				}
+			}
+		}
+	}
+
+	Point<int16_t> BodyDrawInfo::get_body_position(Stance::Id stance, uint8_t frame) const
+	{
+		auto iter = body_positions[stance].find(frame);
+
+		if (iter == body_positions[stance].end())
+			return {};
+
+		return iter->second;
+	}
+
+	Point<int16_t> BodyDrawInfo::get_arm_position(Stance::Id stance, uint8_t frame) const
+	{
+		auto iter = arm_positions[stance].find(frame);
+
+		if (iter == arm_positions[stance].end())
+			return {};
+
+		return iter->second;
+	}
+
+	Point<int16_t> BodyDrawInfo::get_hand_position(Stance::Id stance, uint8_t frame) const
+	{
+		auto iter = hand_positions[stance].find(frame);
+
+		if (iter == hand_positions[stance].end())
+			return {};
+
+		return iter->second;
+	}
+
+	Point<int16_t> BodyDrawInfo::get_head_position(Stance::Id stance, uint8_t frame) const
+	{
+		auto iter = head_positions[stance].find(frame);
+
+		if (iter == head_positions[stance].end())
+			return {};
+
+		return iter->second;
+	}
+
+	Point<int16_t> BodyDrawInfo::gethairpos(Stance::Id stance, uint8_t frame) const
+	{
+		auto iter = hair_positions[stance].find(frame);
+
+		if (iter == hair_positions[stance].end())
+			return {};
+
+		return iter->second;
+	}
+
+	Point<int16_t> BodyDrawInfo::getfacepos(Stance::Id stance, uint8_t frame) const
+	{
+		auto iter = face_positions[stance].find(frame);
+
+		if (iter == face_positions[stance].end())
+			return {};
+
+		return iter->second;
+	}
+
+	uint8_t BodyDrawInfo::nextframe(Stance::Id stance, uint8_t frame) const
+	{
+		if (stance_delays[stance].count(frame + 1))
+			return frame + 1;
+		else
+			return 0;
+	}
+
+	uint16_t BodyDrawInfo::get_delay(Stance::Id stance, uint8_t frame) const
+	{
+		auto iter = stance_delays[stance].find(frame);
+
+		if (iter == stance_delays[stance].end())
+			return 100;
+
+		return iter->second;
+	}
+
+	uint16_t BodyDrawInfo::get_attackdelay(std::string action, size_t no) const
+	{
+		auto action_iter = attack_delays.find(action);
+
+		if (action_iter != attack_delays.end())
+			if (no < action_iter->second.size())
+				return action_iter->second[no];
+
+		return 0;
+	}
+
+	uint8_t BodyDrawInfo::next_actionframe(std::string action, uint8_t frame) const
+	{
+		auto action_iter = body_actions.find(action);
+
+		if (action_iter != body_actions.end())
+			if (action_iter->second.count(frame + 1))
+				return frame + 1;
+
+		return 0;
+	}
+
+	const BodyAction* BodyDrawInfo::get_action(std::string action, uint8_t frame) const
+	{
+		auto action_iter = body_actions.find(action);
+
+		if (action_iter != body_actions.end())
+		{
+			auto frame_iter = action_iter->second.find(frame);
+
+			if (frame_iter != action_iter->second.end())
+				return &(frame_iter->second);
+		}
+
+		return nullptr;
+	}
+}
+
+================
+File: Character/Look/BodyDrawInfo.h
+================
+//////////////////////////////////////////////////////////////////////////////////
+//	This file is part of the continued Journey MMORPG client					//
+//	Copyright (C) 2015-2019  Daniel Allendorf, Ryan Payton						//
+//																				//
+//	This program is free software: you can redistribute it and/or modify		//
+//	it under the terms of the GNU Affero General Public License as published by	//
+//	the Free Software Foundation, either version 3 of the License, or			//
+//	(at your option) any later version.											//
+//																				//
+//	This program is distributed in the hope that it will be useful,				//
+//	but WITHOUT ANY WARRANTY; without even the implied warranty of				//
+//	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the				//
+//	GNU Affero General Public License for more details.							//
+//																				//
+//	You should have received a copy of the GNU Affero General Public License	//
+//	along with this program.  If not, see <https://www.gnu.org/licenses/>.		//
+//////////////////////////////////////////////////////////////////////////////////
+#pragma once
+
+#include "Stance.h"
+
+#include "../../Template/Point.h"
+
+#include <unordered_map>
+
+namespace ms
+{
+	// A frame of animation for a skill or similar 'meta-stance' 
+	// This simply redirects to a different stance and frame to use
+	class BodyAction
+	{
+	public:
+		BodyAction(nl::node src)
+		{
+			stance = Stance::by_string(src["action"]);
+			frame = src["frame"];
+			move = src["move"];
+
+			int16_t sgndelay = src["delay"];
+
+			if (sgndelay == 0)
+				sgndelay = 100;
+
+			if (sgndelay > 0)
+			{
+				delay = sgndelay;
+				attackframe = true;
+			}
+			else if (sgndelay < 0)
+			{
+				delay = -sgndelay;
+				attackframe = false;
+			}
+		}
+
+		BodyAction() {}
+
+		bool isattackframe() const
+		{
+			return attackframe;
+		}
+
+		uint8_t get_frame() const
+		{
+			return frame;
+		}
+
+		uint16_t get_delay() const
+		{
+			return delay;
+		}
+
+		Point<int16_t> get_move() const
+		{
+			return move;
+		}
+
+		Stance::Id get_stance() const
+		{
+			return stance;
+		}
+
+	private:
+		Stance::Id stance;
+		uint8_t frame;
+		uint16_t delay;
+		Point<int16_t> move;
+		bool attackframe;
+	};
+
+	class BodyDrawInfo
+	{
+	public:
+		void init();
+
+		Point<int16_t> get_body_position(Stance::Id stance, uint8_t frame) const;
+		Point<int16_t> get_arm_position(Stance::Id stance, uint8_t frame) const;
+		Point<int16_t> get_hand_position(Stance::Id stance, uint8_t frame) const;
+		Point<int16_t> get_head_position(Stance::Id stance, uint8_t frame) const;
+		Point<int16_t> gethairpos(Stance::Id stance, uint8_t frame) const;
+		Point<int16_t> getfacepos(Stance::Id stance, uint8_t frame) const;
+		uint8_t nextframe(Stance::Id stance, uint8_t frame) const;
+		uint16_t get_delay(Stance::Id stance, uint8_t frame) const;
+
+		uint16_t get_attackdelay(std::string action, size_t no) const;
+		uint8_t next_actionframe(std::string action, uint8_t frame) const;
+		const BodyAction* get_action(std::string action, uint8_t frame) const;
+
+	private:
+		std::unordered_map<uint8_t, Point<int16_t>> body_positions[Stance::Id::LENGTH];
+		std::unordered_map<uint8_t, Point<int16_t>> arm_positions[Stance::Id::LENGTH];
+		std::unordered_map<uint8_t, Point<int16_t>> hand_positions[Stance::Id::LENGTH];
+		std::unordered_map<uint8_t, Point<int16_t>> head_positions[Stance::Id::LENGTH];
+		std::unordered_map<uint8_t, Point<int16_t>> hair_positions[Stance::Id::LENGTH];
+		std::unordered_map<uint8_t, Point<int16_t>> face_positions[Stance::Id::LENGTH];
+		std::unordered_map<uint8_t, uint16_t> stance_delays[Stance::Id::LENGTH];
+
+		std::unordered_map<std::string, std::unordered_map<uint8_t, BodyAction>> body_actions;
+		std::unordered_map<std::string, std::vector<uint16_t>> attack_delays;
+	};
+}
+
+================
+File: Character/Look/CharEquips.cpp
+================
+//////////////////////////////////////////////////////////////////////////////////
+//	This file is part of the continued Journey MMORPG client					//
+//	Copyright (C) 2015-2019  Daniel Allendorf, Ryan Payton						//
+//																				//
+//	This program is free software: you can redistribute it and/or modify		//
+//	it under the terms of the GNU Affero General Public License as published by	//
+//	the Free Software Foundation, either version 3 of the License, or			//
+//	(at your option) any later version.											//
+//																				//
+//	This program is distributed in the hope that it will be useful,				//
+//	but WITHOUT ANY WARRANTY; without even the implied warranty of				//
+//	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the				//
+//	GNU Affero General Public License for more details.							//
+//																				//
+//	You should have received a copy of the GNU Affero General Public License	//
+//	along with this program.  If not, see <https://www.gnu.org/licenses/>.		//
+//////////////////////////////////////////////////////////////////////////////////
+#include "CharEquips.h"
+
+namespace ms
+{
+	CharEquips::CharEquips()
+	{
+		for (auto iter : clothes)
+			iter.second = nullptr;
+	}
+
+	void CharEquips::draw(EquipSlot::Id slot, Stance::Id stance, Clothing::Layer layer, uint8_t frame, const DrawArgument& args) const
+	{
+		if (const Clothing* cloth = clothes[slot])
+			cloth->draw(stance, layer, frame, args);
+	}
+
+	void CharEquips::add_equip(int32_t itemid, const BodyDrawInfo& drawinfo)
+	{
+		if (itemid <= 0)
+			return;
+
+		auto iter = cloth_cache.find(itemid);
+
+		if (iter == cloth_cache.end())
+		{
+			iter = cloth_cache.emplace(
+				std::piecewise_construct,
+				std::forward_as_tuple(itemid),
+				std::forward_as_tuple(itemid, drawinfo)
+				).first;
+		}
+
+		const Clothing& cloth = iter->second;
+
+		EquipSlot::Id slot = cloth.get_eqslot();
+		clothes[slot] = &cloth;
+	}
+
+	void CharEquips::remove_equip(EquipSlot::Id slot)
+	{
+		clothes[slot] = nullptr;
+	}
+
+	bool CharEquips::is_visible(EquipSlot::Id slot) const
+	{
+		if (const Clothing* cloth = clothes[slot])
+			return cloth->is_transparent() == false;
+		else
+			return false;
+	}
+
+	bool CharEquips::comparelayer(EquipSlot::Id slot, Stance::Id stance, Clothing::Layer layer) const
+	{
+		if (const Clothing* cloth = clothes[slot])
+			return cloth->contains_layer(stance, layer);
+		else
+			return false;
+	}
+
+	bool CharEquips::has_overall() const
+	{
+		return get_equip(EquipSlot::Id::TOP) / 10000 == 105;
+	}
+
+	bool CharEquips::has_weapon() const
+	{
+		return get_weapon() != 0;
+	}
+
+	bool CharEquips::is_twohanded() const
+	{
+		if (const Clothing* weapon = clothes[EquipSlot::Id::WEAPON])
+			return weapon->is_twohanded();
+		else
+			return false;
+	}
+
+	CharEquips::CapType CharEquips::getcaptype() const
+	{
+		if (const Clothing* cap = clothes[EquipSlot::Id::HAT])
+		{
+			const std::string& vslot = cap->get_vslot();
+			if (vslot == "CpH1H5")
+				return CharEquips::CapType::HALFCOVER;
+			else if (vslot == "CpH1H5AyAs")
+				return CharEquips::CapType::FULLCOVER;
+			else if (vslot == "CpH5")
+				return CharEquips::CapType::HEADBAND;
+			else
+				return CharEquips::CapType::NONE;
+		}
+		else
+		{
+			return CharEquips::CapType::NONE;
+		}
+	}
+
+	Stance::Id CharEquips::adjust_stance(Stance::Id stance) const
+	{
+		if (const Clothing* weapon = clothes[EquipSlot::Id::WEAPON])
+		{
+			switch (stance)
+			{
+			case Stance::Id::STAND1:
+			case Stance::Id::STAND2:
+				return weapon->get_stand();
+			case Stance::Id::WALK1:
+			case Stance::Id::WALK2:
+				return weapon->get_walk();
+			default:
+				return stance;
+			}
+		}
+		else
+		{
+			return stance;
+		}
+	}
+
+	int32_t CharEquips::get_equip(EquipSlot::Id slot) const
+	{
+		if (const Clothing* cloth = clothes[slot])
+			return cloth->get_id();
+		else
+			return 0;
+	}
+
+	int32_t CharEquips::get_weapon() const
+	{
+		return get_equip(EquipSlot::Id::WEAPON);
+	}
+
+	std::unordered_map<int32_t, Clothing> CharEquips::cloth_cache;
+}
+
+================
+File: Character/Look/CharEquips.h
+================
+//////////////////////////////////////////////////////////////////////////////////
+//	This file is part of the continued Journey MMORPG client					//
+//	Copyright (C) 2015-2019  Daniel Allendorf, Ryan Payton						//
+//																				//
+//	This program is free software: you can redistribute it and/or modify		//
+//	it under the terms of the GNU Affero General Public License as published by	//
+//	the Free Software Foundation, either version 3 of the License, or			//
+//	(at your option) any later version.											//
+//																				//
+//	This program is distributed in the hope that it will be useful,				//
+//	but WITHOUT ANY WARRANTY; without even the implied warranty of				//
+//	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the				//
+//	GNU Affero General Public License for more details.							//
+//																				//
+//	You should have received a copy of the GNU Affero General Public License	//
+//	along with this program.  If not, see <https://www.gnu.org/licenses/>.		//
+//////////////////////////////////////////////////////////////////////////////////
+#pragma once
+
+#include "Clothing.h"
+
+namespace ms
+{
+	// A characters equipment (The visual part)
+	class CharEquips
+	{
+	public:
+		// Cap types (vslot)
+		enum CapType
+		{
+			NONE,
+			HEADBAND,
+			HAIRPIN,
+			HALFCOVER,
+			FULLCOVER
+		};
+
+		// Initialize pointers with zero
+		CharEquips();
+
+		// Draw an equip
+		void draw(EquipSlot::Id slot, Stance::Id stance, Clothing::Layer layer, uint8_t frame, const DrawArgument& args) const;
+		// Add an equip, if not in cache, the equip is created from the files.
+		void add_equip(int32_t itemid, const BodyDrawInfo& drawinfo);
+		// Remove an equip
+		void remove_equip(EquipSlot::Id slot);
+
+		// Check if an equip is visible
+		bool is_visible(EquipSlot::Id slot) const;
+		// Check if the equip at the specified slot in the specified stance contains a part on the specified layer
+		bool comparelayer(EquipSlot::Id slot, Stance::Id stance, Clothing::Layer layer) const;
+		// Return if there is an overall equipped
+		bool has_overall() const;
+		// Return if there is a weapon equipped
+		bool has_weapon() const;
+		// Return whether the equipped weapon is twohanded
+		bool is_twohanded() const;
+		// Return the cap type (vslot)
+		CapType getcaptype() const;
+		// Return a stance which has been adjusted to the equipped weapon type
+		Stance::Id adjust_stance(Stance::Id stance) const;
+		// Return the item id of the equip at the specified slot
+		int32_t get_equip(EquipSlot::Id slot) const;
+		// Return the item id of the equipped weapon
+		int32_t get_weapon() const;
+
+	private:
+		EnumMap<EquipSlot::Id, const Clothing*> clothes;
+
+		static std::unordered_map<int32_t, Clothing> cloth_cache;
+	};
+}
+
+================
+File: Character/Look/CharLook.cpp
+================
+//////////////////////////////////////////////////////////////////////////////////
+//	This file is part of the continued Journey MMORPG client					//
+//	Copyright (C) 2015-2019  Daniel Allendorf, Ryan Payton						//
+//																				//
+//	This program is free software: you can redistribute it and/or modify		//
+//	it under the terms of the GNU Affero General Public License as published by	//
+//	the Free Software Foundation, either version 3 of the License, or			//
+//	(at your option) any later version.											//
+//																				//
+//	This program is distributed in the hope that it will be useful,				//
+//	but WITHOUT ANY WARRANTY; without even the implied warranty of				//
+//	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the				//
+//	GNU Affero General Public License for more details.							//
+//																				//
+//	You should have received a copy of the GNU Affero General Public License	//
+//	along with this program.  If not, see <https://www.gnu.org/licenses/>.		//
+//////////////////////////////////////////////////////////////////////////////////
+#include "CharLook.h"
+
+#include "../../Data/WeaponData.h"
+#include "../../Util/Misc.h"
+
+namespace ms
+{
+	CharLook::CharLook(const LookEntry& entry)
+	{
+		reset();
+
+		set_body(entry.skin);
+		set_hair(entry.hairid);
+		set_face(entry.faceid);
+
+		try {
+			add_equip(Clothing::TOP_DEFAULT_ID);
+			add_equip(Clothing::BOTTOM_DEFAULT_ID);
+		} catch (const std::exception& e) {
+			NDEBUG("Failed to load default clothing: " << e.what());
+		}
+
+		for (auto& equip : entry.equips) {
+			try {
+				add_equip(equip.second);
+			} catch (const std::exception& e) {
+				// Handle v83/v87 equipment compatibility issues
+				NDEBUG("Failed to load equipment " << equip.second << ": " << e.what());
+			}
+		}
+	}
+
+	CharLook::CharLook()
+	{
+		reset();
+
+		body = nullptr;
+		hair = nullptr;
+		face = nullptr;
+	}
+
+	void CharLook::reset()
+	{
+		flip = true;
+
+		action = nullptr;
+		actionstr = "";
+		actframe = 0;
+
+		set_stance(Stance::Id::STAND1);
+		stframe.set(0);
+		stelapsed = 0;
+
+		set_expression(Expression::Id::DEFAULT);
+		expframe.set(0);
+		expelapsed = 0;
+	}
+
+	void CharLook::draw(const DrawArgument& args, Stance::Id interstance, Expression::Id interexpression, uint8_t interframe, uint8_t interexpframe) const
+	{
+		Point<int16_t> faceshift = drawinfo.getfacepos(interstance, interframe);
+		DrawArgument faceargs = args + DrawArgument{ faceshift, false, Point<int16_t>(0, 0) };
+
+		if (Stance::is_climbing(interstance))
+		{
+			body->draw(Body::Layer::BODY, interstance, interframe, args);
+			equips.draw(EquipSlot::Id::GLOVES, interstance, Clothing::Layer::GLOVE, interframe, args);
+			equips.draw(EquipSlot::Id::SHOES, interstance, Clothing::Layer::SHOES, interframe, args);
+			equips.draw(EquipSlot::Id::BOTTOM_DEFAULT, interstance, Clothing::Layer::PANTS_DEFAULT, interframe, args);
+			equips.draw(EquipSlot::Id::BOTTOM, interstance, Clothing::Layer::PANTS, interframe, args);
+			equips.draw(EquipSlot::Id::TOP_DEFAULT, interstance, Clothing::Layer::TOP_DEFAULT, interframe, args);
+			equips.draw(EquipSlot::Id::TOP, interstance, Clothing::Layer::TOP, interframe, args);
+			equips.draw(EquipSlot::Id::TOP, interstance, Clothing::Layer::MAIL, interframe, args);
+			equips.draw(EquipSlot::Id::CAPE, interstance, Clothing::Layer::CAPE, interframe, args);
+			body->draw(Body::Layer::HEAD, interstance, interframe, args);
+			equips.draw(EquipSlot::Id::EARACC, interstance, Clothing::Layer::EARRINGS, interframe, args);
+
+			switch (equips.getcaptype())
+			{
+				case CharEquips::CapType::NONE:
+					hair->draw(Hair::Layer::BACK, interstance, interframe, args);
+					break;
+				case CharEquips::CapType::HEADBAND:
+					equips.draw(EquipSlot::Id::HAT, interstance, Clothing::Layer::CAP, interframe, args);
+					hair->draw(Hair::Layer::BACK, interstance, interframe, args);
+					break;
+				case CharEquips::CapType::HALFCOVER:
+					hair->draw(Hair::Layer::BELOWCAP, interstance, interframe, args);
+					equips.draw(EquipSlot::Id::HAT, interstance, Clothing::Layer::CAP, interframe, args);
+					break;
+				case CharEquips::CapType::FULLCOVER:
+					equips.draw(EquipSlot::Id::HAT, interstance, Clothing::Layer::CAP, interframe, args);
+					break;
+			}
+
+			equips.draw(EquipSlot::Id::SHIELD, interstance, Clothing::Layer::BACKSHIELD, interframe, args);
+			equips.draw(EquipSlot::Id::WEAPON, interstance, Clothing::Layer::BACKWEAPON, interframe, args);
+		}
+		else
+		{
+			hair->draw(Hair::Layer::BELOWBODY, interstance, interframe, args);
+			equips.draw(EquipSlot::Id::CAPE, interstance, Clothing::Layer::CAPE, interframe, args);
+			equips.draw(EquipSlot::Id::SHIELD, interstance, Clothing::Layer::SHIELD_BELOW_BODY, interframe, args);
+			equips.draw(EquipSlot::Id::WEAPON, interstance, Clothing::Layer::WEAPON_BELOW_BODY, interframe, args);
+			equips.draw(EquipSlot::Id::HAT, interstance, Clothing::Layer::CAP_BELOW_BODY, interframe, args);
+			body->draw(Body::Layer::BODY, interstance, interframe, args);
+			equips.draw(EquipSlot::Id::GLOVES, interstance, Clothing::Layer::WRIST_OVER_BODY, interframe, args);
+			equips.draw(EquipSlot::Id::GLOVES, interstance, Clothing::Layer::GLOVE_OVER_BODY, interframe, args);
+			equips.draw(EquipSlot::Id::SHOES, interstance, Clothing::Layer::SHOES, interframe, args);
+			body->draw(Body::Layer::ARM_BELOW_HEAD, interstance, interframe, args);
+
+			if (equips.has_overall())
+			{
+				equips.draw(EquipSlot::Id::TOP, interstance, Clothing::Layer::MAIL, interframe, args);
+			}
+			else
+			{
+				equips.draw(EquipSlot::Id::BOTTOM_DEFAULT, interstance, Clothing::Layer::PANTS_DEFAULT, interframe, args);
+				equips.draw(EquipSlot::Id::BOTTOM, interstance, Clothing::Layer::PANTS, interframe, args);
+				equips.draw(EquipSlot::Id::TOP_DEFAULT, interstance, Clothing::Layer::TOP_DEFAULT, interframe, args);
+				equips.draw(EquipSlot::Id::TOP, interstance, Clothing::Layer::TOP, interframe, args);
+			}
+
+			body->draw(Body::Layer::ARM_BELOW_HEAD_OVER_MAIL, interstance, interframe, args);
+			equips.draw(EquipSlot::Id::SHIELD, interstance, Clothing::Layer::SHIELD_OVER_HAIR, interframe, args);
+			equips.draw(EquipSlot::Id::EARACC, interstance, Clothing::Layer::EARRINGS, interframe, args);
+			body->draw(Body::Layer::HEAD, interstance, interframe, args);
+			body->draw(Body::Layer::HUMAN_EAR, interstance, interframe, args + Point<int16_t>(0, 1));
+			hair->draw(Hair::Layer::SHADE, interstance, interframe, args);
+			hair->draw(Hair::Layer::DEFAULT, interstance, interframe, args);
+			face->draw(interexpression, interexpframe, faceargs);
+			equips.draw(EquipSlot::Id::FACE, interstance, Clothing::Layer::FACEACC, 0, faceargs);
+			equips.draw(EquipSlot::Id::EYEACC, interstance, Clothing::Layer::EYEACC, interframe, args);
+			equips.draw(EquipSlot::Id::SHIELD, interstance, Clothing::Layer::SHIELD, interframe, args);
+
+			switch (equips.getcaptype())
+			{
+				case CharEquips::CapType::NONE:
+					hair->draw(Hair::Layer::OVERHEAD, interstance, interframe, args);
+					break;
+				case CharEquips::CapType::HEADBAND:
+					equips.draw(EquipSlot::Id::HAT, interstance, Clothing::Layer::CAP, interframe, args);
+					hair->draw(Hair::Layer::DEFAULT, interstance, interframe, args);
+					hair->draw(Hair::Layer::OVERHEAD, interstance, interframe, args);
+					equips.draw(EquipSlot::Id::HAT, interstance, Clothing::Layer::CAP_OVER_HAIR, interframe, args);
+					break;
+				case CharEquips::CapType::HALFCOVER:
+					hair->draw(Hair::Layer::DEFAULT, interstance, interframe, args);
+					equips.draw(EquipSlot::Id::HAT, interstance, Clothing::Layer::CAP, interframe, args);
+					break;
+				case CharEquips::CapType::FULLCOVER:
+					equips.draw(EquipSlot::Id::HAT, interstance, Clothing::Layer::CAP, interframe, args);
+					break;
+			}
+
+			equips.draw(EquipSlot::Id::WEAPON, interstance, Clothing::Layer::WEAPON_BELOW_ARM, interframe, args);
+
+			if (is_twohanded(interstance))
+			{
+				body->draw(Body::Layer::ARM, interstance, interframe, args);
+				equips.draw(EquipSlot::Id::TOP, interstance, Clothing::Layer::MAILARM, interframe, args);
+				equips.draw(EquipSlot::Id::WEAPON, interstance, Clothing::Layer::WEAPON, interframe, args);
+			}
+			else
+			{
+				equips.draw(EquipSlot::Id::WEAPON, interstance, Clothing::Layer::WEAPON, interframe, args);
+				body->draw(Body::Layer::ARM, interstance, interframe, args);
+				equips.draw(EquipSlot::Id::TOP, interstance, Clothing::Layer::MAILARM, interframe, args);
+			}
+
+			equips.draw(EquipSlot::Id::GLOVES, interstance, Clothing::Layer::WRIST, interframe, args);
+			equips.draw(EquipSlot::Id::GLOVES, interstance, Clothing::Layer::GLOVE, interframe, args);
+			equips.draw(EquipSlot::Id::WEAPON, interstance, Clothing::Layer::WEAPON_OVER_GLOVE, interframe, args);
+
+			body->draw(Body::Layer::HAND_BELOW_WEAPON, interstance, interframe, args);
+
+			body->draw(Body::Layer::ARM_OVER_HAIR, interstance, interframe, args);
+			body->draw(Body::Layer::ARM_OVER_HAIR_BELOW_WEAPON, interstance, interframe, args);
+			equips.draw(EquipSlot::Id::WEAPON, interstance, Clothing::Layer::WEAPON_OVER_HAND, interframe, args);
+			equips.draw(EquipSlot::Id::WEAPON, interstance, Clothing::Layer::WEAPON_OVER_BODY, interframe, args);
+			body->draw(Body::Layer::HAND_OVER_HAIR, interstance, interframe, args);
+			body->draw(Body::Layer::HAND_OVER_WEAPON, interstance, interframe, args);
+
+			equips.draw(EquipSlot::Id::GLOVES, interstance, Clothing::Layer::WRIST_OVER_HAIR, interframe, args);
+			equips.draw(EquipSlot::Id::GLOVES, interstance, Clothing::Layer::GLOVE_OVER_HAIR, interframe, args);
+		}
+	}
+
+	void CharLook::draw(const DrawArgument& args, float alpha) const
+	{
+		if (!body || !hair || !face)
+			return;
+
+		Point<int16_t> acmove;
+
+		if (action)
+			acmove = action->get_move();
+
+		DrawArgument relargs = { acmove, flip };
+
+		Stance::Id interstance = stance.get(alpha);
+		Expression::Id interexpression = expression.get(alpha);
+		uint8_t interframe = stframe.get(alpha);
+		uint8_t interexpframe = expframe.get(alpha);
+
+		switch (interstance)
+		{
+			case Stance::Id::STAND1:
+			case Stance::Id::STAND2:
+			{
+				if (alerted)
+					interstance = Stance::Id::ALERT;
+
+				break;
+			}
+		}
+
+		draw(relargs + args, interstance, interexpression, interframe, interexpframe);
+	}
+
+	void CharLook::draw(Point<int16_t> position, bool flipped, Stance::Id interstance, Expression::Id interexpression) const
+	{
+		interstance = equips.adjust_stance(interstance);
+		draw({ position, flipped }, interstance, interexpression, 0, 0);
+	}
+
+	bool CharLook::update(uint16_t timestep)
+	{
+		if (timestep == 0)
+		{
+			stance.normalize();
+			stframe.normalize();
+			expression.normalize();
+			expframe.normalize();
+			return false;
+		}
+
+		alerted.update();
+		expcooldown.update();
+
+		bool aniend = false;
+
+		if (action == nullptr)
+		{
+			uint16_t delay = get_delay(stance.get(), stframe.get());
+			uint16_t delta = delay - stelapsed;
+
+			if (timestep >= delta)
+			{
+				stelapsed = timestep - delta;
+
+				uint8_t nextframe = getnextframe(stance.get(), stframe.get());
+				float threshold = static_cast<float>(delta) / timestep;
+				stframe.next(nextframe, threshold);
+
+				if (stframe == 0)
+					aniend = true;
+			}
+			else
+			{
+				stance.normalize();
+				stframe.normalize();
+
+				stelapsed += timestep;
+			}
+		}
+		else
+		{
+			uint16_t delay = action->get_delay();
+			uint16_t delta = delay - stelapsed;
+
+			if (timestep >= delta)
+			{
+				stelapsed = timestep - delta;
+				actframe = drawinfo.next_actionframe(actionstr, actframe);
+
+				if (actframe > 0)
+				{
+					action = drawinfo.get_action(actionstr, actframe);
+
+					float threshold = static_cast<float>(delta) / timestep;
+					stance.next(action->get_stance(), threshold);
+					stframe.next(action->get_frame(), threshold);
+				}
+				else
+				{
+					aniend = true;
+					action = nullptr;
+					actionstr = "";
+					set_stance(Stance::Id::STAND1);
+				}
+			}
+			else
+			{
+				stance.normalize();
+				stframe.normalize();
+
+				stelapsed += timestep;
+			}
+		}
+
+		uint16_t expdelay = face->get_delay(expression.get(), expframe.get());
+		uint16_t expdelta = expdelay - expelapsed;
+
+		if (timestep >= expdelta)
+		{
+			expelapsed = timestep - expdelta;
+
+			uint8_t nextexpframe = face->nextframe(expression.get(), expframe.get());
+			float fcthreshold = static_cast<float>(expdelta) / timestep;
+			expframe.next(nextexpframe, fcthreshold);
+
+			if (expframe == 0)
+			{
+				if (expression == Expression::Id::DEFAULT)
+					expression.next(Expression::Id::BLINK, fcthreshold);
+				else
+					expression.next(Expression::Id::DEFAULT, fcthreshold);
+			}
+		}
+		else
+		{
+			expression.normalize();
+			expframe.normalize();
+
+			expelapsed += timestep;
+		}
+
+		return aniend;
+	}
+
+	void CharLook::set_body(int32_t skin_id)
+	{
+		auto iter = bodytypes.find(skin_id);
+
+		if (iter == bodytypes.end())
+		{
+			iter = bodytypes.emplace(
+				std::piecewise_construct,
+				std::forward_as_tuple(skin_id),
+				std::forward_as_tuple(skin_id, drawinfo)
+			).first;
+		}
+
+		body = &iter->second;
+	}
+
+	void CharLook::set_hair(int32_t hair_id)
+	{
+		auto iter = hairstyles.find(hair_id);
+
+		if (iter == hairstyles.end())
+		{
+			iter = hairstyles.emplace(
+				std::piecewise_construct,
+				std::forward_as_tuple(hair_id),
+				std::forward_as_tuple(hair_id, drawinfo)
+			).first;
+		}
+
+		hair = &iter->second;
+	}
+
+	void CharLook::set_face(int32_t face_id)
+	{
+		auto iter = facetypes.find(face_id);
+
+		if (iter == facetypes.end())
+			iter = facetypes.emplace(face_id, face_id).first;
+
+		face = &iter->second;
+	}
+
+	void CharLook::updatetwohanded()
+	{
+		Stance::Id basestance = Stance::baseof(stance.get());
+		set_stance(basestance);
+	}
+
+	void CharLook::add_equip(int32_t itemid)
+	{
+		equips.add_equip(itemid, drawinfo);
+		updatetwohanded();
+	}
+
+	void CharLook::remove_equip(EquipSlot::Id slot)
+	{
+		equips.remove_equip(slot);
+
+		if (slot == EquipSlot::Id::WEAPON)
+			updatetwohanded();
+	}
+
+	void CharLook::attack(bool degenerate)
+	{
+		int32_t weapon_id = equips.get_weapon();
+
+		if (weapon_id <= 0)
+			return;
+
+		const WeaponData& weapon = WeaponData::get(weapon_id);
+
+		uint8_t attacktype = weapon.get_attack();
+
+		if (attacktype == 9 && !degenerate)
+		{
+			stance.set(Stance::Id::SHOT);
+			set_action("handgun");
+		}
+		else
+		{
+			stance.set(getattackstance(attacktype, degenerate));
+			stframe.set(0);
+			stelapsed = 0;
+		}
+
+		weapon.get_usesound(degenerate).play();
+	}
+
+	void CharLook::attack(Stance::Id newstance)
+	{
+		if (action || newstance == Stance::Id::NONE)
+			return;
+
+		switch (newstance)
+		{
+			case Stance::Id::SHOT:
+				set_action("handgun");
+				break;
+			default:
+				set_stance(newstance);
+				break;
+		}
+	}
+
+	void CharLook::set_stance(Stance::Id newstance)
+	{
+		if (action || newstance == Stance::Id::NONE)
+			return;
+
+		Stance::Id adjstance = equips.adjust_stance(newstance);
+
+		if (stance != adjstance)
+		{
+			stance.set(adjstance);
+			stframe.set(0);
+			stelapsed = 0;
+		}
+	}
+
+	Stance::Id CharLook::getattackstance(uint8_t attack, bool degenerate) const
+	{
+		if (stance == Stance::Id::PRONE)
+			return Stance::Id::PRONESTAB;
+
+		enum Attack
+		{
+			NONE = 0,
+			S1A1M1D = 1,
+			SPEAR = 2,
+			BOW = 3,
+			CROSSBOW = 4,
+			S2A2M2 = 5,
+			WAND = 6,
+			CLAW = 7,
+			GUN = 9,
+			NUM_ATTACKS
+		};
+
+		static const std::array<std::vector<Stance::Id>, Attack::NUM_ATTACKS> degen_stances = {
+			{
+				{ Stance::Id::NONE },
+				{ Stance::Id::NONE },
+				{ Stance::Id::NONE },
+				{ Stance::Id::SWINGT1, Stance::Id::SWINGT3 },
+				{ Stance::Id::SWINGT1, Stance::Id::STABT1 },
+				{ Stance::Id::NONE },
+				{ Stance::Id::NONE },
+				{ Stance::Id::SWINGT1, Stance::Id::STABT1 },
+				{ Stance::Id::NONE },
+				{ Stance::Id::SWINGP1, Stance::Id::STABT2 }
+			}
+		};
+
+		static const std::array<std::vector<Stance::Id>, NUM_ATTACKS> attack_stances = {
+			{
+				{ Stance::Id::NONE },
+				{ Stance::Id::STABO1, Stance::Id::STABO2, Stance::Id::SWINGO1, Stance::Id::SWINGO2, Stance::Id::SWINGO3 },
+				{ Stance::Id::STABT1, Stance::Id::SWINGP1 },
+				{ Stance::Id::SHOOT1 },
+				{ Stance::Id::SHOOT2 },
+				{ Stance::Id::STABO1, Stance::Id::STABO2, Stance::Id::SWINGT1, Stance::Id::SWINGT2, Stance::Id::SWINGT3 },
+				{ Stance::Id::SWINGO1, Stance::Id::SWINGO2 },
+				{ Stance::Id::SWINGO1, Stance::Id::SWINGO2 },
+				{ Stance::Id::NONE },
+				{ Stance::Id::SHOT }
+			}
+		};
+
+		if (attack <= Attack::NONE || attack >= Attack::NUM_ATTACKS)
+			return Stance::Id::STAND1;
+
+		const auto& stances = degenerate ? degen_stances[attack] : attack_stances[attack];
+
+		if (stances.empty())
+			return Stance::Id::STAND1;
+
+		size_t index = randomizer.next_int(stances.size());
+
+		return stances[index];
+	}
+
+	uint16_t CharLook::get_delay(Stance::Id st, uint8_t fr) const
+	{
+		return drawinfo.get_delay(st, fr);
+	}
+
+	uint8_t CharLook::getnextframe(Stance::Id st, uint8_t fr) const
+	{
+		return drawinfo.nextframe(st, fr);
+	}
+
+	void CharLook::set_expression(Expression::Id newexpression)
+	{
+		if (expression != newexpression && !expcooldown)
+		{
+			expression.set(newexpression);
+			expframe.set(0);
+
+			expelapsed = 0;
+			expcooldown.set_for(5000);
+		}
+	}
+
+	void CharLook::set_action(const std::string& acstr)
+	{
+		if (acstr == actionstr || acstr == "")
+			return;
+
+		if (Stance::Id ac_stance = Stance::by_string(acstr))
+		{
+			set_stance(ac_stance);
+		}
+		else
+		{
+			action = drawinfo.get_action(acstr, 0);
+
+			if (action)
+			{
+				actframe = 0;
+				stelapsed = 0;
+				actionstr = acstr;
+
+				stance.set(action->get_stance());
+				stframe.set(action->get_frame());
+			}
+		}
+	}
+
+	void CharLook::set_direction(bool f)
+	{
+		flip = f;
+	}
+
+	void CharLook::set_alerted(int64_t millis)
+	{
+		alerted.set_for(millis);
+	}
+
+	bool CharLook::get_alerted() const
+	{
+		return (bool)alerted;
+	}
+
+	bool CharLook::is_twohanded(Stance::Id st) const
+	{
+		switch (st)
+		{
+			case Stance::Id::STAND1:
+			case Stance::Id::WALK1:
+				return false;
+			case Stance::Id::STAND2:
+			case Stance::Id::WALK2:
+				return true;
+			default:
+				return equips.is_twohanded();
+		}
+	}
+
+	uint16_t CharLook::get_attackdelay(size_t no, uint8_t first_frame) const
+	{
+		if (action)
+		{
+			return drawinfo.get_attackdelay(actionstr, no);
+		}
+		else
+		{
+			uint16_t delay = 0;
+
+			for (uint8_t frame = 0; frame < first_frame; frame++)
+				delay += get_delay(stance.get(), frame);
+
+			return delay;
+		}
+	}
+
+	uint8_t CharLook::get_frame() const
+	{
+		return stframe.get();
+	}
+
+	Stance::Id CharLook::get_stance() const
+	{
+		return stance.get();
+	}
+
+	const Body* CharLook::get_body() const
+	{
+		return body;
+	}
+
+	const Hair* CharLook::get_hair() const
+	{
+		return hair;
+	}
+
+	const Face* CharLook::get_face() const
+	{
+		return face;
+	}
+
+	const CharEquips& CharLook::get_equips() const
+	{
+		return equips;
+	}
+
+	void CharLook::init()
+	{
+		drawinfo.init();
+	}
+
+	BodyDrawInfo CharLook::drawinfo;
+	std::unordered_map<int32_t, Hair> CharLook::hairstyles;
+	std::unordered_map<int32_t, Face> CharLook::facetypes;
+	std::unordered_map<int32_t, Body> CharLook::bodytypes;
+}
+
+================
+File: Character/Look/CharLook.h
+================
+//////////////////////////////////////////////////////////////////////////////////
+//	This file is part of the continued Journey MMORPG client					//
+//	Copyright (C) 2015-2019  Daniel Allendorf, Ryan Payton						//
+//																				//
+//	This program is free software: you can redistribute it and/or modify		//
+//	it under the terms of the GNU Affero General Public License as published by	//
+//	the Free Software Foundation, either version 3 of the License, or			//
+//	(at your option) any later version.											//
+//																				//
+//	This program is distributed in the hope that it will be useful,				//
+//	but WITHOUT ANY WARRANTY; without even the implied warranty of				//
+//	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the				//
+//	GNU Affero General Public License for more details.							//
+//																				//
+//	You should have received a copy of the GNU Affero General Public License	//
+//	along with this program.  If not, see <https://www.gnu.org/licenses/>.		//
+//////////////////////////////////////////////////////////////////////////////////
+#pragma once
+
+#include "Body.h"
+#include "CharEquips.h"
+#include "Face.h"
+#include "Hair.h"
+
+#include "../../Net/Login.h"
+#include "../../Template/Interpolated.h"
+#include "../../Util/Randomizer.h"
+#include "../../Util/TimedBool.h"
+
+namespace ms
+{
+	class CharLook
+	{
+	public:
+		CharLook(const LookEntry& entry);
+		CharLook();
+
+		void reset();
+		void draw(const DrawArgument& args, float alpha) const;
+		void draw(Point<int16_t> pos, bool flip, Stance::Id stance, Expression::Id expression) const;
+		bool update(uint16_t timestep);
+
+		void set_hair(int32_t hairid);
+		void set_body(int32_t skinid);
+		void set_face(int32_t faceid);
+		void add_equip(int32_t equipid);
+		void remove_equip(EquipSlot::Id slot);
+
+		void attack(bool degenerate);
+		void attack(Stance::Id stance);
+		void set_stance(Stance::Id stance);
+		void set_expression(Expression::Id expression);
+		void set_action(const std::string& action);
+		void set_direction(bool mirrored);
+		void set_alerted(int64_t millis);
+		bool get_alerted() const;
+
+		bool is_twohanded(Stance::Id stance) const;
+		uint16_t get_attackdelay(size_t no, uint8_t first_frame) const;
+		uint8_t get_frame() const;
+		Stance::Id get_stance() const;
+
+		const Body* get_body() const;
+		const Hair* get_hair() const;
+		const Face* get_face() const;
+		const CharEquips& get_equips() const;
+
+		// Initialize drawinfo
+		static void init();
+
+	private:
+		void updatetwohanded();
+		void draw(const DrawArgument& args, Stance::Id interstance, Expression::Id interexp, uint8_t interframe, uint8_t interfcframe) const;
+		uint16_t get_delay(Stance::Id stance, uint8_t frame) const;
+		uint8_t getnextframe(Stance::Id stance, uint8_t frame) const;
+		Stance::Id getattackstance(uint8_t attack, bool degenerate) const;
+
+		Nominal<Stance::Id> stance;
+		Nominal<uint8_t> stframe;
+		uint16_t stelapsed;
+
+		Nominal<Expression::Id> expression;
+		Nominal<uint8_t> expframe;
+		uint16_t expelapsed;
+		TimedBool expcooldown;
+
+		bool flip;
+
+		const BodyAction* action;
+		std::string actionstr;
+		uint8_t actframe;
+
+		const Body* body;
+		const Hair* hair;
+		const Face* face;
+		CharEquips equips;
+
+		Randomizer randomizer;
+		TimedBool alerted;
+
+		static BodyDrawInfo drawinfo;
+		static std::unordered_map<int32_t, Hair> hairstyles;
+		static std::unordered_map<int32_t, Face> facetypes;
+		static std::unordered_map<int32_t, Body> bodytypes;
+	};
+}
+
+================
+File: Character/Look/Clothing.cpp
+================
+//////////////////////////////////////////////////////////////////////////////////
+//	This file is part of the continued Journey MMORPG client					//
+//	Copyright (C) 2015-2019  Daniel Allendorf, Ryan Payton						//
+//																				//
+//	This program is free software: you can redistribute it and/or modify		//
+//	it under the terms of the GNU Affero General Public License as published by	//
+//	the Free Software Foundation, either version 3 of the License, or			//
+//	(at your option) any later version.											//
+//																				//
+//	This program is distributed in the hope that it will be useful,				//
+//	but WITHOUT ANY WARRANTY; without even the implied warranty of				//
+//	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the				//
+//	GNU Affero General Public License for more details.							//
+//																				//
+//	You should have received a copy of the GNU Affero General Public License	//
+//	along with this program.  If not, see <https://www.gnu.org/licenses/>.		//
+//////////////////////////////////////////////////////////////////////////////////
+#include "Clothing.h"
+
+#include "../../Data/WeaponData.h"
+
+#include <unordered_set>
+
+#ifdef USE_NX
+#include <nlnx/nx.hpp>
+#endif
+
+namespace ms
+{
+	Clothing::Clothing(int32_t id, const BodyDrawInfo& drawinfo) : itemid(id)
+	{
+		const EquipData& equipdata = EquipData::get(itemid);
+
+		eqslot = equipdata.get_eqslot();
+
+		if (itemid == TOP_DEFAULT_ID)
+			eqslot = EquipSlot::Id::TOP_DEFAULT;
+		else if (itemid == BOTTOM_DEFAULT_ID)
+			eqslot = EquipSlot::Id::BOTTOM_DEFAULT;
+
+		if (eqslot == EquipSlot::Id::WEAPON)
+			twohanded = WeaponData::get(itemid).is_twohanded();
+		else
+			twohanded = false;
+
+		constexpr size_t NON_WEAPON_TYPES = 15;
+		constexpr size_t WEAPON_OFFSET = NON_WEAPON_TYPES + 15;
+		constexpr size_t WEAPON_TYPES = 20;
+
+		constexpr Clothing::Layer layers[NON_WEAPON_TYPES] =
+		{
+			Clothing::Layer::CAP,
+			Clothing::Layer::FACEACC,
+			Clothing::Layer::EYEACC,
+			Clothing::Layer::EARRINGS,
+			Clothing::Layer::TOP,
+			Clothing::Layer::MAIL,
+			Clothing::Layer::PANTS,
+			Clothing::Layer::SHOES,
+			Clothing::Layer::GLOVE,
+			Clothing::Layer::SHIELD,
+			Clothing::Layer::CAPE,
+			Clothing::Layer::RING,
+			Clothing::Layer::PENDANT,
+			Clothing::Layer::BELT,
+			Clothing::Layer::MEDAL
+		};
+
+		Clothing::Layer chlayer;
+		size_t index = (itemid / 10000) - 100;
+
+		if (itemid == TOP_DEFAULT_ID)
+			chlayer = Clothing::Layer::TOP_DEFAULT;
+		else if (itemid == BOTTOM_DEFAULT_ID)
+			chlayer = Clothing::Layer::PANTS_DEFAULT;
+		else if (index < NON_WEAPON_TYPES)
+			chlayer = layers[index];
+		else if (index >= WEAPON_OFFSET && index < WEAPON_OFFSET + WEAPON_TYPES)
+			chlayer = Clothing::Layer::WEAPON;
+		else
+			chlayer = Clothing::Layer::CAPE;
+
+		std::string strid = "0" + std::to_string(itemid);
+		std::string category = equipdata.get_itemdata().get_category();
+		nl::node src = nl::nx::Character[category][strid + ".img"];
+		nl::node info = src["info"];
+
+		vslot = info["vslot"];
+
+		switch (int32_t standno = info["stand"])
+		{
+			case 1:
+				stand = Stance::Id::STAND1;
+				break;
+			case 2:
+				stand = Stance::Id::STAND2;
+				break;
+			default:
+				stand = twohanded ? Stance::Id::STAND2 : Stance::Id::STAND1;
+				break;
+		}
+
+		switch (int32_t walkno = info["walk"])
+		{
+			case 1:
+				walk = Stance::Id::WALK1;
+				break;
+			case 2:
+				walk = Stance::Id::WALK2;
+				break;
+			default:
+				walk = twohanded ? Stance::Id::WALK2 : Stance::Id::WALK1;
+				break;
+		}
+
+		for (auto iter : Stance::names)
+		{
+			Stance::Id stance = iter.first;
+			const std::string& stancename = iter.second;
+
+			nl::node stancenode = src[stancename];
+
+			if (!stancenode)
+				continue;
+
+			for (uint8_t frame = 0; nl::node framenode = stancenode[frame]; ++frame)
+			{
+				for (nl::node partnode : framenode)
+				{
+					std::string part = partnode.name();
+
+					if (!partnode || partnode.data_type() != nl::node::type::bitmap)
+						continue;
+
+					Clothing::Layer z = chlayer;
+					std::string zs = partnode["z"];
+
+					if (part == "mailArm")
+					{
+						z = Clothing::Layer::MAILARM;
+					}
+					else
+					{
+						auto sublayer_iter = sublayernames.find(zs);
+
+						if (sublayer_iter != sublayernames.end())
+							z = sublayer_iter->second;
+					}
+
+					std::string parent;
+					Point<int16_t> parentpos;
+
+					for (auto mapnode : partnode["map"])
+					{
+						if (mapnode.data_type() == nl::node::type::vector)
+						{
+							parent = mapnode.name();
+							parentpos = mapnode;
+						}
+					}
+
+					nl::node mapnode = partnode["map"];
+					Point<int16_t> shift;
+
+					switch (eqslot)
+					{
+						case EquipSlot::Id::FACE:
+						{
+							shift -= parentpos;
+							break;
+						}
+						case EquipSlot::Id::SHOES:
+						case EquipSlot::Id::GLOVES:
+						case EquipSlot::Id::TOP:
+						case EquipSlot::Id::TOP_DEFAULT:
+						case EquipSlot::Id::BOTTOM:
+						case EquipSlot::Id::BOTTOM_DEFAULT:
+						case EquipSlot::Id::CAPE:
+						{
+							shift = drawinfo.get_body_position(stance, frame) - parentpos;
+							break;
+						}
+						case EquipSlot::Id::HAT:
+						case EquipSlot::Id::EARACC:
+						case EquipSlot::Id::EYEACC:
+						{
+							shift = drawinfo.getfacepos(stance, frame) - parentpos;
+							break;
+						}
+						case EquipSlot::Id::SHIELD:
+						case EquipSlot::Id::WEAPON:
+						{
+							if (parent == "handMove")
+								shift += drawinfo.get_hand_position(stance, frame);
+							else if (parent == "hand")
+								shift += drawinfo.get_arm_position(stance, frame);
+							else if (parent == "navel")
+								shift += drawinfo.get_body_position(stance, frame);
+
+							shift -= parentpos;
+							break;
+						}
+					}
+
+					stances[stance][z].emplace(frame, partnode)->second.shift(shift);
+				}
+			}
+		}
+
+		static const std::unordered_set<int32_t> transparents =
+		{
+			1002186
+		};
+
+		transparent = transparents.count(itemid) > 0;
+	}
+
+	void Clothing::draw(Stance::Id stance, Layer layer, uint8_t frame, const DrawArgument& args) const
+	{
+		auto range = stances[stance][layer].equal_range(frame);
+
+		for (auto& iter = range.first; iter != range.second; ++iter)
+			iter->second.draw(args);
+	}
+
+	bool Clothing::contains_layer(Stance::Id stance, Layer layer) const
+	{
+		return !stances[stance][layer].empty();
+	}
+
+	bool Clothing::is_transparent() const
+	{
+		return transparent;
+	}
+
+	bool Clothing::is_twohanded() const
+	{
+		return twohanded;
+	}
+
+	int32_t Clothing::get_id() const
+	{
+		return itemid;
+	}
+
+	Stance::Id Clothing::get_stand() const
+	{
+		return stand;
+	}
+
+	Stance::Id Clothing::get_walk() const
+	{
+		return walk;
+	}
+
+	EquipSlot::Id Clothing::get_eqslot() const
+	{
+		return eqslot;
+	}
+
+	const std::string& Clothing::get_vslot() const
+	{
+		return vslot;
+	}
+
+	const std::unordered_map<std::string, Clothing::Layer> Clothing::sublayernames =
+	{
+		// WEAPON
+		{ "weaponOverHand",			Clothing::Layer::WEAPON_OVER_HAND	},
+		{ "weaponOverGlove",		Clothing::Layer::WEAPON_OVER_GLOVE	},
+		{ "weaponOverBody",			Clothing::Layer::WEAPON_OVER_BODY	},
+		{ "weaponBelowArm",			Clothing::Layer::WEAPON_BELOW_ARM	},
+		{ "weaponBelowBody",		Clothing::Layer::WEAPON_BELOW_BODY	},
+		{ "backWeaponOverShield",	Clothing::Layer::BACKWEAPON			},
+		// SHIELD
+		{ "shieldOverHair",			Clothing::Layer::SHIELD_OVER_HAIR	},
+		{ "shieldBelowBody",		Clothing::Layer::SHIELD_BELOW_BODY	},
+		{ "backShield",				Clothing::Layer::BACKSHIELD			},
+		// GLOVE
+		{ "gloveWrist",				Clothing::Layer::WRIST				},
+		{ "gloveOverHair",			Clothing::Layer::GLOVE_OVER_HAIR	},
+		{ "gloveOverBody",			Clothing::Layer::GLOVE_OVER_BODY	},
+		{ "gloveWristOverHair",		Clothing::Layer::WRIST_OVER_HAIR	},
+		{ "gloveWristOverBody",		Clothing::Layer::WRIST_OVER_BODY	},
+		// CAP
+		{ "capOverHair",			Clothing::Layer::CAP_OVER_HAIR		},
+		{ "capBelowBody",			Clothing::Layer::CAP_BELOW_BODY		},
+	};
+}
+
+================
+File: Character/Look/Clothing.h
+================
+//////////////////////////////////////////////////////////////////////////////////
+//	This file is part of the continued Journey MMORPG client					//
+//	Copyright (C) 2015-2019  Daniel Allendorf, Ryan Payton						//
+//																				//
+//	This program is free software: you can redistribute it and/or modify		//
+//	it under the terms of the GNU Affero General Public License as published by	//
+//	the Free Software Foundation, either version 3 of the License, or			//
+//	(at your option) any later version.											//
+//																				//
+//	This program is distributed in the hope that it will be useful,				//
+//	but WITHOUT ANY WARRANTY; without even the implied warranty of				//
+//	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the				//
+//	GNU Affero General Public License for more details.							//
+//																				//
+//	You should have received a copy of the GNU Affero General Public License	//
+//	along with this program.  If not, see <https://www.gnu.org/licenses/>.		//
+//////////////////////////////////////////////////////////////////////////////////
+#pragma once
+
+#include "BodyDrawInfo.h"
+#include "EquipSlot.h"
+
+#include "../../Graphics/Texture.h"
+
+namespace ms
+{
+	class Clothing
+	{
+	public:
+		// Defaults when no clothes are equipped
+		static constexpr int32_t TOP_DEFAULT_ID = 1042399;
+		static constexpr int32_t BOTTOM_DEFAULT_ID = 1060026;
+
+		enum Layer
+		{
+			CAPE,
+			SHOES,
+			PANTS,
+			TOP,
+			MAIL,
+			MAILARM,
+			EARRINGS,
+			FACEACC,
+			EYEACC,
+			PENDANT,
+			BELT,
+			MEDAL,
+			RING,
+			CAP,
+			CAP_BELOW_BODY,
+			CAP_OVER_HAIR,
+			GLOVE,
+			WRIST,
+			GLOVE_OVER_HAIR,
+			WRIST_OVER_HAIR,
+			GLOVE_OVER_BODY,
+			WRIST_OVER_BODY,
+			SHIELD,
+			BACKSHIELD,
+			SHIELD_BELOW_BODY,
+			SHIELD_OVER_HAIR,
+			WEAPON,
+			BACKWEAPON,
+			WEAPON_BELOW_ARM,
+			WEAPON_BELOW_BODY,
+			WEAPON_OVER_HAND,
+			WEAPON_OVER_BODY,
+			WEAPON_OVER_GLOVE,
+			PANTS_DEFAULT,
+			TOP_DEFAULT,
+			NUM_LAYERS
+		};
+
+		// Construct a new equip
+		Clothing(int32_t itemid, const BodyDrawInfo& drawinfo);
+
+		// Draw the equip
+		void draw(Stance::Id stance, Layer layer, uint8_t frame, const DrawArgument& args) const;
+		// Check if a part of the equip lies on the specified layer while in the specified stance
+		bool contains_layer(Stance::Id stance, Layer layer) const;
+
+		// Return whether the equip is invisible
+		bool is_transparent() const;
+		// Return whether this equip uses twohanded stances
+		bool is_twohanded() const;
+		// Return the item id
+		int32_t get_id() const;
+		// Return the equip slot for this cloth
+		EquipSlot::Id get_eqslot() const;
+		// Return the standing stance to use while equipped
+		Stance::Id get_stand() const;
+		// Return the walking stance to use while equipped
+		Stance::Id get_walk() const;
+		// Return the vslot, used to distinguish some layering types.
+		const std::string& get_vslot() const;
+
+	private:
+		EnumMap<Stance::Id, EnumMap<Layer, std::unordered_multimap<uint8_t, Texture>, Layer::NUM_LAYERS>> stances;
+		int32_t itemid;
+		EquipSlot::Id eqslot;
+		Stance::Id walk;
+		Stance::Id stand;
+		std::string vslot;
+		bool twohanded;
+		bool transparent;
+
+		static const std::unordered_map<std::string, Layer> sublayernames;
+	};
+}
+
+================
+File: Character/Look/EquipSlot.cpp
+================
+//////////////////////////////////////////////////////////////////////////////////
+//	This file is part of the continued Journey MMORPG client					//
+//	Copyright (C) 2015-2019  Daniel Allendorf, Ryan Payton						//
+//																				//
+//	This program is free software: you can redistribute it and/or modify		//
+//	it under the terms of the GNU Affero General Public License as published by	//
+//	the Free Software Foundation, either version 3 of the License, or			//
+//	(at your option) any later version.											//
+//																				//
+//	This program is distributed in the hope that it will be useful,				//
+//	but WITHOUT ANY WARRANTY; without even the implied warranty of				//
+//	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the				//
+//	GNU Affero General Public License for more details.							//
+//																				//
+//	You should have received a copy of the GNU Affero General Public License	//
+//	along with this program.  If not, see <https://www.gnu.org/licenses/>.		//
+//////////////////////////////////////////////////////////////////////////////////
+#include "EquipSlot.h"
+
+#include "../../MapleStory.h"
+
+#include <iostream>
+
+namespace ms
+{
+	namespace EquipSlot
+	{
+		Id by_id(size_t id)
+		{
+			if (id >= Id::LENGTH)
+			{
+				LOG(LOG_DEBUG, "Unknown EquipSlot::Id id: [" << id << "]");
+
+				return Id::NONE;
+			}
+
+			return static_cast<Id>(id);
+		}
+	}
+}
+
+================
+File: Character/Look/EquipSlot.h
+================
+//////////////////////////////////////////////////////////////////////////////////
+//	This file is part of the continued Journey MMORPG client					//
+//	Copyright (C) 2015-2019  Daniel Allendorf, Ryan Payton						//
+//																				//
+//	This program is free software: you can redistribute it and/or modify		//
+//	it under the terms of the GNU Affero General Public License as published by	//
+//	the Free Software Foundation, either version 3 of the License, or			//
+//	(at your option) any later version.											//
+//																				//
+//	This program is distributed in the hope that it will be useful,				//
+//	but WITHOUT ANY WARRANTY; without even the implied warranty of				//
+//	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the				//
+//	GNU Affero General Public License for more details.							//
+//																				//
+//	You should have received a copy of the GNU Affero General Public License	//
+//	along with this program.  If not, see <https://www.gnu.org/licenses/>.		//
+//////////////////////////////////////////////////////////////////////////////////
+#pragma once
+
+#include "../../Template/Enumeration.h"
+#include "../../Template/EnumMap.h"
+
+namespace ms
+{
+	namespace EquipSlot
+	{
+		enum Id : int16_t
+		{
+			NONE,
+			HAT,
+			FACE,
+			EYEACC,
+			EARACC,
+			TOP,
+			BOTTOM,
+			SHOES,
+			GLOVES,
+			CAPE,
+			SHIELD,		// TODO: Where is this now?
+			WEAPON,
+			RING1,
+			RING2,
+			RING3 = 15,
+			RING4,
+			PENDANT1,
+			TAMEDMOB,	// TODO: Where is this now?
+			SADDLE,		// TODO: Where is this now?
+			MEDAL = 49,
+			BELT = 50,
+			POCKET,		// TODO: What is the proper value for this?
+			BOOK,		// TODO: What is the proper value for this?
+			PENDANT2,	// TODO: What is the proper value for this?
+			SHOULDER,	// TODO: What is the proper value for this?
+			ANDROID,	// TODO: What is the proper value for this?
+			EMBLEM,		// TODO: What is the proper value for this?
+			BADGE,		// TODO: What is the proper value for this?
+			SUBWEAPON,	// TODO: What is the proper value for this?
+			HEART,		// TODO: What is the proper value for this?
+			TOP_DEFAULT,
+			BOTTOM_DEFAULT,
+			LENGTH
+		};
+
+		Id by_id(size_t id);
+
+		constexpr Enumeration<Id> values;
+	};
+}
+
+================
+File: Character/Look/Face.cpp
+================
+//////////////////////////////////////////////////////////////////////////////////
+//	This file is part of the continued Journey MMORPG client					//
+//	Copyright (C) 2015-2019  Daniel Allendorf, Ryan Payton						//
+//																				//
+//	This program is free software: you can redistribute it and/or modify		//
+//	it under the terms of the GNU Affero General Public License as published by	//
+//	the Free Software Foundation, either version 3 of the License, or			//
+//	(at your option) any later version.											//
+//																				//
+//	This program is distributed in the hope that it will be useful,				//
+//	but WITHOUT ANY WARRANTY; without even the implied warranty of				//
+//	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the				//
+//	GNU Affero General Public License for more details.							//
+//																				//
+//	You should have received a copy of the GNU Affero General Public License	//
+//	along with this program.  If not, see <https://www.gnu.org/licenses/>.		//
+//////////////////////////////////////////////////////////////////////////////////
+#include "Face.h"
+
+#include <iostream>
+
+#ifdef USE_NX
+#include <nlnx/nx.hpp>
+#endif
+
+namespace ms
+{
+	Expression::Id Expression::byaction(size_t action)
+	{
+		action -= 98;
+
+		if (action < Expression::Id::LENGTH)
+			return static_cast<Id>(action);
+
+		LOG(LOG_DEBUG, "Unknown Expression::Id action: [" << action << "]");
+
+		return Expression::Id::DEFAULT;
+	}
+
+	const EnumMap<Expression::Id, std::string> Expression::names =
+	{
+		"default",
+		"blink",
+		"hit",
+		"smile",
+		"troubled",
+		"cry",
+		"angry",
+		"bewildered",
+		"stunned",
+		"blaze",
+		"bowing",
+		"cheers",
+		"chu",
+		"dam",
+		"despair",
+		"glitter",
+		"hot",
+		"hum",
+		"love",
+		"oops",
+		"pain",
+		"shine",
+		"vomit",
+		"wink"
+	};
+
+	Face::Face(int32_t faceid)
+	{
+		std::string strid = "000" + std::to_string(faceid);
+		nl::node facenode = nl::nx::Character["Face"][strid + ".img"];
+
+		for (auto iter : Expression::names)
+		{
+			Expression::Id exp = iter.first;
+
+			if (exp == Expression::Id::DEFAULT)
+			{
+				expressions[Expression::Id::DEFAULT].emplace(0, facenode["default"]);
+			}
+			else
+			{
+				const std::string& expname = iter.second;
+				nl::node expnode = facenode[expname];
+
+				for (uint8_t frame = 0; nl::node framenode = expnode[frame]; ++frame)
+					expressions[exp].emplace(frame, framenode);
+			}
+		}
+
+		name = nl::nx::String["Eqp.img"]["Eqp"]["Face"][std::to_string(faceid)]["name"];
+	}
+
+	void Face::draw(Expression::Id expression, uint8_t frame, const DrawArgument& args) const
+	{
+		auto frameit = expressions[expression].find(frame);
+
+		if (frameit != expressions[expression].end())
+			frameit->second.texture.draw(args);
+	}
+
+	uint8_t Face::nextframe(Expression::Id exp, uint8_t frame) const
+	{
+		return expressions[exp].count(frame + 1) ? frame + 1 : 0;
+	}
+
+	int16_t Face::get_delay(Expression::Id exp, uint8_t frame) const
+	{
+		auto delayit = expressions[exp].find(frame);
+		return delayit != expressions[exp].end() ? delayit->second.delay : 100;
+	}
+
+	const std::string& Face::get_name() const
+	{
+		return name;
+	}
+}
+
+================
+File: Character/Look/Face.h
+================
+//////////////////////////////////////////////////////////////////////////////////
+//	This file is part of the continued Journey MMORPG client					//
+//	Copyright (C) 2015-2019  Daniel Allendorf, Ryan Payton						//
+//																				//
+//	This program is free software: you can redistribute it and/or modify		//
+//	it under the terms of the GNU Affero General Public License as published by	//
+//	the Free Software Foundation, either version 3 of the License, or			//
+//	(at your option) any later version.											//
+//																				//
+//	This program is distributed in the hope that it will be useful,				//
+//	but WITHOUT ANY WARRANTY; without even the implied warranty of				//
+//	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the				//
+//	GNU Affero General Public License for more details.							//
+//																				//
+//	You should have received a copy of the GNU Affero General Public License	//
+//	along with this program.  If not, see <https://www.gnu.org/licenses/>.		//
+//////////////////////////////////////////////////////////////////////////////////
+#pragma once
+
+#include "BodyDrawInfo.h"
+
+#include "../../Graphics/Texture.h"
+
+namespace ms
+{
+	class Expression
+	{
+	public:
+		enum Id
+		{
+			DEFAULT,
+			BLINK,
+			HIT,
+			SMILE,
+			TROUBLED,
+			CRY,
+			ANGRY,
+			BEWILDERED,
+			STUNNED,
+			BLAZE,
+			BOWING,
+			CHEERS,
+			CHU,
+			DAM,
+			DESPAIR,
+			GLITTER,
+			HOT,
+			HUM,
+			LOVE,
+			OOPS,
+			PAIN,
+			SHINE,
+			VOMIT,
+			WINK,
+			LENGTH
+		};
+
+		static Id byaction(size_t action);
+
+		static const EnumMap<Id, std::string> names;
+	};
+
+	class Face
+	{
+	public:
+		Face(int32_t faceid);
+
+		void draw(Expression::Id expression, uint8_t frame, const DrawArgument& args) const;
+
+		uint8_t nextframe(Expression::Id expression, uint8_t frame) const;
+		int16_t get_delay(Expression::Id expression, uint8_t frame) const;
+		const std::string& get_name() const;
+
+	private:
+		struct Frame
+		{
+			Texture texture;
+			uint16_t delay;
+
+			Frame(nl::node src)
+			{
+				texture = src["face"];
+
+				Point<int16_t> shift = src["face"]["map"]["brow"];
+				texture.shift(-shift);
+
+				delay = src["delay"];
+
+				if (delay == 0)
+					delay = 2500;
+			}
+		};
+
+		std::unordered_map<uint8_t, Frame> expressions[Expression::Id::LENGTH];
+		std::string name;
+	};
+}
+
+================
+File: Character/Look/Hair.cpp
+================
+//////////////////////////////////////////////////////////////////////////////////
+//	This file is part of the continued Journey MMORPG client					//
+//	Copyright (C) 2015-2019  Daniel Allendorf, Ryan Payton						//
+//																				//
+//	This program is free software: you can redistribute it and/or modify		//
+//	it under the terms of the GNU Affero General Public License as published by	//
+//	the Free Software Foundation, either version 3 of the License, or			//
+//	(at your option) any later version.											//
+//																				//
+//	This program is distributed in the hope that it will be useful,				//
+//	but WITHOUT ANY WARRANTY; without even the implied warranty of				//
+//	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the				//
+//	GNU Affero General Public License for more details.							//
+//																				//
+//	You should have received a copy of the GNU Affero General Public License	//
+//	along with this program.  If not, see <https://www.gnu.org/licenses/>.		//
+//////////////////////////////////////////////////////////////////////////////////
+#include "Hair.h"
+
+#include <iostream>
+
+#ifdef USE_NX
+#include <nlnx/nx.hpp>
+#endif
+
+namespace ms
+{
+	Hair::Hair(int32_t hairid, const BodyDrawInfo& drawinfo)
+	{
+		nl::node hairnode = nl::nx::Character["Hair"]["000" + std::to_string(hairid) + ".img"];
+
+		for (auto stance_iter : Stance::names)
+		{
+			Stance::Id stance = stance_iter.first;
+			const std::string& stancename = stance_iter.second;
+
+			nl::node stancenode = hairnode[stancename];
+
+			if (!stancenode)
+				continue;
+
+			for (uint8_t frame = 0; nl::node framenode = stancenode[frame]; ++frame)
+			{
+				for (nl::node layernode : framenode)
+				{
+					std::string layername = layernode.name();
+					auto layer_iter = layers_by_name.find(layername);
+
+					if (layer_iter == layers_by_name.end())
+					{
+						LOG(LOG_DEBUG, "Unknown Hair::Layer name: [" << layername << "]\tLocation: [" << hairnode.name() << "][" << stancename << "][" << frame << "]");
+						continue;
+					}
+
+					Layer layer = layer_iter->second;
+
+					Point<int16_t> brow = layernode["map"]["brow"];
+					Point<int16_t> shift = drawinfo.gethairpos(stance, frame) - brow;
+
+					if (Texture(layernode).is_valid())
+					{
+						stances[stance][layer]
+							.emplace(frame, layernode)
+							.first->second.shift(shift);
+
+						continue;
+					}
+
+					std::string defaultstancename = "default";
+
+					if (layername.substr(0, 4) == "back")
+						defaultstancename = "backDefault";
+
+					nl::node defaultnode = hairnode[defaultstancename][layername];
+
+					if (Texture(defaultnode).is_valid())
+					{
+						stances[stance][layer]
+							.emplace(frame, defaultnode)
+							.first->second.shift(shift);
+
+						continue;
+					}
+
+					nl::node defaultnode2 = defaultnode["0"];
+
+					if (Texture(defaultnode2).is_valid())
+					{
+						stances[stance][layer]
+							.emplace(frame, defaultnode2)
+							.first->second.shift(shift);
+
+						continue;
+					}
+
+					LOG(LOG_DEBUG, "Invalid Hair::Layer texture\tName: [" << layername << "]\tLocation: [" << hairnode.name() << "][" << stancename << "][" << frame << "]");
+				}
+			}
+		}
+
+		name = nl::nx::String["Eqp.img"]["Eqp"]["Hair"][std::to_string(hairid)]["name"];
+
+		constexpr size_t NUM_COLORS = 8;
+
+		constexpr const char* haircolors[NUM_COLORS] =
+		{
+			"Black", "Red", "Orange", "Blonde", "Green", "Blue", "Violet", "Brown"
+		};
+
+		size_t index = hairid % 10;
+		color = (index < NUM_COLORS) ? haircolors[index] : "";
+	}
+
+	void Hair::draw(Layer layer, Stance::Id stance, uint8_t frame, const DrawArgument& args) const
+	{
+		auto frameit = stances[stance][layer].find(frame);
+
+		if (frameit == stances[stance][layer].end())
+			return;
+
+		frameit->second.draw(args);
+	}
+
+	const std::string& Hair::get_name() const
+	{
+		return name;
+	}
+
+	const std::string& Hair::getcolor() const
+	{
+		return color;
+	}
+
+	const std::unordered_map<std::string, Hair::Layer> Hair::layers_by_name =
+	{
+		{ "hair",					Hair::Layer::DEFAULT		},
+		{ "hairBelowBody",			Hair::Layer::BELOWBODY		},
+		{ "hairOverHead",			Hair::Layer::OVERHEAD		},
+		{ "hairShade",				Hair::Layer::SHADE			},
+		{ "backHair",				Hair::Layer::BACK			},
+		{ "backHairBelowCap",		Hair::Layer::BELOWCAP		},
+		{ "backHairBelowCapNarrow",	Hair::Layer::BELOWCAPNARROW },
+		{ "backHairBelowCapWide",	Hair::Layer::BELOWCAPWIDE	}
+	};
+}
+
+================
+File: Character/Look/Hair.h
+================
+//////////////////////////////////////////////////////////////////////////////////
+//	This file is part of the continued Journey MMORPG client					//
+//	Copyright (C) 2015-2019  Daniel Allendorf, Ryan Payton						//
+//																				//
+//	This program is free software: you can redistribute it and/or modify		//
+//	it under the terms of the GNU Affero General Public License as published by	//
+//	the Free Software Foundation, either version 3 of the License, or			//
+//	(at your option) any later version.											//
+//																				//
+//	This program is distributed in the hope that it will be useful,				//
+//	but WITHOUT ANY WARRANTY; without even the implied warranty of				//
+//	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the				//
+//	GNU Affero General Public License for more details.							//
+//																				//
+//	You should have received a copy of the GNU Affero General Public License	//
+//	along with this program.  If not, see <https://www.gnu.org/licenses/>.		//
+//////////////////////////////////////////////////////////////////////////////////
+#pragma once
+
+#include "BodyDrawInfo.h"
+
+#include "../../Graphics/Texture.h"
+
+namespace ms
+{
+	class Hair
+	{
+	public:
+		enum Layer
+		{
+			NONE,
+			DEFAULT,
+			BELOWBODY,
+			OVERHEAD,
+			SHADE,
+			BACK,
+			BELOWCAP,
+			BELOWCAPNARROW,
+			BELOWCAPWIDE,
+			NUM_LAYERS
+		};
+
+		Hair(int32_t hairid, const BodyDrawInfo& drawinfo);
+
+		void draw(Layer layer, Stance::Id stance, uint8_t frame, const DrawArgument& args) const;
+
+		const std::string& get_name() const;
+		const std::string& getcolor() const;
+
+	private:
+		std::unordered_map<uint8_t, Texture> stances[Stance::Id::LENGTH][Layer::NUM_LAYERS];
+		std::string name;
+		std::string color;
+
+		static const std::unordered_map<std::string, Layer> layers_by_name;
+	};
+}
+
+================
+File: Character/Look/PetLook.cpp
+================
+//////////////////////////////////////////////////////////////////////////////////
+//	This file is part of the continued Journey MMORPG client					//
+//	Copyright (C) 2015-2019  Daniel Allendorf, Ryan Payton						//
+//																				//
+//	This program is free software: you can redistribute it and/or modify		//
+//	it under the terms of the GNU Affero General Public License as published by	//
+//	the Free Software Foundation, either version 3 of the License, or			//
+//	(at your option) any later version.											//
+//																				//
+//	This program is distributed in the hope that it will be useful,				//
+//	but WITHOUT ANY WARRANTY; without even the implied warranty of				//
+//	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the				//
+//	GNU Affero General Public License for more details.							//
+//																				//
+//	You should have received a copy of the GNU Affero General Public License	//
+//	along with this program.  If not, see <https://www.gnu.org/licenses/>.		//
+//////////////////////////////////////////////////////////////////////////////////
+#include "PetLook.h"
+
+#ifdef USE_NX
+#include <nlnx/nx.hpp>
+#endif
+
+namespace ms
+{
+	PetLook::PetLook(int32_t iid, std::string nm, int32_t uqid, Point<int16_t> pos, uint8_t st, int32_t)
+	{
+		itemid = iid;
+		name = nm;
+		uniqueid = uqid;
+
+		set_position(pos.x(), pos.y());
+		set_stance(st);
+
+		namelabel = Text(Text::Font::A13M, Text::Alignment::CENTER, Color::Name::WHITE, Text::Background::NAMETAG, name);
+
+		std::string strid = std::to_string(iid);
+		nl::node src = nl::nx::Item["Pet"][strid + ".img"];
+
+		animations[Stance::MOVE] = src["move"];
+		animations[Stance::STAND] = src["stand0"];
+		animations[Stance::JUMP] = src["jump"];
+		animations[Stance::ALERT] = src["alert"];
+		animations[Stance::PRONE] = src["prone"];
+		animations[Stance::FLY] = src["fly"];
+		animations[Stance::HANG] = src["hang"];
+
+		nl::node effsrc = nl::nx::Effect["PetEff.img"][strid];
+
+		animations[Stance::WARP] = effsrc["warp"];
+	}
+
+	PetLook::PetLook()
+	{
+		itemid = 0;
+		name = "";
+		uniqueid = 0;
+		stance = Stance::STAND;
+	}
+
+	void PetLook::draw(double viewx, double viewy, float alpha) const
+	{
+		Point<int16_t> absp = phobj.get_absolute(viewx, viewy, alpha);
+
+		animations[stance].draw(DrawArgument(absp, flip), alpha);
+		namelabel.draw(absp);
+	}
+
+	void PetLook::update(const Physics& physics, Point<int16_t> charpos)
+	{
+		static const double PETWALKFORCE = 0.35;
+		static const double PETFLYFORCE = 0.2;
+
+		Point<int16_t> curpos = phobj.get_position();
+
+		switch (stance)
+		{
+		case Stance::STAND:
+		case Stance::MOVE:
+			if (curpos.distance(charpos) > 150)
+			{
+				set_position(charpos.x(), charpos.y());
+			}
+			else
+			{
+				if (charpos.x() - curpos.x() > 50)
+				{
+					phobj.hforce = PETWALKFORCE;
+					flip = true;
+
+					set_stance(Stance::MOVE);
+				}
+				else if (charpos.x() - curpos.x() < -50)
+				{
+					phobj.hforce = -PETWALKFORCE;
+					flip = false;
+
+					set_stance(Stance::MOVE);
+				}
+				else
+				{
+					phobj.hforce = 0.0;
+
+					set_stance(Stance::STAND);
+				}
+			}
+
+			phobj.type = PhysicsObject::Type::NORMAL;
+			phobj.clear_flag(PhysicsObject::Flag::NOGRAVITY);
+			break;
+		case Stance::HANG:
+			set_position(charpos.x(), charpos.y());
+			phobj.set_flag(PhysicsObject::Flag::NOGRAVITY);
+			break;
+		case Stance::FLY:
+			if ((charpos - curpos).length() > 250)
+			{
+				set_position(charpos.x(), charpos.y());
+			}
+			else
+			{
+				if (charpos.x() - curpos.x() > 50)
+				{
+					phobj.hforce = PETFLYFORCE;
+					flip = true;
+				}
+				else if (charpos.x() - curpos.x() < -50)
+				{
+					phobj.hforce = -PETFLYFORCE;
+					flip = false;
+				}
+				else
+				{
+					phobj.hforce = 0.0f;
+				}
+
+				if (charpos.y() - curpos.y() > 50.0f)
+					phobj.vforce = PETFLYFORCE;
+				else if (charpos.y() - curpos.y() < -50.0f)
+					phobj.vforce = -PETFLYFORCE;
+				else
+					phobj.vforce = 0.0f;
+			}
+
+			phobj.type = PhysicsObject::Type::FLYING;
+			phobj.clear_flag(PhysicsObject::Flag::NOGRAVITY);
+			break;
+		}
+
+		physics.move_object(phobj);
+
+		animations[stance].update();
+	}
+
+	void PetLook::set_position(int16_t x, int16_t y)
+	{
+		phobj.set_x(x);
+		phobj.set_y(y);
+	}
+
+	void PetLook::set_stance(Stance st)
+	{
+		if (stance != st)
+		{
+			stance = st;
+			animations[stance].reset();
+		}
+	}
+
+	void PetLook::set_stance(uint8_t stancebyte)
+	{
+		flip = stancebyte % 2 == 1;
+		stance = stancebyvalue(stancebyte);
+	}
+
+	int32_t PetLook::get_itemid() const
+	{
+		return itemid;
+	}
+
+	PetLook::Stance PetLook::get_stance() const
+	{
+		return stance;
+	}
+}
+
+================
+File: Character/Look/PetLook.h
+================
+//////////////////////////////////////////////////////////////////////////////////
+//	This file is part of the continued Journey MMORPG client					//
+//	Copyright (C) 2015-2019  Daniel Allendorf, Ryan Payton						//
+//																				//
+//	This program is free software: you can redistribute it and/or modify		//
+//	it under the terms of the GNU Affero General Public License as published by	//
+//	the Free Software Foundation, either version 3 of the License, or			//
+//	(at your option) any later version.											//
+//																				//
+//	This program is distributed in the hope that it will be useful,				//
+//	but WITHOUT ANY WARRANTY; without even the implied warranty of				//
+//	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the				//
+//	GNU Affero General Public License for more details.							//
+//																				//
+//	You should have received a copy of the GNU Affero General Public License	//
+//	along with this program.  If not, see <https://www.gnu.org/licenses/>.		//
+//////////////////////////////////////////////////////////////////////////////////
+#pragma once
+
+#include "../../Graphics/Animation.h"
+#include "../../Graphics/Text.h"
+#include "../../Template/EnumMap.h"
+
+#include "../../Gameplay/Physics/Physics.h"
+
+namespace ms
+{
+	class PetLook
+	{
+	public:
+		enum Stance : uint8_t
+		{
+			MOVE,
+			STAND,
+			JUMP,
+			ALERT,
+			PRONE,
+			FLY,
+			HANG,
+			WARP,
+			LENGTH
+		};
+
+		static Stance stancebyvalue(uint8_t value)
+		{
+			uint8_t valueh = value / 2;
+
+			return valueh >= LENGTH ? STAND : static_cast<Stance>(valueh);
+		}
+
+		PetLook(int32_t iid, std::string name, int32_t uniqueid, Point<int16_t> pos, uint8_t stance, int32_t fhid);
+		PetLook();
+
+		void draw(double viewx, double viewy, float alpha) const;
+		void update(const Physics& physics, Point<int16_t> charpos);
+
+		void set_position(int16_t xpos, int16_t ypos);
+		void set_stance(Stance stance);
+		void set_stance(uint8_t stancebyte);
+
+		int32_t get_itemid() const;
+		Stance get_stance() const;
+
+	private:
+		int32_t itemid;
+		std::string name;
+		int32_t uniqueid;
+		Stance stance;
+		bool flip;
+
+		EnumMap<Stance, Animation> animations;
+		PhysicsObject phobj;
+		Text namelabel;
+	};
+}
+
+================
+File: Character/Look/Stance.cpp
+================
+//////////////////////////////////////////////////////////////////////////////////
+//	This file is part of the continued Journey MMORPG client					//
+//	Copyright (C) 2015-2019  Daniel Allendorf, Ryan Payton						//
+//																				//
+//	This program is free software: you can redistribute it and/or modify		//
+//	it under the terms of the GNU Affero General Public License as published by	//
+//	the Free Software Foundation, either version 3 of the License, or			//
+//	(at your option) any later version.											//
+//																				//
+//	This program is distributed in the hope that it will be useful,				//
+//	but WITHOUT ANY WARRANTY; without even the implied warranty of				//
+//	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the				//
+//	GNU Affero General Public License for more details.							//
+//																				//
+//	You should have received a copy of the GNU Affero General Public License	//
+//	along with this program.  If not, see <https://www.gnu.org/licenses/>.		//
+//////////////////////////////////////////////////////////////////////////////////
+#include "Stance.h"
+
+#include "../../Util/Misc.h"
+
+#include <iostream>
+
+namespace ms
+{
+	Stance::Id Stance::by_state(int8_t state)
+	{
+		int8_t index = (state / 2) - 1;
+
+		if (index < 0 || index > 10)
+			return WALK1;
+
+		constexpr Id statevalues[10] =
+		{
+			WALK1,
+			STAND1,
+			JUMP,
+			ALERT,
+			PRONE,
+			FLY,
+			LADDER,
+			ROPE,
+			DEAD,
+			SIT
+		};
+
+		return statevalues[index];
+	}
+
+	Stance::Id Stance::by_id(uint8_t id)
+	{
+		if (id <= NONE || id >= LENGTH)
+			return NONE;
+
+		return static_cast<Stance::Id>(id);
+	}
+
+	Stance::Id Stance::by_string(const std::string& name)
+	{
+		for (auto iter : names)
+			if (iter.second == name)
+				return iter.first;
+
+		single_console::log_message("[Stance::by_string] Unknown Id name: [" + name + "]");
+
+		return NONE;
+	}
+
+	bool Stance::is_climbing(Id value)
+	{
+		return value == LADDER || value == ROPE;
+	}
+
+	Stance::Id Stance::baseof(Id value)
+	{
+		switch (value)
+		{
+			case STAND2:
+				return STAND1;
+			case WALK2:
+				return WALK1;
+			default:
+				return value;
+		}
+	}
+
+	Stance::Id Stance::secondof(Id value)
+	{
+		switch (value)
+		{
+			case STAND1:
+				return STAND2;
+			case WALK1:
+				return WALK2;
+			default:
+				return value;
+		}
+	}
+
+	const EnumMap<Stance::Id, std::string> Stance::names =
+	{
+		"",
+		"alert",
+		"dead",
+		"fly",
+		"heal",
+		"jump",
+		"ladder",
+		"prone",
+		"proneStab",
+		"rope",
+		"shot",
+		"shoot1",
+		"shoot2",
+		"shootF",
+		"sit",
+		"stabO1",
+		"stabO2",
+		"stabOF",
+		"stabT1",
+		"stabT2",
+		"stabTF",
+		"stand1",
+		"stand2",
+		"swingO1",
+		"swingO2",
+		"swingO3",
+		"swingOF",
+		"swingP1",
+		"swingP2",
+		"swingPF",
+		"swingT1",
+		"swingT2",
+		"swingT3",
+		"swingTF",
+		"walk1",
+		"walk2"
+	};
+}
+
+================
+File: Character/Look/Stance.h
+================
+//////////////////////////////////////////////////////////////////////////////////
+//	This file is part of the continued Journey MMORPG client					//
+//	Copyright (C) 2015-2019  Daniel Allendorf, Ryan Payton						//
+//																				//
+//	This program is free software: you can redistribute it and/or modify		//
+//	it under the terms of the GNU Affero General Public License as published by	//
+//	the Free Software Foundation, either version 3 of the License, or			//
+//	(at your option) any later version.											//
+//																				//
+//	This program is distributed in the hope that it will be useful,				//
+//	but WITHOUT ANY WARRANTY; without even the implied warranty of				//
+//	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the				//
+//	GNU Affero General Public License for more details.							//
+//																				//
+//	You should have received a copy of the GNU Affero General Public License	//
+//	along with this program.  If not, see <https://www.gnu.org/licenses/>.		//
+//////////////////////////////////////////////////////////////////////////////////
+#pragma once
+
+#include "../../Template/EnumMap.h"
+
+#include <string>
+
+namespace ms
+{
+	namespace Stance
+	{
+		enum Id : uint8_t
+		{
+			NONE,
+			ALERT,
+			DEAD,
+			FLY,
+			HEAL,
+			JUMP,
+			LADDER,
+			PRONE,
+			PRONESTAB,
+			ROPE,
+			SHOT,
+			SHOOT1,
+			SHOOT2,
+			SHOOTF,
+			SIT,
+			STABO1,
+			STABO2,
+			STABOF,
+			STABT1,
+			STABT2,
+			STABTF,
+			STAND1,
+			STAND2,
+			SWINGO1,
+			SWINGO2,
+			SWINGO3,
+			SWINGOF,
+			SWINGP1,
+			SWINGP2,
+			SWINGPF,
+			SWINGT1,
+			SWINGT2,
+			SWINGT3,
+			SWINGTF,
+			WALK1,
+			WALK2,
+			LENGTH
+		};
+
+		Id by_state(int8_t state);
+		Id by_id(uint8_t id);
+		Id by_string(const std::string& name);
+
+		bool is_climbing(Id value);
+		Id baseof(Id value);
+		Id secondof(Id value);
+
+		extern const EnumMap<Id, std::string> names;
+	};
+}
+
+================
+File: Data/EquipData.cpp
+================
+//////////////////////////////////////////////////////////////////////////////////
+//	This file is part of the continued Journey MMORPG client					//
+//	Copyright (C) 2015-2019  Daniel Allendorf, Ryan Payton						//
+//																				//
+//	This program is free software: you can redistribute it and/or modify		//
+//	it under the terms of the GNU Affero General Public License as published by	//
+//	the Free Software Foundation, either version 3 of the License, or			//
+//	(at your option) any later version.											//
+//																				//
+//	This program is distributed in the hope that it will be useful,				//
+//	but WITHOUT ANY WARRANTY; without even the implied warranty of				//
+//	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the				//
+//	GNU Affero General Public License for more details.							//
+//																				//
+//	You should have received a copy of the GNU Affero General Public License	//
+//	along with this program.  If not, see <https://www.gnu.org/licenses/>.		//
+//////////////////////////////////////////////////////////////////////////////////
+#include "EquipData.h"
+
+#ifdef USE_NX
+#include <nlnx/nx.hpp>
+#endif
+
+namespace ms
+{
+	EquipData::EquipData(int32_t id) : itemdata(ItemData::get(id))
+	{
+		std::string strid = "0" + std::to_string(id);
+		std::string category = itemdata.get_category();
+		nl::node src = nl::nx::Character[category][strid + ".img"]["info"];
+
+		cash = src["cash"].get_bool();
+		tradeblock = src["tradeBlock"].get_bool();
+		slots = src["tuc"];
+
+		reqstats[MapleStat::Id::LEVEL] = src["reqLevel"];
+		reqstats[MapleStat::Id::JOB] = src["reqJob"];
+		reqstats[MapleStat::Id::STR] = src["reqSTR"];
+		reqstats[MapleStat::Id::DEX] = src["reqDEX"];
+		reqstats[MapleStat::Id::INT] = src["reqINT"];
+		reqstats[MapleStat::Id::LUK] = src["reqLUK"];
+		defstats[EquipStat::Id::STR] = src["incSTR"];
+		defstats[EquipStat::Id::DEX] = src["incDEX"];
+		defstats[EquipStat::Id::INT] = src["incINT"];
+		defstats[EquipStat::Id::LUK] = src["incLUK"];
+		defstats[EquipStat::Id::WATK] = src["incPAD"];
+		defstats[EquipStat::Id::WDEF] = src["incPDD"];
+		defstats[EquipStat::Id::MAGIC] = src["incMAD"];
+		defstats[EquipStat::Id::MDEF] = src["incMDD"];
+		defstats[EquipStat::Id::HP] = src["incMHP"];
+		defstats[EquipStat::Id::MP] = src["incMMP"];
+		defstats[EquipStat::Id::ACC] = src["incACC"];
+		defstats[EquipStat::Id::AVOID] = src["incEVA"];
+		defstats[EquipStat::Id::HANDS] = src["incHANDS"];
+		defstats[EquipStat::Id::SPEED] = src["incSPEED"];
+		defstats[EquipStat::Id::JUMP] = src["incJUMP"];
+
+		constexpr size_t NON_WEAPON_TYPES = 15;
+		constexpr size_t WEAPON_OFFSET = NON_WEAPON_TYPES + 15;
+		constexpr size_t WEAPON_TYPES = 20;
+		size_t index = (id / 10000) - 100;
+
+		if (index < NON_WEAPON_TYPES)
+		{
+			constexpr const char* types[NON_WEAPON_TYPES] =
+			{
+				"HAT",
+				"FACE ACCESSORY",
+				"EYE ACCESSORY",
+				"EARRINGS",
+				"TOP",
+				"OVERALL",
+				"BOTTOM",
+				"SHOES",
+				"GLOVES",
+				"SHIELD",
+				"CAPE",
+				"RING",
+				"PENDANT",
+				"BELT",
+				"MEDAL"
+			};
+
+			constexpr EquipSlot::Id equipslots[NON_WEAPON_TYPES] =
+			{
+				EquipSlot::Id::HAT,
+				EquipSlot::Id::FACE,
+				EquipSlot::Id::EYEACC,
+				EquipSlot::Id::EARACC,
+				EquipSlot::Id::TOP,
+				EquipSlot::Id::TOP,
+				EquipSlot::Id::BOTTOM,
+				EquipSlot::Id::SHOES,
+				EquipSlot::Id::GLOVES,
+				EquipSlot::Id::SHIELD,
+				EquipSlot::Id::CAPE,
+				EquipSlot::Id::RING1,
+				EquipSlot::Id::PENDANT1,
+				EquipSlot::Id::BELT,
+				EquipSlot::Id::MEDAL
+			};
+
+			type = types[index];
+			eqslot = equipslots[index];
+		}
+		else if (index >= WEAPON_OFFSET && index < WEAPON_OFFSET + WEAPON_TYPES)
+		{
+			constexpr const char* types[WEAPON_TYPES] =
+			{
+				"ONE-HANDED SWORD",
+				"ONE-HANDED AXE",
+				"ONE-HANDED MACE",
+				"DAGGER",
+				"", "", "",
+				"WAND",
+				"STAFF",
+				"",
+				"TWO-HANDED SWORD",
+				"TWO-HANDED AXE",
+				"TWO-HANDED MACE",
+				"SPEAR",
+				"POLEARM",
+				"BOW",
+				"CROSSBOW",
+				"CLAW",
+				"KNUCKLE",
+				"GUN"
+			};
+
+			size_t weaponindex = index - WEAPON_OFFSET;
+			type = types[weaponindex];
+			eqslot = EquipSlot::Id::WEAPON;
+		}
+		else
+		{
+			type = "CASH";
+			eqslot = EquipSlot::Id::NONE;
+		}
+	}
+
+	bool EquipData::is_valid() const
+	{
+		return itemdata.is_valid();
+	}
+
+	EquipData::operator bool() const
+	{
+		return is_valid();
+	}
+
+	bool EquipData::is_weapon() const
+	{
+		return eqslot == EquipSlot::Id::WEAPON;
+	}
+
+	int16_t EquipData::get_reqstat(MapleStat::Id stat) const
+	{
+		return reqstats[stat];
+	}
+
+	int16_t EquipData::get_defstat(EquipStat::Id stat) const
+	{
+		return defstats[stat];
+	}
+
+	EquipSlot::Id EquipData::get_eqslot() const
+	{
+		return eqslot;
+	}
+
+	const std::string& EquipData::get_type() const
+	{
+		return type;
+	}
+
+	const ItemData& EquipData::get_itemdata() const
+	{
+		return itemdata;
+	}
+}
+
+================
+File: Data/ItemData.cpp
+================
+//////////////////////////////////////////////////////////////////////////////////
+//	This file is part of the continued Journey MMORPG client					//
+//	Copyright (C) 2015-2019  Daniel Allendorf, Ryan Payton						//
+//																				//
+//	This program is free software: you can redistribute it and/or modify		//
+//	it under the terms of the GNU Affero General Public License as published by	//
+//	the Free Software Foundation, either version 3 of the License, or			//
+//	(at your option) any later version.											//
+//																				//
+//	This program is distributed in the hope that it will be useful,				//
+//	but WITHOUT ANY WARRANTY; without even the implied warranty of				//
+//	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the				//
+//	GNU Affero General Public License for more details.							//
+//																				//
+//	You should have received a copy of the GNU Affero General Public License	//
+//	along with this program.  If not, see <https://www.gnu.org/licenses/>.		//
+//////////////////////////////////////////////////////////////////////////////////
+#include "ItemData.h"
+
+#ifdef USE_NX
+#include <nlnx/nx.hpp>
+#endif
+
+namespace ms
+{
+	ItemData::ItemData(int32_t id) : itemid(id)
+	{
+		untradable = false;
+		unique = false;
+		unsellable = false;
+		cashitem = false;
+		gender = 0;
+
+		nl::node src;
+		nl::node strsrc;
+
+		std::string strprefix = "0" + std::to_string(get_item_prefix(itemid));
+		std::string strid = "0" + std::to_string(itemid);
+		int32_t prefix = get_prefix(itemid);
+
+		switch (prefix)
+		{
+			case 1:
+				category = get_eqcategory(itemid);
+				src = nl::nx::Character[category][strid + ".img"]["info"];
+				strsrc = nl::nx::String["Eqp.img"]["Eqp"][category][std::to_string(itemid)];
+				break;
+			case 2:
+				category = "Consume";
+				src = nl::nx::Item["Consume"][strprefix + ".img"][strid]["info"];
+				strsrc = nl::nx::String["Consume.img"][std::to_string(itemid)];
+				break;
+			case 3:
+				category = "Install";
+				src = nl::nx::Item["Install"][strprefix + ".img"][strid]["info"];
+				strsrc = nl::nx::String["Ins.img"][std::to_string(itemid)];
+				break;
+			case 4:
+				category = "Etc";
+				src = nl::nx::Item["Etc"][strprefix + ".img"][strid]["info"];
+				strsrc = nl::nx::String["Etc.img"]["Etc"][std::to_string(itemid)];
+				break;
+			case 5:
+				category = "Cash";
+				src = nl::nx::Item["Cash"][strprefix + ".img"][strid]["info"];
+				strsrc = nl::nx::String["Cash.img"][std::to_string(itemid)];
+				break;
+		}
+
+		if (src)
+		{
+			icons[false] = src["icon"];
+			icons[true] = src["iconRaw"];
+			price = src["price"];
+			untradable = src["tradeBlock"].get_bool();
+			unique = src["only"].get_bool();
+			unsellable = src["notSale"].get_bool();
+			cashitem = src["cash"].get_bool();
+			gender = get_item_gender(itemid);
+
+			name = strsrc["name"];
+			desc = strsrc["desc"];
+
+			valid = true;
+		}
+		else
+		{
+			valid = false;
+		}
+	}
+
+	std::string ItemData::get_eqcategory(int32_t id) const
+	{
+		constexpr const char* categorynames[15] =
+		{
+			"Cap",
+			"Accessory",
+			"Accessory",
+			"Accessory",
+			"Coat",
+			"Longcoat",
+			"Pants",
+			"Shoes",
+			"Glove",
+			"Shield",
+			"Cape",
+			"Ring",
+			"Accessory",
+			"Accessory",
+			"Accessory"
+		};
+
+		int32_t index = get_item_prefix(id) - 100;
+
+		if (index < 15)
+			return categorynames[index];
+		else if (index >= 30 && index <= 70)
+			return "Weapon";
+		else
+			return "";
+	}
+
+	int32_t ItemData::get_prefix(int32_t id) const
+	{
+		return id / 1000000;
+	}
+
+	int32_t ItemData::get_item_prefix(int32_t id) const
+	{
+		return id / 10000;
+	}
+
+	int8_t ItemData::get_item_gender(int32_t id) const
+	{
+		const int32_t item_prefix = get_item_prefix(id);
+
+		if ((get_prefix(id) != 1 && item_prefix != 254) || item_prefix == 119 || item_prefix == 168)
+			return 2;
+
+		const int32_t gender_digit = id / 1000 % 10;
+
+		return (gender_digit > 1) ? 2 : gender_digit;
+	}
+
+	bool ItemData::is_valid() const
+	{
+		return valid;
+	}
+
+	bool ItemData::is_untradable() const
+	{
+		return untradable;
+	}
+
+	bool ItemData::is_unique() const
+	{
+		return unique;
+	}
+
+	bool ItemData::is_unsellable() const
+	{
+		return unsellable;
+	}
+
+	bool ItemData::is_cashitem() const
+	{
+		return cashitem;
+	}
+
+	ItemData::operator bool() const
+	{
+		return is_valid();
+	}
+
+	int32_t ItemData::get_id() const
+	{
+		return itemid;
+	}
+
+	int32_t ItemData::get_price() const
+	{
+		return price;
+	}
+
+	int8_t ItemData::get_gender() const
+	{
+		return gender;
+	}
+
+	const std::string& ItemData::get_name() const
+	{
+		return name;
+	}
+
+	const std::string& ItemData::get_desc() const
+	{
+		return desc;
+	}
+
+	const std::string& ItemData::get_category() const
+	{
+		return category;
+	}
+
+	const Texture& ItemData::get_icon(bool raw) const
+	{
+		return icons[raw];
+	}
+}
+
+================
+File: Data/WeaponData.cpp
+================
+//////////////////////////////////////////////////////////////////////////////////
+//	This file is part of the continued Journey MMORPG client					//
+//	Copyright (C) 2015-2019  Daniel Allendorf, Ryan Payton						//
+//																				//
+//	This program is free software: you can redistribute it and/or modify		//
+//	it under the terms of the GNU Affero General Public License as published by	//
+//	the Free Software Foundation, either version 3 of the License, or			//
+//	(at your option) any later version.											//
+//																				//
+//	This program is distributed in the hope that it will be useful,				//
+//	but WITHOUT ANY WARRANTY; without even the implied warranty of				//
+//	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the				//
+//	GNU Affero General Public License for more details.							//
+//																				//
+//	You should have received a copy of the GNU Affero General Public License	//
+//	along with this program.  If not, see <https://www.gnu.org/licenses/>.		//
+//////////////////////////////////////////////////////////////////////////////////
+#include "WeaponData.h"
+
+#ifdef USE_NX
+#include <nlnx/nx.hpp>
+#endif
+
+namespace ms
+{
+	WeaponData::WeaponData(int32_t equipid) : equipdata(EquipData::get(equipid))
+	{
+		int32_t prefix = equipid / 10000;
+		type = Weapon::by_value(prefix);
+		twohanded = prefix == Weapon::Type::STAFF || (prefix >= Weapon::Type::SWORD_2H && prefix <= Weapon::Type::POLEARM) || prefix == Weapon::Type::CROSSBOW;
+
+		nl::node src = nl::nx::Character["Weapon"]["0" + std::to_string(equipid) + ".img"]["info"];
+
+		attackspeed = static_cast<uint8_t>(src["attackSpeed"]);
+		attack = static_cast<uint8_t>(src["attack"]);
+
+		nl::node soundsrc = nl::nx::Sound["Weapon.img"][src["sfx"]];
+
+		bool twosounds = soundsrc["Attack2"].data_type() == nl::node::type::audio;
+
+		if (twosounds)
+		{
+			usesounds[false] = soundsrc["Attack"];
+			usesounds[true] = soundsrc["Attack2"];
+		}
+		else
+		{
+			usesounds[false] = soundsrc["Attack"];
+			usesounds[true] = soundsrc["Attack"];
+		}
+
+		afterimage = src["afterImage"];
+	}
+
+	bool WeaponData::is_valid() const
+	{
+		return equipdata.is_valid();
+	}
+
+	WeaponData::operator bool() const
+	{
+		return is_valid();
+	}
+
+	bool WeaponData::is_twohanded() const
+	{
+		return twohanded;
+	}
+
+	uint8_t WeaponData::get_speed() const
+	{
+		return attackspeed;
+	}
+
+	uint8_t WeaponData::get_attack() const
+	{
+		return attack;
+	}
+
+	std::string WeaponData::getspeedstring() const
+	{
+		switch (attackspeed)
+		{
+		case 1:
+			return "FAST (1)";
+		case 2:
+			return "FAST (2)";
+		case 3:
+			return "FAST (3)";
+		case 4:
+			return "FAST (4)";
+		case 5:
+			return "NORMAL (5)";
+		case 6:
+			return "NORMAL (6)";
+		case 7:
+			return "SLOW (7)";
+		case 8:
+			return "SLOW (8)";
+		case 9:
+			return "SLOW (9)";
+		default:
+			return "";
+		}
+	}
+
+	uint8_t WeaponData::get_attackdelay() const
+	{
+		if (type == Weapon::NONE)
+			return 0;
+		else
+			return 50 - 25 / attackspeed;
+	}
+
+	Weapon::Type WeaponData::get_type() const
+	{
+		return type;
+	}
+
+	Sound WeaponData::get_usesound(bool degenerate) const
+	{
+		return usesounds[degenerate];
+	}
+
+	const std::string& WeaponData::get_afterimage() const
+	{
+		return afterimage;
+	}
+
+	const EquipData& WeaponData::get_equipdata() const
+	{
+		return equipdata;
+	}
+}
+
+================
+File: Gameplay/Stage.cpp
+================
+//////////////////////////////////////////////////////////////////////////////////
+//	This file is part of the continued Journey MMORPG client					//
+//	Copyright (C) 2015-2019  Daniel Allendorf, Ryan Payton						//
+//																				//
+//	This program is free software: you can redistribute it and/or modify		//
+//	it under the terms of the GNU Affero General Public License as published by	//
+//	the Free Software Foundation, either version 3 of the License, or			//
+//	(at your option) any later version.											//
+//																				//
+//	This program is distributed in the hope that it will be useful,				//
+//	but WITHOUT ANY WARRANTY; without even the implied warranty of				//
+//	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the				//
+//	GNU Affero General Public License for more details.							//
+//																				//
+//	You should have received a copy of the GNU Affero General Public License	//
+//	along with this program.  If not, see <https://www.gnu.org/licenses/>.		//
+//////////////////////////////////////////////////////////////////////////////////
+#include "Stage.h"
+
+#include "../Configuration.h"
+
+#include "../IO/UI.h"
+
+#include "../IO/UITypes/UIStatusBar.h"
+#include "../Net/Packets/AttackAndSkillPackets.h"
+#include "../Net/Packets/GameplayPackets.h"
+#include "../Util/Misc.h"
+
+#ifdef USE_NX
+#include <nlnx/nx.hpp>
+#endif
+
+namespace ms
+{
+	Stage::Stage() : combat(player, chars, mobs, reactors)
+	{
+		state = State::INACTIVE;
+	}
+
+	void Stage::init()
+	{
+		drops.init();
+	}
+
+	void Stage::load(int32_t mapid, int8_t portalid)
+	{
+		NDEBUG("Stage::load() called - mapid: " << mapid << ", portalid: " << (int)portalid << ", current state: " << (state == State::ACTIVE ? "ACTIVE" : state == State::INACTIVE ? "INACTIVE" : "TRANSITION"));
+		
+		switch (state)
+		{
+			case State::INACTIVE:
+				NDEBUG("Stage::load() - calling load_map(" << mapid << ")");
+				load_map(mapid);
+				NDEBUG("Stage::load() - calling respawn(" << (int)portalid << ")");
+				respawn(portalid);
+				NDEBUG("Stage::load() - load_map and respawn completed");
+				break;
+			case State::TRANSITION:
+				NDEBUG("Stage::load() - state is TRANSITION, calling respawn only");
+				respawn(portalid);
+				break;
+		}
+
+		NDEBUG("Stage::load() - setting state to ACTIVE");
+		state = State::ACTIVE;
+		NDEBUG("Stage::load() - completed, state is now ACTIVE");
+	}
+
+	void Stage::loadplayer(const CharEntry& entry)
+	{
+		player = entry;
+		playable = player;
+
+		start = ContinuousTimer::get().start();
+
+		CharStats stats = player.get_stats();
+		levelBefore = stats.get_stat(MapleStat::Id::LEVEL);
+		expBefore = stats.get_exp();
+	}
+
+	void Stage::clear()
+	{
+		NDEBUG("Stage::clear() called - setting state to INACTIVE");
+		state = State::INACTIVE;
+
+		chars.clear();
+		npcs.clear();
+		mobs.clear();
+		drops.clear();
+		reactors.clear();
+	}
+
+	void Stage::load_map(int32_t mapid)
+	{
+		Stage::mapid = mapid;
+
+		std::string strid = string_format::extend_id(mapid, 9);
+		std::string prefix = std::to_string(mapid / 100000000);
+
+		// Try Map002 fallback, then direct Map (v83)
+		nl::node src;
+		if (mapid == -1) {
+			src = nl::nx::UI["CashShopPreview.img"];
+		} else {
+			src = nl::nx::Map002["Map"]["Map" + prefix][strid + ".img"];
+			if (src.name().empty()) {
+				src = nl::nx::Map["Map"]["Map" + prefix][strid + ".img"];
+			}
+		}
+
+		tilesobjs = MapTilesObjs(src);
+		backgrounds = MapBackgrounds(src["back"]);
+		physics = Physics(src["foothold"]);
+		mapinfo = MapInfo(src, physics.get_fht().get_walls(), physics.get_fht().get_borders());
+		portals = MapPortals(src["portal"], mapid);
+	}
+
+	void Stage::respawn(int8_t portalid)
+	{
+		Music(mapinfo.get_bgm()).play();
+
+		Point<int16_t> spawnpoint = portals.get_portal_by_id(portalid);
+		Point<int16_t> startpos = physics.get_y_below(spawnpoint);
+		player.respawn(startpos, mapinfo.is_underwater());
+		camera.set_position(startpos);
+		camera.set_view(mapinfo.get_walls(), mapinfo.get_borders());
+	}
+
+	void Stage::draw(float alpha) const
+	{
+		if (state != State::ACTIVE) {
+			return;
+		}
+
+		Point<int16_t> viewpos = camera.position(alpha);
+		Point<double> viewrpos = camera.realposition(alpha);
+		double viewx = viewrpos.x();
+		double viewy = viewrpos.y();
+
+		backgrounds.drawbackgrounds(viewx, viewy, alpha);
+
+		for (auto id : Layer::IDs)
+		{
+			tilesobjs.draw(id, viewpos, alpha);
+			reactors.draw(id, viewx, viewy, alpha);
+			npcs.draw(id, viewx, viewy, alpha);
+			mobs.draw(id, viewx, viewy, alpha);
+			chars.draw(id, viewx, viewy, alpha);
+			player.draw(id, viewx, viewy, alpha);
+			drops.draw(id, viewx, viewy, alpha);
+		}
+
+		combat.draw(viewx, viewy, alpha);
+		portals.draw(viewpos, alpha);
+		backgrounds.drawforegrounds(viewx, viewy, alpha);
+		effect.draw();
+	}
+
+	void Stage::update()
+	{
+		if (state != State::ACTIVE)
+			return;
+
+		combat.update();
+		backgrounds.update();
+		effect.update();
+		tilesobjs.update();
+
+		reactors.update(physics);
+		npcs.update(physics);
+		mobs.update(physics);
+		chars.update(physics);
+		drops.update(physics);
+		player.update(physics);
+
+		portals.update(player.get_position());
+		camera.update(player.get_position());
+
+		if (!player.is_climbing() && !player.is_sitting() && !player.is_attacking())
+		{
+			if (player.is_key_down(KeyAction::Id::UP) && !player.is_key_down(KeyAction::Id::DOWN))
+				check_ladders(true);
+
+			if (player.is_key_down(KeyAction::Id::UP))
+				check_portals();
+
+			if (player.is_key_down(KeyAction::Id::DOWN))
+				check_ladders(false);
+
+			if (player.is_key_down(KeyAction::Id::SIT))
+				check_seats();
+
+			if (player.is_key_down(KeyAction::Id::ATTACK))
+				combat.use_move(0);
+
+			if (player.is_key_down(KeyAction::Id::PICKUP))
+				check_drops();
+		}
+
+		if (player.is_invincible())
+			return;
+
+		if (int32_t oid_id = mobs.find_colliding(player.get_phobj()))
+		{
+			if (MobAttack attack = mobs.create_attack(oid_id))
+			{
+				MobAttackResult result = player.damage(attack);
+				TakeDamagePacket(result, TakeDamagePacket::From::TOUCH).dispatch();
+			}
+		}
+	}
+
+	void Stage::show_character_effect(int32_t cid, CharEffect::Id effect)
+	{
+		if (auto character = get_character(cid))
+			character->show_effect_id(effect);
+	}
+
+	void Stage::check_portals()
+	{
+		if (player.is_attacking())
+			return;
+
+		Point<int16_t> playerpos = player.get_position();
+		Portal::WarpInfo warpinfo = portals.find_warp_at(playerpos);
+
+		if (warpinfo.intramap)
+		{
+			Point<int16_t> spawnpoint = portals.get_portal_by_name(warpinfo.toname);
+			Point<int16_t> startpos = physics.get_y_below(spawnpoint);
+
+			player.respawn(startpos, mapinfo.is_underwater());
+		}
+		else if (warpinfo.valid)
+		{
+			ChangeMapPacket(false, -1, warpinfo.name, false).dispatch();
+
+			CharStats& stats = Stage::get().get_player().get_stats();
+
+			stats.set_mapid(warpinfo.mapid);
+
+			Sound(Sound::Name::PORTAL).play();
+		}
+	}
+
+	void Stage::check_seats()
+	{
+		if (player.is_sitting() || player.is_attacking())
+			return;
+
+		Optional<const Seat> seat = mapinfo.findseat(player.get_position());
+		player.set_seat(seat);
+	}
+
+	void Stage::check_ladders(bool up)
+	{
+		if (!player.can_climb() || player.is_climbing() || player.is_attacking())
+			return;
+
+		Optional<const Ladder> ladder = mapinfo.findladder(player.get_position(), up);
+		player.set_ladder(ladder);
+	}
+
+	void Stage::check_drops()
+	{
+		Point<int16_t> playerpos = player.get_position();
+		MapDrops::Loot loot = drops.find_loot_at(playerpos);
+
+		if (loot.first)
+			PickupItemPacket(loot.first, loot.second).dispatch();
+	}
+
+	void Stage::send_key(KeyType::Id type, int32_t action, bool down)
+	{
+		if (state != State::ACTIVE || !playable)
+			return;
+
+		switch (type)
+		{
+			case KeyType::Id::ACTION:
+				playable->send_action(KeyAction::actionbyid(action), down);
+				break;
+			case KeyType::Id::SKILL:
+				combat.use_move(action);
+				break;
+			case KeyType::Id::ITEM:
+				player.use_item(action);
+				break;
+			case KeyType::Id::FACE:
+				player.set_expression(action);
+				break;
+		}
+	}
+
+	Cursor::State Stage::send_cursor(bool clicked, Point<int16_t> cursor_position)
+	{
+		auto statusbar = UI::get().get_element<UIStatusBar>();
+
+		if (statusbar && statusbar->is_menu_active())
+		{
+			if (clicked)
+				statusbar->remove_menus();
+
+			if (statusbar->is_in_range(cursor_position))
+				return statusbar->send_cursor(clicked, cursor_position);
+		}
+
+		return npcs.send_cursor(clicked, cursor_position, camera.position());
+	}
+
+	bool Stage::is_player(int32_t cid) const
+	{
+		return cid == player.get_oid();
+	}
+
+	MapNpcs& Stage::get_npcs()
+	{
+		return npcs;
+	}
+
+	MapChars& Stage::get_chars()
+	{
+		return chars;
+	}
+
+	MapMobs& Stage::get_mobs()
+	{
+		return mobs;
+	}
+
+	MapReactors& Stage::get_reactors()
+	{
+		return reactors;
+	}
+
+	MapDrops& Stage::get_drops()
+	{
+		return drops;
+	}
+
+	Player& Stage::get_player()
+	{
+		return player;
+	}
+
+	Combat& Stage::get_combat()
+	{
+		return combat;
+	}
+
+	Optional<Char> Stage::get_character(int32_t cid)
+	{
+		if (is_player(cid))
+			return player;
+		else
+			return chars.get_char(cid);
+	}
+
+	int Stage::get_mapid()
+	{
+		return mapid;
+	}
+
+	void Stage::add_effect(std::string path)
+	{
+		effect = MapEffect(path);
+	}
+
+	int64_t Stage::get_uptime()
+	{
+		return ContinuousTimer::get().stop(start);
+	}
+
+	uint16_t Stage::get_uplevel()
+	{
+		return levelBefore;
+	}
+
+	int64_t Stage::get_upexp()
+	{
+		return expBefore;
+	}
+
+	void Stage::transfer_player()
+	{
+		PlayerMapTransferPacket().dispatch();
+
+		if (Configuration::get().get_admin())
+			AdminEnterMapPacket(AdminEnterMapPacket::Operation::ALERT_ADMINS).dispatch();
+	}
+}
+
+
+
+================================================================
+End of Codebase
+================================================================
+===== SAMPLE WZ DUMP FILES FOR RESEARCH =====
+
+Body Asset (00002000.img.json):
+{
+  "info": {
+    "_dirName": "info",
+    "_dirType": "sub",
+    "islot": {
+      "_dirName": "islot",
+      "_dirType": "String",
+      "_value": "Bd"
+    },
+    "vslot": {
+      "_dirName": "vslot",
+      "_dirType": "String",
+      "_value": "Bd"
+    },
+    "cash": {
+      "_dirName": "cash",
+      "_dirType": "Int",
+      "_value": 0
+    }
+  },
+  "walk1": {
+    "_dirName": "walk1",
+    "_dirType": "sub",
+    "0": {
+      "_dirName": "0",
+      "_dirType": "sub",
+      "body": {
+        "_dirName": "body",
+        "_dirType": "canvas",
+        "_width": 27,
+        "_height": 32,
+        "origin": {
+          "_dirName": "origin",
+          "_dirType": "vector",
+          "_x": 19,
+          "_y": 32
+        },
+        "map": {
+          "_dirName": "map",
+          "_dirType": "sub",
+          "neck": {
+            "_dirName": "neck",
+            "_dirType": "vector",
+            "_x": -4,
+            "_y": -32
+          },
+          "navel": {
+            "_dirName": "navel",
+            "_dirType": "vector",
+            "_x": -6,
+            "_y": -20
+          }
+        },
+        "z": {
+          "_dirName": "z",
+          "_dirType": "String",
+          "_value": "body"
+        },
+        "group": {
+          "_dirName": "group",
+          "_dirType": "String",
+          "_value": "skin"
+        }
+      },
+      "arm": {
+        "_dirName": "arm",
+        "_dirType": "canvas",
+        "_width": 12,
+        "_height": 17,
+        "origin": {
+          "_dirName": "origin",
+          "_dirType": "vector",
+          "_x": 6,
+          "_y": 8
+        },
+        "map": {
+          "_dirName": "map",
+          "_dirType": "sub",
+          "navel": {
+            "_dirName": "navel",
+            "_dirType": "vector",
+            "_x": -12,
+            "_y": 2
+          },
+          "hand": {
+            "_dirName": "hand",
+            "_dirType": "vector",
+            "_x": 1,
+            "_y": 5
+          }
+        },
+        "z": {
+          "_dirName": "z",
+          "_dirType": "String",
+          "_value": "arm"
+        },
+        "group": {
+          "_dirName": "group",
+          "_dirType": "String",
+          "_value": "skin"
+
+Hair Asset (00030000.img.json):
+{
+  "info": {
+    "_dirName": "info",
+    "_dirType": "sub",
+    "islot": {
+      "_dirName": "islot",
+      "_dirType": "String",
+      "_value": "Hr"
+    },
+    "vslot": {
+      "_dirName": "vslot",
+      "_dirType": "String",
+      "_value": "H1H2H3H4H5H6HfHsHb"
+    },
+    "cash": {
+      "_dirName": "cash",
+      "_dirType": "Int",
+      "_value": 1
+    }
+  },
+  "default": {
+    "_dirName": "default",
+    "_dirType": "sub",
+    "hairOverHead": {
+      "_dirName": "hairOverHead",
+      "_dirType": "canvas",
+      "_width": 38,
+      "_height": 22,
+      "origin": {
+        "_dirName": "origin",
+        "_dirType": "vector",
+        "_x": 15,
+        "_y": 14
+      },
+      "map": {
+        "_dirName": "map",
+        "_dirType": "sub",
+        "brow": {
+          "_dirName": "brow",
+          "_dirType": "vector",
+          "_x": 0,
+          "_y": 0
+        }
+      },
+      "z": {
+        "_dirName": "z",
+        "_dirType": "String",
+        "_value": "hairOverHead"
+      }
+    },
+    "hair": {
+      "_dirName": "hair",
+      "_dirType": "canvas",
+      "_width": 35,
+      "_height": 20,
+      "origin": {
+        "_dirName": "origin",
+        "_dirType": "vector",
+        "_x": 14,
+        "_y": 12
+      },
+      "map": {
+        "_dirName": "map",
+        "_dirType": "sub",
+        "brow": {
+          "_dirName": "brow",
+          "_dirType": "vector",
+          "_x": 0,
+          "_y": 0
+        }
+      },
+      "z": {
+        "_dirName": "z",
+        "_dirType": "String",
+        "_value": "hair"
+      }
+    },
+    "hairShade": {
+      "_dirName": "hairShade",
+      "_dirType": "sub",
+      "0": {
+        "_dirName": "0",
+        "_dirType": "canvas",
+        "_width": 33,
+        "_height": 17,
+        "origin": {
+          "_dirName": "origin",
+          "_dirType": "vector",
+          "_x": 13,
+          "_y": 8
+        },
+        "map": {
+          "_dirName": "map",
+          "_dirType": "sub",
+          "brow": {
+            "_dirName": "brow",
+            "_dirType": "vector",
+            "_x": 0,
+            "_y": 0
+          }

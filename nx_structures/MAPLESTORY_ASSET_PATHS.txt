@@ -1,0 +1,202 @@
+MAPLESTORY v83 COMMON ASSET PATHS
+=================================
+Use these paths with nl::nx in your AssetRegistry
+
+UI ASSETS - Login Screen
+------------------------
+UI/Login.img/Title/BtLogin/normal
+UI/Login.img/Title/BtLogin/pressed  
+UI/Login.img/Title/BtLogin/mouseOver
+UI/Login.img/Title/BtLogin/disabled
+
+UI/Login.img/Title/BtNew/normal
+UI/Login.img/Title/BtNew/pressed
+UI/Login.img/Title/BtNew/mouseOver
+UI/Login.img/Title/BtNew/disabled
+
+UI/Login.img/Title/BtHomePage/normal
+UI/Login.img/Title/BtHomePage/pressed
+UI/Login.img/Title/BtHomePage/mouseOver
+
+UI/Login.img/Title/BtQuit/normal
+UI/Login.img/Title/BtQuit/pressed
+UI/Login.img/Title/BtQuit/mouseOver
+
+UI/Login.img/Title/signboard
+UI/Login.img/Title/logo
+
+UI/Login.img/Notice/Loading/backgrnd
+UI/Login.img/Notice/Loading/15
+UI/Login.img/Notice/Loading/16
+UI/Login.img/Notice/Loading/17
+
+UI ASSETS - Character Select
+----------------------------
+UI/Login.img/CharSelect/charInfo
+UI/Login.img/CharSelect/charNameTag
+UI/Login.img/CharSelect/selectWorld
+UI/Login.img/CharSelect/selectedCharacter
+
+UI/Login.img/CharSelect/BtSelect/normal
+UI/Login.img/CharSelect/BtSelect/pressed
+UI/Login.img/CharSelect/BtSelect/mouseOver
+UI/Login.img/CharSelect/BtSelect/disabled
+
+UI/Login.img/CharSelect/BtNew/normal
+UI/Login.img/CharSelect/BtNew/pressed
+UI/Login.img/CharSelect/BtNew/mouseOver
+
+UI/Login.img/CharSelect/BtDelete/normal
+UI/Login.img/CharSelect/BtDelete/pressed
+UI/Login.img/CharSelect/BtDelete/mouseOver
+
+UI ASSETS - World Select
+------------------------
+UI/Login.img/WorldSelect/BtWorld/normal
+UI/Login.img/WorldSelect/BtWorld/pressed
+UI/Login.img/WorldSelect/BtWorld/mouseOver
+UI/Login.img/WorldSelect/BtWorld/disabled
+
+UI/Login.img/WorldSelect/BtChannel/normal
+UI/Login.img/WorldSelect/BtChannel/pressed
+UI/Login.img/WorldSelect/BtChannel/mouseOver
+
+UI/Login.img/WorldSelect/BtGoStart/normal
+UI/Login.img/WorldSelect/BtGoStart/pressed
+UI/Login.img/WorldSelect/BtGoStart/mouseOver
+
+UI/Login.img/WorldSelect/channel
+UI/Login.img/WorldSelect/world
+
+UI ASSETS - Common Buttons
+--------------------------
+UI/Basic.img/BtOK/normal
+UI/Basic.img/BtOK/pressed
+UI/Basic.img/BtOK/mouseOver
+UI/Basic.img/BtOK/disabled
+
+UI/Basic.img/BtCancel/normal
+UI/Basic.img/BtCancel/pressed
+UI/Basic.img/BtCancel/mouseOver
+UI/Basic.img/BtCancel/disabled
+
+UI/Basic.img/BtYes/normal
+UI/Basic.img/BtYes/pressed
+UI/Basic.img/BtYes/mouseOver
+UI/Basic.img/BtYes/disabled
+
+UI/Basic.img/BtNo/normal
+UI/Basic.img/BtNo/pressed
+UI/Basic.img/BtNo/mouseOver
+UI/Basic.img/BtNo/disabled
+
+UI/Basic.img/BtClose/normal
+UI/Basic.img/BtClose/pressed
+UI/Basic.img/BtClose/mouseOver
+
+UI/Basic.img/BtMin/normal
+UI/Basic.img/BtMin/pressed
+UI/Basic.img/BtMin/mouseOver
+
+UI/Basic.img/BtMax/normal
+UI/Basic.img/BtMax/pressed
+UI/Basic.img/BtMax/mouseOver
+
+UI ASSETS - Cursor
+------------------
+UI/Basic.img/Cursor/0
+UI/Basic.img/Cursor/1
+UI/Basic.img/Cursor/2
+UI/Basic.img/Cursor/3
+UI/Basic.img/Cursor/4
+UI/Basic.img/Cursor/5
+UI/Basic.img/Cursor/6
+UI/Basic.img/Cursor/7
+UI/Basic.img/Cursor/8
+UI/Basic.img/Cursor/9
+UI/Basic.img/Cursor/10
+UI/Basic.img/Cursor/11
+UI/Basic.img/Cursor/12
+
+CHARACTER ASSETS
+----------------
+Character/00002000.img/walk/0
+Character/00002000.img/walk/1
+Character/00002000.img/walk/2
+Character/00002000.img/walk/3
+
+Character/00002000.img/stand/0
+Character/00002000.img/stand/1
+Character/00002000.img/stand/2
+
+Character/00002000.img/jump/0
+
+Character/00002000.img/alert/0
+Character/00002000.img/alert/1
+Character/00002000.img/alert/2
+
+Character/00002000.img/prone/0
+
+Character/00002000.img/fly/0
+Character/00002000.img/fly/1
+
+Character/00002000.img/ladder/0
+Character/00002000.img/ladder/1
+
+Character/00002000.img/rope/0
+Character/00002000.img/rope/1
+
+MAP ASSETS
+----------
+Map/Back/grassySoil/back/0
+Map/Back/grassySoil/back/1
+Map/Back/grassySoil/back/2
+
+Map/Tile/grassySoil/bsc/0
+Map/Tile/grassySoil/bsc/1
+Map/Tile/grassySoil/bsc/2
+Map/Tile/grassySoil/bsc/3
+
+Map/Obj/acc1/grassySoil/nature/0
+Map/Obj/acc1/grassySoil/nature/1
+Map/Obj/acc1/grassySoil/nature/2
+
+SOUND ASSETS
+------------
+Sound/BgmGL/MainTheme
+Sound/BgmGL/CharSelect
+Sound/BgmGL/WorldSelect
+
+Sound/UI/Click
+Sound/UI/ButtonOver
+Sound/UI/Select
+
+USAGE EXAMPLES
+--------------
+// In C++ with NoLifeNx:
+nl::node loginBtn = nl::nx::UI["Login.img"]["Title"]["BtLogin"]["normal"];
+auto bitmap = loginBtn.get_bitmap();
+
+// Get dimensions:
+int width = bitmap.width();
+int height = bitmap.height();
+
+// For animations, iterate frames:
+nl::node walk = nl::nx::Character["00002000.img"]["walk"];
+for (auto frame : walk) {
+    // frame is "0", "1", "2", etc.
+    auto frameBitmap = frame.get_bitmap();
+}
+
+// Check if asset exists:
+if (nl::nx::UI["Login.img"]["Title"]["BtLogin"]) {
+    // Asset exists
+}
+
+NOTES
+-----
+- All paths are case-sensitive
+- Use forward slashes (/) not backslashes
+- .img extension is part of the path
+- Check node type before accessing (bitmap, audio, etc)
+- Some assets may have origin/delay properties as siblings

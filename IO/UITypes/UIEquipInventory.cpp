@@ -87,161 +87,115 @@ namespace ms
 
 		nl::node close = nl::nx::UI["Basic.img"]["BtClose3"];
 		
-		// Detect v83 vs modern client based on asset availability
-		bool is_v83 = nl::nx::UI["UIWindow4.img"].name().empty();
+		// Use simplified approach - only UI.UIWindow.backgrnd
+		nl::node main_bg = nl::nx::UI["UIWindow.img"]["backgrnd"];
 		
-		nl::node Equip;
-		nl::node EquipGL;
+		// Use the same background for all tabs
+		background[Buttons::BT_TAB0] = main_bg;
+		background[Buttons::BT_TAB1] = main_bg;
+		background[Buttons::BT_TAB2] = main_bg;
+		background[Buttons::BT_TAB3] = main_bg;
 		
-		if (is_v83) {
-			// V83: Use simplified UIWindow.img structure
-			Equip = nl::nx::UI["UIWindow.img"]["Equip"];
-			// V83 doesn't have UIWindowGL.img, use fallback from main Equip node
-			EquipGL = Equip;
-		} else {
-			// Modern: Use UIWindow4.img and UIWindowGL.img
-			Equip = nl::nx::UI["UIWindow4.img"]["Equip"];
-			EquipGL = nl::nx::UI["UIWindowGL.img"]["Equip"];
-		}
+		// Still need to load the Equip node for other UI elements
+		nl::node Equip = nl::nx::UI["UIWindow.img"]["Equip"];
+		nl::node EquipGL = Equip; // Fallback to same node
+		bool is_legacy = true; // Simplified mode
 
-		// Load backgrounds - use single background for v83, tab-specific for modern
-		if (is_v83) {
-			// V83: Use single background for all tabs
-			nl::node main_bg = Equip["backgrnd"];
-			if (main_bg.name().empty()) {
-				main_bg = Equip["FullBackgrnd"]; // Fallback to FullBackgrnd if backgrnd missing
-			}
-			background[Buttons::BT_TAB0] = main_bg;
-			background[Buttons::BT_TAB1] = main_bg;
-			background[Buttons::BT_TAB2] = main_bg;
-			background[Buttons::BT_TAB3] = main_bg;
-		} else {
-			// Modern: Tab-specific backgrounds
-			background[Buttons::BT_TAB0] = Equip[tab_source[Buttons::BT_TAB0]]["backgrnd"];
-			background[Buttons::BT_TAB1] = Equip[tab_source[Buttons::BT_TAB1]]["backgrnd"];
-			background[Buttons::BT_TAB2] = Equip[tab_source[Buttons::BT_TAB2]]["backgrnd"];
-			background[Buttons::BT_TAB3] = Equip[tab_source[Buttons::BT_TAB3]]["backgrnd"];
-		}
-
-		// Load slots - v83 has simpler structure
-		if (!is_v83) {
-			for (uint16_t i = Buttons::BT_TAB0; i < Buttons::BT_TABE; i++)
-				for (auto slot : Equip[tab_source[i]]["Slots"])
-					if (slot.name().find("_") == std::string::npos)
+		// Load slots if available
+		for (uint16_t i = Buttons::BT_TAB0; i < Buttons::BT_TABE; i++) {
+			nl::node slots_node = Equip[tab_source[i]]["Slots"];
+			if (!slots_node.name().empty()) {
+				for (auto slot : slots_node) {
+					if (slot.name().find("_") == std::string::npos) {
 						Slots[i].emplace_back(slot);
-		}
-		// V83: Slots are handled differently or not needed due to simpler structure
-
-		nl::node backgrnd = is_v83 ? Equip["backgrnd"] : Equip["backgrnd"];
-		nl::node totem_backgrnd;
-		
-		if (is_v83) {
-			// V83: No separate totem background, use main background or create empty
-			totem_backgrnd = backgrnd;
-		} else {
-			// Modern: Use dedicated totem background
-			totem_backgrnd = EquipGL["Totem"]["backgrnd"];
-		}
-
-		Point<int16_t> bg_dimensions = Texture(backgrnd).get_dimensions();
-		totem_dimensions = Texture(totem_backgrnd).get_dimensions();
-		totem_adj = Point<int16_t>(-totem_dimensions.x() + 4, 0);
-
-		if (is_v83) {
-			// V83: Don't add any background sprites to avoid duplication
-			// The background[tab] will handle all background drawing
-		} else {
-			// Modern: Add all background sprites as before
-			sprites.emplace_back(totem_backgrnd, totem_adj);
-			sprites.emplace_back(backgrnd);
-			
-			nl::node backgrnd2 = Equip["backgrnd2"];
-			if (!backgrnd2.name().empty()) {
-				sprites.emplace_back(backgrnd2);
+					}
+				}
 			}
 		}
 
-		// V83: May not have tabbar, use fallback or skip
+		// Use the already loaded main_bg for dimensions
+		Point<int16_t> bg_dimensions = Texture(main_bg).get_dimensions();
+		totem_dimensions = bg_dimensions; // Use same dimensions
+		totem_adj = Point<int16_t>(0, 0); // No adjustment needed
+
+		// Don't add any background sprites - the background[tab] will handle all drawing
+
+		// Legacy: May not have tabbar, use fallback or skip
 		nl::node tabbar_node = Equip["tabbar"];
 		if (!tabbar_node.name().empty()) {
 			tabbar = tabbar_node;
 		}
 		
-		// V83: Disabled sprites may be structured differently
-		if (is_v83) {
-			// V83: Look for disabled states in simpler structure
-			nl::node disabled_node = Equip["disabled"];
-			nl::node disabled2_node = Equip["disabled2"];
-			if (disabled_node.name().empty()) {
-				// Fallback: use background as placeholder
-				disabled = backgrnd;
-			} else {
-				disabled = disabled_node;
-			}
-			if (disabled2_node.name().empty()) {
-				disabled2 = disabled; // Use same as disabled if disabled2 missing
-			} else {
-				disabled2 = disabled2_node;
-			}
+		// Load disabled states from Equip node
+		nl::node disabled_node = Equip["disabled"];
+		nl::node disabled2_node = Equip["disabled2"];
+		
+		if (!disabled_node.name().empty()) {
+			disabled = disabled_node;
 		} else {
-			// Modern: Tab-specific disabled states
-			disabled = Equip[tab_source[Buttons::BT_TAB0]]["disabled"];
-			disabled2 = Equip[tab_source[Buttons::BT_TAB0]]["disabled2"];
+			// Fallback: use main background as placeholder
+			disabled = main_bg;
+		}
+		
+		if (!disabled2_node.name().empty()) {
+			disabled2 = disabled2_node;
+		} else {
+			// Fallback: use disabled if it exists, otherwise use background
+			disabled2 = !disabled_node.name().empty() ? disabled_node : main_bg;
 		}
 
 		buttons[Buttons::BT_CLOSE] = std::make_unique<MapleButton>(close, Point<int16_t>(bg_dimensions.x() - 19, 5));
 		
-		// V83: Button structure is different
-		if (is_v83) {
-			// V83: Use available buttons from direct Equip node
-			nl::node btSlot = Equip["BtDetail"]; // V83 might use BtDetail instead of BtSlot
+		// Simplified button loading - use available buttons from Equip node
+		nl::node btSlot = Equip["BtDetail"];
+		if (btSlot.name().empty()) {
+			btSlot = Equip["BtSlot"];
 			if (btSlot.name().empty()) {
 				btSlot = close; // Fallback to close button style
 			}
-			buttons[Buttons::BT_SLOT] = std::make_unique<MapleButton>(btSlot);
-			
-			// V83: These advanced buttons may not exist, use fallbacks
-			buttons[Buttons::BT_EFFECT] = std::make_unique<MapleButton>(close);  // Fallback
-			buttons[Buttons::BT_SALON] = std::make_unique<MapleButton>(close);   // Fallback
-			
-			// V83: Pet-related buttons exist but with different names
-			nl::node btConsume = Equip["BtPet1"]; // Use pet button as consume setting
-			if (btConsume.name().empty()) btConsume = close;
-			buttons[Buttons::BT_CONSUMESETTING] = std::make_unique<MapleButton>(btConsume);
-			
-			nl::node btException = Equip["BtPet2"]; // Use pet button as exception
-			if (btException.name().empty()) btException = close;
-			buttons[Buttons::BT_EXCEPTION] = std::make_unique<MapleButton>(btException);
-			
-			nl::node btShop = Equip["BtCashshop"]; // V83 has BtCashshop
-			if (btShop.name().empty()) btShop = close;
-			buttons[Buttons::BT_SHOP] = std::make_unique<MapleButton>(btShop);
-		} else {
-			// Modern: Use tab-specific button structure
-			buttons[Buttons::BT_SLOT] = std::make_unique<MapleButton>(Equip[tab_source[Buttons::BT_TAB0]]["BtSlot"]);
-			buttons[Buttons::BT_EFFECT] = std::make_unique<MapleButton>(EquipGL["Equip"]["btEffect"]);
-			buttons[Buttons::BT_SALON] = std::make_unique<MapleButton>(EquipGL["Equip"]["btSalon"]);
-			buttons[Buttons::BT_CONSUMESETTING] = std::make_unique<MapleButton>(Equip[tab_source[Buttons::BT_TAB2]]["BtConsumeSetting"]);
-			buttons[Buttons::BT_EXCEPTION] = std::make_unique<MapleButton>(Equip[tab_source[Buttons::BT_TAB2]]["BtException"]);
-			buttons[Buttons::BT_SHOP] = std::make_unique<MapleButton>(Equip[tab_source[Buttons::BT_TAB3]]["BtShop"]);
 		}
+		buttons[Buttons::BT_SLOT] = std::make_unique<MapleButton>(btSlot);
+		
+		// These buttons may not exist in older versions, use fallbacks
+		buttons[Buttons::BT_EFFECT] = std::make_unique<MapleButton>(close);
+		buttons[Buttons::BT_SALON] = std::make_unique<MapleButton>(close);
+		
+		// Pet-related buttons
+		nl::node btConsume = Equip["BtPet1"];
+		if (btConsume.name().empty()) btConsume = close;
+		buttons[Buttons::BT_CONSUMESETTING] = std::make_unique<MapleButton>(btConsume);
+		
+		nl::node btException = Equip["BtPet2"];
+		if (btException.name().empty()) btException = close;
+		buttons[Buttons::BT_EXCEPTION] = std::make_unique<MapleButton>(btException);
+		
+		nl::node btShop = Equip["BtCashshop"];
+		if (btShop.name().empty()) btShop = close;
+		buttons[Buttons::BT_SHOP] = std::make_unique<MapleButton>(btShop);
 
 		buttons[Buttons::BT_CONSUMESETTING]->set_state(Button::State::DISABLED);
 		buttons[Buttons::BT_EXCEPTION]->set_state(Button::State::DISABLED);
 		buttons[Buttons::BT_SHOP]->set_state(Button::State::DISABLED);
 
-		// V83: Tab structure may be different
-		if (is_v83) {
-			// V83: Simplified tab creation using available buttons or fallbacks
+		// Simplified tab creation
+		nl::node Tab = Equip["Tab"];
+		if (!Tab.name().empty()) {
+			// Use Tab structure if available
 			for (uint16_t i = Buttons::BT_TAB0; i < Buttons::BT_TABE; i++) {
-				// Use close button as fallback for tab buttons in v83
-				buttons[Buttons::BT_TAB0 + i] = std::make_unique<MapleButton>(close, Point<int16_t>(i * 30, 3));
+				nl::node disabled = Tab["disabled"][i];
+				nl::node enabled = Tab["enabled"][i];
+				if (!disabled.name().empty() && !enabled.name().empty()) {
+					buttons[Buttons::BT_TAB0 + i] = std::make_unique<TwoSpriteButton>(disabled, enabled, Point<int16_t>(0, 3));
+				} else {
+					// Fallback if tab sprites are missing
+					buttons[Buttons::BT_TAB0 + i] = std::make_unique<MapleButton>(close, Point<int16_t>(i * 30, 3));
+				}
 			}
 		} else {
-			// Modern: Use proper Tab structure
-			nl::node Tab = Equip["Tab"];
-			for (uint16_t i = Buttons::BT_TAB0; i < Buttons::BT_TABE; i++)
-				buttons[Buttons::BT_TAB0 + i] = std::make_unique<TwoSpriteButton>(Tab["disabled"][i], Tab["enabled"][i], Point<int16_t>(0, 3));
+			// No Tab structure, use fallback
+			for (uint16_t i = Buttons::BT_TAB0; i < Buttons::BT_TABE; i++) {
+				buttons[Buttons::BT_TAB0 + i] = std::make_unique<MapleButton>(close, Point<int16_t>(i * 30, 3));
+			}
 		}
 
 		dimension = bg_dimensions;
@@ -258,7 +212,7 @@ namespace ms
 		// Only draw the current tab's background, not all of them
 		background[tab].draw(position);
 		
-		// Only draw tabbar if it exists (v83 might not have it)
+		// Only draw tabbar if it exists (legacy versions might not have it)
 		if (tabbar.is_valid()) {
 			tabbar.draw(position);
 		}

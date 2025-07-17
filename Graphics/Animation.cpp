@@ -164,6 +164,7 @@ namespace ms
 		animated = frames.size() > 1;
 		zigzag = src["zigzag"].get_bool();
 
+
 		reset();
 	}
 
@@ -184,6 +185,7 @@ namespace ms
 		xyscale.set(frames[0].start_scale());
 		delay = frames[0].get_delay();
 		framestep = 1;
+		
 	}
 
 	void Animation::draw(const DrawArgument& args, float alpha) const
@@ -194,6 +196,7 @@ namespace ms
 
 		bool modifyopc = interopc != 1.0f;
 		bool modifyscale = interscale != 1.0f;
+
 
 		if (modifyopc || modifyscale)
 			frames[interframe].draw(args + DrawArgument(interscale, interscale, interopc));
@@ -230,12 +233,12 @@ namespace ms
 
 			if (zigzag && lastframe > 0)
 			{
-				if (framestep == 1 && frame == lastframe)
+				if (framestep == 1 && frame.get() == lastframe)
 				{
 					framestep = -framestep;
 					ended = false;
 				}
-				else if (framestep == -1 && frame == 0)
+				else if (framestep == -1 && frame.get() == 0)
 				{
 					framestep = -framestep;
 					ended = true;
@@ -245,24 +248,25 @@ namespace ms
 					ended = false;
 				}
 
-				nextframe = frame + framestep;
+				nextframe = frame.get() + framestep;
 			}
 			else
 			{
-				if (frame == lastframe)
+				if (frame.get() == lastframe)
 				{
 					nextframe = 0;
 					ended = true;
 				}
 				else
 				{
-					nextframe = frame + 1;
+					nextframe = frame.get() + 1;
 					ended = false;
 				}
 			}
 
 			uint16_t delta = timestep - delay;
 			float threshold = static_cast<float>(delta) / timestep;
+			
 			frame.next(nextframe, threshold);
 
 			delay = frames[nextframe].get_delay();

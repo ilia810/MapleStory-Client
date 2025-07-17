@@ -1,0 +1,914 @@
+# Camera Following Issue Repomix - MapleStory v83/v87 Client
+
+This repomix contains the core files related to the camera following issue where the camera doesn't properly follow the player character, especially at map edges and during transitions.
+
+## File: Gameplay/Camera.cpp
+```cpp
+//////////////////////////////////////////////////////////////////////////////////
+//	This file is part of the continued Journey MMORPG client					//
+//	Copyright (C) 2015-2019  Daniel Allendorf, Ryan Payton						//
+//																				//
+//	This program is free software: you can redistribute it and/or modify		//
+//	it under the terms of the GNU Affero General Public License as published by	//
+//	the Free Software Foundation, either version 3 of the License, or			//
+//	(at your option) any later version.											//
+//																				//
+//	This program is distributed in the hope that it will be useful,				//
+//	but WITHOUT ANY WARRANTY; without even the implied warranty of				//
+//	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the				//
+//	GNU Affero General Public License for more details.							//
+//																				//
+//	You should have received a copy of the GNU Affero General Public License	//
+//	along with this program.  If not, see <https://www.gnu.org/licenses/>.		//
+//////////////////////////////////////////////////////////////////////////////////
+#include "Camera.h"
+
+#include "../Constants.h"
+#include <iostream>
+
+namespace ms
+{
+	Camera::Camera()
+	{
+		x.set(0.0);
+		y.set(0.0);
+
+		VWIDTH = Constants::Constants::get().get_viewwidth();
+		VHEIGHT = Constants::Constants::get().get_viewheight();
+	}
+
+	void Camera::update(Point<int16_t> position)
+	{
+		
+		int32_t new_width = Constants::Constants::get().get_viewwidth();
+		int32_t new_height = Constants::Constants::get().get_viewheight();
+
+		if (VWIDTH != new_width || VHEIGHT != new_height)
+		{
+			VWIDTH = new_width;
+			VHEIGHT = new_height;
+		}
+
+		double next_x = x.get();
+		double hdelta = VWIDTH / 2 - position.x() - next_x;
+
+		if (std::abs(hdelta) >= 5.0)
+			next_x += hdelta * (12.0 / VWIDTH);
+
+		double next_y = y.get();
+		double vdelta = VHEIGHT / 2 - position.y() - next_y;
+
+		if (std::abs(vdelta) >= 5.0)
+			next_y += vdelta * (12.0 / VHEIGHT);
+
+		// Only log when we'll show a bounds clipping later
+		double pre_bounds_x = next_x;
+		double pre_bounds_y = next_y;
+
+		// Proper camera bounds - camera position represents viewport center, not top-left
+		// Convert bounds to camera center coordinates
+		double h_center_min = hbounds.first() + VWIDTH / 2.0;
+		double h_center_max = hbounds.second() - VWIDTH / 2.0;
+		double v_center_min = vbounds.first() + VHEIGHT / 2.0;
+		double v_center_max = vbounds.second() - VHEIGHT / 2.0;
+		
+		// Add a buffer to prevent minor clipping at edges
+		// This allows the camera to go beyond calculated bounds
+		// to follow players who are at the very edge of the map
+		// Based on edge cases, we see clamping of 7-8 units, so need more buffer
+		const double BOUND_BUFFER = 150.0;
+		h_center_min -= BOUND_BUFFER;
+		h_center_max += BOUND_BUFFER;
+		v_center_min -= BOUND_BUFFER;
+		v_center_max += BOUND_BUFFER;
+		
+		double old_next_x = next_x;
+		double old_next_y = next_y;
+		
+		// Re-enable bounds checking with improved v83/v87 bounds
+		bool disable_bounds = false;
+		
+		if (!disable_bounds) {
+			// Only apply bounds if map is larger than viewport
+			if (hbounds.length() > VWIDTH) {
+				if (next_x < h_center_min)
+					next_x = h_center_min;
+				else if (next_x > h_center_max)
+					next_x = h_center_max;
+			} else {
+				// Fix: Centre camera on small maps
+				next_x = (hbounds.first() + hbounds.second()) / 2.0;
+			}
+			
+			if (vbounds.length() > VHEIGHT) {
+				// Apply vertical bounds normally
+				if (next_y < v_center_min)
+					next_y = v_center_min;
+				else if (next_y > v_center_max)
+					next_y = v_center_max;
+			} else {
+				// Fix: Centre camera on small maps
+				next_y = (vbounds.first() + vbounds.second()) / 2.0;
+			}
+		}
+		
+		// Special case debug: Check if something is clamping to exactly 0
+		if (old_next_x != 0 && next_x == 0) {
+			LOG(LOG_DEBUG, "[Camera] WARNING: Camera X was clamped to exactly 0! This is suspicious.");
+		}
+
+		// Debug bounds application - only log when bounds actually change camera position
+		if (old_next_x != next_x || old_next_y != next_y) {
+			LOG(LOG_DEBUG, "[Camera] BOUNDS CLIPPING DETECTED!");
+			LOG(LOG_DEBUG, "  Player position: (" << position.x() << ", " << position.y() << ")");
+			LOG(LOG_DEBUG, "  Camera wanted to be at: (" << pre_bounds_x << ", " << pre_bounds_y << ")");
+			LOG(LOG_DEBUG, "  Camera clamped to: (" << next_x << ", " << next_y << ")");
+			LOG(LOG_DEBUG, "  Map bounds: H[" << hbounds.first() << "," << hbounds.second() 
+				<< "] V[" << vbounds.first() << "," << vbounds.second() << "]");
+			LOG(LOG_DEBUG, "  Camera center bounds: H[" << h_center_min << "," << h_center_max 
+				<< "] V[" << v_center_min << "," << v_center_max << "]");
+			LOG(LOG_DEBUG, "  Viewport size: " << VWIDTH << "x" << VHEIGHT);
+			
+			// This should NOT happen with bounds disabled!
+			if (disable_bounds) {
+				LOG(LOG_ERROR, "[Camera] ERROR: Bounds were applied even though disable_bounds=true!");
+			}
+		}
+
+		// Disable safety clamp for v83/v87 compatibility - let camera move freely
+		// The bounds checking above should be sufficient
+		/*
+		const double MAX_CAMERA_RANGE = 5000.0;  // Reasonable camera range limit
+		if (std::abs(next_x) > MAX_CAMERA_RANGE || std::abs(next_y) > MAX_CAMERA_RANGE) {
+			LOG(LOG_DEBUG, "[Camera] Safety clamp applied - extreme position detected");
+			// Manual clamp for C++11/14 compatibility
+			if (next_x < -MAX_CAMERA_RANGE) next_x = -MAX_CAMERA_RANGE;
+			else if (next_x > MAX_CAMERA_RANGE) next_x = MAX_CAMERA_RANGE;
+			
+			if (next_y < -MAX_CAMERA_RANGE) next_y = -MAX_CAMERA_RANGE;
+			else if (next_y > MAX_CAMERA_RANGE) next_y = MAX_CAMERA_RANGE;
+		}
+		*/
+
+		// Debug: Track when camera is set to 0
+		if (x.get() != 0 && next_x == 0) {
+			LOG(LOG_DEBUG, "[Camera] ERROR: Camera X being set to 0! Previous: " << x.get() << ", New: " << next_x);
+		}
+		
+		x = next_x;
+		y = next_y;
+	}
+
+	void Camera::set_position(Point<int16_t> position)
+	{
+		int32_t new_width = Constants::Constants::get().get_viewwidth();
+		int32_t new_height = Constants::Constants::get().get_viewheight();
+
+		if (VWIDTH != new_width || VHEIGHT != new_height)
+		{
+			VWIDTH = new_width;
+			VHEIGHT = new_height;
+		}
+
+		double new_x = VWIDTH / 2 - position.x();
+		double new_y = VHEIGHT / 2 - position.y();
+		
+
+		// Debug: Track direct position sets
+		if (new_x == 0 && position.x() != VWIDTH / 2) {
+			LOG(LOG_DEBUG, "[Camera] WARNING: set_position resulted in X=0! Player pos: " << position.x() << ", calculated X: " << new_x);
+		}
+		
+		x.set(new_x);
+		y.set(new_y);
+	}
+
+	void Camera::set_view(Range<int16_t> mapwalls, Range<int16_t> mapborders)
+	{
+		
+		// Fix: Don't negate the ranges - use them directly
+		// The negation was causing inverted bounds
+		hbounds = mapwalls;
+		vbounds = mapborders;
+		
+	}
+
+	Point<int16_t> Camera::position() const
+	{
+		auto shortx = static_cast<int16_t>(std::round(x.get()));
+		auto shorty = static_cast<int16_t>(std::round(y.get()));
+		
+		// Debug: Check if conversion is causing issues
+		if (std::abs(x.get() - shortx) > 1.0) {
+			LOG(LOG_DEBUG, "[Camera] Large rounding difference in position() - double: " << x.get() << ", int16: " << shortx);
+		}
+
+		return { shortx, shorty };
+	}
+
+	Point<int16_t> Camera::position(float alpha) const
+	{
+		auto interx = static_cast<int16_t>(std::round(x.get(alpha)));
+		auto intery = static_cast<int16_t>(std::round(y.get(alpha)));
+
+		return { interx, intery };
+	}
+
+	Point<double> Camera::realposition(float alpha) const
+	{
+		return { x.get(alpha), y.get(alpha) };
+	}
+}
+```
+
+## File: Gameplay/Camera.h
+```cpp
+//////////////////////////////////////////////////////////////////////////////////
+//	This file is part of the continued Journey MMORPG client					//
+//	Copyright (C) 2015-2019  Daniel Allendorf, Ryan Payton						//
+//																				//
+//	This program is free software: you can redistribute it and/or modify		//
+//	it under the terms of the GNU Affero General Public License as published by	//
+//	the Free Software Foundation, either version 3 of the License, or			//
+//	(at your option) any later version.											//
+//																				//
+//	This program is distributed in the hope that it will be useful,				//
+//	but WITHOUT ANY WARRANTY; without even the implied warranty of				//
+//	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the				//
+//	GNU Affero General Public License for more details.							//
+//																				//
+//	You should have received a copy of the GNU Affero General Public License	//
+//	along with this program.  If not, see <https://www.gnu.org/licenses/>.		//
+//////////////////////////////////////////////////////////////////////////////////
+#pragma once
+
+#include "../Template/Interpolated.h"
+#include "../Template/Point.h"
+#include "../Template/Range.h"
+
+#include <cstdint>
+
+namespace ms
+{
+	// View on stage which follows the player object.
+	class Camera
+	{
+	public:
+		// Initialize everything to 0, we need the player's spawnpoint first to properly set the position.
+		Camera();
+
+		// Update the view with the current player position. (Or any other target)
+		void update(Point<int16_t> position);
+		// Set the position, changing the view immediately.
+		void set_position(Point<int16_t> position);
+		// Updates the view's boundaries. Determined by mapinfo or footholds.
+		void set_view(Range<int16_t> hborders, Range<int16_t> vborders);
+		// Return the current position.
+		Point<int16_t> position() const;
+		// Return the interpolated position.
+		Point<int16_t> position(float alpha) const;
+		// Return the interpolated position.
+		Point<double> realposition(float alpha) const;
+
+	private:
+		// Movement variables.
+		Linear<double> x;
+		Linear<double> y;
+
+		// View limits.
+		Range<int16_t> hbounds;
+		Range<int16_t> vbounds;
+
+		int16_t VWIDTH;
+		int16_t VHEIGHT;
+	};
+}
+```
+
+## File: Gameplay/MapleMap/MapInfo.cpp
+```cpp
+//////////////////////////////////////////////////////////////////////////////////
+//	This file is part of the continued Journey MMORPG client					//
+//	Copyright (C) 2015-2019  Daniel Allendorf, Ryan Payton						//
+//																				//
+//	This program is free software: you can redistribute it and/or modify		//
+//	it under the terms of the GNU Affero General Public License as published by	//
+//	the Free Software Foundation, either version 3 of the License, or			//
+//	(at your option) any later version.											//
+//																				//
+//	This program is distributed in the hope that it will be useful,				//
+//	but WITHOUT ANY WARRANTY; without even the implied warranty of				//
+//	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the				//
+//	GNU Affero General Public License for more details.							//
+//																				//
+//	You should have received a copy of the GNU Affero General Public License	//
+//	along with this program.  If not, see <https://www.gnu.org/licenses/>.		//
+//////////////////////////////////////////////////////////////////////////////////
+#include "MapInfo.h"
+
+#include "../../Util/Misc.h"
+
+namespace ms
+{
+	MapInfo::MapInfo(nl::node src, Range<int16_t> walls, Range<int16_t> borders)
+	{
+		nl::node info = src["info"];
+
+		// Check for VR bounds in map info
+		bool has_vr_bounds = (info["VRLeft"].data_type() == nl::node::type::integer) && 
+		                     (info["VRRight"].data_type() == nl::node::type::integer) &&
+		                     (info["VRTop"].data_type() == nl::node::type::integer) && 
+		                     (info["VRBottom"].data_type() == nl::node::type::integer);
+		
+		// Also check if VR values are not zero (some maps have zero VR bounds)
+		if (has_vr_bounds) {
+			int16_t vr_left = info["VRLeft"];
+			int16_t vr_right = info["VRRight"];
+			int16_t vr_top = info["VRTop"];
+			int16_t vr_bottom = info["VRBottom"];
+			
+			bool vr_values_valid = (vr_left != 0 || vr_right != 0 || vr_top != 0 || vr_bottom != 0) &&
+			                      (vr_left < vr_right) && (vr_top < vr_bottom);
+			
+			if (vr_values_valid) {
+				mapwalls = Range<int16_t>(vr_left, vr_right);
+				mapborders = Range<int16_t>(vr_top, vr_bottom);
+				LOG(LOG_DEBUG, "[MapInfo] Using map VR bounds - Walls: [" << mapwalls.smaller() << "," << mapwalls.greater() 
+					<< "], Borders: [" << mapborders.smaller() << "," << mapborders.greater() << "]");
+			} else {
+				has_vr_bounds = false; // Treat as missing VR bounds
+				LOG(LOG_DEBUG, "[MapInfo] VR bounds exist but are invalid (zeros or inverted), calculating from footholds");
+			}
+		}
+		
+		if (!has_vr_bounds) {
+			// V83/V87 fallback: Try to use foothold bounds first
+			LOG(LOG_DEBUG, "[MapInfo] No valid VR bounds found, calculating from footholds for v83/v87");
+			
+			// First, get the foothold-based bounds
+			Range<int16_t> foothold_walls = calculate_vr_from_footholds(src, walls);
+			Range<int16_t> foothold_borders = calculate_vr_borders_from_footholds(src, borders);
+			
+			// Use the foothold bounds as base
+			mapwalls = foothold_walls;
+			mapborders = foothold_borders;
+			
+			LOG(LOG_DEBUG, "[MapInfo] Initial bounds from footholds - Walls: [" << mapwalls.smaller() << "," << mapwalls.greater() 
+				<< "], Borders: [" << mapborders.smaller() << "," << mapborders.greater() << "]");
+			
+			// If the bounds seem too restrictive, expand them
+			if (mapwalls.length() < 10000) {
+				// Expand horizontal bounds symmetrically
+				// Need very wide bounds for v83 compatibility
+				int16_t center = (mapwalls.smaller() + mapwalls.greater()) / 2;
+				mapwalls = Range<int16_t>(center - 6000, center + 6000);
+				LOG(LOG_DEBUG, "[MapInfo] Expanded horizontal bounds to ensure 12000 unit width");
+			}
+			
+			if (mapborders.length() < 4000) {
+				// Expand vertical bounds to ensure camera can follow player anywhere
+				// But keep bottom bound close to minimize void
+				int16_t current_length = mapborders.length();
+				int16_t needed_expansion = 4000 - current_length;
+				// Expand mostly on top for climbing, minimal expansion on bottom
+				mapborders = Range<int16_t>(mapborders.smaller() - (needed_expansion * 4)/5, 
+				                           mapborders.greater() + needed_expansion/5);
+				LOG(LOG_DEBUG, "[MapInfo] Expanded vertical bounds to ensure 4000+ unit height (80% top, 20% bottom)");
+			}
+			
+			LOG(LOG_DEBUG, "[MapInfo] Final v83/v87 bounds - Walls: [" << mapwalls.smaller() << "," << mapwalls.greater() 
+				<< "], Borders: [" << mapborders.smaller() << "," << mapborders.greater() << "]");
+		}
+
+		std::string bgmpath = info["bgm"];
+		size_t split = bgmpath.find('/');
+		bgm = bgmpath.substr(0, split) + ".img/" + bgmpath.substr(split + 1);
+
+		cloud = info["cloud"].get_bool();
+		fieldlimit = info["fieldLimit"];
+		hideminimap = info["hideMinimap"].get_bool();
+		mapmark = info["mapMark"];
+		swim = info["swim"].get_bool();
+		town = info["town"].get_bool();
+
+		for (auto seat : src["seat"])
+			seats.push_back(seat);
+
+		for (auto ladder : src["ladderRope"])
+			ladders.push_back(ladder);
+	}
+
+	MapInfo::MapInfo() {}
+
+	Range<int16_t> MapInfo::calculate_vr_from_footholds(nl::node src, Range<int16_t> fallback_walls) const
+	{
+		nl::node foothold_src = src["foothold"];
+		if (foothold_src.name().empty()) {
+			LOG(LOG_DEBUG, "[MapInfo] No foothold data found, using fallback walls");
+			return fallback_walls;
+		}
+
+		int16_t leftmost = 30000;
+		int16_t rightmost = -30000;
+		bool found_footholds = false;
+
+		// Iterate through all footholds to find envelope
+		for (auto layer : foothold_src) {
+			for (auto group : layer) {
+				for (auto fh : group) {
+					found_footholds = true;
+					
+					int16_t x1 = fh["x1"];
+					int16_t x2 = fh["x2"];
+					
+					leftmost = std::min(leftmost, std::min(x1, x2));
+					rightmost = std::max(rightmost, std::max(x1, x2));
+				}
+			}
+		}
+
+		if (!found_footholds) {
+			LOG(LOG_DEBUG, "[MapInfo] No footholds found in data, using fallback walls");
+			return fallback_walls;
+		}
+
+		// Add margin as per v83 private server practice
+		// Need very large margins because players can move far beyond footholds
+		// Based on edge cases, player at 5782 needs camera at -4623
+		int16_t margin = 5000;  // Very large margin to handle extreme player positions
+		leftmost -= margin;
+		rightmost += margin;
+
+		LOG(LOG_DEBUG, "[MapInfo] Calculated VR walls from footholds: [" << leftmost << "," << rightmost << "]");
+		return Range<int16_t>(leftmost, rightmost);
+	}
+
+	Range<int16_t> MapInfo::calculate_vr_borders_from_footholds(nl::node src, Range<int16_t> fallback_borders) const
+	{
+		nl::node foothold_src = src["foothold"];
+		if (foothold_src.name().empty()) {
+			LOG(LOG_DEBUG, "[MapInfo] No foothold data found, using fallback borders");
+			return fallback_borders;
+		}
+
+		int16_t topmost = 30000;
+		int16_t bottommost = -30000;
+		bool found_footholds = false;
+
+		// Iterate through all footholds to find envelope
+		for (auto layer : foothold_src) {
+			for (auto group : layer) {
+				for (auto fh : group) {
+					found_footholds = true;
+					
+					int16_t y1 = fh["y1"];
+					int16_t y2 = fh["y2"];
+					
+					topmost = std::min(topmost, std::min(y1, y2));
+					bottommost = std::max(bottommost, std::max(y1, y2));
+				}
+			}
+		}
+
+		if (!found_footholds) {
+			LOG(LOG_DEBUG, "[MapInfo] No footholds found in data, using fallback borders");
+			return fallback_borders;
+		}
+
+		// Add margin as per v83 private server practice
+		// We need to be careful with margins to avoid showing void while allowing camera movement
+		// The camera center needs to be able to reach areas where the player can stand
+		int16_t viewport_height = 768; // Typical viewport height
+		int16_t half_viewport = viewport_height / 2;
+		
+		// For top: When player is at ground level, camera needs to go high (negative Y)
+		// Add generous margin for when player is at bottom of map
+		int16_t top_margin = 1500;
+		topmost -= top_margin;
+		
+		// For bottom: We need to balance showing minimal void while allowing camera movement
+		// The key insight: we want the VIEWPORT bottom (camera_y + viewport/2) to stay near footholds
+		// So the maximum camera Y should be: bottommost_foothold + margin - viewport/2
+		// This way viewport bottom = bottommost_foothold + margin
+		int16_t bottom_margin = half_viewport - 100; // Viewport bottom will be 100px below lowest foothold
+		bottommost += bottom_margin;
+
+		int16_t viewport_bottom_at_max_camera = bottommost - half_viewport;
+		int16_t void_pixels = viewport_bottom_at_max_camera - (bottommost - bottom_margin);
+		
+		LOG(LOG_DEBUG, "[MapInfo] Foothold Y range: [" << (topmost + top_margin) << "," << (bottommost - bottom_margin) 
+			<< "], margins: top=" << top_margin << ", bottom=" << bottom_margin 
+			<< ", final VR borders: [" << topmost << "," << bottommost << "]"
+			<< ", void below map: ~" << void_pixels << " pixels");
+		return Range<int16_t>(topmost, bottommost);
+	}
+
+	bool MapInfo::is_underwater() const
+	{
+		return swim;
+	}
+
+	std::string MapInfo::get_bgm() const
+	{
+		return bgm;
+	}
+
+	Range<int16_t> MapInfo::get_walls() const
+	{
+		return mapwalls;
+	}
+
+	Range<int16_t> MapInfo::get_borders() const
+	{
+		return mapborders;
+	}
+
+	Optional<const Seat> MapInfo::findseat(Point<int16_t> position) const
+	{
+		for (auto& seat : seats)
+			if (seat.inrange(position))
+				return seat;
+
+		return nullptr;
+	}
+
+	Optional<const Ladder> MapInfo::findladder(Point<int16_t> position, bool upwards) const
+	{
+		for (auto& ladder : ladders)
+			if (ladder.inrange(position, upwards))
+				return ladder;
+
+		return nullptr;
+	}
+
+	Seat::Seat(nl::node src)
+	{
+		pos = src;
+	}
+
+	bool Seat::inrange(Point<int16_t> position) const
+	{
+		auto hor = Range<int16_t>::symmetric(position.x(), 10);
+		auto ver = Range<int16_t>::symmetric(position.y(), 10);
+
+		return hor.contains(pos.x()) && ver.contains(pos.y());
+	}
+
+	Point<int16_t> Seat::getpos() const
+	{
+		return pos;
+	}
+
+	Ladder::Ladder(nl::node src)
+	{
+		x = src["x"];
+		y1 = src["y1"];
+		y2 = src["y2"];
+		ladder = src["l"].get_bool();
+	}
+
+	bool Ladder::is_ladder() const
+	{
+		return ladder;
+	}
+
+	bool Ladder::inrange(Point<int16_t> position, bool upwards) const
+	{
+		auto hor = Range<int16_t>::symmetric(position.x(), 10);
+		auto ver = Range<int16_t>(y1, y2);
+
+		int16_t y = upwards ?
+			position.y() - 5 :
+			position.y() + 5;
+
+		return hor.contains(x) && ver.contains(y);
+	}
+
+	bool Ladder::felloff(int16_t y, bool downwards) const
+	{
+		int16_t dy = downwards ? y + 5 : y - 5;
+
+		return dy > y2 || y + 5 < y1;
+	}
+
+	int16_t Ladder::get_x() const
+	{
+		return x;
+	}
+}
+```
+
+## File: Gameplay/MapleMap/MapInfo.h
+```cpp
+//////////////////////////////////////////////////////////////////////////////////
+//	This file is part of the continued Journey MMORPG client					//
+//	Copyright (C) 2015-2019  Daniel Allendorf, Ryan Payton						//
+//																				//
+//	This program is free software: you can redistribute it and/or modify		//
+//	it under the terms of the GNU Affero General Public License as published by	//
+//	the Free Software Foundation, either version 3 of the License, or			//
+//	(at your option) any later version.											//
+//																				//
+//	This program is distributed in the hope that it will be useful,				//
+//	but WITHOUT ANY WARRANTY; without even the implied warranty of				//
+//	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the				//
+//	GNU Affero General Public License for more details.							//
+//																				//
+//	You should have received a copy of the GNU Affero General Public License	//
+//	along with this program.  If not, see <https://www.gnu.org/licenses/>.		//
+//////////////////////////////////////////////////////////////////////////////////
+#pragma once
+
+#include "../../Template/Optional.h"
+#include "../../Template/Point.h"
+#include "../../Template/Range.h"
+
+#include <vector>
+
+namespace ms
+{
+	class Seat
+	{
+	public:
+		Seat(nl::node source);
+
+		bool inrange(Point<int16_t> position) const;
+		Point<int16_t> getpos() const;
+
+	private:
+		Point<int16_t> pos;
+	};
+
+	class Ladder
+	{
+	public:
+		Ladder(nl::node source);
+
+		bool is_ladder() const;
+		bool inrange(Point<int16_t> position, bool upwards) const;
+		bool felloff(int16_t y, bool downwards) const;
+		int16_t get_x() const;
+
+	private:
+		int16_t x;
+		int16_t y1;
+		int16_t y2;
+		bool ladder;
+	};
+
+	class MapInfo
+	{
+	public:
+		MapInfo(nl::node src, Range<int16_t> walls, Range<int16_t> borders);
+		MapInfo();
+
+		bool is_underwater() const;
+		std::string get_bgm() const;
+		Range<int16_t> get_walls() const;
+		Range<int16_t> get_borders() const;
+
+		// Find a seat the player's position
+		Optional<const Seat> findseat(Point<int16_t> position) const;
+		// Find a ladder at the player's position
+		// !upwards - implies downwards
+		Optional<const Ladder> findladder(Point<int16_t> position, bool upwards) const;
+
+	private:
+		// V83/V87 helper functions to calculate VR bounds from foothold data
+		Range<int16_t> calculate_vr_from_footholds(nl::node src, Range<int16_t> fallback_walls) const;
+		Range<int16_t> calculate_vr_borders_from_footholds(nl::node src, Range<int16_t> fallback_borders) const;
+		int32_t fieldlimit;
+		bool cloud;
+		std::string bgm;
+		std::string mapdesc;
+		std::string mapname;
+		std::string streetname;
+		std::string mapmark;
+		bool swim;
+		bool town;
+		bool hideminimap;
+		Range<int16_t> mapwalls;
+		Range<int16_t> mapborders;
+		std::vector<Seat> seats;
+		std::vector<Ladder> ladders;
+	};
+}
+```
+
+## File: Gameplay/Stage.cpp (relevant camera sections)
+```cpp
+void Stage::respawn(int8_t portalid)
+{
+	Music(mapinfo.get_bgm()).play();
+
+	Point<int16_t> spawnpoint = portals.get_portal_by_id(portalid);
+	Point<int16_t> startpos = physics.get_y_below(spawnpoint);
+	// Fix invalid spawn position
+	if (startpos.y() < -1000 || startpos.y() > 2000) {
+		startpos = Point<int16_t>(startpos.x(), 300);
+	}
+	player.respawn(startpos, mapinfo.is_underwater());
+	// Center camera on player position
+	camera.set_position(startpos);
+	Range<int16_t> walls = mapinfo.get_walls();
+	Range<int16_t> borders = mapinfo.get_borders();
+	
+	LOG(LOG_DEBUG, "[Stage] MAP ID: " << mapid << " - Camera bounds - walls: " << walls.smaller() << " to " << walls.greater() 
+		<< ", borders: " << borders.smaller() << " to " << borders.greater());
+	
+	// Use the VR bounds calculated in MapInfo which handles missing VR nodes
+	camera.set_view(walls, borders);
+}
+
+void Stage::update()
+{
+	if (state != State::ACTIVE) {
+		LOG(LOG_DEBUG, "[Stage] update() skipped - state is not ACTIVE (state=" << (int)state << ")");
+		return;
+	}
+
+	// ... other updates ...
+	
+	portals.update(player.get_position());
+	Point<int16_t> player_pos = player.get_position();
+	camera.update(player_pos);
+	
+	// ... rest of update ...
+}
+```
+
+## File: Gameplay/Physics/FootholdTree.cpp
+```cpp
+//////////////////////////////////////////////////////////////////////////////////
+//	This file is part of the continued Journey MMORPG client					//
+//	Copyright (C) 2015-2019  Daniel Allendorf, Ryan Payton						//
+//																				//
+//	This program is free software: you can redistribute it and/or modify		//
+//	it under the terms of the GNU Affero General Public License as published by	//
+//	the Free Software Foundation, either version 3 of the License, or			//
+//	(at your option) any later version.											//
+//																				//
+//	This program is distributed in the hope that it will be useful,				//
+//	but WITHOUT ANY WARRANTY; without even the implied warranty of				//
+//	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the				//
+//	GNU Affero General Public License for more details.							//
+//																				//
+//	You should have received a copy of the GNU Affero General Public License	//
+//	along with this program.  If not, see <https://www.gnu.org/licenses/>.		//
+//////////////////////////////////////////////////////////////////////////////////
+#include "FootholdTree.h"
+
+#include <iostream>
+#include "../../Util/Misc.h"
+
+namespace ms
+{
+	FootholdTree::FootholdTree(nl::node src)
+	{
+		int16_t leftw = 30000;
+		int16_t rightw = -30000;
+		int16_t botb = -30000;
+		int16_t topb = 30000;
+
+		for (auto basef : src)
+		{
+			uint8_t layer;
+
+			try
+			{
+				layer = static_cast<uint8_t>(std::stoi(basef.name()));
+			}
+			catch (const std::exception& ex)
+			{
+				LOG(LOG_ERROR, __func__ << ": " << ex.what());
+				continue;
+			}
+
+			for (auto midf : basef)
+			{
+				for (auto lastf : midf)
+				{
+					uint16_t id;
+
+					try
+					{
+						id = static_cast<uint16_t>(std::stoi(lastf.name()));
+					}
+					catch (const std::exception& ex)
+					{
+						LOG(LOG_ERROR, __func__ << ": " << ex.what());
+						continue;
+					}
+
+					const Foothold& foothold = footholds.emplace(
+						std::piecewise_construct,
+						std::forward_as_tuple(id),
+						std::forward_as_tuple(lastf, id, layer)
+					).first->second;
+
+					if (foothold.l() < leftw)
+						leftw = foothold.l();
+
+					if (foothold.r() > rightw)
+						rightw = foothold.r();
+
+					if (foothold.b() > botb)
+						botb = foothold.b();
+
+					if (foothold.t() < topb)
+						topb = foothold.t();
+
+					if (foothold.is_wall())
+						continue;
+
+					int16_t start = foothold.l();
+					int16_t end = foothold.r();
+
+					for (int16_t i = start; i <= end; i++)
+						footholdsbyx.emplace(i, id);
+				}
+			}
+		}
+
+		// Validate foothold data and provide safe defaults
+		bool hasValidFootholds = !footholds.empty();
+		
+		if (!hasValidFootholds) {
+			std::cout << "[FOOTHOLD] WARNING: Map has no foothold data! Using safe defaults." << std::endl;
+			// Use safe default bounds when no footholds exist
+			leftw = -1000;
+			rightw = 1000;
+			topb = -1000;
+			botb = 0;  // Ground level at Y=0
+		} else {
+			// Validate computed bounds - ensure they make sense
+			if (topb >= botb) {
+				std::cout << "[FOOTHOLD] WARNING: Invalid foothold bounds (top=" << topb << " >= bottom=" << botb 
+				          << "), using safe defaults." << std::endl;
+				topb = -1000;
+				botb = 0;
+			}
+			if (leftw >= rightw) {
+				std::cout << "[FOOTHOLD] WARNING: Invalid wall bounds (left=" << leftw << " >= right=" << rightw 
+				          << "), using safe defaults." << std::endl;
+				leftw = -1000;
+				rightw = 1000;
+			}
+		}
+		
+		// Log raw foothold bounds before processing
+		LOG(LOG_DEBUG, "[FootholdTree] Raw foothold bounds - Left: " << leftw << ", Right: " << rightw 
+			<< ", Top: " << topb << ", Bottom: " << botb);
+		
+		// Use conservative bounds for physics (player movement constraints)
+		// The camera will use VR bounds from MapInfo instead
+		walls = { leftw + 25, rightw - 25 };
+		borders = { topb - 300, botb + 100 };
+		
+		LOG(LOG_DEBUG, "[FootholdTree] Physics bounds - Walls: [" << walls.first() << "," << walls.second() 
+			<< "], Borders: [" << borders.first() << "," << borders.second() << "]");
+		
+		// Final sanity check - ensure borders are not inverted
+		if (borders.first() >= borders.second()) {
+			LOG(LOG_ERROR, "[FootholdTree] CRITICAL: Computed borders are inverted! (" 
+			          << borders.first() << ", " << borders.second() << "), forcing safe range.");
+			borders = { -1300, 100 };  // Safe default: ceiling at -1300, floor at 100
+		}
+		
+	}
+
+	FootholdTree::FootholdTree() {}
+
+	// ... rest of FootholdTree implementation ...
+
+	Range<int16_t> FootholdTree::get_walls() const
+	{
+		return walls;
+	}
+
+	Range<int16_t> FootholdTree::get_borders() const
+	{
+		return borders;
+	}
+}
+```
+
+## Summary
+
+The camera following issue appears to be related to:
+
+1. **Camera bounds calculation** - The camera bounds are calculated from either VR (ViewRect) nodes in the map data or from foothold data as a fallback for v83/v87 compatibility.
+
+2. **Camera update logic** - The camera uses smooth following with a deadzone of 5.0 units and updates based on viewport size.
+
+3. **Map bounds handling** - MapInfo calculates appropriate bounds, with special handling for maps missing VR data (common in v83/v87).
+
+4. **Coordinate system** - The camera position represents the viewport center, not top-left corner, which requires proper conversion when applying bounds.
+
+5. **Buffer zones** - A 150-unit buffer is added to bounds to prevent camera clipping when the player is at map edges.
+
+Key areas to investigate:
+- The camera bounds being set in `Camera::set_view()`
+- The bounds calculation in `MapInfo` constructor
+- The camera position updates in `Camera::update()`
+- The initial camera positioning in `Stage::respawn()`

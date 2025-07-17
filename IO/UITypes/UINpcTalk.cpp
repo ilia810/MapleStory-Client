@@ -33,7 +33,16 @@ namespace ms
 {
 	UINpcTalk::UINpcTalk() : offset(0), unitrows(0), rowmax(0), show_slider(false), draw_text(false), formatted_text(""), formatted_text_pos(0), timestep(0)
 	{
-		nl::node UtilDlgEx = nl::nx::UI["UIWindow2.img"]["UtilDlgEx"];
+		// v92 uses UIWindow.img, newer versions use UIWindow2.img
+		nl::node UtilDlgEx = nl::nx::UI["UIWindow.img"]["UtilDlgEx"];
+		if (!UtilDlgEx) {
+			UtilDlgEx = nl::nx::UI["UIWindow2.img"]["UtilDlgEx"];
+		}
+		
+		if (!UtilDlgEx) {
+			LOG(LOG_ERROR, "[UINpcTalk] UtilDlgEx not found in UIWindow.img or UIWindow2.img");
+			return;
+		}
 
 		top = UtilDlgEx["t"];
 		fill = UtilDlgEx["c"];
@@ -42,21 +51,22 @@ namespace ms
 
 		min_height = 8 * fill.height() + 14;
 
-		buttons[Buttons::ALLLEVEL] = std::make_unique<MapleButton>(UtilDlgEx["BtAllLevel"]);
-		buttons[Buttons::CLOSE] = std::make_unique<MapleButton>(UtilDlgEx["BtClose"]);
-		buttons[Buttons::MYLEVEL] = std::make_unique<MapleButton>(UtilDlgEx["BtMyLevel"]);
-		buttons[Buttons::NEXT] = std::make_unique<MapleButton>(UtilDlgEx["BtNext"]);
-		buttons[Buttons::NO] = std::make_unique<MapleButton>(UtilDlgEx["BtNo"]);
-		buttons[Buttons::OK] = std::make_unique<MapleButton>(UtilDlgEx["BtOK"]);
-		buttons[Buttons::PREV] = std::make_unique<MapleButton>(UtilDlgEx["BtPrev"]);
-		buttons[Buttons::QAFTER] = std::make_unique<MapleButton>(UtilDlgEx["BtQAfter"]);
-		buttons[Buttons::QCNO] = std::make_unique<MapleButton>(UtilDlgEx["BtQCNo"]);
-		buttons[Buttons::QCYES] = std::make_unique<MapleButton>(UtilDlgEx["BtQCYes"]);
-		buttons[Buttons::QGIVEUP] = std::make_unique<MapleButton>(UtilDlgEx["BtQGiveup"]);
-		buttons[Buttons::QNO] = std::make_unique<MapleButton>(UtilDlgEx["BtQNo"]);
-		buttons[Buttons::QSTART] = std::make_unique<MapleButton>(UtilDlgEx["BtQStart"]);
-		buttons[Buttons::QYES] = std::make_unique<MapleButton>(UtilDlgEx["BtQYes"]);
-		buttons[Buttons::YES] = std::make_unique<MapleButton>(UtilDlgEx["BtYes"]);
+		// Some buttons might not exist in v92
+		if (UtilDlgEx["BtAllLevel"]) buttons[Buttons::ALLLEVEL] = std::make_unique<MapleButton>(UtilDlgEx["BtAllLevel"]);
+		if (UtilDlgEx["BtClose"]) buttons[Buttons::CLOSE] = std::make_unique<MapleButton>(UtilDlgEx["BtClose"]);
+		if (UtilDlgEx["BtMyLevel"]) buttons[Buttons::MYLEVEL] = std::make_unique<MapleButton>(UtilDlgEx["BtMyLevel"]);
+		if (UtilDlgEx["BtNext"]) buttons[Buttons::NEXT] = std::make_unique<MapleButton>(UtilDlgEx["BtNext"]);
+		if (UtilDlgEx["BtNo"]) buttons[Buttons::NO] = std::make_unique<MapleButton>(UtilDlgEx["BtNo"]);
+		if (UtilDlgEx["BtOK"]) buttons[Buttons::OK] = std::make_unique<MapleButton>(UtilDlgEx["BtOK"]);
+		if (UtilDlgEx["BtPrev"]) buttons[Buttons::PREV] = std::make_unique<MapleButton>(UtilDlgEx["BtPrev"]);
+		if (UtilDlgEx["BtQAfter"]) buttons[Buttons::QAFTER] = std::make_unique<MapleButton>(UtilDlgEx["BtQAfter"]);
+		if (UtilDlgEx["BtQCNo"]) buttons[Buttons::QCNO] = std::make_unique<MapleButton>(UtilDlgEx["BtQCNo"]);
+		if (UtilDlgEx["BtQCYes"]) buttons[Buttons::QCYES] = std::make_unique<MapleButton>(UtilDlgEx["BtQCYes"]);
+		if (UtilDlgEx["BtQGiveup"]) buttons[Buttons::QGIVEUP] = std::make_unique<MapleButton>(UtilDlgEx["BtQGiveup"]);
+		if (UtilDlgEx["BtQNo"]) buttons[Buttons::QNO] = std::make_unique<MapleButton>(UtilDlgEx["BtQNo"]);
+		if (UtilDlgEx["BtQStart"]) buttons[Buttons::QSTART] = std::make_unique<MapleButton>(UtilDlgEx["BtQStart"]);
+		if (UtilDlgEx["BtQYes"]) buttons[Buttons::QYES] = std::make_unique<MapleButton>(UtilDlgEx["BtQYes"]);
+		if (UtilDlgEx["BtYes"]) buttons[Buttons::YES] = std::make_unique<MapleButton>(UtilDlgEx["BtYes"]);
 
 		name = Text(Text::Font::A11M, Text::Alignment::CENTER, Color::Name::WHITE);
 
@@ -76,22 +86,41 @@ namespace ms
 	void UINpcTalk::draw(float inter) const
 	{
 		Point<int16_t> drawpos = position;
-		top.draw(drawpos);
-		drawpos.shift_y(top.height());
-		fill.draw(DrawArgument(drawpos, Point<int16_t>(0, height)));
-		drawpos.shift_y(height);
-		bottom.draw(drawpos);
-		drawpos.shift_y(bottom.height());
+		
+		// Draw dialog frame only if textures are valid
+		if (top.is_valid()) {
+			top.draw(drawpos);
+			drawpos.shift_y(top.height());
+		}
+		
+		if (fill.is_valid()) {
+			fill.draw(DrawArgument(drawpos, Point<int16_t>(0, height)));
+			drawpos.shift_y(height);
+		}
+		
+		if (bottom.is_valid()) {
+			bottom.draw(drawpos);
+			drawpos.shift_y(bottom.height());
+		}
 
 		UIElement::draw(inter);
 
-		int16_t speaker_y = (top.height() + height + bottom.height()) / 2;
-		Point<int16_t> speaker_pos = position + Point<int16_t>(22, 11 + speaker_y);
-		Point<int16_t> center_pos = speaker_pos + Point<int16_t>(nametag.width() / 2, 0);
+		// Draw speaker info only if components are valid
+		if (top.is_valid() && bottom.is_valid()) {
+			int16_t speaker_y = (top.height() + height + bottom.height()) / 2;
+			Point<int16_t> speaker_pos = position + Point<int16_t>(22, 11 + speaker_y);
+			Point<int16_t> center_pos = speaker_pos + Point<int16_t>(nametag.width() / 2, 0);
 
-		speaker.draw(DrawArgument(center_pos, true));
-		nametag.draw(speaker_pos);
-		name.draw(center_pos + Point<int16_t>(0, -4));
+			if (speaker.is_valid()) {
+				speaker.draw(DrawArgument(center_pos, true));
+			}
+			
+			if (nametag.is_valid()) {
+				nametag.draw(speaker_pos);
+			}
+			
+			name.draw(center_pos + Point<int16_t>(0, -4));
+		}
 
 		if (show_slider)
 		{
@@ -432,11 +461,50 @@ namespace ms
 				break;
 			}
 			case TalkType::SENDNEXT:
+			{
+				buttons[Buttons::NEXT]->set_position(Point<int16_t>(471, y_cord));
+				buttons[Buttons::NEXT]->set_active(true);
+				break;
+			}
 			case TalkType::SENDNEXTPREV:
+			{
+				buttons[Buttons::NEXT]->set_position(Point<int16_t>(471, y_cord));
+				buttons[Buttons::NEXT]->set_active(true);
+				
+				buttons[Buttons::PREV]->set_position(Point<int16_t>(389, y_cord));
+				buttons[Buttons::PREV]->set_active(true);
+				break;
+			}
 			case TalkType::SENDACCEPTDECLINE:
+			{
+				Point<int16_t> yes_position = Point<int16_t>(389, y_cord);
+
+				buttons[Buttons::QYES]->set_position(yes_position);
+				buttons[Buttons::QYES]->set_active(true);
+
+				buttons[Buttons::QNO]->set_position(yes_position + Point<int16_t>(65, 0));
+				buttons[Buttons::QNO]->set_active(true);
+				break;
+			}
 			case TalkType::SENDGETTEXT:
+			{
+				// TODO: Implement text input dialog
+				buttons[Buttons::OK]->set_position(Point<int16_t>(471, y_cord));
+				buttons[Buttons::OK]->set_active(true);
+				break;
+			}
 			case TalkType::SENDGETNUMBER:
+			{
+				buttons[Buttons::OK]->set_position(Point<int16_t>(471, y_cord));
+				buttons[Buttons::OK]->set_active(true);
+				break;
+			}
 			case TalkType::SENDSIMPLE:
+			{
+				buttons[Buttons::OK]->set_position(Point<int16_t>(471, y_cord));
+				buttons[Buttons::OK]->set_active(true);
+				break;
+			}
 			default:
 			{
 				break;

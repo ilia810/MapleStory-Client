@@ -1,0 +1,40 @@
+{
+  "output": {
+    "filePath": "research_uiraceselect_focused.txt",
+    "style": "xml",
+    "headerText": "MapleStory v83/v87 UIRaceSelect Implementation Research - Focused Codebase"
+  },
+  "include": [
+    "IO/UITypes/UIRaceSelect.cpp",
+    "IO/UITypes/UIRaceSelect.h",
+    "IO/UITypes/UICharSelect.cpp", 
+    "IO/UITypes/UIExplorerCreation.cpp",
+    "IO/UITypes/UIExplorerCreation.h",
+    "IO/UITypes/UICygnusCreation.cpp",
+    "IO/UITypes/UICygnusCreation.h",
+    "IO/UITypes/UIAranCreation.cpp",
+    "IO/UITypes/UIAranCreation.h",
+    "IO/UIElement.cpp",
+    "IO/UIElement.h",
+    "IO/Components/MapleButton.cpp",
+    "IO/Components/MapleButton.h",
+    "IO/Components/AreaButton.cpp",
+    "IO/Components/AreaButton.h",
+    "Graphics/Texture.cpp",
+    "Graphics/Texture.h",
+    "Graphics/Sprite.cpp",
+    "Graphics/Sprite.h",
+    "Graphics/Animation.cpp",
+    "Graphics/Animation.h",
+    "Template/Point.h",
+    "Template/Rectangle.h",
+    "includes/NoLifeNx/nlnx/node.hpp",
+    "includes/NoLifeNx/nlnx/nx.hpp",
+    "nx_structures/UI_compressed.txt"
+  ],
+  "ignore": {
+    "extensions": [".lib", ".obj", ".exe", ".dll", ".pdb", ".backup"],
+    "directories": ["Debug", "Release", "x64", ".vs", ".git"],
+    "files": ["*.vcxproj*", "*.sln", "*.filters"]
+  }
+}

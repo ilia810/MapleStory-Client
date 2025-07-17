@@ -1,0 +1,24 @@
+Compressed NX Structure
+Generated: 2025-07-14 12:21:52
+Note: Use states & frames to expand back to original structure
+
+Bgm00.img
+Bgm01.img
+Bgm02.img
+Bgm03.img
+Bgm04.img
+Bgm05.img
+Bgm06.img
+Bgm07.img
+Bgm08.img
+Bgm09.img
+Bgm10.img
+Bgm11.img
+Bgm12.img
+Bgm13.img
+Bgm14.img
+Bgm15.img
+Bgm16.img
+Bgm17.img
+Bgm18.img
+Bgm19.img

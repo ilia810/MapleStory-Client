@@ -1,0 +1,1059 @@
+🗂️ NX STRUCTURE ANALYSIS: Quest.nx
+📅 Generated: Current HeavenMS v83 Client Session
+🎯 Purpose: AssetRegistry Development & Asset Management
+================================================================================
+📊 Overview:
+   📦 Root children: 6
+   🏗️ Structure optimized for manageable file size
+   ⭐ Important assets prioritized (Login, UI, Buttons)
+
+├─  📁 (6 items)
+  ├─ Act.img 📁 (2823 items)
+    ├─ 1000 📁 (2 items)
+      ├─ 0 📄
+      ├─ 1 📁 (1 items)
+        ├─ nextQuest 🔢
+    ├─ 10000 📁 (2 items)
+      ├─ 0 📄
+      ├─ 1 📁 (1 items)
+        ├─ item 📁 (1 items)
+    ├─ 10001 📁 (2 items)
+      ├─ 0 📁 (3 items)
+        ├─ 0 📝
+        ├─ no 📁 (1 items)
+        ├─ yes 📁 (1 items)
+      ├─ 1 📁 (1 items)
+        ├─ nextQuest 🔢
+    ├─ 10002 📁 (2 items)
+      ├─ 0 📄
+      ├─ 1 📄
+    ├─ 10005 📁 (2 items)
+      ├─ 0 📁 (3 items)
+        ├─ interval 🔢
+        ├─ lvmin 🔢
+        ├─ npc 🔢
+      ├─ 1 📁 (2 items)
+        ├─ exp 🔢
+        ├─ item 📁 (16 items)
+          └─ ... (1 more items)
+    ├─ 10007 📁 (2 items)
+      ├─ 0 📁 (3 items)
+        ├─ 0 📝
+        ├─ no 📁 (1 items)
+        ├─ yes 📁 (3 items)
+      ├─ 1 📁 (1 items)
+        ├─ exp 🔢
+    ├─ 10008 📁 (2 items)
+      ├─ 0 📄
+      ├─ 1 📄
+    ├─ 1001 📁 (2 items)
+      ├─ 0 📁 (1 items)
+        ├─ item 📁 (1 items)
+      ├─ 1 📁 (2 items)
+        ├─ exp 🔢
+        ├─ item 📁 (1 items)
+    ├─ 10010 📁 (2 items)
+      ├─ 0 📄
+      ├─ 1 📄
+    ├─ 10011 📁 (2 items)
+      ├─ 0 📄
+      ├─ 1 📄
+    ├─ 10012 📁 (2 items)
+      ├─ 0 📄
+      ├─ 1 📄
+    ├─ 10014 📁 (2 items)
+      ├─ 0 📄
+      ├─ 1 📄
+    ├─ 10015 📁 (2 items)
+      ├─ 0 📄
+      ├─ 1 📁 (1 items)
+        ├─ item 📁 (1 items)
+    ├─ 10016 📁 (2 items)
+      ├─ 0 📄
+      ├─ 1 📁 (1 items)
+        ├─ item 📁 (1 items)
+    ├─ 10017 📁 (2 items)
+      ├─ 0 📄
+      ├─ 1 📁 (1 items)
+        ├─ item 📁 (1 items)
+    ├─ 10018 📁 (2 items)
+      ├─ 0 📄
+      ├─ 1 📁 (1 items)
+        ├─ item 📁 (1 items)
+    ├─ 10019 📁 (2 items)
+      ├─ 0 📄
+      ├─ 1 📁 (1 items)
+        ├─ item 📁 (1 items)
+    ├─ 10020 📁 (2 items)
+      ├─ 0 📄
+      ├─ 1 📁 (1 items)
+        ├─ item 📁 (1 items)
+    ├─ 10021 📁 (2 items)
+      ├─ 0 📁 (1 items)
+        ├─ 0 📝
+      ├─ 1 📁 (1 items)
+        ├─ item 📁 (1 items)
+    ├─ 10023 📁 (2 items)
+      ├─ 0 📁 (6 items)
+        ├─ 0 📝
+        ├─ 1 📝
+        ├─ ask 🔢
+        ├─ no 📁 (1 items)
+        ├─ stop 📁 (1 items)
+        ├─ yes 📁 (1 items)
+      ├─ 1 📁 (1 items)
+        ├─ item 📁 (1 items)
+    ├─ 1003 📁 (2 items)
+      ├─ 0 📄
+      ├─ 1 📁 (1 items)
+        ├─ nextQuest 🔢
+    ├─ 10030 📁 (2 items)
+      ├─ 0 📁 (3 items)
+        ├─ end 📝
+        ├─ npc 🔢
+        ├─ start 📝
+      ├─ 1 📁 (2 items)
+        ├─ item 📁 (2 items)
+        ├─ money 🔢
+    ├─ 10031 📁 (2 items)
+      ├─ 0 📄
+      ├─ 1 📁 (2 items)
+        ├─ item 📁 (2 items)
+        ├─ money 🔢
+    ├─ 10032 📁 (2 items)
+      ├─ 0 📁 (3 items)
+        ├─ end 📝
+        ├─ npc 🔢
+        ├─ start 📝
+      ├─ 1 📁 (2 items)
+        ├─ item 📁 (2 items)
+        ├─ money 🔢
+    ├─ 10033 📁 (2 items)
+      ├─ 0 📄
+      ├─ 1 📁 (2 items)
+        ├─ item 📁 (2 items)
+        ├─ money 🔢
+    ├─ 10034 📁 (2 items)
+      ├─ 0 📄
+      ├─ 1 📄
+    ├─ 10035 📁 (2 items)
+      ├─ 0 📄
+      ├─ 1 📁 (1 items)
+        ├─ item 📁 (2 items)
+    ├─ 10036 📁 (2 items)
+      ├─ 0 📄
+      ├─ 1 📄
+    ├─ 10037 📁 (2 items)
+      ├─ 0 📄
+      ├─ 1 📄
+    ├─ 10039 📁 (2 items)
+      ├─ 0 📄
+      ├─ 1 📄
+    └─ ... (2793 more items)
+  ├─ Check.img 📁 (2806 items)
+    ├─ 1000 📁 (2 items)
+      ├─ 0 📁 (3 items)
+        ├─ item 📁 (1 items)
+        ├─ job 📁 (1 items)
+        ├─ npc 🔢
+      ├─ 1 📁 (1 items)
+        ├─ npc 🔢
+    ├─ 10000 📁 (2 items)
+      ├─ 0 📁 (5 items)
+        ├─ end 📝
+        ├─ lvmin 🔢
+        ├─ normalAutoStart 🔢
+        ├─ npc 🔢
+        ├─ start 📝
+      ├─ 1 📁 (1 items)
+        ├─ npc 🔢
+    ├─ 10001 📁 (2 items)
+      ├─ 0 📁 (5 items)
+        ├─ end 📝
+        ├─ lvmin 🔢
+        ├─ npc 🔢
+        ├─ quest 📁 (1 items)
+        ├─ start 📝
+      ├─ 1 📁 (1 items)
+        ├─ npc 🔢
+    ├─ 10002 📁 (2 items)
+      ├─ 0 📁 (6 items)
+        ├─ end 📝
+        ├─ interval 🔢
+        ├─ lvmin 🔢
+        ├─ npc 🔢
+        ├─ quest 📁 (1 items)
+        ├─ start 📝
+      ├─ 1 📁 (3 items)
+        ├─ endscript 📝
+        ├─ item 📁 (1 items)
+        ├─ npc 🔢
+    ├─ 10005 📁 (2 items)
+      ├─ 0 📁 (7 items)
+        ├─ end 📝
+        ├─ interval 🔢
+        ├─ job 📁 (61 items)
+          └─ ... (46 more items)
+        ├─ lvmin 🔢
+        ├─ npc 🔢
+        ├─ quest 📁 (1 items)
+        ├─ start 📝
+      ├─ 1 📁 (2 items)
+        ├─ item 📁 (1 items)
+        ├─ npc 🔢
+    ├─ 10007 📁 (2 items)
+      ├─ 0 📁 (5 items)
+        ├─ end 📝
+        ├─ lvmin 🔢
+        ├─ npc 🔢
+        ├─ quest 📁 (1 items)
+        ├─ start 📝
+      ├─ 1 📁 (2 items)
+        ├─ item 📁 (1 items)
+        ├─ npc 🔢
+    ├─ 10008 📁 (2 items)
+      ├─ 0 📁 (8 items)
+        ├─ end 📝
+        ├─ interval 🔢
+        ├─ item 📁 (1 items)
+        ├─ lvmin 🔢
+        ├─ npc 🔢
+        ├─ quest 📁 (1 items)
+        ├─ start 📝
+        ├─ startscript 📝
+      ├─ 1 📄
+    ├─ 1001 📁 (2 items)
+      ├─ 0 📁 (4 items)
+        ├─ item 📁 (1 items)
+        ├─ job 📁 (1 items)
+        ├─ npc 🔢
+        ├─ quest 📁 (1 items)
+      ├─ 1 📁 (2 items)
+        ├─ item 📁 (1 items)
+        ├─ npc 🔢
+    ├─ 10010 📁 (2 items)
+      ├─ 0 📁 (6 items)
+        ├─ end 📝
+        ├─ interval 🔢
+        ├─ lvmax 🔢
+        ├─ lvmin 🔢
+        ├─ npc 🔢
+        ├─ quest 📁 (1 items)
+      ├─ 1 📁 (3 items)
+        ├─ endscript 📝
+        ├─ item 📁 (1 items)
+        ├─ npc 🔢
+    ├─ 10011 📁 (2 items)
+      ├─ 0 📁 (6 items)
+        ├─ end 📝
+        ├─ interval 🔢
+        ├─ lvmax 🔢
+        ├─ lvmin 🔢
+        ├─ npc 🔢
+        ├─ quest 📁 (1 items)
+      ├─ 1 📁 (3 items)
+        ├─ endscript 📝
+        ├─ item 📁 (1 items)
+        ├─ npc 🔢
+    ├─ 10012 📁 (2 items)
+      ├─ 0 📁 (5 items)
+        ├─ end 📝
+        ├─ interval 🔢
+        ├─ lvmin 🔢
+        ├─ npc 🔢
+        ├─ quest 📁 (1 items)
+      ├─ 1 📁 (3 items)
+        ├─ endscript 📝
+        ├─ item 📁 (1 items)
+        ├─ npc 🔢
+    ├─ 10014 📁 (2 items)
+      ├─ 0 📁 (8 items)
+        ├─ dayByDay 🔢
+        ├─ end 📝
+        ├─ lvmin 🔢
+        ├─ normalAutoStart 🔢
+        ├─ npc 🔢
+        ├─ quest 📁 (1 items)
+        ├─ start 📝
+        ├─ startscript 📝
+      ├─ 1 📄
+    ├─ 10015 📁 (2 items)
+      ├─ 0 📁 (7 items)
+        ├─ dayByDay 🔢
+        ├─ end 📝
+        ├─ infoNumber 🔢
+        ├─ infoex 📁 (1 items)
+        ├─ lvmin 🔢
+        ├─ npc 🔢
+        ├─ start 📝
+      ├─ 1 📁 (3 items)
+        ├─ infoNumber 🔢
+        ├─ infoex 📁 (1 items)
+        ├─ npc 🔢
+    ├─ 10016 📁 (2 items)
+      ├─ 0 📁 (7 items)
+        ├─ dayByDay 🔢
+        ├─ end 📝
+        ├─ infoNumber 🔢
+        ├─ infoex 📁 (1 items)
+        ├─ lvmin 🔢
+        ├─ npc 🔢
+        ├─ start 📝
+      ├─ 1 📁 (3 items)
+        ├─ infoNumber 🔢
+        ├─ infoex 📁 (1 items)
+        ├─ npc 🔢
+    ├─ 10017 📁 (2 items)
+      ├─ 0 📁 (7 items)
+        ├─ dayByDay 🔢
+        ├─ end 📝
+        ├─ infoNumber 🔢
+        ├─ infoex 📁 (1 items)
+        ├─ lvmin 🔢
+        ├─ npc 🔢
+        ├─ start 📝
+      ├─ 1 📁 (3 items)
+        ├─ infoNumber 🔢
+        ├─ infoex 📁 (1 items)
+        ├─ npc 🔢
+    ├─ 10018 📁 (2 items)
+      ├─ 0 📁 (7 items)
+        ├─ dayByDay 🔢
+        ├─ end 📝
+        ├─ infoNumber 🔢
+        ├─ infoex 📁 (1 items)
+        ├─ lvmin 🔢
+        ├─ npc 🔢
+        ├─ start 📝
+      ├─ 1 📁 (3 items)
+        ├─ infoNumber 🔢
+        ├─ infoex 📁 (1 items)
+        ├─ npc 🔢
+    ├─ 10019 📁 (2 items)
+      ├─ 0 📁 (7 items)
+        ├─ dayByDay 🔢
+        ├─ end 📝
+        ├─ infoNumber 🔢
+        ├─ infoex 📁 (1 items)
+        ├─ lvmin 🔢
+        ├─ npc 🔢
+        ├─ start 📝
+      ├─ 1 📁 (3 items)
+        ├─ infoNumber 🔢
+        ├─ infoex 📁 (1 items)
+        ├─ npc 🔢
+    ├─ 10020 📁 (2 items)
+      ├─ 0 📁 (7 items)
+        ├─ dayByDay 🔢
+        ├─ end 📝
+        ├─ infoNumber 🔢
+        ├─ infoex 📁 (1 items)
+        ├─ lvmin 🔢
+        ├─ npc 🔢
+        ├─ start 📝
+      ├─ 1 📁 (3 items)
+        ├─ infoNumber 🔢
+        ├─ infoex 📁 (1 items)
+        ├─ npc 🔢
+    ├─ 10021 📁 (2 items)
+      ├─ 0 📁 (4 items)
+        ├─ end 📝
+        ├─ equipAllNeed 📁 (5 items)
+        ├─ equipSelectNeed 📁 (2 items)
+        ├─ npc 🔢
+      ├─ 1 📁 (1 items)
+        ├─ npc 🔢
+    ├─ 10023 📁 (2 items)
+      ├─ 0 📁 (4 items)
+        ├─ end 📝
+        ├─ item 📁 (1 items)
+        ├─ npc 🔢
+        ├─ quest 📁 (1 items)
+      ├─ 1 📁 (1 items)
+        ├─ npc 🔢
+    ├─ 1003 📁 (2 items)
+      ├─ 0 📁 (3 items)
+        ├─ item 📁 (1 items)
+        ├─ job 📁 (1 items)
+        ├─ npc 🔢
+      ├─ 1 📁 (1 items)
+        ├─ npc 🔢
+    ├─ 10030 📁 (2 items)
+      ├─ 0 📁 (5 items)
+        ├─ end 📝
+        ├─ job 📁 (41 items)
+          └─ ... (26 more items)
+        ├─ npc 🔢
+        ├─ worldmax 📝
+        ├─ worldmin 📝
+      ├─ 1 📁 (2 items)
+        ├─ item 📁 (2 items)
+        ├─ npc 🔢
+    ├─ 10031 📁 (2 items)
+      ├─ 0 📁 (6 items)
+        ├─ end 📝
+        ├─ job 📁 (36 items)
+          └─ ... (21 more items)
+        ├─ npc 🔢
+        ├─ quest 📁 (1 items)
+        ├─ worldmax 📝
+        ├─ worldmin 📝
+      ├─ 1 📁 (2 items)
+        ├─ item 📁 (2 items)
+        ├─ npc 🔢
+    ├─ 10032 📁 (2 items)
+      ├─ 0 📁 (5 items)
+        ├─ end 📝
+        ├─ job 📁 (41 items)
+          └─ ... (26 more items)
+        ├─ npc 🔢
+        ├─ worldmax 📝
+        ├─ worldmin 📝
+      ├─ 1 📁 (2 items)
+        ├─ item 📁 (2 items)
+        ├─ npc 🔢
+    ├─ 10033 📁 (2 items)
+      ├─ 0 📁 (6 items)
+        ├─ end 📝
+        ├─ job 📁 (36 items)
+          └─ ... (21 more items)
+        ├─ npc 🔢
+        ├─ quest 📁 (1 items)
+        ├─ worldmax 📝
+        ├─ worldmin 📝
+      ├─ 1 📁 (2 items)
+        ├─ item 📁 (2 items)
+        ├─ npc 🔢
+    ├─ 10034 📁 (2 items)
+      ├─ 0 📁 (6 items)
+        ├─ end 📝
+        ├─ lvmin 🔢
+        ├─ normalAutoStart 🔢
+        ├─ npc 🔢
+        ├─ start 📝
+        ├─ startscript 📝
+      ├─ 1 📄
+    ├─ 10035 📁 (2 items)
+      ├─ 0 📁 (5 items)
+        ├─ end 📝
+        ├─ item 📁 (1 items)
+        ├─ lvmin 🔢
+        ├─ normalAutoStart 🔢
+        ├─ npc 🔢
+      ├─ 1 📁 (1 items)
+        ├─ npc 🔢
+    ├─ 10036 📁 (2 items)
+      ├─ 0 📁 (5 items)
+        ├─ end 📝
+        ├─ lvmin 🔢
+        ├─ npc 🔢
+        ├─ start 📝
+        ├─ startscript 📝
+      ├─ 1 📁 (5 items)
+        ├─ endscript 📝
+        ├─ infoNumber 🔢
+        ├─ infoex 📁 (1 items)
+        ├─ item 📁 (1 items)
+        ├─ npc 🔢
+    ├─ 10037 📁 (2 items)
+      ├─ 0 📁 (8 items)
+        ├─ end 📝
+        ├─ infoNumber 🔢
+        ├─ infoex 📁 (4 items)
+        ├─ interval 🔢
+        ├─ item 📁 (1 items)
+        ├─ npc 🔢
+        ├─ quest 📁 (1 items)
+        ├─ start 📝
+      ├─ 1 📁 (2 items)
+        ├─ endscript 📝
+        ├─ npc 🔢
+    ├─ 10039 📁 (2 items)
+      ├─ 0 📁 (6 items)
+        ├─ dayByDay 🔢
+        ├─ end 📝
+        ├─ lvmin 🔢
+        ├─ normalAutoStart 🔢
+        ├─ npc 🔢
+        ├─ quest 📁 (1 items)
+      ├─ 1 📁 (2 items)
+        ├─ endscript 📝
+        ├─ npc 🔢
+    └─ ... (2776 more items)
+  ├─ Exclusive.img 📁 (1 items)
+    ├─ medal 📁 (14 items)
+      ├─ 29000 📝 = ""
+      ├─ 29001 📝 = ""
+      ├─ 29002 📝 = ""
+      ├─ 29003 📝 = ""
+      ├─ 29300 📝 = ""
+      ├─ 29301 📝 = ""
+      ├─ 29302 📝 = ""
+      ├─ 29303 📝 = ""
+      ├─ 29304 📝 = ""
+      ├─ 29400 📝 = ""
+      ├─ 29500 📝 = ""
+      ├─ 29501 📝 = ""
+      ├─ 29502 📝 = ""
+      ├─ 29503 📝 = ""
+  ├─ PQuest.img 📁 (10 items)
+    ├─ 1200 📁 (3 items)
+      ├─ Moon Bunny's Rice Cake 🔢 = 0
+      ├─ mark 📝 = "Map/MapHelper/mark/MoonRabb..."
+      ├─ rank 📁 (6 items)
+        ├─ A 📁 (3 items)
+        ├─ B 📁 (3 items)
+        ├─ C 📁 (3 items)
+        ├─ D 📁 (3 items)
+        ├─ F 📁 (3 items)
+        ├─ S 📁 (3 items)
+    ├─ 1201 📁 (3 items)
+      ├─ First Time Together 🔢 = 0
+      ├─ mark 📝 = "Map/MapHelper/mark/KerningP..."
+      ├─ rank 📁 (6 items)
+        ├─ A 📁 (3 items)
+        ├─ B 📁 (3 items)
+        ├─ C 📁 (3 items)
+        ├─ D 📁 (3 items)
+        ├─ F 📁 (3 items)
+        ├─ S 📁 (3 items)
+    ├─ 1202 📁 (3 items)
+      ├─ The Crack of Dimension 🔢 = 0
+      ├─ mark 📝 = "Map/MapHelper/mark/AbandonT..."
+      ├─ rank 📁 (6 items)
+        ├─ A 📁 (3 items)
+        ├─ B 📁 (3 items)
+        ├─ C 📁 (3 items)
+        ├─ D 📁 (3 items)
+        ├─ F 📁 (3 items)
+        ├─ S 📁 (3 items)
+    ├─ 1203 📁 (3 items)
+      ├─ Remnants of Goddess 🔢 = 0
+      ├─ mark 📝 = "Map/MapHelper/mark/GoddessT..."
+      ├─ rank 📁 (6 items)
+        ├─ A 📁 (3 items)
+        ├─ B 📁 (3 items)
+        ├─ C 📁 (3 items)
+        ├─ D 📁 (3 items)
+        ├─ F 📁 (3 items)
+        ├─ S 📁 (3 items)
+    ├─ 1204 📁 (3 items)
+      ├─ Lord Pirate 🔢 = 0
+      ├─ mark 📝 = "Map/MapHelper/mark/DevijonP..."
+      ├─ rank 📁 (6 items)
+        ├─ A 📁 (3 items)
+        ├─ B 📁 (3 items)
+        ├─ C 📁 (3 items)
+        ├─ D 📁 (3 items)
+        ├─ F 📁 (3 items)
+        ├─ S 📁 (3 items)
+    ├─ 1205 📁 (3 items)
+      ├─ Romeo and Juliet 🔢 = 0
+      ├─ mark 📝 = "Map/MapHelper/mark/RomioJul..."
+      ├─ rank 📁 (6 items)
+        ├─ A 📁 (3 items)
+        ├─ B 📁 (3 items)
+        ├─ C 📁 (3 items)
+        ├─ D 📁 (3 items)
+        ├─ F 📁 (3 items)
+        ├─ S 📁 (3 items)
+    ├─ 1206 📁 (3 items)
+      ├─ Forest of Poison Haze 📝 = ""
+      ├─ mark 📝 = "Map/MapHelper/mark/EilnForest"
+      ├─ rank 📁 (6 items)
+        ├─ A 📁 (3 items)
+        ├─ B 📁 (3 items)
+        ├─ C 📁 (3 items)
+        ├─ D 📁 (3 items)
+        ├─ F 📁 (3 items)
+        ├─ S 📁 (3 items)
+    ├─ 1300 📁 (3 items)
+      ├─ Ariant Hunting Competition 🔢 = 0
+      ├─ mark 📝 = "Map/MapHelper/mark/AriantMa..."
+      ├─ rank 📁 (6 items)
+        ├─ A 📁 (3 items)
+        ├─ B 📁 (3 items)
+        ├─ C 📁 (3 items)
+        ├─ D 📁 (3 items)
+        ├─ F 📁 (3 items)
+        ├─ S 📁 (3 items)
+    ├─ 1301 📁 (3 items)
+      ├─ Monster Carnival 🔢 = 0
+      ├─ mark 📝 = "Map/MapHelper/mark/Carnival"
+      ├─ rank 📁 (6 items)
+        ├─ A 📁 (3 items)
+        ├─ B 📁 (3 items)
+        ├─ C 📁 (3 items)
+        ├─ D 📁 (3 items)
+        ├─ F 📁 (3 items)
+        ├─ S 📁 (3 items)
+    ├─ 1302 📁 (3 items)
+      ├─ The 2nd Monster Carnival 📝 = ""
+      ├─ mark 📝 = "Map/MapHelper/mark/Carnival"
+      ├─ rank 📁 (6 items)
+        ├─ A 📁 (3 items)
+        ├─ B 📁 (3 items)
+        ├─ C 📁 (3 items)
+        ├─ D 📁 (3 items)
+        ├─ F 📁 (3 items)
+        ├─ S 📁 (3 items)
+  ├─ QuestInfo.img 📁 (2817 items)
+    ├─ 1000 📁 (7 items)
+      ├─ 0 📝 = "Let's go to Heena."
+      ├─ 1 📝 = "I ran into Heena who was wo..."
+      ├─ 2 📝 = "Heena asked me to go to her..."
+      ├─ area 🔢 = 20
+      ├─ name 📝 = "Borrowing Sera's Mirror"
+      ├─ order 🔢 = 1
+      ├─ parent 📝 = "Sera's Mirror"
+    ├─ 10000 📁 (7 items)
+      ├─ 0 📝 = "An urgent message was sent ..."
+      ├─ 1 📝 = "An urgent message was sent ..."
+      ├─ 2 📝 = "#bGaga#k came to see me and..."
+      ├─ area 🔢 = 50
+      ├─ autoPreComplete 🔢 = 1
+      ├─ autoStart 🔢 = 1
+      ├─ name 📝 = "Suspicious Offer?!"
+    ├─ 10001 📁 (5 items)
+      ├─ 0 📝 = "Gaga, who' now a secret age..."
+      ├─ 1 📝 = "Gaga, who suddenly became a..."
+      ├─ 2 📝 = "Through Gaga's introduction..."
+      ├─ area 🔢 = 50
+      ├─ name 📝 = "Co-op with Special Agent O"
+    ├─ 10002 📁 (4 items)
+      ├─ 1 📝 = "Special Agent O told me to ..."
+      ├─ 2 📝 = "I received a mission from S..."
+      ├─ area 🔢 = 50
+      ├─ name 📝 = "Number of Special Agent Bad..."
+    ├─ 10005 📁 (5 items)
+      ├─ 0 📝 = "The Maple Admin says he has..."
+      ├─ 1 📝 = "The Maple Admin said that #..."
+      ├─ 2 📝 = "There has been intelligence..."
+      ├─ area 🔢 = 50
+      ├─ name 📝 = "Agent W's Watermelon Invest..."
+    ├─ 10007 📁 (5 items)
+      ├─ 0 📝 = "I received a message from G..."
+      ├─ 1 📝 = "Secret Agent Gaga said once..."
+      ├─ 2 📝 = "Secret Agent Gaga suggested..."
+      ├─ area 🔢 = 50
+      ├─ name 📝 = "Agent C's Intelligence Acti..."
+    ├─ 10008 📁 (5 items)
+      ├─ 0 📝 = "I collected 5 Intelligence ..."
+      ├─ 1 📝 = "I delivered the 5 Intellige..."
+      ├─ 2 📝 = "I delivered the 5 Intellige..."
+      ├─ area 🔢 = 50
+      ├─ name 📝 = "Information on Master M"
+    ├─ 1001 📁 (6 items)
+      ├─ 1 📝 = "I borrowed a mirror from Sa..."
+      ├─ 2 📝 = "I borrowed a mirror from Sa..."
+      ├─ area 🔢 = 20
+      ├─ name 📝 = "Bringing a Mirror to Heena"
+      ├─ order 🔢 = 2
+      ├─ parent 📝 = "Sera's Mirror"
+    ├─ 10010 📁 (5 items)
+      ├─ 0 📝 = "There's a strange energy fl..."
+      ├─ 1 📝 = "Agent E said that in order ..."
+      ├─ 2 📝 = "I found #t4031999# and deli..."
+      ├─ area 🔢 = 50
+      ├─ name 📝 = "Special Order: Find Master ..."
+    ├─ 10011 📁 (5 items)
+      ├─ 0 📝 = "There is a strange energy f..."
+      ├─ 1 📝 = "Agent E said that in order ..."
+      ├─ 2 📝 = "I found #t4032000# and deli..."
+      ├─ area 🔢 = 50
+      ├─ name 📝 = "Special Order: Find Master ..."
+    ├─ 10012 📁 (5 items)
+      ├─ 0 📝 = "There is a strange energy f..."
+      ├─ 1 📝 = "Agent E said that in order ..."
+      ├─ 2 📝 = "I found #t4032001# and deli..."
+      ├─ area 🔢 = 50
+      ├─ name 📝 = "Special Order: Find Master ..."
+    ├─ 10014 📁 (6 items)
+      ├─ 0 📝 = "Please check today's mission"
+      ├─ 1 📝 = "I should clear the mission ..."
+      ├─ 2 📝 = "I should clear the mission ..."
+      ├─ area 🔢 = 50
+      ├─ autoStart 🔢 = 1
+      ├─ name 📝 = "Today's Mission!"
+    ├─ 10015 📁 (7 items)
+      ├─ 1 📝 = "Today's Mission!! \r\n<Hunt..."
+      ├─ 2 📝 = "Today's mission has been co..."
+      ├─ area 🔢 = 50
+      ├─ autoComplete 🔢 = 1
+      ├─ name 📝 = "Obtain the Special Agent Ba..."
+      ├─ order 🔢 = 1
+      ├─ parent 📝 = "Today's Mission! "
+    ├─ 10016 📁 (7 items)
+      ├─ 1 📝 = "오늘의 미션! \r\n<메�..."
+      ├─ 2 📝 = "오늘의 미션을 완료�..."
+      ├─ area 🔢 = 50
+      ├─ autoComplete 🔢 = 1
+      ├─ name 📝 = "우수요원뱃지를 획�..."
+      ├─ order 🔢 = 1
+      ├─ parent 📝 = "오늘의 미션!  "
+    ├─ 10017 📁 (7 items)
+      ├─ 1 📝 = "오늘의 미션!\r\n<요�..."
+      ├─ 2 📝 = "오늘의 미션을 완료�..."
+      ├─ area 🔢 = 50
+      ├─ autoComplete 🔢 = 1
+      ├─ name 📝 = "요원특별강화프로그..."
+      ├─ order 🔢 = 1
+      ├─ parent 📝 = "오늘의 미션!   "
+    ├─ 10018 📁 (7 items)
+      ├─ 1 📝 = "Today's Mission!!\r\n<Earn ..."
+      ├─ 2 📝 = "Today's mission has been co..."
+      ├─ area 🔢 = 50
+      ├─ autoComplete 🔢 = 1
+      ├─ name 📝 = "Earn 50 points on the Speed..."
+      ├─ order 🔢 = 1
+      ├─ parent 📝 = "Today's Mission!    "
+    ├─ 10019 📁 (7 items)
+      ├─ 1 📝 = "Today's Mission!!\r\n<Obtai..."
+      ├─ 2 📝 = "Today's mission has been co..."
+      ├─ area 🔢 = 50
+      ├─ autoComplete 🔢 = 1
+      ├─ name 📝 = "Invade the Watermelon Field!"
+      ├─ order 🔢 = 1
+      ├─ parent 📝 = "Today's Mission!     "
+    ├─ 10020 📁 (7 items)
+      ├─ 1 📝 = "Today's Mission!!\r\n<Compl..."
+      ├─ 2 📝 = "Today's mission has been co..."
+      ├─ area 🔢 = 50
+      ├─ autoComplete 🔢 = 1
+      ├─ name 📝 = "Help Agent E!"
+      ├─ order 🔢 = 1
+      ├─ parent 📝 = "Today's Mission!      "
+    ├─ 10021 📁 (6 items)
+      ├─ 0 📝 = "#b#p9000021##k is said to h..."
+      ├─ 1 📝 = "#b#p9000021##k is said to h..."
+      ├─ 2 📝 = "2009 summer,... I was rebor..."
+      ├─ area 🔢 = 50
+      ├─ autoStart 🔢 = 1
+      ├─ name 📝 = "You are a True Special Agent!"
+    ├─ 10023 📁 (5 items)
+      ├─ 0 📝 = "I lost the Parachute Agent ..."
+      ├─ 1 📝 = "Gaga seemed overly touched ..."
+      ├─ 2 📝 = "Gaga gave me the Parachute ..."
+      ├─ area 🔢 = 50
+      ├─ name 📝 = "Long and Dangerous Road of ..."
+    ├─ 1003 📁 (7 items)
+      ├─ 0 📝 = "Let's talk to Nina."
+      ├─ 1 📝 = "I ran into Nina who was thi..."
+      ├─ 2 📝 = "I asked Sen, Nina's brother..."
+      ├─ area 🔢 = 20
+      ├─ name 📝 = "What Sen wants to eat"
+      ├─ order 🔢 = 1
+      ├─ parent 📝 = "Nina and Sen's Dinner Menu"
+    ├─ 10030 📁 (5 items)
+      ├─ 0 📝 = "리스 항구의 #b#p100200..."
+      ├─ 1 📝 = "리스 항구에서 #b#p100..."
+      ├─ 2 📝 = "리스 항구에서 만난 ..."
+      ├─ area 🔢 = 50
+      ├─ name 📝 = "테오의 옛날 추억 회..."
+    ├─ 10031 📁 (5 items)
+      ├─ 0 📝 = "일전에 도움을 줬던 ..."
+      ├─ 1 📝 = "#b#p1002001##k는 내가 �..."
+      ├─ 2 📝 = "더 강해진 모습을 #b#..."
+      ├─ area 🔢 = 50
+      ├─ name 📝 = "테오의 옛날 추억 회..."
+    ├─ 10032 📁 (5 items)
+      ├─ 0 📝 = "리스 항구의 #b#p100200..."
+      ├─ 1 📝 = "리스 항구에서 #b#p100..."
+      ├─ 2 📝 = "리스 항구에서 만난 ..."
+      ├─ area 🔢 = 50
+      ├─ name 📝 = "테오의 옛날 추억 회..."
+    ├─ 10033 📁 (5 items)
+      ├─ 0 📝 = "일전에 도움을 줬던 ..."
+      ├─ 1 📝 = "#b#p1002001##k는 내가 �..."
+      ├─ 2 📝 = "더 강해진 모습을 #b#..."
+      ├─ area 🔢 = 50
+      ├─ name 📝 = "테오의 옛날 추억 회..."
+    ├─ 10034 📁 (6 items)
+      ├─ 0 📝 = "추석을 맞아 메이플 ..."
+      ├─ 1 📝 = "#p9010000#는 추석을 맞..."
+      ├─ 2 📝 = "#p9010000#는 추석을 맞..."
+      ├─ area 🔢 = 50
+      ├─ autoStart 🔢 = 1
+      ├─ name 📝 = "추석맞이 달나라 여행"
+    ├─ 10035 📁 (7 items)
+      ├─ 0 📝 = "#b#p9010014##k in #b#m10000..."
+      ├─ 1 📝 = "#p9010014#, has asked me to..."
+      ├─ 2 📝 = "#p9010014#, has asked me to..."
+      ├─ area 🔢 = 50
+      ├─ autoPreComplete 🔢 = 1
+      ├─ autoStart 🔢 = 1
+      ├─ name 📝 = "The Great Maple Book Drive"
+    ├─ 10036 📁 (5 items)
+      ├─ 0 📝 = "#b달나라#k에 사는 #b#..."
+      ├─ 1 📝 = "달의 전체 모습을 본..."
+      ├─ 2 📝 = "달의 사진을 본 아기..."
+      ├─ area 🔢 = 50
+      ├─ name 📝 = "달은 어떻게 생겼나요"
+    ├─ 10037 📁 (5 items)
+      ├─ 0 📝 = "#p9001102#의 달 사진 �..."
+      ├─ 1 📝 = "#p9010010#는 맛있는 추..."
+      ├─ 2 📝 = "음식을 받은 #p9010010#..."
+      ├─ area 🔢 = 50
+      ├─ name 📝 = "카산드라의 도움"
+    ├─ 10039 📁 (7 items)
+      ├─ 0 📝 = "They say that Cassandra wil..."
+      ├─ 1 📝 = "Cassandra is apparently giv..."
+      ├─ 2 📝 = "I received a Special Alphab..."
+      ├─ area 🔢 = 50
+      ├─ autoPreComplete 🔢 = 1
+      ├─ autoStart 🔢 = 1
+      ├─ name 📝 = "Surprise Event : Special Al..."
+    └─ ... (2787 more items)
+  ├─ Say.img 📁 (2800 items)
+    ├─ 1000 📁 (2 items)
+      ├─ 0 📁 (5 items)
+        ├─ 0 📝
+        ├─ 1 📝
+        ├─ 2 📝
+        ├─ no 📁 (1 items)
+        ├─ yes 📁 (1 items)
+      ├─ 1 📁 (1 items)
+        ├─ stop 📁 (1 items)
+    ├─ 10000 📁 (2 items)
+      ├─ 0 📁 (7 items)
+        ├─ 0 📝
+        ├─ 1 📝
+        ├─ 2 📝
+        ├─ ask 🔢
+        ├─ no 📁 (1 items)
+        ├─ stop 📁 (2 items)
+        ├─ yes 📁 (1 items)
+      ├─ 1 📁 (2 items)
+        ├─ 0 📝
+        ├─ yes 📁 (1 items)
+    ├─ 10001 📁 (2 items)
+      ├─ 0 📁 (4 items)
+        ├─ 0 📝
+        ├─ no 📁 (1 items)
+        ├─ stop 📄
+        ├─ yes 📁 (1 items)
+      ├─ 1 📁 (1 items)
+        ├─ stop 📁 (1 items)
+    ├─ 10002 📁 (2 items)
+      ├─ 0 📁 (8 items)
+        ├─ 0 📝
+        ├─ 1 📝
+        ├─ 2 📝
+        ├─ 3 📝
+        ├─ ask 🔢
+        ├─ no 📁 (1 items)
+        ├─ stop 📁 (3 items)
+        ├─ yes 📁 (4 items)
+      ├─ 1 📁 (1 items)
+        ├─ stop 📁 (1 items)
+    ├─ 10005 📁 (2 items)
+      ├─ 0 📁 (4 items)
+        ├─ 0 📝
+        ├─ no 📁 (1 items)
+        ├─ stop 📄
+        ├─ yes 📁 (1 items)
+      ├─ 1 📁 (3 items)
+        ├─ 0 📝
+        ├─ stop 📁 (2 items)
+        ├─ yes 📁 (1 items)
+    ├─ 10007 📁 (2 items)
+      ├─ 0 📁 (4 items)
+        ├─ 0 📝
+        ├─ no 📁 (1 items)
+        ├─ stop 📄
+        ├─ yes 📁 (3 items)
+      ├─ 1 📁 (2 items)
+        ├─ 0 📝
+        ├─ stop 📁 (1 items)
+    ├─ 10008 📁 (2 items)
+      ├─ 0 📄
+      ├─ 1 📄
+    ├─ 1001 📁 (2 items)
+      ├─ 0 📁 (2 items)
+        ├─ 0 📝
+        ├─ 1 📝
+      ├─ 1 📁 (4 items)
+        ├─ 0 📝
+        ├─ lost 📁 (3 items)
+        ├─ stop 📁 (1 items)
+        ├─ yes 📁 (1 items)
+    ├─ 10010 📁 (2 items)
+      ├─ 0 📁 (4 items)
+        ├─ 0 📝
+        ├─ no 📁 (1 items)
+        ├─ stop 📄
+        ├─ yes 📁 (3 items)
+      ├─ 1 📁 (1 items)
+        ├─ stop 📁 (1 items)
+    ├─ 10011 📁 (2 items)
+      ├─ 0 📁 (4 items)
+        ├─ 0 📝
+        ├─ no 📁 (1 items)
+        ├─ stop 📄
+        ├─ yes 📁 (3 items)
+      ├─ 1 📁 (1 items)
+        ├─ stop 📁 (1 items)
+    ├─ 10012 📁 (2 items)
+      ├─ 0 📁 (4 items)
+        ├─ 0 📝
+        ├─ no 📁 (1 items)
+        ├─ stop 📄
+        ├─ yes 📁 (3 items)
+      ├─ 1 📁 (1 items)
+        ├─ stop 📁 (1 items)
+    ├─ 10014 📁 (2 items)
+      ├─ 0 📄
+      ├─ 1 📄
+    ├─ 10015 📁 (2 items)
+      ├─ 0 📁 (4 items)
+        ├─ 0 📝
+        ├─ no 📁 (1 items)
+        ├─ stop 📄
+        ├─ yes 📁 (1 items)
+      ├─ 1 📁 (1 items)
+        ├─ 0 📝
+    ├─ 10016 📁 (2 items)
+      ├─ 0 📁 (4 items)
+        ├─ 0 📝
+        ├─ no 📁 (1 items)
+        ├─ stop 📄
+        ├─ yes 📁 (1 items)
+      ├─ 1 📁 (2 items)
+        ├─ 0 📝
+        ├─ stop 📄
+    ├─ 10017 📁 (2 items)
+      ├─ 0 📁 (3 items)
+        ├─ 0 📝
+        ├─ no 📁 (1 items)
+        ├─ stop 📄
+      ├─ 1 📁 (2 items)
+        ├─ 0 📝
+        ├─ stop 📄
+    ├─ 10018 📁 (2 items)
+      ├─ 0 📁 (4 items)
+        ├─ 0 📝
+        ├─ no 📁 (1 items)
+        ├─ stop 📄
+        ├─ yes 📁 (1 items)
+      ├─ 1 📁 (1 items)
+        ├─ 0 📝
+    ├─ 10019 📁 (2 items)
+      ├─ 0 📁 (4 items)
+        ├─ 0 📝
+        ├─ no 📁 (1 items)
+        ├─ stop 📄
+        ├─ yes 📁 (1 items)
+      ├─ 1 📁 (1 items)
+        ├─ 0 📝
+    ├─ 10020 📁 (2 items)
+      ├─ 0 📁 (4 items)
+        ├─ 0 📝
+        ├─ no 📁 (1 items)
+        ├─ stop 📄
+        ├─ yes 📁 (1 items)
+      ├─ 1 📁 (1 items)
+        ├─ 0 📝
+    ├─ 10021 📁 (2 items)
+      ├─ 0 📁 (3 items)
+        ├─ 0 📝
+        ├─ no 📁 (1 items)
+        ├─ stop 📄
+      ├─ 1 📁 (1 items)
+        ├─ yes 📁 (1 items)
+    ├─ 10023 📁 (2 items)
+      ├─ 0 📁 (6 items)
+        ├─ 0 📝
+        ├─ 1 📝
+        ├─ ask 🔢
+        ├─ no 📁 (1 items)
+        ├─ stop 📁 (1 items)
+        ├─ yes 📁 (1 items)
+      ├─ 1 📁 (1 items)
+        ├─ 0 📝
+    ├─ 1003 📁 (2 items)
+      ├─ 0 📁 (2 items)
+        ├─ 0 📝
+        ├─ 1 📝
+      ├─ 1 📁 (1 items)
+        ├─ stop 📁 (1 items)
+    ├─ 10030 📁 (2 items)
+      ├─ 0 📁 (6 items)
+        ├─ 0 📝
+        ├─ 1 📝
+        ├─ 2 📝
+        ├─ no 📁 (1 items)
+        ├─ stop 📄
+        ├─ yes 📁 (1 items)
+      ├─ 1 📁 (3 items)
+        ├─ 0 📝
+        ├─ stop 📁 (1 items)
+        ├─ yes 📁 (1 items)
+    ├─ 10031 📁 (2 items)
+      ├─ 0 📁 (4 items)
+        ├─ 0 📝
+        ├─ no 📁 (1 items)
+        ├─ stop 📄
+        ├─ yes 📁 (1 items)
+      ├─ 1 📁 (3 items)
+        ├─ 0 📝
+        ├─ stop 📁 (1 items)
+        ├─ yes 📁 (1 items)
+    ├─ 10032 📁 (2 items)
+      ├─ 0 📁 (6 items)
+        ├─ 0 📝
+        ├─ 1 📝
+        ├─ 2 📝
+        ├─ no 📁 (1 items)
+        ├─ stop 📄
+        ├─ yes 📁 (1 items)
+      ├─ 1 📁 (3 items)
+        ├─ 0 📝
+        ├─ stop 📁 (1 items)
+        ├─ yes 📁 (1 items)
+    ├─ 10033 📁 (2 items)
+      ├─ 0 📁 (4 items)
+        ├─ 0 📝
+        ├─ no 📁 (1 items)
+        ├─ stop 📄
+        ├─ yes 📁 (1 items)
+      ├─ 1 📁 (3 items)
+        ├─ 0 📝
+        ├─ stop 📁 (1 items)
+        ├─ yes 📁 (1 items)
+    ├─ 10034 📁 (2 items)
+      ├─ 0 📁 (6 items)
+        ├─ 0 📝
+        ├─ 1 📝
+        ├─ 2 📝
+        ├─ no 📁 (1 items)
+        ├─ stop 📄
+        ├─ yes 📁 (1 items)
+      ├─ 1 📄
+    ├─ 10035 📁 (2 items)
+      ├─ 0 📁 (3 items)
+        ├─ 0 📝
+        ├─ 1 📝
+        ├─ stop 📄
+      ├─ 1 📄
+    ├─ 10036 📁 (2 items)
+      ├─ 0 📄
+      ├─ 1 📄
+    ├─ 10037 📁 (2 items)
+      ├─ 0 📁 (5 items)
+        ├─ 0 📝
+        ├─ 1 📝
+        ├─ no 📁 (1 items)
+        ├─ stop 📄
+        ├─ yes 📁 (1 items)
+      ├─ 1 📄
+    ├─ 10039 📁 (2 items)
+      ├─ 0 📁 (3 items)
+        ├─ 0 📝
+        ├─ no 📁 (1 items)
+        ├─ stop 📄
+      ├─ 1 📄
+    └─ ... (2770 more items)
+
+================================================================================
+Total nodes: 1036
+================================================================================
