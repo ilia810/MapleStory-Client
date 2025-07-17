@@ -95,7 +95,8 @@ namespace ms
 		// Add gauge.graduation - shows the empty bar outlines for HP/MP/XP (positioned lower)
 		nl::node graduation = gauge["graduation"];
 		if (graduation) {
-			sprites.emplace_back(graduation, Point<int16_t>(215, 35)); // Position it lower
+			// Flip horizontally and move 70px to the right
+			sprites.emplace_back(graduation, DrawArgument(Point<int16_t>(285, 35), true)); // Position moved right by 70px, flipped horizontally
 		}
 		
 		// Add base.chat - chat interface element
@@ -138,11 +139,11 @@ namespace ms
 		// V92: Different layout with HP/MP on the left, full-width status bar
 		hpmp_pos = Point<int16_t>(110, 49);     // HP bar position 
 		mp_pos = Point<int16_t>(215, 49);       // MP bar position 
-		hpset_pos = Point<int16_t>(110, 35);   // HP value position (above HP bar)
-		mpset_pos = Point<int16_t>(215, 35);   // MP value position (above MP bar)
-		statset_pos = Point<int16_t>(450, 35); // EXP text position (right side)
-		levelset_pos = Point<int16_t>(45, 50);  // Level position (left side)
-		namelabel_pos = Point<int16_t>(85, 35);  // Character name position (top left)
+		hpset_pos = Point<int16_t>(230, 32);    // HP value position (20px left, 3px up)
+		mpset_pos = Point<int16_t>(350, 32);   // MP value position (aligned Y with HP) 
+		statset_pos = Point<int16_t>(500, 32); // EXP text position (aligned Y with HP)
+		levelset_pos = Point<int16_t>(60, 50);  // Level position (moved 50px right)
+		namelabel_pos = Point<int16_t>(160, 35);  // Character name position (moved 150px right)
 		quickslot_pos = Point<int16_t>(VWIDTH - 200, 5); // Quickslot area position (right side)
 
 		// Menu
@@ -231,6 +232,8 @@ namespace ms
 		}
 
 		namelabel = OutlinedText(Text::Font::A13M, Text::Alignment::LEFT, Color::Name::GALLERY, Color::Name::TUNA);
+		hp_text = Text(Text::Font::A11M, Text::Alignment::LEFT, Color::Name::WHITE);
+		mp_text = Text(Text::Font::A11M, Text::Alignment::LEFT, Color::Name::WHITE);
 
 		// Set quickslot textures with v87 compatibility
 		// V87: Use empty textures to avoid wrong quickslot textures
@@ -411,6 +414,14 @@ namespace ms
 		int16_t mp = stats.get_stat(MapleStat::Id::MP);
 		int32_t maxhp = stats.get_total(EquipStat::Id::HP);
 		int32_t maxmp = stats.get_total(EquipStat::Id::MP);
+		
+		// Debug logging for HP display
+		static int debug_counter = 0;
+		if (debug_counter % 60 == 0) { // Log every 60 frames (~1 second)
+			LOG(LOG_DEBUG, "[UIStatusBar] Drawing HP: " + std::to_string(hp) + "/" + std::to_string(maxhp));
+			LOG(LOG_DEBUG, "[UIStatusBar] Level: " + std::to_string(level) + ", MP: " + std::to_string(mp) + "/" + std::to_string(maxmp));
+		}
+		debug_counter++;
 		int64_t exp = stats.get_exp();
 
 		std::string expstring = std::to_string(100 * getexppercent());
@@ -420,15 +431,10 @@ namespace ms
 			position + statset_pos
 		);
 
-		hpmpset.draw(
-			"[" + std::to_string(hp) + "/" + std::to_string(maxhp) + "]",
-			position + hpset_pos
-		);
-
-		hpmpset.draw(
-			"[" + std::to_string(mp) + "/" + std::to_string(maxmp) + "]",
-			position + mpset_pos
-		);
+		hp_text.change_text("[" + std::to_string(hp) + "/" + std::to_string(maxhp) + "]");
+		hp_text.draw(position + hpset_pos);
+		mp_text.change_text("[" + std::to_string(mp) + "/" + std::to_string(maxmp) + "]");
+		mp_text.draw(position + mpset_pos);
 
 		levelset.draw(
 			std::to_string(level),

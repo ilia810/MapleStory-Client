@@ -132,6 +132,8 @@ namespace ms
 		Texture menutitle[5];
 		Texture menubackground[3];
 		OutlinedText namelabel;
+		mutable Text hp_text;
+		mutable Text mp_text;
 		std::vector<Sprite> hpmp_sprites;
 
 		Point<int16_t> exp_pos;

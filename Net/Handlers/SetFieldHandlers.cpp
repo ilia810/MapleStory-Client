@@ -167,10 +167,23 @@ namespace ms
 		UI::get().remove(UIElement::Type::CLASSCREATION);
 
 			// Starting to parse character stats
-			LoginParser::parse_stats(recv);
+			StatsEntry newstats = LoginParser::parse_stats(recv);
 
 			// Getting player reference
 			Player& player = Stage::get().get_player();
+			
+			// Update player stats with the parsed values from server
+			LOG(LOG_DEBUG, "[SetFieldHandler] Updating player stats from server");
+			for (auto stat : newstats.stats) {
+				if (stat.first == MapleStat::Id::HP || stat.first == MapleStat::Id::MAXHP) {
+					LOG(LOG_DEBUG, "[SetFieldHandler] Setting stat " + std::to_string(static_cast<int>(stat.first)) + " to " + std::to_string(stat.second));
+				}
+				player.get_stats().set_stat(stat.first, stat.second);
+			}
+			player.get_stats().set_exp(newstats.exp);
+			
+			// Recalculate stats after updating base values
+			player.recalc_stats(false);
 
 			// Reading buddycap
 			recv.read_byte(); // 'buddycap'

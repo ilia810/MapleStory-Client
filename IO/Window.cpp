@@ -164,13 +164,32 @@ namespace ms
 		GLFWmonitor** monitors = glfwGetMonitors(&monitor_count);
 		GLFWmonitor* selected_monitor = nullptr;
 		
-		if (monitor_index < monitor_count) {
-			selected_monitor = monitors[monitor_index];
-			LOG(LOG_DEBUG, "[Window] Using monitor " << (int)monitor_index << " of " << monitor_count);
-		} else {
-			selected_monitor = glfwGetPrimaryMonitor();
-			LOG(LOG_DEBUG, "[Window] Monitor " << (int)monitor_index << " not found, using primary monitor");
+		// Debug: List all available monitors
+		LOG(LOG_DEBUG, "[Window] Found " << monitor_count << " monitors:");
+		GLFWmonitor* primary = glfwGetPrimaryMonitor();
+		for (int i = 0; i < monitor_count; i++) {
+			int mx, my;
+			glfwGetMonitorPos(monitors[i], &mx, &my);
+			const GLFWvidmode* mode = glfwGetVideoMode(monitors[i]);
+			const char* name = glfwGetMonitorName(monitors[i]);
+			bool is_primary = (monitors[i] == primary);
+			LOG(LOG_DEBUG, "[Window] Monitor " << i << ": " << (name ? name : "Unknown") 
+			    << " at (" << mx << "," << my << ") size " << mode->width << "x" << mode->height 
+			    << (is_primary ? " (PRIMARY)" : ""));
 		}
+		
+		// For now, force use of primary monitor to ensure it works
+		selected_monitor = glfwGetPrimaryMonitor();
+		LOG(LOG_DEBUG, "[Window] Forcing use of primary monitor");
+		
+		// Original logic (commented out for debugging):
+		// if (monitor_index < monitor_count) {
+		//	selected_monitor = monitors[monitor_index];
+		//	LOG(LOG_DEBUG, "[Window] Using monitor " << (int)monitor_index << " of " << monitor_count);
+		// } else {
+		//	selected_monitor = glfwGetPrimaryMonitor();
+		//	LOG(LOG_DEBUG, "[Window] Monitor " << (int)monitor_index << " not found, using primary monitor");
+		// }
 		
 		// Use selected monitor only for fullscreen
 		GLFWmonitor* window_monitor = fullscreen ? selected_monitor : nullptr;

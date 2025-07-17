@@ -193,18 +193,35 @@ namespace ms
 			nl::node taben = Tab["enabled"];
 			nl::node tabdis = Tab["disabled"];
 
-			Point<int16_t> tab_pos0 = Texture(taben["0"]).get_origin() * -1;
-			Point<int16_t> tab_pos1 = Texture(taben["1"]).get_origin() * -1;
-			Point<int16_t> tab_pos2 = Texture(taben["2"]).get_origin() * -1;
-			Point<int16_t> tab_pos3 = Texture(taben["3"]).get_origin() * -1;
-			Point<int16_t> tab_pos4 = Texture(taben["4"]).get_origin() * -1;
-			Point<int16_t> tab_pos_adj = Point<int16_t>(9, 26);
+			// v92: Since origins are (0,0), calculate positions manually
+			// Tabs should be positioned horizontally across the top of the inventory
+			// Base position for first tab, then space them out according to actual tab widths
+			Point<int16_t> tab_base = Point<int16_t>(9, 26);
 			
-			buttons[Buttons::BT_TAB_EQUIP] = std::make_unique<TwoSpriteButton>(tabdis["0"], taben["0"], tab_pos0 - tab_pos_adj, Point<int16_t>(0, 0));
-			buttons[Buttons::BT_TAB_USE] = std::make_unique<TwoSpriteButton>(tabdis["1"], taben["1"], tab_pos1 - tab_pos_adj, Point<int16_t>(0, 0));
-			buttons[Buttons::BT_TAB_ETC] = std::make_unique<TwoSpriteButton>(tabdis["2"], taben["2"], tab_pos2 - tab_pos_adj, Point<int16_t>(0, 0));
-			buttons[Buttons::BT_TAB_SETUP] = std::make_unique<TwoSpriteButton>(tabdis["3"], taben["3"], tab_pos3 - tab_pos_adj, Point<int16_t>(0, 0));
-			buttons[Buttons::BT_TAB_CASH] = std::make_unique<TwoSpriteButton>(tabdis["4"], taben["4"], tab_pos4 - tab_pos_adj, Point<int16_t>(0, 0));
+			// Calculate positions with proper spacing to prevent overlap
+			// Tab widths from JSON: 22, 13, 26, 13, 20 - add 2px padding between tabs
+			Point<int16_t> tab_pos0 = tab_base;                                  // Equip: x=9
+			Point<int16_t> tab_pos1 = tab_base + Point<int16_t>(26, 0);         // Use: x=35 (22+4 spacing)
+			Point<int16_t> tab_pos2 = tab_base + Point<int16_t>(43, 0);         // ETC: x=52 (26+13+4 spacing)
+			Point<int16_t> tab_pos3 = tab_base + Point<int16_t>(73, 0);         // Setup: x=82 (43+26+4 spacing)  
+			Point<int16_t> tab_pos4 = tab_base + Point<int16_t>(90, 0);         // Cash: x=99 (73+13+4 spacing)
+			
+			// Create tab buttons only if textures are valid
+			if (tabdis["0"] && taben["0"]) {
+				buttons[Buttons::BT_TAB_EQUIP] = std::make_unique<TwoSpriteButton>(tabdis["0"], taben["0"], tab_pos0);
+			}
+			if (tabdis["1"] && taben["1"]) {
+				buttons[Buttons::BT_TAB_USE] = std::make_unique<TwoSpriteButton>(tabdis["1"], taben["1"], tab_pos1);
+			}
+			if (tabdis["2"] && taben["2"]) {
+				buttons[Buttons::BT_TAB_ETC] = std::make_unique<TwoSpriteButton>(tabdis["2"], taben["2"], tab_pos2);
+			}
+			if (tabdis["3"] && taben["3"]) {
+				buttons[Buttons::BT_TAB_SETUP] = std::make_unique<TwoSpriteButton>(tabdis["3"], taben["3"], tab_pos3);
+			}
+			if (tabdis["4"] && taben["4"]) {
+				buttons[Buttons::BT_TAB_CASH] = std::make_unique<TwoSpriteButton>(tabdis["4"], taben["4"], tab_pos4);
+			}
 			// V92 doesn't have tab 5 (BT_TAB_DEC) - skip it
 			LOG(LOG_DEBUG, "[UIItemInventory] V92 mode - loaded 5 tabs (0-4), no tab 5");
 		} else if (!is_v83) {
@@ -266,14 +283,26 @@ namespace ms
 			buttons[Buttons::BT_EXTRACT_SM]->set_state(Button::State::DISABLED);
 			buttons[Buttons::BT_DISASSEMBLE]->set_state(Button::State::DISABLED);
 			buttons[Buttons::BT_DISASSEMBLE_SM]->set_state(Button::State::DISABLED);
+		} else {
+			// V83/V87 only has minimal buttons - maybe sort button in Item window
+			LOG(LOG_DEBUG, "[UIItemInventory] V83/V87 mode - minimal buttons");
+		}
+
+		// Set initial tab button state for all versions that have tabs (v92 and modern)
+		if (is_v92 || (!is_v83)) {
+			// For v92, explicitly activate all tab buttons
+			if (is_v92) {
+				if (buttons[Buttons::BT_TAB_EQUIP]) buttons[Buttons::BT_TAB_EQUIP]->set_active(true);
+				if (buttons[Buttons::BT_TAB_USE]) buttons[Buttons::BT_TAB_USE]->set_active(true);
+				if (buttons[Buttons::BT_TAB_ETC]) buttons[Buttons::BT_TAB_ETC]->set_active(true);
+				if (buttons[Buttons::BT_TAB_SETUP]) buttons[Buttons::BT_TAB_SETUP]->set_active(true);
+				if (buttons[Buttons::BT_TAB_CASH]) buttons[Buttons::BT_TAB_CASH]->set_active(true);
+				// Don't activate BT_TAB_DEC for v92 since it doesn't exist
+			}
 			
-			// Set initial tab button state
 			uint16_t tab_btn = button_by_tab(tab);
 			if (tab_btn < buttons.size() && buttons[tab_btn])
 				buttons[tab_btn]->set_state(Button::State::PRESSED);
-		} else {
-			// V87 only has minimal buttons - maybe sort button in Item window
-			LOG(LOG_DEBUG, "[UIItemInventory] V87 mode - minimal buttons");
 		}
 
 		// Moved into the !is_v87 block above
@@ -329,7 +358,27 @@ namespace ms
 		LOG(LOG_DEBUG, "  slotmax=" << slotmax << ", slot_col=" << slot_col);
 
 		// V83 doesn't need a slider - inventory is fixed size
-		if (!is_v83 && slot_pos.y() > 0 && second > slot_pos.y() && x > 0 && unitrows > 0 && rowmax > 0) {
+		// V92 and modern versions can use a slider
+		if (is_v92) {
+			// V92: Create a functional slider with appropriate defaults
+			// Position slider on the right side of inventory, within window bounds
+			int16_t slider_x = 165;  // Right side of 175px wide inventory
+			int16_t slider_y_start = slot_pos.y();
+			int16_t slider_y_end = 250;  // Keep within 289px inventory height
+			
+			// Ensure slider doesn't overflow - limit to inventory bounds
+			if (slider_y_end > 280) slider_y_end = 280;
+			
+			slider = Slider(
+				Slider::Type::LINE_CYAN, Range<int16_t>(slider_y_start, slider_y_end), slider_x, 4, 6,
+				[&](bool upwards)
+				{
+					int16_t shift = upwards ? -slot_col : slot_col;
+					slotrange[tab].first += shift;
+					slotrange[tab].second += shift;
+				}
+			);
+		} else if (!is_v83 && slot_pos.y() > 0 && second > slot_pos.y() && x > 0 && unitrows > 0 && rowmax > 0) {
 			slider = Slider(
 				Slider::Type::DEFAULT_SILVER, Range<int16_t>(slot_pos.y(), second), x, unitrows, rowmax,
 				[&](bool upwards)
@@ -360,9 +409,7 @@ namespace ms
 
 	void UIItemInventory::draw(float alpha) const
 	{
-		LOG(LOG_DEBUG, "[UIItemInventory] draw() START");
 		UIElement::draw_sprites(alpha);
-		LOG(LOG_DEBUG, "[UIItemInventory] draw() after draw_sprites");
 
 		// Use version-aware positioning for mesos text
 		Point<int16_t> mesolabel_pos;
@@ -382,7 +429,6 @@ namespace ms
 
 		if (full_enabled)
 		{
-			LOG(LOG_DEBUG, "[UIItemInventory] draw() drawing full background");
 			if (full_backgrnd.is_valid()) {
 				full_backgrnd.draw(position);
 			}
@@ -392,29 +438,23 @@ namespace ms
 		}
 		else
 		{
-			LOG(LOG_DEBUG, "[UIItemInventory] draw() drawing normal background");
-			LOG(LOG_DEBUG, "[UIItemInventory] draw() position=" << position.x() << "," << position.y());
-			
 			// Only draw the main background
 			if (backgrnd.is_valid()) {
 				backgrnd.draw(position);
-				LOG(LOG_DEBUG, "[UIItemInventory] draw() after backgrnd");
-			} else {
-				LOG(LOG_DEBUG, "[UIItemInventory] draw() backgrnd is empty/invalid");
 			}
 			
-			// Skip slider drawing - it's causing freezes
-			LOG(LOG_DEBUG, "[UIItemInventory] draw() slider drawing disabled due to freeze issue");
+			// Draw slider if it's enabled and valid
+			bool is_v92 = V83UIAssets::isV92Mode();
+			if (is_v92 && slider.isenabled()) {
+				slider.draw(position);
+			}
 
 			mesolabel.draw(mesolabel_pos);
 			maplepointslabel.draw(maplepointslabel_pos);
-			LOG(LOG_DEBUG, "[UIItemInventory] draw() after labels");
 		}
 
-		LOG(LOG_DEBUG, "[UIItemInventory] draw() getting slot range for tab=" << (int)tab);
 		// Check if tab exists in slotrange
 		if (slotrange.find(tab) == slotrange.end()) {
-			LOG(LOG_ERROR, "[UIItemInventory] draw() ERROR: tab " << (int)tab << " not found in slotrange!");
 			return;
 		}
 		auto& range = slotrange.at(tab);
@@ -422,14 +462,10 @@ namespace ms
 		size_t numslots = inventory.get_slotmax(tab);
 		size_t firstslot = full_enabled ? 1 : range.first;
 		size_t lastslot = full_enabled ? max_full_slots : range.second;
-		LOG(LOG_DEBUG, "[UIItemInventory] draw() slot range: firstslot=" << firstslot << ", lastslot=" << lastslot << ", numslots=" << numslots);
 
 		// Fix: Start from slot 1, not 0, to match load_icons
 		for (size_t i = 1; i <= max_full_slots; i++)
 		{
-			if (i == 1) {
-				LOG(LOG_DEBUG, "[UIItemInventory] draw() processing first slot");
-			}
 			Point<int16_t> slotpos = get_slotpos(i);
 
 			if (icons.find(i) != icons.end())
@@ -472,18 +508,14 @@ namespace ms
 				newitemtabdis.draw(position + get_tabpos(newtab) - Point<int16_t>(2, 1), alpha);
 			}
 		}
-		LOG(LOG_DEBUG, "[UIItemInventory] draw() END");
 	}
 
 	void UIItemInventory::update()
 	{
-		LOG(LOG_DEBUG, "[UIItemInventory] update() called, needs_init=" << needs_init);
 		// Handle deferred initialization to avoid UI toggle deadlock
 		if (needs_init) {
-			LOG(LOG_DEBUG, "[UIItemInventory] Performing deferred initialization");
 			needs_init = false;
 			set_full(false);  // Safe to call now, outside constructor/toggle context
-			LOG(LOG_DEBUG, "[UIItemInventory] Deferred initialization complete");
 		}
 		
 		UIElement::update();
@@ -500,16 +532,13 @@ namespace ms
 
 	void UIItemInventory::update_slot(int16_t slot)
 	{
-		LOG(LOG_DEBUG, "[UIItemInventory] update_slot(" << slot << ") START");
 		// Fix: Ignore slot 0 to prevent freezes
 		if (slot <= 0) {
-			LOG(LOG_DEBUG, "[UIItemInventory] update_slot() skipping slot <= 0");
 			return;
 		}
 		
 		if (int32_t item_id = inventory.get_item_id(tab, slot))
 		{
-			LOG(LOG_DEBUG, "[UIItemInventory] update_slot() found item_id=" << item_id << " in slot " << slot);
 			int16_t count;
 
 			if (tab == InventoryType::Id::EQUIP)
@@ -526,32 +555,25 @@ namespace ms
 				std::make_unique<ItemIcon>(*this, tab, eqslot, slot, item_id, count, untradable, cashitem),
 				texture, count
 			);
-			LOG(LOG_DEBUG, "[UIItemInventory] update_slot() created icon for slot " << slot);
 		}
 		else if (icons.count(slot))
 		{
-			LOG(LOG_DEBUG, "[UIItemInventory] update_slot() erasing icon for empty slot " << slot);
 			icons.erase(slot);
 		}
-		LOG(LOG_DEBUG, "[UIItemInventory] update_slot(" << slot << ") END");
 	}
 
 	void UIItemInventory::load_icons()
 	{
-		LOG(LOG_DEBUG, "[UIItemInventory] load_icons() START, tab=" << (int)tab);
 		icons.clear();
 
 		uint8_t numslots = inventory.get_slotmax(tab);
 
-		LOG(LOG_DEBUG, "[UIItemInventory] load_icons() numslots=" << (int)numslots << ", max_full_slots=" << max_full_slots);
 		// Fix: Start at slot 1, not 0 (slot 0 causes freezes)
 		for (size_t i = 1; i <= max_full_slots; i++) {
 			if (i <= numslots) {
-				LOG(LOG_DEBUG, "[UIItemInventory] load_icons() updating slot " << i);
 				update_slot(static_cast<int16_t>(i));
 			}
 		}
-		LOG(LOG_DEBUG, "[UIItemInventory] load_icons() END");
 	}
 
 	Button::State UIItemInventory::button_pressed(uint16_t buttonid)

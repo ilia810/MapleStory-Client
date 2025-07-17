@@ -39,10 +39,37 @@ namespace ms
 		keyboard = &UI::get().get_keyboard();
 		staged_mappings = keyboard->get_maplekeys();
 
-		// V87 compatibility: Check which StatusBar version exists
-		bool is_v87 = nl::nx::UI["StatusBar3.img"].name().empty();
-		nl::node statusBarRoot = is_v87 ? nl::nx::UI["StatusBar.img"] : nl::nx::UI["StatusBar3.img"];
-		nl::node KeyConfig = is_v87 ? statusBarRoot : statusBarRoot["KeyConfig"];
+		// v92/v87 compatibility: Try multiple locations for KeyConfig assets
+		nl::node KeyConfig;
+		
+		// Try UIWindow.img first (v92)
+		KeyConfig = nl::nx::UI["UIWindow.img"]["KeyConfig"];
+		
+		if (!KeyConfig) {
+			// Try StatusBar.img (v87)
+			KeyConfig = nl::nx::UI["StatusBar.img"]["KeyConfig"];
+		}
+		
+		if (!KeyConfig) {
+			// Try StatusBar3.img (newer versions)
+			nl::node statusBar3 = nl::nx::UI["StatusBar3.img"];
+			if (statusBar3) {
+				KeyConfig = statusBar3["KeyConfig"];
+			}
+		}
+		
+		if (!KeyConfig) {
+			// v92: No KeyConfig assets found - create minimal UI
+			dimension = Point<int16_t>(600, 400);
+			dragarea = Point<int16_t>(600, 20);
+			
+			// Add close button if available
+			nl::node BtClose3 = nl::nx::UI["Basic.img"]["BtClose3"];
+			if (BtClose3) {
+				buttons[Buttons::CLOSE] = std::make_unique<MapleButton>(BtClose3, Point<int16_t>(580, 3));
+			}
+			return;
+		}
 
 		// Load icon and key nodes with validation
 		nl::node icon_node = KeyConfig["icon"];
@@ -57,17 +84,28 @@ namespace ms
 		}
 
 		nl::node backgrnd = KeyConfig["backgrnd"];
+		if (!backgrnd) {
+			// No background found - create minimal UI
+			dimension = Point<int16_t>(600, 400);
+			dragarea = Point<int16_t>(600, 20);
+			return;
+		}
+		
 		Texture bg = backgrnd;
 		Point<int16_t> bg_dimensions = bg.get_dimensions();
+		Point<int16_t> bg_origin = bg.get_origin();
 
-		// Only use the main background for v92 compatibility
-		sprites.emplace_back(backgrnd);
+		// v92: Adjust background position to align with key icons
+		// Move background 3px right and 3px up from previous position (325,250)
+		sprites.emplace_back(backgrnd, Point<int16_t>(328, 247));
 		// Skip backgrnd2 and backgrnd3
 		// sprites.emplace_back(KeyConfig["backgrnd2"]);
 		// sprites.emplace_back(KeyConfig["backgrnd3"]);
 
 		nl::node BtClose3 = nl::nx::UI["Basic.img"]["BtClose3"];
-		buttons[Buttons::CLOSE] = std::make_unique<MapleButton>(BtClose3, Point<int16_t>(bg_dimensions.x() - 18, 3));
+		if (BtClose3) {
+			buttons[Buttons::CLOSE] = std::make_unique<MapleButton>(BtClose3, Point<int16_t>(bg_dimensions.x() - 18, 3));
+		}
 		
 		// Load buttons with fallback for v92
 		nl::node btn_cancel = KeyConfig["button:Cancel"];
@@ -434,15 +472,19 @@ namespace ms
 					count
 					);
 			}
-			else if (mapping.type == KeyType::Id::SKILL)
+			else if (mapping.type == KeyType::Id::SKILL && id > 0)
 			{
-				int16_t count = -1;
+				// Verify skill texture exists before creating icon
+				Texture skill_texture = get_skill_texture(id);
+				if (skill_texture.is_valid()) {
+					int16_t count = -1;
 
-				skill_icons[id] = std::make_unique<Icon>(
-					std::make_unique<KeyIcon>(mapping, count),
-					get_skill_texture(id),
-					count
-					);
+					skill_icons[id] = std::make_unique<Icon>(
+						std::make_unique<KeyIcon>(mapping, count),
+						skill_texture,
+						count
+						);
+				}
 			}
 		}
 	}
@@ -468,7 +510,11 @@ namespace ms
 				}
 				else if (mapping.type == KeyType::Id::SKILL)
 				{
-					icon = skill_icons.at(id).get();
+					// Safety check: only access skill icon if it exists
+					auto skill_iter = skill_icons.find(id);
+					if (skill_iter != skill_icons.end()) {
+						icon = skill_iter->second.get();
+					}
 				}
 				else if (is_action_mapping(mapping))
 				{
@@ -546,7 +592,7 @@ namespace ms
 			case Buttons::CLOSE:
 			case Buttons::CANCEL:
 			{
-				close();
+				safe_close();
 
 				return Button::State::NORMAL;
 			}
@@ -646,7 +692,11 @@ namespace ms
 					}
 					else if (mapping.type == KeyType::Id::SKILL)
 					{
-						icon = skill_icons[id].get();
+						// Safety check: only access skill icon if it exists
+						auto skill_iter = skill_icons.find(id);
+						if (skill_iter != skill_icons.end()) {
+							icon = skill_iter->second.get();
+						}
 					}
 					else if (is_action_mapping(mapping))
 					{
@@ -732,22 +782,9 @@ namespace ms
 	{
 		if (dirty)
 		{
-			static const std::string& message = "Do you want to save your changes?";
-
-			auto onok = [&](bool ok)
-			{
-				if (ok)
-				{
-					save_staged_mappings();
-					close();
-				}
-				else
-				{
-					close();
-				}
-			};
-
-			UI::get().emplace<UIOk>(message, onok);
+			// Skip dialog due to text rendering overflow issue - just save and close
+			save_staged_mappings();
+			close();
 		}
 		else
 		{

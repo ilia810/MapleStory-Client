@@ -18,6 +18,8 @@
 #include "CharStats.h"
 
 #include "StatCaps.h"
+#include "../MapleStory.h"
+#include <iostream>
 
 namespace ms
 {
@@ -36,8 +38,12 @@ namespace ms
 		buffdeltas.clear();
 		percentages.clear();
 
-		totalstats[EquipStat::Id::HP] = get_stat(MapleStat::Id::MAXHP);
-		totalstats[EquipStat::Id::MP] = get_stat(MapleStat::Id::MAXMP);
+		uint16_t maxhp = get_stat(MapleStat::Id::MAXHP);
+		uint16_t maxmp = get_stat(MapleStat::Id::MAXMP);
+		LOG(LOG_DEBUG, "[CharStats] init_totalstats - MAXHP: " + std::to_string(maxhp) + ", MAXMP: " + std::to_string(maxmp));
+		
+		totalstats[EquipStat::Id::HP] = maxhp;
+		totalstats[EquipStat::Id::MP] = maxmp;
 		totalstats[EquipStat::Id::STR] = get_stat(MapleStat::Id::STR);
 		totalstats[EquipStat::Id::DEX] = get_stat(MapleStat::Id::DEX);
 		totalstats[EquipStat::Id::INT] = get_stat(MapleStat::Id::INT);
@@ -138,6 +144,12 @@ namespace ms
 
 	void CharStats::set_stat(MapleStat::Id stat, uint16_t value)
 	{
+		if (stat == MapleStat::Id::HP) {
+			LOG(LOG_DEBUG, "[CharStats] set_stat HP: " + std::to_string(value));
+		}
+		if (stat == MapleStat::Id::MAXHP) {
+			LOG(LOG_DEBUG, "[CharStats] set_stat MAXHP: " + std::to_string(value));
+		}
 		basestats[stat] = value;
 	}
 

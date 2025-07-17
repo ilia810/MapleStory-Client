@@ -368,7 +368,11 @@ namespace ms
 
 	MobAttackResult Player::damage(const MobAttack& attack)
 	{
+		LOG(LOG_DEBUG, "[Player] damage() called - attack watk: " + std::to_string(attack.watk));
+		
 		int32_t damage = stats.calculate_damage(attack.watk);
+		LOG(LOG_DEBUG, "[Player] Calculated damage: " + std::to_string(damage));
+		
 		show_damage(damage);
 
 		bool fromleft = attack.origin.x() > phobj.get_x();
@@ -385,6 +389,7 @@ namespace ms
 
 		uint8_t direction = fromleft ? 0 : 1;
 
+		LOG(LOG_DEBUG, "[Player] Returning MobAttackResult - damage: " + std::to_string(damage) + ", direction: " + std::to_string(direction));
 		return { attack, damage, direction };
 	}
 

@@ -44,6 +44,22 @@ namespace ms
 		recv.read_bool(); // 'itemreaction'
 		int32_t updatemask = recv.read_int();
 
+		LOG(LOG_DEBUG, "[ChangeStatsHandler] Called with updatemask: " + std::to_string(updatemask));
+
+		// Debug logging for HP/MP updates
+		if (updatemask & 0x400) { // HP flag
+			LOG(LOG_DEBUG, "[ChangeStatsHandler] HP update mask detected");
+		}
+		if (updatemask & 0x800) { // MAXHP flag
+			LOG(LOG_DEBUG, "[ChangeStatsHandler] MAXHP update mask detected");
+		}
+		if (updatemask & 0x1000) { // MP flag
+			LOG(LOG_DEBUG, "[ChangeStatsHandler] MP update mask detected");
+		}
+		if (updatemask & 0x2000) { // MAXMP flag
+			LOG(LOG_DEBUG, "[ChangeStatsHandler] MAXMP update mask detected");
+		}
+
 		bool recalculate = false;
 
 		for (auto iter : MapleStat::codes)
@@ -84,8 +100,14 @@ namespace ms
 			player.get_inventory().set_meso(recv.read_int());
 			break;
 		default:
-			player.get_stats().set_stat(stat, recv.read_short());
-			recalculate = true;
+			{
+				uint16_t value = recv.read_short();
+				if (stat == MapleStat::Id::HP) {
+					LOG(LOG_DEBUG, "[ChangeStatsHandler] Setting HP to: " + std::to_string(value));
+				}
+				player.get_stats().set_stat(stat, value);
+				recalculate = true;
+			}
 			break;
 		}
 

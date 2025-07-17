@@ -41,6 +41,12 @@ namespace ms
 			LOG(LOG_DEBUG, "[OutPacket] Dispatching LOGIN packet (opcode: " + std::to_string(opcode) + ")");
 		}
 		
+		// Log TAKE_DAMAGE packets for debugging HP issue
+		if (opcode == Opcode::TAKE_DAMAGE)
+		{
+			LOG(LOG_DEBUG, "[OutPacket] Dispatching TAKE_DAMAGE packet (opcode: " + std::to_string(opcode) + ")");
+		}
+		
 		Session::get().write(bytes.data(), bytes.size());
 
 		if (Configuration::get().get_show_packets())

@@ -327,9 +327,12 @@ namespace ms
 
 		if (int32_t oid_id = mobs.find_colliding(player.get_phobj()))
 		{
+			LOG(LOG_DEBUG, "[Stage] Mob collision detected with oid: " + std::to_string(oid_id));
 			if (MobAttack attack = mobs.create_attack(oid_id))
 			{
+				LOG(LOG_DEBUG, "[Stage] MobAttack created, calling player.damage()");
 				MobAttackResult result = player.damage(attack);
+				LOG(LOG_DEBUG, "[Stage] Dispatching TakeDamagePacket with damage: " + std::to_string(result.damage));
 				TakeDamagePacket(result, TakeDamagePacket::From::TOUCH).dispatch();
 			}
 		}
