@@ -39,7 +39,7 @@ namespace ms
 		if (s == Button::State::IDENTITY)
 			return;
 
-		state = s;
+p		state = s;
 	}
 
 	void Button::set_active(bool a)

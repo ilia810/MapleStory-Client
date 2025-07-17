@@ -55,9 +55,8 @@ namespace ms
 		nl::node backgrnd2 = Stat["backgrnd2"];
 		if (backgrnd2) textures_detail.emplace_back(backgrnd2);
 		
-		// Load additional backgrounds if they exist
-		nl::node backgrnd3 = Stat["backgrnd3"];
-		if (backgrnd3) sprites.emplace_back(backgrnd3);
+		// v92: Don't load backgrnd3 - it causes overlay issues
+		// The main background (backgrnd) is sufficient
 		
 		// For ability-related nodes, try both direct and nested paths
 		nl::node abilityTitle = Stat["abilityTitle"];

@@ -28,63 +28,97 @@ namespace ms
 	UIUserList::UIUserList(uint16_t t) : UIDragElement<PosUSERLIST>(Point<int16_t>(260, 20)), tab(t)
 	{
 		nl::node close = nl::nx::UI["Basic.img"]["BtClose3"];
+		
+		// v92 compatibility: Check if UIWindow2.img exists
 		UserList = nl::nx::UI["UIWindow2.img"]["UserList"];
+		if (!UserList) {
+			// v92: This UI might not exist or be in different location
+			// Create minimal UI
+			dimension = Point<int16_t>(260, 350);
+			if (close) buttons[Buttons::BT_CLOSE] = std::make_unique<MapleButton>(close, Point<int16_t>(244, 7));
+			return;
+		}
+		
 		nl::node Main = UserList["Main"];
+		if (!Main) {
+			dimension = Point<int16_t>(260, 350);
+			if (close) buttons[Buttons::BT_CLOSE] = std::make_unique<MapleButton>(close, Point<int16_t>(244, 7));
+			return;
+		}
 
-		sprites.emplace_back(Main["backgrnd"]);
+		// Only load main background if it exists
+		if (Main["backgrnd"]) sprites.emplace_back(Main["backgrnd"]);
 
 		buttons[Buttons::BT_CLOSE] = std::make_unique<MapleButton>(close, Point<int16_t>(244, 7));
 
 		nl::node taben = Main["Tab"]["enabled"];
 		nl::node tabdis = Main["Tab"]["disabled"];
 
-		buttons[Buttons::BT_TAB_FRIEND] = std::make_unique<TwoSpriteButton>(tabdis["0"], taben["0"]);
-		buttons[Buttons::BT_TAB_PARTY] = std::make_unique<TwoSpriteButton>(tabdis["1"], taben["1"]);
-		buttons[Buttons::BT_TAB_BOSS] = std::make_unique<TwoSpriteButton>(tabdis["2"], taben["2"]);
-		buttons[Buttons::BT_TAB_BLACKLIST] = std::make_unique<TwoSpriteButton>(tabdis["3"], taben["3"]);
+		// Create tab buttons only if nodes exist
+		if (tabdis["0"] && taben["0"]) buttons[Buttons::BT_TAB_FRIEND] = std::make_unique<TwoSpriteButton>(tabdis["0"], taben["0"]);
+		if (tabdis["1"] && taben["1"]) buttons[Buttons::BT_TAB_PARTY] = std::make_unique<TwoSpriteButton>(tabdis["1"], taben["1"]);
+		if (tabdis["2"] && taben["2"]) buttons[Buttons::BT_TAB_BOSS] = std::make_unique<TwoSpriteButton>(tabdis["2"], taben["2"]);
+		if (tabdis["3"] && taben["3"]) buttons[Buttons::BT_TAB_BLACKLIST] = std::make_unique<TwoSpriteButton>(tabdis["3"], taben["3"]);
 
 		// Party Tab
 		nl::node Party = Main["Party"];
-		nl::node PartySearch = Party["PartySearch"];
+		if (Party) {
+			nl::node PartySearch = Party["PartySearch"];
 
-		party_tab = Tab::PARTY_MINE;
-		party_title = Party["title"];
+			party_tab = Tab::PARTY_MINE;
+			if (Party["title"]) party_title = Party["title"];
 
-		for (size_t i = 0; i <= 4; i++)
-			party_mine_grid[i] = UserList["Sheet2"][i];
+			// Load party grid textures if available
+			if (UserList["Sheet2"]) {
+				for (size_t i = 0; i <= 4; i++)
+					if (UserList["Sheet2"][i]) party_mine_grid[i] = UserList["Sheet2"][i];
+			}
 
-		party_mine_name = Text(Text::Font::A12M, Text::Alignment::LEFT, Color::Name::BLACK, "none", 0);
+			party_mine_name = Text(Text::Font::A12M, Text::Alignment::LEFT, Color::Name::BLACK, "none", 0);
 
-		nl::node party_taben = Party["Tab"]["enabled"];
-		nl::node party_tabdis = Party["Tab"]["disabled"];
+			nl::node party_taben = Party["Tab"]["enabled"];
+			nl::node party_tabdis = Party["Tab"]["disabled"];
 
-		buttons[Buttons::BT_PARTY_CREATE] = std::make_unique<MapleButton>(Party["BtPartyMake"]);
-		buttons[Buttons::BT_PARTY_INVITE] = std::make_unique<MapleButton>(Party["BtPartyInvite"]);
-		buttons[Buttons::BT_PARTY_LEAVE] = std::make_unique<MapleButton>(Party["BtPartyOut"]);
-		buttons[Buttons::BT_PARTY_SETTINGS] = std::make_unique<MapleButton>(Party["BtPartySettings"]);
-		buttons[Buttons::BT_PARTY_CREATE]->set_active(false);
-		buttons[Buttons::BT_PARTY_INVITE]->set_active(false);
-		buttons[Buttons::BT_PARTY_LEAVE]->set_active(false);
-		buttons[Buttons::BT_PARTY_SETTINGS]->set_active(false);
+			// Create party buttons only if nodes exist
+			if (Party["BtPartyMake"]) buttons[Buttons::BT_PARTY_CREATE] = std::make_unique<MapleButton>(Party["BtPartyMake"]);
+			if (Party["BtPartyInvite"]) buttons[Buttons::BT_PARTY_INVITE] = std::make_unique<MapleButton>(Party["BtPartyInvite"]);
+			if (Party["BtPartyOut"]) buttons[Buttons::BT_PARTY_LEAVE] = std::make_unique<MapleButton>(Party["BtPartyOut"]);
+			if (Party["BtPartySettings"]) buttons[Buttons::BT_PARTY_SETTINGS] = std::make_unique<MapleButton>(Party["BtPartySettings"]);
+			if (buttons[Buttons::BT_PARTY_CREATE]) buttons[Buttons::BT_PARTY_CREATE]->set_active(false);
+			if (buttons[Buttons::BT_PARTY_INVITE]) buttons[Buttons::BT_PARTY_INVITE]->set_active(false);
+			if (buttons[Buttons::BT_PARTY_LEAVE]) buttons[Buttons::BT_PARTY_LEAVE]->set_active(false);
+			if (buttons[Buttons::BT_PARTY_SETTINGS]) buttons[Buttons::BT_PARTY_SETTINGS]->set_active(false);
 
-		buttons[Buttons::BT_TAB_PARTY_MINE] = std::make_unique<TwoSpriteButton>(party_tabdis["0"], party_taben["0"]);
-		buttons[Buttons::BT_TAB_PARTY_SEARCH] = std::make_unique<TwoSpriteButton>(party_tabdis["1"], party_taben["1"]);
-		buttons[Buttons::BT_TAB_PARTY_MINE]->set_active(false);
-		buttons[Buttons::BT_TAB_PARTY_SEARCH]->set_active(false);
+			// Create party tab buttons only if nodes exist
+			if (party_tabdis["0"] && party_taben["0"]) {
+				buttons[Buttons::BT_TAB_PARTY_MINE] = std::make_unique<TwoSpriteButton>(party_tabdis["0"], party_taben["0"]);
+				buttons[Buttons::BT_TAB_PARTY_MINE]->set_active(false);
+			}
+			if (party_tabdis["1"] && party_taben["1"]) {
+				buttons[Buttons::BT_TAB_PARTY_SEARCH] = std::make_unique<TwoSpriteButton>(party_tabdis["1"], party_taben["1"]);
+				buttons[Buttons::BT_TAB_PARTY_SEARCH]->set_active(false);
+			}
 
-		party_search_grid[0] = PartySearch["partyName"];
-		party_search_grid[1] = PartySearch["request"];
-		party_search_grid[2] = PartySearch["table"];
+			// Load party search elements if available
+			if (PartySearch) {
+				if (PartySearch["partyName"]) party_search_grid[0] = PartySearch["partyName"];
+				if (PartySearch["request"]) party_search_grid[1] = PartySearch["request"];
+				if (PartySearch["table"]) party_search_grid[2] = PartySearch["table"];
 
-		buttons[Buttons::BT_PARTY_SEARCH_LEVEL] = std::make_unique<MapleButton>(PartySearch["BtPartyLevel"]);
-		buttons[Buttons::BT_PARTY_SEARCH_LEVEL]->set_active(false);
+				if (PartySearch["BtPartyLevel"]) {
+					buttons[Buttons::BT_PARTY_SEARCH_LEVEL] = std::make_unique<MapleButton>(PartySearch["BtPartyLevel"]);
+					buttons[Buttons::BT_PARTY_SEARCH_LEVEL]->set_active(false);
+				}
+			}
+		} // end if (Party)
 
 		int16_t party_x = 243;
 		int16_t party_y = 114;
 		int16_t party_height = party_y + 168;
 		int16_t party_unitrows = 6;
 		int16_t party_rowmax = 6;
-		party_slider = Slider(Slider::Type::DEFAULT_SILVER, Range<int16_t>(party_y, party_height), party_x, party_unitrows, party_rowmax, [](bool) {});
+		// Use simpler slider type for v92 compatibility
+		party_slider = Slider(Slider::Type::LINE_CYAN, Range<int16_t>(party_y, party_height), party_x, party_unitrows, party_rowmax, [](bool) {});
 
 		// Buddy Tab
 		nl::node Friend = Main["Friend"];
@@ -124,7 +158,8 @@ namespace ms
 		int16_t friends_height = friends_y + 148;
 		int16_t friends_unitrows = 6;
 		int16_t friends_rowmax = 6;
-		friends_slider = Slider(Slider::Type::DEFAULT_SILVER, Range<int16_t>(friends_y, friends_height), friends_x, friends_unitrows, friends_rowmax, [](bool) {});
+		// Use simpler slider type for v92 compatibility
+		friends_slider = Slider(Slider::Type::LINE_CYAN, Range<int16_t>(friends_y, friends_height), friends_x, friends_unitrows, friends_rowmax, [](bool) {});
 
 		// Boss tab
 		nl::node Boss = Main["Boss"];
@@ -307,15 +342,25 @@ namespace ms
 
 	void UIUserList::change_tab(uint8_t tabid)
 	{
+		// Validate tab ID
+		if (tabid > Tab::BLACKLIST)
+			return;
+			
 		uint8_t oldtab = tab;
 		tab = tabid;
 
 		background = tabid == Buttons::BT_TAB_BOSS ? UserList["Main"]["Boss"]["backgrnd3"] : UserList["Main"]["backgrnd2"];
 
-		if (oldtab != tab)
-			buttons[Buttons::BT_TAB_FRIEND + oldtab]->set_state(Button::State::NORMAL);
+		if (oldtab != tab && oldtab <= Tab::BLACKLIST)
+		{
+			uint16_t oldbtn_id = Buttons::BT_TAB_FRIEND + oldtab;
+			if (buttons.count(oldbtn_id) && buttons[oldbtn_id])
+				buttons[oldbtn_id]->set_state(Button::State::NORMAL);
+		}
 
-		buttons[Buttons::BT_TAB_FRIEND + tab]->set_state(Button::State::PRESSED);
+		uint16_t newbtn_id = Buttons::BT_TAB_FRIEND + tab;
+		if (buttons.count(newbtn_id) && buttons[newbtn_id])
+			buttons[newbtn_id]->set_state(Button::State::PRESSED);
 
 		if (tab == Buttons::BT_TAB_PARTY)
 		{

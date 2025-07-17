@@ -50,7 +50,8 @@ namespace ms
 
 		// Add sprites only if nodes exist
 		if (backgrnd) sprites.emplace_back(backgrnd);
-		if (list["backgrnd2"]) sprites.emplace_back(list["backgrnd2"]);
+		// Skip backgrnd2 for v92 compatibility
+		// if (list["backgrnd2"]) sprites.emplace_back(list["backgrnd2"]);
 
 		// Add notice sprites only if nodes exist
 		if (list["notice0"]) notice_sprites.emplace_back(list["notice0"]);
@@ -76,7 +77,8 @@ namespace ms
 		search = Textfield(Text::Font::A11M, Text::Alignment::LEFT, Color::Name::BOULDER, Rectangle<int16_t>(get_search_pos(), get_search_pos() + get_search_dim()), search_limit);
 		placeholder = Text(Text::Font::A11M, Text::Alignment::LEFT, Color::Name::BOULDER, "Enter the quest name.");
 
-		slider = Slider(Slider::Type::DEFAULT_SILVER, Range<int16_t>(0, 279), 150, 20, 5, [](bool) {});
+		// Use simpler slider type for v92
+		slider = Slider(Slider::Type::LINE_CYAN, Range<int16_t>(0, 279), 150, 20, 5, [](bool) {});
 
 		change_tab(tab);
 

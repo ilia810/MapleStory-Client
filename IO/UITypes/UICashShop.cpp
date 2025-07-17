@@ -37,7 +37,15 @@ namespace ms
 {
 	UICashShop::UICashShop() : preview_index(0), menu_index(1), promotion_index(0), mvp_grade(1), mvp_exp(0.07f), list_offset(0)
 	{
+		// v92 compatibility: Check if CashShop.img exists
 		nl::node CashShop = nl::nx::UI["CashShop.img"];
+		if (!CashShop) {
+			// v92: Cash Shop UI doesn't exist in v92, create minimal UI
+			dimension = Point<int16_t>(1024, 768);
+			// Display a message that cash shop is not available
+			return;
+		}
+		
 		nl::node Base = CashShop["Base"];
 		nl::node backgrnd = Base["backgrnd"];
 		nl::node BestNew = Base["BestNew"];

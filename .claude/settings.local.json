@@ -167,7 +167,12 @@
       "Bash(\"C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\Community\\MSBuild\\Current\\Bin\\MSBuild.exe\" MapleStory.sln /p:Configuration=Debug /p:Platform=x64 /t:Build /v:quiet /nologo)",
       "Bash(\"C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\Community\\MSBuild\\Current\\Bin\\MSBuild.exe\" MapleStory.sln /p:Configuration=Debug /p:Platform=x64 /v:quiet)",
       "Bash(\"C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\Community\\MSBuild\\Current\\Bin\\MSBuild.exe\" \"C:\\HeavenClient\\MapleStory-Client\\MapleStory.sln\" /p:Configuration=Debug /p:Platform=x64)",
-      "Bash(task-master parse-prd:*)"
+      "Bash(task-master parse-prd:*)",
+      "Bash(task-master list:*)",
+      "Bash(build_fixed.bat)",
+      "Bash(\"C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\Community\\MSBuild\\Current\\Bin\\MSBuild.exe\" MapleStory.sln /p:Configuration=Debug /p:Platform=x64 /m /nologo)",
+      "Bash(\"C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\Community\\MSBuild\\Current\\Bin\\MSBuild.exe\" MapleStory.sln /p:Configuration=Debug /p:Platform=x64 /m /nologo)",
+      "Bash(x64DebugMapleStory.exe)"
     ],
     "deny": []
   }

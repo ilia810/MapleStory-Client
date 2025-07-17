@@ -38,46 +38,76 @@ namespace ms
 {
 	UIShop::UIShop(const CharLook& in_charlook, const Inventory& in_inventory) : UIDragElement<PosSHOP>(), charlook(in_charlook), inventory(in_inventory)
 	{
-		nl::node src = nl::nx::UI["UIWindow2.img"]["Shop2"];
+		// v92 compatibility: Try UIWindow.img first, then UIWindow2.img
+		nl::node src = nl::nx::UI["UIWindow.img"]["Shop"];
+		if (!src) {
+			src = nl::nx::UI["UIWindow2.img"]["Shop2"];
+		}
+		
+		if (!src) {
+			// No shop assets found, create minimal UI
+			dimension = Point<int16_t>(500, 400);
+			dragarea = Point<int16_t>(500, 20);
+			return;
+		}
 
 		nl::node background = src["backgrnd"];
 		Texture bg = background;
 
 		auto bg_dimensions = bg.get_dimensions();
 
+		// Only load main background for v92
 		sprites.emplace_back(background);
-		sprites.emplace_back(src["backgrnd2"]);
-		sprites.emplace_back(src["backgrnd3"]);
-		sprites.emplace_back(src["backgrnd4"]);
+		// Skip additional backgrounds for simplicity
+		// sprites.emplace_back(src["backgrnd2"]);
+		// sprites.emplace_back(src["backgrnd3"]);
+		// sprites.emplace_back(src["backgrnd4"]);
 
-		buttons[Buttons::BUY_ITEM] = std::make_unique<MapleButton>(src["BtBuy"]);
-		buttons[Buttons::SELL_ITEM] = std::make_unique<MapleButton>(src["BtSell"]);
-		buttons[Buttons::EXIT] = std::make_unique<MapleButton>(src["BtExit"]);
+		// Load buttons with null checks
+		if (src["BtBuy"]) buttons[Buttons::BUY_ITEM] = std::make_unique<MapleButton>(src["BtBuy"]);
+		if (src["BtSell"]) buttons[Buttons::SELL_ITEM] = std::make_unique<MapleButton>(src["BtSell"]);
+		if (src["BtExit"]) buttons[Buttons::EXIT] = std::make_unique<MapleButton>(src["BtExit"]);
 
-		Texture cben = src["checkBox"][0];
-		Texture cbdis = src["checkBox"][1];
+		// Load checkbox if available
+		nl::node checkbox_node = src["checkBox"];
+		if (checkbox_node && checkbox_node[0] && checkbox_node[1]) {
+			Texture cben = checkbox_node[0];
+			Texture cbdis = checkbox_node[1];
 
-		Point<int16_t> cb_origin = cben.get_origin();
-		int16_t cb_x = cb_origin.x();
-		int16_t cb_y = cb_origin.y();
+			Point<int16_t> cb_origin = cben.get_origin();
+			int16_t cb_x = cb_origin.x();
+			int16_t cb_y = cb_origin.y();
 
-		checkBox[0] = cbdis;
-		checkBox[1] = cben;
+			checkBox[0] = cbdis;
+			checkBox[1] = cben;
 
-		buttons[Buttons::CHECKBOX] = std::make_unique<AreaButton>(Point<int16_t>(std::abs(cb_x), std::abs(cb_y)), cben.get_dimensions());
+			buttons[Buttons::CHECKBOX] = std::make_unique<AreaButton>(Point<int16_t>(std::abs(cb_x), std::abs(cb_y)), cben.get_dimensions());
+		}
 
-		nl::node buyen = src["TabBuy"]["enabled"];
-		nl::node buydis = src["TabBuy"]["disabled"];
+		// Load buy tab if available
+		nl::node tabbuy = src["TabBuy"];
+		if (tabbuy && tabbuy["enabled"] && tabbuy["disabled"]) {
+			nl::node buyen = tabbuy["enabled"];
+			nl::node buydis = tabbuy["disabled"];
+			
+			if (buydis[0] && buyen[0]) {
+				buttons[Buttons::OVERALL] = std::make_unique<TwoSpriteButton>(buydis[0], buyen[0]);
+			}
+		}
 
-		buttons[Buttons::OVERALL] = std::make_unique<TwoSpriteButton>(buydis[0], buyen[0]);
+		// Load sell tabs if available
+		nl::node tabsell = src["TabSell"];
+		if (tabsell && tabsell["enabled"] && tabsell["disabled"]) {
+			nl::node sellen = tabsell["enabled"];
+			nl::node selldis = tabsell["disabled"];
 
-		nl::node sellen = src["TabSell"]["enabled"];
-		nl::node selldis = src["TabSell"]["disabled"];
-
-		for (uint16_t i = Buttons::EQUIP; i <= Buttons::CASH; i++)
-		{
-			std::string tabnum = std::to_string(i - Buttons::EQUIP);
-			buttons[i] = std::make_unique<TwoSpriteButton>(selldis[tabnum], sellen[tabnum]);
+			for (uint16_t i = Buttons::EQUIP; i <= Buttons::CASH; i++)
+			{
+				std::string tabnum = std::to_string(i - Buttons::EQUIP);
+				if (selldis[tabnum] && sellen[tabnum]) {
+					buttons[i] = std::make_unique<TwoSpriteButton>(selldis[tabnum], sellen[tabnum]);
+				}
+			}
 		}
 
 		int16_t item_y = 124;
@@ -109,8 +139,9 @@ namespace ms
 
 		mesolabel = Text(Text::Font::A11M, Text::Alignment::RIGHT, Color::Name::MINESHAFT);
 
+		// Use simpler slider type for v92 compatibility
 		buyslider = Slider(
-			Slider::Type::DEFAULT_SILVER, Range<int16_t>(123, 484), 257, 5, 1,
+			Slider::Type::LINE_CYAN, Range<int16_t>(123, 484), 257, 5, 1,
 			[&](bool upwards)
 			{
 				int16_t shift = upwards ? -1 : 1;
@@ -122,8 +153,9 @@ namespace ms
 			}
 		);
 
+		// Use simpler slider type for v92 compatibility
 		sellslider = Slider(
-			Slider::Type::DEFAULT_SILVER, Range<int16_t>(123, 484), 488, 5, 1,
+			Slider::Type::LINE_CYAN, Range<int16_t>(123, 484), 488, 5, 1,
 			[&](bool upwards)
 			{
 				int16_t shift = upwards ? -1 : 1;

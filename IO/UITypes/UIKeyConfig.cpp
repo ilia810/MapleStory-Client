@@ -44,24 +44,46 @@ namespace ms
 		nl::node statusBarRoot = is_v87 ? nl::nx::UI["StatusBar.img"] : nl::nx::UI["StatusBar3.img"];
 		nl::node KeyConfig = is_v87 ? statusBarRoot : statusBarRoot["KeyConfig"];
 
-		icon = KeyConfig["icon"];
-		key = KeyConfig["key"];
+		// Load icon and key nodes with validation
+		nl::node icon_node = KeyConfig["icon"];
+		nl::node key_node = KeyConfig["key"];
+		
+		if (icon_node) {
+			icon = icon_node;
+		}
+		
+		if (key_node) {
+			key = key_node;
+		}
 
 		nl::node backgrnd = KeyConfig["backgrnd"];
 		Texture bg = backgrnd;
 		Point<int16_t> bg_dimensions = bg.get_dimensions();
 
+		// Only use the main background for v92 compatibility
 		sprites.emplace_back(backgrnd);
-		sprites.emplace_back(KeyConfig["backgrnd2"]);
-		sprites.emplace_back(KeyConfig["backgrnd3"]);
+		// Skip backgrnd2 and backgrnd3
+		// sprites.emplace_back(KeyConfig["backgrnd2"]);
+		// sprites.emplace_back(KeyConfig["backgrnd3"]);
 
 		nl::node BtClose3 = nl::nx::UI["Basic.img"]["BtClose3"];
 		buttons[Buttons::CLOSE] = std::make_unique<MapleButton>(BtClose3, Point<int16_t>(bg_dimensions.x() - 18, 3));
-		buttons[Buttons::CANCEL] = std::make_unique<MapleButton>(KeyConfig["button:Cancel"]);
-		buttons[Buttons::DEFAULT] = std::make_unique<MapleButton>(KeyConfig["button:Default"]);
-		buttons[Buttons::DELETE] = std::make_unique<MapleButton>(KeyConfig["button:Delete"]);
-		buttons[Buttons::KEYSETTING] = std::make_unique<MapleButton>(KeyConfig["button:keySetting"]);
-		buttons[Buttons::OK] = std::make_unique<MapleButton>(KeyConfig["button:OK"]);
+		
+		// Load buttons with fallback for v92
+		nl::node btn_cancel = KeyConfig["button:Cancel"];
+		if (btn_cancel) buttons[Buttons::CANCEL] = std::make_unique<MapleButton>(btn_cancel);
+		
+		nl::node btn_default = KeyConfig["button:Default"];
+		if (btn_default) buttons[Buttons::DEFAULT] = std::make_unique<MapleButton>(btn_default);
+		
+		nl::node btn_delete = KeyConfig["button:Delete"];
+		if (btn_delete) buttons[Buttons::DELETE] = std::make_unique<MapleButton>(btn_delete);
+		
+		nl::node btn_keysetting = KeyConfig["button:keySetting"];
+		if (btn_keysetting) buttons[Buttons::KEYSETTING] = std::make_unique<MapleButton>(btn_keysetting);
+		
+		nl::node btn_ok = KeyConfig["button:OK"];
+		if (btn_ok) buttons[Buttons::OK] = std::make_unique<MapleButton>(btn_ok);
 
 		dimension = bg_dimensions;
 		dragarea = Point<int16_t>(bg_dimensions.x(), 20);
@@ -270,92 +292,106 @@ namespace ms
 
 	void UIKeyConfig::load_key_textures()
 	{
-		key_textures[KeyConfig::Key::ESCAPE] = key[1];
-		key_textures[KeyConfig::Key::NUM1] = key[2];
-		key_textures[KeyConfig::Key::NUM2] = key[3];
-		key_textures[KeyConfig::Key::NUM3] = key[4];
-		key_textures[KeyConfig::Key::NUM4] = key[5];
-		key_textures[KeyConfig::Key::NUM5] = key[6];
-		key_textures[KeyConfig::Key::NUM6] = key[7];
-		key_textures[KeyConfig::Key::NUM7] = key[8];
-		key_textures[KeyConfig::Key::NUM8] = key[9];
-		key_textures[KeyConfig::Key::NUM9] = key[10];
-		key_textures[KeyConfig::Key::NUM0] = key[11];
-		key_textures[KeyConfig::Key::MINUS] = key[12];
-		key_textures[KeyConfig::Key::EQUAL] = key[13];
+		// Check if key node exists before loading textures
+		if (!key) {
+			return;
+		}
+		
+		// Helper lambda to safely load key texture
+		auto load_key = [&](KeyConfig::Key k, int index) {
+			if (key[index]) {
+				key_textures[k] = key[index];
+			}
+		};
+		
+		// Load key textures with bounds checking
+		load_key(KeyConfig::Key::ESCAPE, 1);
+		load_key(KeyConfig::Key::NUM1, 2);
+		load_key(KeyConfig::Key::NUM2, 3);
+		load_key(KeyConfig::Key::NUM3, 4);
+		load_key(KeyConfig::Key::NUM4, 5);
+		load_key(KeyConfig::Key::NUM5, 6);
+		load_key(KeyConfig::Key::NUM6, 7);
+		load_key(KeyConfig::Key::NUM7, 8);
+		load_key(KeyConfig::Key::NUM8, 9);
+		load_key(KeyConfig::Key::NUM9, 10);
+		load_key(KeyConfig::Key::NUM0, 11);
+		load_key(KeyConfig::Key::MINUS, 12);
+		load_key(KeyConfig::Key::EQUAL, 13);
 
-		key_textures[KeyConfig::Key::Q] = key[16];
-		key_textures[KeyConfig::Key::W] = key[17];
-		key_textures[KeyConfig::Key::E] = key[18];
-		key_textures[KeyConfig::Key::R] = key[19];
-		key_textures[KeyConfig::Key::T] = key[20];
-		key_textures[KeyConfig::Key::Y] = key[21];
-		key_textures[KeyConfig::Key::U] = key[22];
-		key_textures[KeyConfig::Key::I] = key[23];
-		key_textures[KeyConfig::Key::O] = key[24];
-		key_textures[KeyConfig::Key::P] = key[25];
-		key_textures[KeyConfig::Key::LEFT_BRACKET] = key[26];
-		key_textures[KeyConfig::Key::RIGHT_BRACKET] = key[27];
+		// Continue loading remaining keys
+		load_key(KeyConfig::Key::Q, 16);
+		load_key(KeyConfig::Key::W, 17);
+		load_key(KeyConfig::Key::E, 18);
+		load_key(KeyConfig::Key::R, 19);
+		load_key(KeyConfig::Key::T, 20);
+		load_key(KeyConfig::Key::Y, 21);
+		load_key(KeyConfig::Key::U, 22);
+		load_key(KeyConfig::Key::I, 23);
+		load_key(KeyConfig::Key::O, 24);
+		load_key(KeyConfig::Key::P, 25);
+		load_key(KeyConfig::Key::LEFT_BRACKET, 26);
+		load_key(KeyConfig::Key::RIGHT_BRACKET, 27);
 
-		key_textures[KeyConfig::Key::LEFT_CONTROL] = key[29];
-		key_textures[KeyConfig::Key::RIGHT_CONTROL] = key[29];
+		load_key(KeyConfig::Key::LEFT_CONTROL, 29);
+		load_key(KeyConfig::Key::RIGHT_CONTROL, 29);
 
-		key_textures[KeyConfig::Key::A] = key[30];
-		key_textures[KeyConfig::Key::S] = key[31];
-		key_textures[KeyConfig::Key::D] = key[32];
-		key_textures[KeyConfig::Key::F] = key[33];
-		key_textures[KeyConfig::Key::G] = key[34];
-		key_textures[KeyConfig::Key::H] = key[35];
-		key_textures[KeyConfig::Key::J] = key[36];
-		key_textures[KeyConfig::Key::K] = key[37];
-		key_textures[KeyConfig::Key::L] = key[38];
-		key_textures[KeyConfig::Key::SEMICOLON] = key[39];
-		key_textures[KeyConfig::Key::APOSTROPHE] = key[40];
-		key_textures[KeyConfig::Key::GRAVE_ACCENT] = key[41];
+		load_key(KeyConfig::Key::A, 30);
+		load_key(KeyConfig::Key::S, 31);
+		load_key(KeyConfig::Key::D, 32);
+		load_key(KeyConfig::Key::F, 33);
+		load_key(KeyConfig::Key::G, 34);
+		load_key(KeyConfig::Key::H, 35);
+		load_key(KeyConfig::Key::J, 36);
+		load_key(KeyConfig::Key::K, 37);
+		load_key(KeyConfig::Key::L, 38);
+		load_key(KeyConfig::Key::SEMICOLON, 39);
+		load_key(KeyConfig::Key::APOSTROPHE, 40);
+		load_key(KeyConfig::Key::GRAVE_ACCENT, 41);
 
-		key_textures[KeyConfig::Key::LEFT_SHIFT] = key[42];
-		key_textures[KeyConfig::Key::RIGHT_SHIFT] = key[42];
+		load_key(KeyConfig::Key::LEFT_SHIFT, 42);
+		load_key(KeyConfig::Key::RIGHT_SHIFT, 42);
 
-		key_textures[KeyConfig::Key::BACKSLASH] = key[43];
-		key_textures[KeyConfig::Key::Z] = key[44];
-		key_textures[KeyConfig::Key::X] = key[45];
-		key_textures[KeyConfig::Key::C] = key[46];
-		key_textures[KeyConfig::Key::V] = key[47];
-		key_textures[KeyConfig::Key::B] = key[48];
-		key_textures[KeyConfig::Key::N] = key[49];
-		key_textures[KeyConfig::Key::M] = key[50];
-		key_textures[KeyConfig::Key::COMMA] = key[51];
-		key_textures[KeyConfig::Key::PERIOD] = key[52];
+		load_key(KeyConfig::Key::BACKSLASH, 43);
+		load_key(KeyConfig::Key::Z, 44);
+		load_key(KeyConfig::Key::X, 45);
+		load_key(KeyConfig::Key::C, 46);
+		load_key(KeyConfig::Key::V, 47);
+		load_key(KeyConfig::Key::B, 48);
+		load_key(KeyConfig::Key::N, 49);
+		load_key(KeyConfig::Key::M, 50);
+		load_key(KeyConfig::Key::COMMA, 51);
+		load_key(KeyConfig::Key::PERIOD, 52);
 
-		key_textures[KeyConfig::Key::LEFT_ALT] = key[56];
-		key_textures[KeyConfig::Key::RIGHT_ALT] = key[56];
+		load_key(KeyConfig::Key::LEFT_ALT, 56);
+		load_key(KeyConfig::Key::RIGHT_ALT, 56);
 
-		key_textures[KeyConfig::Key::SPACE] = key[57];
+		load_key(KeyConfig::Key::SPACE, 57);
 
-		key_textures[KeyConfig::Key::F1] = key[59];
-		key_textures[KeyConfig::Key::F2] = key[60];
-		key_textures[KeyConfig::Key::F3] = key[61];
-		key_textures[KeyConfig::Key::F4] = key[62];
-		key_textures[KeyConfig::Key::F5] = key[63];
-		key_textures[KeyConfig::Key::F6] = key[64];
-		key_textures[KeyConfig::Key::F7] = key[65];
-		key_textures[KeyConfig::Key::F8] = key[66];
-		key_textures[KeyConfig::Key::F9] = key[67];
-		key_textures[KeyConfig::Key::F10] = key[68];
+		load_key(KeyConfig::Key::F1, 59);
+		load_key(KeyConfig::Key::F2, 60);
+		load_key(KeyConfig::Key::F3, 61);
+		load_key(KeyConfig::Key::F4, 62);
+		load_key(KeyConfig::Key::F5, 63);
+		load_key(KeyConfig::Key::F6, 64);
+		load_key(KeyConfig::Key::F7, 65);
+		load_key(KeyConfig::Key::F8, 66);
+		load_key(KeyConfig::Key::F9, 67);
+		load_key(KeyConfig::Key::F10, 68);
 
-		key_textures[KeyConfig::Key::SCROLL_LOCK] = key[70];
-		key_textures[KeyConfig::Key::HOME] = key[71];
+		load_key(KeyConfig::Key::SCROLL_LOCK, 70);
+		load_key(KeyConfig::Key::HOME, 71);
 
-		key_textures[KeyConfig::Key::PAGE_UP] = key[73];
+		load_key(KeyConfig::Key::PAGE_UP, 73);
 
-		key_textures[KeyConfig::Key::END] = key[79];
+		load_key(KeyConfig::Key::END, 79);
 
-		key_textures[KeyConfig::Key::PAGE_DOWN] = key[81];
-		key_textures[KeyConfig::Key::INSERT] = key[82];
-		key_textures[KeyConfig::Key::DELETE] = key[83];
+		load_key(KeyConfig::Key::PAGE_DOWN, 81);
+		load_key(KeyConfig::Key::INSERT, 82);
+		load_key(KeyConfig::Key::DELETE, 83);
 
-		key_textures[KeyConfig::Key::F11] = key[87];
-		key_textures[KeyConfig::Key::F12] = key[88];
+		load_key(KeyConfig::Key::F11, 87);
+		load_key(KeyConfig::Key::F12, 88);
 	}
 
 	void UIKeyConfig::load_actions()

@@ -31,7 +31,13 @@ namespace ms
 	{
 		show_weekly = Configuration::get().get_show_weekly();
 
+		// v92 compatibility: Check if UIWindow2.img exists
 		nl::node socialChatEnter = nl::nx::UI["UIWindow2.img"]["socialChatEnter"];
+		if (!socialChatEnter) {
+			// v92: This UI doesn't exist, create minimal UI
+			dimension = Point<int16_t>(300, 200);
+			return;
+		}
 
 		nl::node backgrnd = socialChatEnter["backgrnd"];
 		nl::node backgrnd4 = socialChatEnter["backgrnd4"];
@@ -46,17 +52,19 @@ namespace ms
 		origin_left = Point<int16_t>(std::abs(origin_left.x()), std::abs(origin_left.y()));
 		origin_right = Point<int16_t>(std::abs(origin_right.x()), std::abs(origin_right.y()));
 
-		sprites.emplace_back(socialChatEnter["ribbon"]);
-		sprites.emplace_back(backgrnd);
-		sprites.emplace_back(socialChatEnter["backgrnd2"]);
-		sprites.emplace_back(socialChatEnter["backgrnd3"]);
-		sprites.emplace_back(backgrnd4);
-		sprites.emplace_back(backgrnd5);
+		// Only add sprites that exist
+		if (socialChatEnter["ribbon"]) sprites.emplace_back(socialChatEnter["ribbon"]);
+		if (backgrnd) sprites.emplace_back(backgrnd);
+		if (socialChatEnter["backgrnd2"]) sprites.emplace_back(socialChatEnter["backgrnd2"]);
+		if (socialChatEnter["backgrnd3"]) sprites.emplace_back(socialChatEnter["backgrnd3"]);
+		if (backgrnd4) sprites.emplace_back(backgrnd4);
+		if (backgrnd5) sprites.emplace_back(backgrnd5);
 
-		buttons[Buttons::CLOSE] = std::make_unique<MapleButton>(socialChatEnter["btX"]);
-		buttons[Buttons::CHAT_DUO] = std::make_unique<MapleButton>(socialChatEnter["duoChat"]);
-		buttons[Buttons::CHAT_FRIEND] = std::make_unique<MapleButton>(socialChatEnter["groupChatFrd"]);
-		buttons[Buttons::CHAT_RANDOM] = std::make_unique<MapleButton>(socialChatEnter["groupChatRnd"]);
+		// Create buttons only if nodes exist
+		if (socialChatEnter["btX"]) buttons[Buttons::CLOSE] = std::make_unique<MapleButton>(socialChatEnter["btX"]);
+		if (socialChatEnter["duoChat"]) buttons[Buttons::CHAT_DUO] = std::make_unique<MapleButton>(socialChatEnter["duoChat"]);
+		if (socialChatEnter["groupChatFrd"]) buttons[Buttons::CHAT_FRIEND] = std::make_unique<MapleButton>(socialChatEnter["groupChatFrd"]);
+		if (socialChatEnter["groupChatRnd"]) buttons[Buttons::CHAT_RANDOM] = std::make_unique<MapleButton>(socialChatEnter["groupChatRnd"]);
 
 		charset = Charset(socialChatEnter["number"], Charset::Alignment::RIGHT);
 
@@ -120,7 +128,13 @@ namespace ms
 	{
 		Configuration::get().set_show_weekly(false);
 
+		// v92 compatibility: Check if UIWindow2.img exists
 		nl::node socialRank = nl::nx::UI["UIWindow2.img"]["socialRank"];
+		if (!socialRank) {
+			// v92: This UI doesn't exist, create minimal UI
+			dimension = Point<int16_t>(300, 200);
+			return;
+		}
 
 		nl::node backgrnd = socialRank["backgrnd"];
 		nl::node backgrnd4 = socialRank["backgrnd4"];
@@ -135,14 +149,16 @@ namespace ms
 		origin_left = Point<int16_t>(std::abs(origin_left.x()) - 1, std::abs(origin_left.y()));
 		origin_right = Point<int16_t>(std::abs(origin_right.x()), std::abs(origin_right.y()));
 
-		sprites.emplace_back(socialRank["ribbon"]);
-		sprites.emplace_back(backgrnd);
-		sprites.emplace_back(socialRank["backgrnd2"]);
-		sprites.emplace_back(socialRank["backgrnd3"]);
-		sprites.emplace_back(backgrnd4);
-		sprites.emplace_back(backgrnd5);
+		// Only add sprites that exist
+		if (socialRank["ribbon"]) sprites.emplace_back(socialRank["ribbon"]);
+		if (backgrnd) sprites.emplace_back(backgrnd);
+		if (socialRank["backgrnd2"]) sprites.emplace_back(socialRank["backgrnd2"]);
+		if (socialRank["backgrnd3"]) sprites.emplace_back(socialRank["backgrnd3"]);
+		if (backgrnd4) sprites.emplace_back(backgrnd4);
+		if (backgrnd5) sprites.emplace_back(backgrnd5);
 
-		buttons[Buttons::CLOSE] = std::make_unique<MapleButton>(socialRank["btX"]);
+		// Create button only if node exists
+		if (socialRank["btX"]) buttons[Buttons::CLOSE] = std::make_unique<MapleButton>(socialRank["btX"]);
 
 		charset = Charset(socialRank["number"], Charset::Alignment::RIGHT);
 

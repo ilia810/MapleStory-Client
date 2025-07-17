@@ -28,6 +28,8 @@
 
 #include "../../Net/Packets/PlayerPackets.h"
 
+#include "../../Util/Misc.h"
+
 #ifdef USE_NX
 #include <nlnx/nx.hpp>
 #endif
@@ -113,57 +115,79 @@ namespace ms
 
 	UISkillBook::UISkillBook(const CharStats& in_stats, const SkillBook& in_skillbook) : UIDragElement<PosSKILL>(), stats(in_stats), skillbook(in_skillbook), grabbing(false), tab(0), macro_enabled(false), sp_enabled(false)
 	{
+		LOG(LOG_DEBUG, "[UISkillBook] Constructor START");
+		
 		// Use UIWindow.img/Skill structure
 		nl::node Skill = nl::nx::UI["UIWindow.img"]["Skill"];
 		
 		if (!Skill) {
 			// If no Skills window assets found, create minimal window
+			LOG(LOG_ERROR, "[UISkillBook] UIWindow.img/Skill node not found!");
 			return;
 		}
 		
+		LOG(LOG_DEBUG, "[UISkillBook] Found Skill node, proceeding with initialization");
+		
 		// Load main background
+		LOG(LOG_DEBUG, "[UISkillBook] Loading main background");
 		nl::node ui_backgrnd = Skill["backgrnd"];
 		if (ui_backgrnd) {
 			bg_dimensions = Texture(ui_backgrnd).get_dimensions();
+			LOG(LOG_DEBUG, "[UISkillBook] Background loaded, dimensions: " << bg_dimensions.x() << "x" << bg_dimensions.y());
 		} else {
 			bg_dimensions = Point<int16_t>(400, 300); // Default size
+			LOG(LOG_DEBUG, "[UISkillBook] No background found, using default size");
 		}
 
 		// Load skill display elements
+		LOG(LOG_DEBUG, "[UISkillBook] Loading skill display elements");
 		skilld = Skill["skill0"];
 		skille = Skill["skill1"];
 		
 		nl::node skillBlankNode = Skill["skillBlank"];
 		if (skillBlankNode) {
 			skillb = skillBlankNode;
+			LOG(LOG_DEBUG, "[UISkillBook] Found skillBlank node");
 		} else {
 			skillb = Skill["skill0"]; // Fallback if skillBlank doesn't exist
+			LOG(LOG_DEBUG, "[UISkillBook] No skillBlank node, using skill0 as fallback");
+		}
+		
+		// Validate the texture by checking if the node exists
+		if (!skillBlankNode && !Skill["skill0"]) {
+			LOG(LOG_ERROR, "[UISkillBook] No valid skill background texture found!");
 		}
 		
 		line = Skill["line"];
+		LOG(LOG_DEBUG, "[UISkillBook] Skill display elements loaded");
 
 		// Create buttons - these are in the Skill node directly, not in a main subnode
+		LOG(LOG_DEBUG, "[UISkillBook] Creating buttons");
 		nl::node btHyper = Skill["BtHyper"];
 		if (btHyper) {
 			buttons[Buttons::BT_HYPER] = std::make_unique<MapleButton>(btHyper);
 			buttons[Buttons::BT_HYPER]->set_state(Button::State::DISABLED);
+			LOG(LOG_DEBUG, "[UISkillBook] Created BT_HYPER button");
 		}
 		
 		nl::node btGuildSkill = Skill["BtGuildSkill"];
 		if (btGuildSkill) {
 			buttons[Buttons::BT_GUILDSKILL] = std::make_unique<MapleButton>(btGuildSkill);
 			buttons[Buttons::BT_GUILDSKILL]->set_state(Button::State::DISABLED);
+			LOG(LOG_DEBUG, "[UISkillBook] Created BT_GUILDSKILL button");
 		}
 		
 		nl::node btRide = Skill["BtRide"];
 		if (btRide) {
 			buttons[Buttons::BT_RIDE] = std::make_unique<MapleButton>(btRide);
 			buttons[Buttons::BT_RIDE]->set_state(Button::State::DISABLED);
+			LOG(LOG_DEBUG, "[UISkillBook] Created BT_RIDE button");
 		}
 		
 		nl::node btMacro = Skill["BtMacro"];
 		if (btMacro) {
 			buttons[Buttons::BT_MACRO] = std::make_unique<MapleButton>(btMacro);
+			LOG(LOG_DEBUG, "[UISkillBook] Created BT_MACRO button");
 		}
 
 		// v92: Use UIWindow.img structure directly
@@ -214,6 +238,7 @@ namespace ms
 			buttons[Buttons::BT_CLOSE] = std::make_unique<MapleButton>(close, Point<int16_t>(bg_dimensions.x() - 23, 6));
 		}
 
+		LOG(LOG_DEBUG, "[UISkillBook] Creating tab buttons");
 		nl::node Tab = Skill["Tab"];
 		if (Tab) {
 			nl::node enabled = Tab["enabled"];
@@ -222,11 +247,14 @@ namespace ms
 			for (uint16_t i = Buttons::BT_TAB0; i <= Buttons::BT_TAB4; ++i)
 			{
 				uint16_t tabid = i - Buttons::BT_TAB0;
+				LOG(LOG_DEBUG, "[UISkillBook] Creating tab button " << tabid);
 				if (disabled[tabid] && enabled[tabid]) {
 					buttons[i] = std::make_unique<TwoSpriteButton>(disabled[tabid], enabled[tabid]);
+					LOG(LOG_DEBUG, "[UISkillBook] Created tab button " << tabid);
 				}
 			}
 		} else {
+			LOG(LOG_WARN, "[UISkillBook] No Tab structure found, creating null placeholders");
 			// If no Tab structure exists, create invisible placeholder buttons
 			// This prevents crashes when change_tab is called
 			for (uint16_t i = Buttons::BT_TAB0; i <= Buttons::BT_TAB4; ++i)
@@ -238,12 +266,16 @@ namespace ms
 
 		uint16_t y_adj = 0;
 
+		// Check if we should use single column layout based on background width
+		bool use_single_column = (bg_dimensions.x() < 250);
+
 		for (uint16_t i = Buttons::BT_SPUP0; i <= Buttons::BT_SPUP11; ++i)
 		{
 			uint16_t x_adj = 0;
 			uint16_t spupid = i - Buttons::BT_SPUP0;
 
-			if (spupid % 2)
+			// Only use second column if window is wide enough
+			if (!use_single_column && spupid % 2)
 				x_adj = ROW_WIDTH;
 
 			Point<int16_t> spup_position = SKILL_OFFSET + Point<int16_t>(124 + x_adj, 20 + y_adj);
@@ -252,51 +284,103 @@ namespace ms
 				buttons[i] = std::make_unique<MapleButton>(btSpUp, spup_position);
 			}
 
-			if (spupid % 2)
+			// Update y position
+			if (use_single_column) {
+				// Single column: always move down
 				y_adj += ROW_HEIGHT;
+			} else {
+				// Two columns: move down every other button
+				if (spupid % 2)
+					y_adj += ROW_HEIGHT;
+			}
 		}
 
 		booktext = Text(Text::Font::A11M, Text::Alignment::CENTER, Color::Name::WHITE, "", 150);
 		splabel = Text(Text::Font::A12M, Text::Alignment::RIGHT, Color::Name::BLACK);
 
-		slider = Slider(
-			Slider::Type::DEFAULT_SILVER, Range<int16_t>(93, 317), 295, ROWS, 1,
-			[&](bool upwards)
-			{
-				int16_t shift = upwards ? -1 : 1;
-				bool above = offset + shift >= 0;
-				bool below = offset + 4 + shift <= skillcount;
+		LOG(LOG_DEBUG, "[UISkillBook] Creating slider");
+		// Initialize with a simple type first to see if it works
+		try {
+			slider = Slider(
+				Slider::Type::LINE_CYAN, Range<int16_t>(93, 317), 295, ROWS, 1,
+				[&](bool upwards)
+				{
+					int16_t shift = upwards ? -1 : 1;
+					bool above = offset + shift >= 0;
+					bool below = offset + 4 + shift <= skillcount;
 
-				if (above && below)
-					change_offset(offset + shift);
-			}
-		);
+					if (above && below)
+						change_offset(offset + shift);
+				}
+			);
+			LOG(LOG_DEBUG, "[UISkillBook] Slider created successfully");
+		} catch (...) {
+			LOG(LOG_ERROR, "[UISkillBook] Failed to create slider");
+		}
 
-		change_job(stats.get_stat(MapleStat::Id::JOB));
+		LOG(LOG_DEBUG, "[UISkillBook] About to call change_job()");
+		uint16_t job_id = stats.get_stat(MapleStat::Id::JOB);
+		LOG(LOG_DEBUG, "[UISkillBook] Job ID: " << job_id);
+		change_job(job_id);
+		LOG(LOG_DEBUG, "[UISkillBook] change_job() completed");
 
 		set_macro(false);
 		set_skillpoint(false);
 
 		dimension = bg_dimensions;
 		dragarea = Point<int16_t>(dimension.x(), 20);
+		
+		LOG(LOG_DEBUG, "[UISkillBook] Constructor END");
 	}
 
 	void UISkillBook::draw(float alpha) const
 	{
+		static int draw_count = 0;
+		draw_count++;
+		LOG(LOG_DEBUG, "[UISkillBook::draw] START (call #" << draw_count << ")");
+		
 		UIElement::draw_sprites(alpha);
+		LOG(LOG_DEBUG, "[UISkillBook::draw] Sprites drawn");
 
 		bookicon.draw(position + Point<int16_t>(11, 85));
-		booktext.draw(position + Point<int16_t>(173, 59));
-		splabel.draw(position + Point<int16_t>(304, 23));
+		LOG(LOG_DEBUG, "[UISkillBook::draw] Book icon drawn");
+		
+		// Adjust text positions for narrow window
+		if (bg_dimensions.x() < 250) {
+			// v92 narrow window positioning
+			booktext.draw(position + Point<int16_t>(bg_dimensions.x() / 2, 59));
+			splabel.draw(position + Point<int16_t>(bg_dimensions.x() - 20, 23));
+		} else {
+			// Original wider window positioning
+			booktext.draw(position + Point<int16_t>(173, 59));
+			splabel.draw(position + Point<int16_t>(304, 23));
+		}
+		LOG(LOG_DEBUG, "[UISkillBook::draw] Text drawn");
 
 		Point<int16_t> skill_position_l = position + SKILL_OFFSET + Point<int16_t>(-1, 0);
 		Point<int16_t> skill_position_r = position + SKILL_OFFSET + Point<int16_t>(-1 + ROW_WIDTH, 0);
 
-		for (size_t i = 0; i < ROWS; i++)
+		// Draw skills in the list
+		
+		// For v92, use single column layout since window is only 175px wide
+		bool use_single_column = (bg_dimensions.x() < 250);
+		
+		// Calculate how many rows can fit in the window
+		int16_t visible_rows = ROWS;
+		if (use_single_column) {
+			// Estimate based on window height minus header space
+			visible_rows = (bg_dimensions.y() - 100) / ROW_HEIGHT;
+			if (visible_rows > ROWS) visible_rows = ROWS;
+			if (visible_rows < 1) visible_rows = 1;
+			LOG(LOG_DEBUG, "[UISkillBook::draw] Limiting to " << visible_rows << " visible rows");
+		}
+		
+		for (size_t i = 0; i < visible_rows; i++)
 		{
 			Point<int16_t> pos = skill_position_l;
 
-			if (i % 2)
+			// Only use right column if window is wide enough
+			if (!use_single_column && i % 2)
 				pos = skill_position_r;
 
 			if (i < skills.size())
@@ -315,20 +399,37 @@ namespace ms
 			}
 			else
 			{
+				// Draw blank skill slot
 				skillb.draw(pos);
 			}
 
-			if (i < ROWS - 2)
+			if (i < visible_rows - 2)
 				line.draw(pos + LINE_OFFSET);
 
-			if (i % 2)
-			{
+			// Update position for next row
+			if (use_single_column) {
+				// Single column: always shift down
 				skill_position_l.shift_y(ROW_HEIGHT);
-				skill_position_r.shift_y(ROW_HEIGHT);
+			} else {
+				// Two columns: shift down every other skill
+				if (i % 2)
+				{
+					skill_position_l.shift_y(ROW_HEIGHT);
+					skill_position_r.shift_y(ROW_HEIGHT);
+				}
 			}
 		}
 
-		slider.draw(position);
+		LOG(LOG_DEBUG, "[UISkillBook::draw] About to draw slider");
+		// Only draw slider if there are more skills than can fit on screen
+		if (skillcount > ROWS) {
+			LOG(LOG_DEBUG, "[UISkillBook::draw] Need slider (skillcount=" << skillcount << " > ROWS=" << ROWS << ")");
+			// For now, skip drawing the slider to avoid crashes
+			// TODO: Fix slider drawing for v92 client
+			LOG(LOG_DEBUG, "[UISkillBook::draw] Slider drawing disabled for v92 compatibility");
+		} else {
+			LOG(LOG_DEBUG, "[UISkillBook::draw] No slider needed (skillcount=" << skillcount << " <= ROWS=" << ROWS << ")");
+		}
 
 		if (macro_enabled)
 		{
@@ -357,7 +458,10 @@ namespace ms
 			sp_skill.draw(sp_pos + Point<int16_t>(13, 31));
 		}
 
+		LOG(LOG_DEBUG, "[UISkillBook::draw] About to draw buttons");
 		UIElement::draw_buttons(alpha);
+		
+		LOG(LOG_DEBUG, "[UISkillBook::draw] END - draw method complete");
 	}
 
 	Button::State UISkillBook::button_pressed(uint16_t id)
@@ -486,12 +590,18 @@ namespace ms
 
 	void UISkillBook::toggle_active()
 	{
+		LOG(LOG_DEBUG, "[UISkillBook::toggle_active] Called, is_skillpoint_enabled()=" << is_skillpoint_enabled());
+		
 		if (!is_skillpoint_enabled())
 		{
+			LOG(LOG_DEBUG, "[UISkillBook::toggle_active] Calling UIElement::toggle_active()");
 			UIElement::toggle_active();
+			LOG(LOG_DEBUG, "[UISkillBook::toggle_active] UIElement::toggle_active() completed");
 
 			clear_tooltip();
 		}
+		
+		LOG(LOG_DEBUG, "[UISkillBook::toggle_active] END");
 	}
 
 	void UISkillBook::doubleclick(Point<int16_t> cursorpos)
@@ -517,6 +627,11 @@ namespace ms
 
 	Cursor::State UISkillBook::send_cursor(bool clicked, Point<int16_t> cursorpos)
 	{
+		static int call_count = 0;
+		if (++call_count % 100 == 0) {
+			LOG(LOG_DEBUG, "[UISkillBook::send_cursor] Called " << call_count << " times");
+		}
+		
 		Cursor::State dstate = UIDragElement::send_cursor(clicked, cursorpos);
 
 		if (dragged)
@@ -537,13 +652,17 @@ namespace ms
 		Point<int16_t> skill_position_l = position + SKILL_OFFSET + Point<int16_t>(-1, 0);
 		Point<int16_t> skill_position_r = position + SKILL_OFFSET + Point<int16_t>(-1 + ROW_WIDTH, 0);
 
+		// Check if we should use single column layout
+		bool use_single_column = (bg_dimensions.x() < 250);
+
 		if (!grabbing)
 		{
 			for (size_t i = 0; i < skills.size(); i++)
 			{
 				Point<int16_t> skill_position = skill_position_l;
 
-				if (i % 2)
+				// Only use right column if window is wide enough
+				if (!use_single_column && i % 2)
 					skill_position = skill_position_r;
 
 				constexpr Rectangle<int16_t> bounds = Rectangle<int16_t>(0, 32, 0, 32);
@@ -580,10 +699,17 @@ namespace ms
 					}
 				}
 
-				if (i % 2)
-				{
+				// Update position for next row
+				if (use_single_column) {
+					// Single column: always shift down
 					skill_position_l.shift_y(ROW_HEIGHT);
-					skill_position_r.shift_y(ROW_HEIGHT);
+				} else {
+					// Two columns: shift down every other skill
+					if (i % 2)
+					{
+						skill_position_l.shift_y(ROW_HEIGHT);
+						skill_position_r.shift_y(ROW_HEIGHT);
+					}
 				}
 			}
 
@@ -655,17 +781,24 @@ namespace ms
 
 	void UISkillBook::change_job(uint16_t id)
 	{
+		LOG(LOG_DEBUG, "[UISkillBook::change_job] START with job id: " << id);
+		
 		job.change_job(id);
+		LOG(LOG_DEBUG, "[UISkillBook::change_job] job.change_job() completed");
 
 		Job::Level level = job.get_level();
+		LOG(LOG_DEBUG, "[UISkillBook::change_job] Job level: " << static_cast<int>(level));
 
 		for (uint16_t i = 0; i <= Job::Level::FOURTH; i++) {
 			if (buttons[Buttons::BT_TAB0 + i]) {
 				buttons[Buttons::BT_TAB0 + i]->set_active(i <= level);
+				LOG(LOG_DEBUG, "[UISkillBook::change_job] Set tab " << i << " active state");
 			}
 		}
 
+		LOG(LOG_DEBUG, "[UISkillBook::change_job] About to call change_tab()");
 		change_tab(level - Job::Level::BEGINNER);
+		LOG(LOG_DEBUG, "[UISkillBook::change_job] END");
 	}
 
 	void UISkillBook::change_sp()
@@ -705,12 +838,16 @@ namespace ms
 
 	void UISkillBook::change_tab(uint16_t new_tab)
 	{
+		LOG(LOG_DEBUG, "[UISkillBook::change_tab] START with new_tab: " << new_tab << ", current tab: " << tab);
+		
 		// Only change button states if the buttons exist
 		if (buttons[Buttons::BT_TAB0 + tab]) {
 			buttons[Buttons::BT_TAB0 + tab]->set_state(Button::NORMAL);
+			LOG(LOG_DEBUG, "[UISkillBook::change_tab] Set old tab " << tab << " to NORMAL");
 		}
 		if (buttons[Buttons::BT_TAB0 + new_tab]) {
 			buttons[Buttons::BT_TAB0 + new_tab]->set_state(Button::PRESSED);
+			LOG(LOG_DEBUG, "[UISkillBook::change_tab] Set new tab " << new_tab << " to PRESSED");
 		}
 		tab = new_tab;
 
@@ -718,15 +855,35 @@ namespace ms
 		skillcount = 0;
 
 		Job::Level joblevel = joblevel_by_tab(tab);
-		uint16_t subid = job.get_subjob(joblevel);
+		LOG(LOG_DEBUG, "[UISkillBook::change_tab] Job level from tab: " << static_cast<int>(joblevel));
+		
+		LOG(LOG_DEBUG, "[UISkillBook::change_tab] About to call job.get_subjob()");
+		uint16_t subid = 0;
+		try {
+			subid = job.get_subjob(joblevel);
+			LOG(LOG_DEBUG, "[UISkillBook::change_tab] job.get_subjob() returned");
+		} catch (...) {
+			LOG(LOG_ERROR, "[UISkillBook::change_tab] Exception in job.get_subjob()");
+			subid = 0;
+		}
+		LOG(LOG_DEBUG, "[UISkillBook::change_tab] Got subjob");
+		LOG(LOG_DEBUG, "[UISkillBook::change_tab] subid = " << static_cast<int>(subid));
 
-		const JobData& data = JobData::get(subid);
+		try {
+			const JobData& data = JobData::get(subid);
+			LOG(LOG_DEBUG, "[UISkillBook::change_tab] Got JobData for subid " << subid);
 
 		bookicon = data.get_icon();
 		booktext.change_text(data.get_name());
+		LOG(LOG_DEBUG, "[UISkillBook::change_tab] Set book icon and text");
 
-		for (int32_t skill_id : data.get_skills())
+		LOG(LOG_DEBUG, "[UISkillBook::change_tab] Starting to load skills");
+		const auto& skill_ids = data.get_skills();
+		LOG(LOG_DEBUG, "[UISkillBook::change_tab] Job has " << skill_ids.size() << " skills");
+		
+		for (int32_t skill_id : skill_ids)
 		{
+			LOG(LOG_DEBUG, "[UISkillBook::change_tab] Processing skill_id: " << skill_id);
 			int32_t level = skillbook.get_level(skill_id);
 			int32_t masterlevel = skillbook.get_masterlevel(skill_id);
 
@@ -738,10 +895,23 @@ namespace ms
 			skills.emplace_back(skill_id, level);
 			skillcount++;
 		}
+		LOG(LOG_DEBUG, "[UISkillBook::change_tab] Loaded " << skillcount << " skills");
 
 		slider.setrows(ROWS, skillcount);
+		LOG(LOG_DEBUG, "[UISkillBook::change_tab] Set slider rows");
+		
 		change_offset(0);
+		LOG(LOG_DEBUG, "[UISkillBook::change_tab] Called change_offset");
+		
 		change_sp();
+		LOG(LOG_DEBUG, "[UISkillBook::change_tab] END");
+		} catch (const std::exception& e) {
+			LOG(LOG_ERROR, "[UISkillBook::change_tab] Exception caught: " << e.what());
+			// Set some defaults to prevent crash
+			booktext.change_text("Unknown");
+			skillcount = 0;
+			slider.setrows(ROWS, 0);
+		}
 	}
 
 	void UISkillBook::change_offset(uint16_t new_offset)
@@ -813,6 +983,11 @@ namespace ms
 
 		int32_t id = skills[row].get_id();
 
+		// Direct skill level up without opening the allocation window
+		spend_sp(id);
+		
+		// Don't open the skill point allocation window
+		/*
 		if (sp_enabled && id == sp_id)
 		{
 			set_skillpoint(false);
@@ -837,19 +1012,20 @@ namespace ms
 
 		if (sp_masterlevel == 1)
 		{
-			buttons[Buttons::BT_SPDOWN]->set_state(Button::State::DISABLED);
-			buttons[Buttons::BT_SPMAX]->set_state(Button::State::DISABLED);
-			buttons[Buttons::BT_SPUP]->set_state(Button::State::DISABLED);
+			if (buttons[Buttons::BT_SPDOWN]) buttons[Buttons::BT_SPDOWN]->set_state(Button::State::DISABLED);
+			if (buttons[Buttons::BT_SPMAX]) buttons[Buttons::BT_SPMAX]->set_state(Button::State::DISABLED);
+			if (buttons[Buttons::BT_SPUP]) buttons[Buttons::BT_SPUP]->set_state(Button::State::DISABLED);
 		}
 		else
 		{
-			buttons[Buttons::BT_SPDOWN]->set_state(Button::State::DISABLED);
-			buttons[Buttons::BT_SPMAX]->set_state(Button::State::NORMAL);
-			buttons[Buttons::BT_SPUP]->set_state(Button::State::NORMAL);
+			if (buttons[Buttons::BT_SPDOWN]) buttons[Buttons::BT_SPDOWN]->set_state(Button::State::DISABLED);
+			if (buttons[Buttons::BT_SPMAX]) buttons[Buttons::BT_SPMAX]->set_state(Button::State::NORMAL);
+			if (buttons[Buttons::BT_SPUP]) buttons[Buttons::BT_SPUP]->set_state(Button::State::NORMAL);
 		}
 
 		if (!sp_enabled)
 			set_skillpoint(true);
+		*/
 	}
 
 	void UISkillBook::spend_sp(int32_t skill_id)
