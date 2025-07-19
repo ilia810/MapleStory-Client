@@ -35,7 +35,7 @@ namespace ms
 	class Mob : public MapObject
 	{
 	public:
-		static const size_t NUM_STANCES = 6;
+		static const size_t NUM_STANCES = 11;
 
 		enum Stance : uint8_t
 		{
@@ -43,7 +43,13 @@ namespace ms
 			STAND = 4,
 			JUMP = 6,
 			HIT = 8,
-			DIE = 10
+			DIE = 10,
+			ATTACK1 = 12,
+			ATTACK2 = 14,
+			ATTACK3 = 16,
+			ATTACK4 = 18,
+			SKILL1 = 20,
+			SKILL2 = 22
 		};
 
 		static std::string nameof(Stance stance)
@@ -55,10 +61,17 @@ namespace ms
 				"jump",
 				"hit1",
 				"die1",
-				"fly"
+				"attack1",
+				"attack2",
+				"attack3",
+				"attack4",
+				"skill1",
+				"skill2"
 			};
 
-			size_t index = (stance - 1) / 2;
+			size_t index = (stance - 2) / 2;
+			if (index >= NUM_STANCES)
+				return "stand";
 
 			return stancenames[index];
 		}
@@ -89,6 +102,8 @@ namespace ms
 		void show_hp(int8_t percentage, uint16_t playerlevel);
 		// Show an effect at the mob's position
 		void show_effect(const Animation& animation, int8_t pos, int8_t z, bool flip);
+		// Trigger a skill animation
+		void show_skill(int16_t skill_id, int16_t skill_level);
 
 		// Calculate the damage to this mob with the specified attack
 		std::vector<std::pair<int32_t, bool>> calculate_damage(const Attack& attack);
@@ -104,6 +119,8 @@ namespace ms
 		bool is_alive() const;
 		// Return the head position
 		Point<int16_t> get_head_position() const;
+		// Return the mob's id
+		int32_t get_id() const { return id; }
 
 	private:
 		enum FlyDirection
@@ -184,5 +201,9 @@ namespace ms
 		bool fading;
 		bool fadein;
 		Linear<float> opacity;
+		
+		// Skill animation tracking
+		int16_t skill_anim_time;
+		Stance pre_skill_stance;
 	};
 }

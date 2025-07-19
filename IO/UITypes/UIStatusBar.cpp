@@ -95,8 +95,8 @@ namespace ms
 		// Add gauge.graduation - shows the empty bar outlines for HP/MP/XP (positioned lower)
 		nl::node graduation = gauge["graduation"];
 		if (graduation) {
-			// Flip horizontally and move 70px to the right
-			sprites.emplace_back(graduation, DrawArgument(Point<int16_t>(285, 35), true)); // Position moved right by 70px, flipped horizontally
+			// Flip horizontally and move 370px to the right (was 170px, now +200px more)
+			sprites.emplace_back(graduation, DrawArgument(Point<int16_t>(215, 35))); // Position moved right by 370px total, flipped horizontally
 		}
 		
 		// Add base.chat - chat interface element
@@ -137,8 +137,8 @@ namespace ms
 			quickslot_min = 0;
 
 		// V92: Different layout with HP/MP on the left, full-width status bar
-		hpmp_pos = Point<int16_t>(110, 49);     // HP bar position 
-		mp_pos = Point<int16_t>(215, 49);       // MP bar position 
+		hpmp_pos = Point<int16_t>(215, 49);     // HP bar position (moved 5px left from 220)
+		mp_pos = Point<int16_t>(215, 49);       // MP bar position (moved 5px left from 220) 
 		hpset_pos = Point<int16_t>(230, 32);    // HP value position (20px left, 3px up)
 		mpset_pos = Point<int16_t>(350, 32);   // MP value position (aligned Y with HP) 
 		statset_pos = Point<int16_t>(500, 32); // EXP text position (aligned Y with HP)
@@ -193,27 +193,13 @@ namespace ms
 		if (gauge["hpFlash"] && gauge["hpFlash"]["0"]) {
 			// Use frame 0 of hpFlash/mpFlash for static display (avoid blinking)
 			Texture hpTexture(gauge["hpFlash"]["0"]);
-			hpbar = Gauge(Gauge::Type::V87_FILL, hpTexture, hpmp_max, 0.75f); // Test with 75% for visibility
-		} else if (gauge["bar"]) {
-			// Fallback: Use the generic bar texture for HP if flash textures don't exist
-			Texture barTexture(gauge["bar"]);
-			hpbar = Gauge(Gauge::Type::V87_FILL, barTexture, hpmp_max, 0.0f);
-		} else {
-			// Final fallback: Create empty gauge if no textures exist
-			hpbar = Gauge();
-		}
+			hpbar = Gauge(Gauge::Type::V87_FILL, hpTexture, hpmp_max, 1.0f); 
+		} 
 			
 		if (gauge["mpFlash"] && gauge["mpFlash"]["0"]) {
 			Texture mpTexture(gauge["mpFlash"]["0"]);
-			mpbar = Gauge(Gauge::Type::V87_FILL, mpTexture, hpmp_max, 0.5f);  // Test with 50% for visibility
-		} else if (gauge["bar"]) {
-			// Fallback: Use the generic bar texture for MP if flash textures don't exist
-			Texture barTexture(gauge["bar"]);
-			mpbar = Gauge(Gauge::Type::V87_FILL, barTexture, hpmp_max, 0.3f);
-		} else {
-			// Final fallback: Create empty gauge if no textures exist
-			mpbar = Gauge();
-		}
+			mpbar = Gauge(Gauge::Type::V87_FILL, mpTexture, hpmp_max, 1.0f);
+		} 
 
 		// Create character sets with v92 compatibility
 		// V92: Use StatusBar number sprites for proper display
@@ -402,12 +388,12 @@ namespace ms
 		// V92: No HP/MP background sprites needed - they're part of the main background
 
 		// Draw gauges (both v87 and modern) - only if they're valid
+		if (hpbar.is_valid())
+			hpbar.draw(DrawArgument(position + hpmp_pos, 1.0f));
+		if (mpbar.is_valid())
+			mpbar.draw(DrawArgument(position + mp_pos, 1.0f));
 		if (expbar.is_valid())
 			expbar.draw(position + exp_pos);
-		if (hpbar.is_valid())
-			hpbar.draw(position + hpmp_pos);
-		if (mpbar.is_valid())
-			mpbar.draw(position + mp_pos);
 
 		int16_t level = stats.get_stat(MapleStat::Id::LEVEL);
 		int16_t hp = stats.get_stat(MapleStat::Id::HP);
@@ -418,8 +404,6 @@ namespace ms
 		// Debug logging for HP display
 		static int debug_counter = 0;
 		if (debug_counter % 60 == 0) { // Log every 60 frames (~1 second)
-			LOG(LOG_DEBUG, "[UIStatusBar] Drawing HP: " + std::to_string(hp) + "/" + std::to_string(maxhp));
-			LOG(LOG_DEBUG, "[UIStatusBar] Level: " + std::to_string(level) + ", MP: " + std::to_string(mp) + "/" + std::to_string(maxmp));
 		}
 		debug_counter++;
 		int64_t exp = stats.get_exp();

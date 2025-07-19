@@ -20,8 +20,10 @@
 #include "../../Util/Misc.h"
 
 #include "../../Net/Packets/GameplayPackets.h"
+#include "../Stage.h"
 
 #include <iostream>
+#include <cmath>
 
 #ifdef USE_NX
 #include <nlnx/nx.hpp>
@@ -77,6 +79,20 @@ namespace ms
 		animations[Stance::JUMP] = link["jump"];
 		animations[Stance::HIT] = link["hit1"];
 		animations[Stance::DIE] = link["die1"];
+		
+		// Load attack animations if they exist
+		if (link["attack1"])
+			animations[Stance::ATTACK1] = link["attack1"];
+		if (link["attack2"])
+			animations[Stance::ATTACK2] = link["attack2"];
+		if (link["attack3"])
+			animations[Stance::ATTACK3] = link["attack3"];
+		if (link["attack4"])
+			animations[Stance::ATTACK4] = link["attack4"];
+		if (link["skill1"])
+			animations[Stance::SKILL1] = link["skill1"];
+		if (link["skill2"])
+			animations[Stance::SKILL2] = link["skill2"];
 
 		name = nl::nx::String["Mob.img"][std::to_string(mid)]["name"];
 
@@ -111,6 +127,8 @@ namespace ms
 		set_stance(st);
 		flydirection = STRAIGHT;
 		counter = 0;
+		skill_anim_time = 0;
+		pre_skill_stance = Stance::STAND;
 
 		namelabel = Text(Text::Font::A13M, Text::Alignment::CENTER, Color::Name::WHITE, Text::Background::NAMETAG, name);
 
@@ -201,6 +219,18 @@ namespace ms
 
 		effects.update();
 		showhp.update();
+
+		// Update skill animation timer
+		if (skill_anim_time > 0)
+		{
+			skill_anim_time -= Constants::TIMESTEP;
+			if (skill_anim_time <= 0)
+			{
+				// Return to previous stance after skill animation
+				skill_anim_time = 0;
+				set_stance(pre_skill_stance);
+			}
+		}
 
 		if (!dying)
 		{
@@ -295,14 +325,45 @@ namespace ms
 
 	void Mob::next_move()
 	{
+		std::cout << "[DEBUG] Mob " << oid << " next_move called - control=" << control 
+		          << ", aggro=" << aggro << ", stance=" << (int)stance 
+		          << ", notattack=" << notattack << ", canmove=" << canmove << std::endl;
+		
 		if (canmove)
 		{
 			switch (stance)
 			{
 			case Stance::HIT:
 			case Stance::STAND:
-				set_stance(Stance::MOVE);
-				flip = randomizer.next_bool();
+			case Stance::ATTACK1:
+			case Stance::ATTACK2:
+			case Stance::ATTACK3:
+			case Stance::ATTACK4:
+				// Check if we should attack (50% chance when aggro)
+				if (aggro && notattack == false && randomizer.below(0.5f))
+				{
+					// Try to use attack1 if available
+					if (animations.find(Stance::ATTACK1) != animations.end())
+					{
+						set_stance(Stance::ATTACK1);
+						std::cout << "[DEBUG] Mob " << oid << " deciding to attack!" << std::endl;
+						// Spawn projectile for local attacks
+						Stage::get().get_mobs().check_attack_projectile(oid, id);
+					}
+					else
+					{
+						std::cout << "[DEBUG] Mob " << oid << " has no ATTACK1 animation!" << std::endl;
+						set_stance(Stance::MOVE);
+						flip = randomizer.next_bool();
+					}
+				}
+				else
+				{
+					std::cout << "[DEBUG] Mob " << oid << " not attacking (aggro=" << aggro 
+				          << ", notattack=" << notattack << ", random failed)" << std::endl;
+					set_stance(Stance::MOVE);
+					flip = randomizer.next_bool();
+				}
 				break;
 			case Stance::MOVE:
 			case Stance::JUMP:
@@ -336,7 +397,56 @@ namespace ms
 		}
 		else
 		{
-			set_stance(Stance::STAND);
+			// For stationary mobs, check if they should attack
+			if (stance == Stance::STAND || stance == Stance::ATTACK1)
+			{
+				// Check if player is in range for attack (simplified range check)
+				auto& player = Stage::get().get_player();
+				Point<int16_t> player_pos = player.get_phobj().get_position();
+				Point<int16_t> mob_pos = phobj.get_position();
+				
+				int16_t distance = std::abs(player_pos.x() - mob_pos.x());
+				bool in_range = distance < 150; // Attack range for stationary mobs
+				
+				if (in_range && notattack == false && randomizer.below(0.3f)) // 30% chance
+				{
+					if (animations.find(Stance::ATTACK1) != animations.end())
+					{
+						// Turn to face the player before attacking
+						bool player_is_left = player_pos.x() < mob_pos.x();
+						// Invert the logic - if player is left, mob should NOT flip (face left)
+						bool should_flip = !player_is_left; // flip=false means facing left, flip=true means facing right
+						
+						std::cout << "[DEBUG] Player is " << (player_is_left ? "left" : "right") 
+						          << " of mob. Current flip=" << flip 
+						          << ", should_flip=" << should_flip << std::endl;
+						
+						if (flip != should_flip)
+						{
+							flip = should_flip;
+							std::cout << "[DEBUG] Stationary mob turning to face " 
+							          << (!flip ? "left" : "right") << std::endl;
+						}
+						
+						set_stance(Stance::ATTACK1);
+						std::cout << "[DEBUG] Stationary mob " << oid << " attacking! Distance: " << distance << std::endl;
+						// Spawn projectile for local attacks
+						Stage::get().get_mobs().check_attack_projectile(oid, id);
+					}
+					else
+					{
+						set_stance(Stance::STAND);
+					}
+				}
+				else
+				{
+					set_stance(Stance::STAND);
+				}
+			}
+			else
+			{
+				set_stance(Stance::STAND);
+			}
 		}
 	}
 
@@ -380,6 +490,14 @@ namespace ms
 	{
 		control = mode > 0;
 		aggro = mode == 2;
+		// TEMPORARY: For testing, make all controlled mobs aggressive
+		if (control && id == 4230106) // Lunar Pixie
+		{
+			aggro = true;
+			std::cout << "[DEBUG] Forcing Lunar Pixie to be aggressive for testing" << std::endl;
+		}
+		std::cout << "[DEBUG] Mob " << oid << " set_control: mode=" << (int)mode 
+		          << ", control=" << control << ", aggro=" << aggro << std::endl;
 	}
 
 	void Mob::send_movement(Point<int16_t> start, std::vector<Movement>&& in_movements)
@@ -475,6 +593,87 @@ namespace ms
 		}
 
 		effects.add(animation, DrawArgument(shift, f), z);
+	}
+
+	void Mob::show_skill(int16_t skill_id, int16_t skill_level)
+	{
+		if (!active || dying || skill_anim_time > 0)
+			return;
+
+		// Save current stance to return to after skill
+		pre_skill_stance = stance;
+
+		// Determine which attack animation to use based on skill_id
+		// For now, we'll cycle through available attack animations
+		Stance skill_stance = Stance::STAND;
+		
+		// Try to find an available attack animation
+		if (animations.find(Stance::ATTACK1) != animations.end())
+			skill_stance = Stance::ATTACK1;
+		else if (animations.find(Stance::ATTACK2) != animations.end())
+			skill_stance = Stance::ATTACK2;
+		else if (animations.find(Stance::SKILL1) != animations.end())
+			skill_stance = Stance::SKILL1;
+		else if (animations.find(Stance::SKILL2) != animations.end())
+			skill_stance = Stance::SKILL2;
+		else if (animations.find(Stance::ATTACK3) != animations.end())
+			skill_stance = Stance::ATTACK3;
+		else if (animations.find(Stance::ATTACK4) != animations.end())
+			skill_stance = Stance::ATTACK4;
+		else
+		{
+			// No attack animation available, try using hit animation as fallback
+			if (animations.find(Stance::HIT) != animations.end())
+				skill_stance = Stance::HIT;
+			else
+				return; // No suitable animation found
+		}
+
+		// Play the attack animation
+		set_stance(skill_stance);
+		
+		// Get the actual animation duration
+		// We'll use a reasonable default and let the animation loop if needed
+		const Animation& skill_anim = animations.at(skill_stance);
+		
+		// Get total delay for one complete animation cycle
+		// Most mob skill animations are 2-4 seconds
+		uint16_t base_duration = 3000; // 3 second default
+		
+		// Try to get the actual delay from the first frame
+		uint16_t frame_delay = skill_anim.get_delay(0);
+		if (frame_delay > 0)
+		{
+			// Estimate total duration based on typical frame counts
+			// Skills usually have more frames than regular attacks
+			base_duration = frame_delay * 20; // Assume ~20 frames for skills
+			
+			// Ensure minimum duration for skill animations
+			if (base_duration < 2000)
+				base_duration = 2000;
+		}
+		
+		// Set skill animation timer
+		skill_anim_time = base_duration;
+		
+		// Skill animation started with estimated duration
+		
+		
+		// Add skill-specific visual effects based on skill_id
+		// Load skill effect from WZ files if available
+		std::string skill_str = std::to_string(skill_id);
+		nl::node skill_node = nl::nx::Skill["MobSkill.img"][skill_str]["level"]["1"]["mob"];
+		
+		if (skill_node)
+		{
+			Animation skill_effect(skill_node);
+			// Show the effect at the mob's position
+			show_effect(skill_effect, 0, 1, false);
+			// Skill effect shown
+		}
+		
+		// For projectile skills, we need to handle them separately
+		// These would need to be spawned as separate objects that move toward the player
 	}
 
 	float Mob::calculate_hitchance(int16_t leveldelta, int32_t player_accuracy) const

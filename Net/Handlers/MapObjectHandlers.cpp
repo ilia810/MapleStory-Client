@@ -24,6 +24,7 @@
 
 #include <iomanip>
 #include <vector>
+#include <iostream>
 
 namespace ms
 {
@@ -274,6 +275,8 @@ namespace ms
 	{
 		int8_t mode = recv.read_byte();
 		int32_t oid = recv.read_int();
+		
+		std::cout << "[DEBUG] SpawnMobController: oid=" << oid << ", mode=" << (int)mode << std::endl;
 
 		if (mode == 0)
 		{
@@ -329,16 +332,53 @@ namespace ms
 	{
 		int32_t oid = recv.read_int();
 
-		recv.read_byte();
-		recv.read_byte(); // useskill
-		recv.read_byte(); // skill
-		recv.read_byte(); // skill 1
-		recv.read_byte(); // skill 2
-		recv.read_byte(); // skill 3
-		recv.read_byte(); // skill 4
+		int8_t byte1 = recv.read_byte(); // pNibbles
+		int8_t rawActivity = recv.read_byte();
+		int8_t skill_id = recv.read_byte();
+		int8_t skill_level = recv.read_byte();
+		int16_t pOption = recv.read_short();
+		recv.skip(8); // Skip 8 bytes as server does
+
+		// Check if this is actually a skill usage
+		bool isSkill = (rawActivity >= 42 && rawActivity <= 59);
+		
+		// Debug all received values
+		std::cout << "[DEBUG] MobMoved packet - oid: " << oid 
+				  << ", byte1: " << (int)byte1 
+				  << ", rawActivity: " << (int)rawActivity 
+				  << ", skill_id: " << (int)skill_id 
+				  << ", skill_level: " << (int)skill_level 
+				  << ", pOption: " << pOption << std::endl;
+		
+		recv.read_byte(); // Skip one more byte
+		recv.read_int(); // Skip 4 bytes
 
 		Point<int16_t> position = recv.read_point();
 		std::vector<Movement> movements = MovementParser::parse_movements(recv);
+
+		// Check if skill_id and skill_level are set (server is telling us mob used a skill)
+		if (skill_id > 0 && skill_level > 0)
+		{
+			std::cout << "[DEBUG] Mob " << oid << " ACTUALLY using skill " << (int)skill_id << " level " << (int)skill_level << std::endl;
+			Stage::get().get_mobs().send_skill(oid, skill_id, skill_level);
+		}
+		else if (rawActivity >= 42)  // Force skill animation based on rawActivity
+		{
+			std::cout << "[DEBUG] Mob " << oid << " forcing skill animation based on rawActivity=" << (int)rawActivity << std::endl;
+			// Use a default skill animation
+			Stage::get().get_mobs().send_skill(oid, 1, 1);
+		}
+		else if (isSkill)
+		{
+			std::cout << "[DEBUG] Mob " << oid << " in skill stance but no skill data (rawActivity: " << (int)rawActivity << ")" << std::endl;
+		}
+		else if (rawActivity >= 24 && rawActivity <= 41)
+		{
+			// Regular attack animation
+			int attackIndex = (rawActivity - 24) / 2;
+			std::cout << "[DEBUG] Mob " << oid << " using attack " << attackIndex << " (rawActivity: " << (int)rawActivity << ")" << std::endl;
+			Stage::get().get_mobs().send_skill(oid, attackIndex + 1, 1); // Use attack animations for regular attacks
+		}
 
 		Stage::get().get_mobs().send_movement(oid, position, std::move(movements));
 	}
@@ -350,6 +390,30 @@ namespace ms
 		uint16_t playerlevel = Stage::get().get_player().get_stats().get_stat(MapleStat::Id::LEVEL);
 
 		Stage::get().get_mobs().send_mobhp(oid, hppercent, playerlevel);
+	}
+
+	void ApplyMonsterStatusHandler::handle(InPacket& recv) const
+	{
+		int32_t oid = recv.read_int();
+		recv.read_long(); // 0
+		
+		// Read the status mask (4 bytes in v83 for each status)
+		int32_t mask1 = recv.read_int();
+		int32_t mask2 = recv.read_int();
+		int32_t mask3 = recv.read_int();
+		int32_t mask4 = recv.read_int();
+		
+		// For now, we'll trigger attack animation when any status is applied
+		// This gives visual feedback that the mob is doing something
+		if (mask1 != 0 || mask2 != 0 || mask3 != 0 || mask4 != 0)
+		{
+			// Trigger a skill animation
+			// We use a generic skill ID since we don't have the actual skill info here
+			Stage::get().get_mobs().send_skill(oid, 1, 1);
+		}
+		
+		// TODO: Parse the actual status effects and durations
+		// The packet contains status values and skill IDs for each active status
 	}
 
 	void SpawnNpcHandler::handle(InPacket& recv) const

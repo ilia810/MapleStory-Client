@@ -98,6 +98,13 @@ namespace ms
 		void handle(InPacket& recv) const override;
 	};
 
+	// Apply monster status/skill effects
+	// Opcode: APPLY_MONSTER_STATUS(242)
+	class ApplyMonsterStatusHandler : public PacketHandler
+	{
+		void handle(InPacket& recv) const override;
+	};
+
 	// Spawn an NPC on the current stage
 	// Opcode: SPAWN_NPC(257)
 	class SpawnNpcHandler : public PacketHandler

@@ -145,6 +145,9 @@ namespace ms
 		TeleportRock& get_teleportrock();
 		// Obtain a reference to the player's MonsterBook
 		MonsterBook& get_monsterbook();
+		
+		// Check if player is in DIED state
+		bool is_dead() const;
 
 	private:
 		CharStats stats;

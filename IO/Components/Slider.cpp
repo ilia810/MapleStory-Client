@@ -120,18 +120,27 @@ namespace ms
 
 	void Slider::draw(Point<int16_t> position) const
 	{
+		// Check if textures are valid before drawing
+		if (!dbase.is_valid() && !base.is_valid())
+			return;
+			
 		Point<int16_t> base_pos = position + start;
 		Point<int16_t> fill = Point<int16_t>(0, vertical.length() + buttonheight - 2);
 		DrawArgument base_arg = DrawArgument(Point<int16_t>(base_pos.x(), base_pos.y() + 1), fill);
 
-		int16_t height = dbase.height();
-		int16_t maxheight = vertical.first() + height;
-
-		while (maxheight < vertical.second())
+		// Draw the slider background
+		if (dbase.is_valid())
 		{
-			dbase.draw(position + Point<int16_t>(start.x(), maxheight));
-
-			maxheight += height;
+			int16_t height = dbase.height();
+			if (height > 0)
+			{
+				int16_t maxheight = vertical.first() + height;
+				while (maxheight < vertical.second())
+				{
+					dbase.draw(position + Point<int16_t>(start.x(), maxheight));
+					maxheight += height;
+				}
+			}
 		}
 
 		if (enabled)
@@ -142,13 +151,13 @@ namespace ms
 				next.draw(position);
 				thumb.draw(position + getthumbpos());
 			}
-			else
+			else if (dprev.is_valid() && dnext.is_valid())
 			{
 				dprev.draw(position + start);
 				dnext.draw(position + end);
 			}
 		}
-		else
+		else if (dprev.is_valid() && dnext.is_valid())
 		{
 			dprev.draw(position + start);
 			dnext.draw(position + end);

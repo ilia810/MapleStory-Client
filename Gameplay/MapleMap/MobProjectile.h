@@ -17,41 +17,49 @@
 //////////////////////////////////////////////////////////////////////////////////
 #pragma once
 
-#include "../../Graphics/Texture.h"
+#include "../Physics/Physics.h"
+#include "../../Graphics/Animation.h"
+#include "../../Template/Point.h"
+#include "../../Template/Interpolated.h"
 
 namespace ms
 {
-	class Gauge
+	class MobProjectile
 	{
 	public:
-		enum Type : uint8_t
-		{
-			DEFAULT,
-			CASHSHOP,
-			WORLDSELECT,
-			V87_FILL,  // New type for v87 single-texture horizontal fill
-			V87_FILL_REVERSE  // Fill from right to left
-		};
+		MobProjectile(const Animation& animation, Point<int16_t> origin, 
+		              Point<int16_t> target, int16_t speed, int32_t mob_oid);
 
-		Gauge() {}
-		Gauge(Type type, Texture front, int16_t maximum, float percent);
-		Gauge(Type type, Texture front, Texture middle, int16_t maximum, float percent);
-		Gauge(Type type, Texture front, Texture middle, Texture end, int16_t maximum, float percentage);
-
-		void draw(const DrawArgument& args) const;
-		void update(float target);
-		bool is_valid() const;
+		// Update the projectile position
+		// Returns true if the projectile should be removed
+		bool update(const Physics& physics);
+		
+		// Draw the projectile
+		void draw(double viewx, double viewy, float alpha) const;
+		
+		// Check if projectile hit the target area
+		bool check_collision(Rectangle<int16_t> player_bounds) const;
+		
+		// Get the mob that created this projectile
+		int32_t get_mob_oid() const { return mob_oid; }
+		
+		// Check if projectile is expired
+		bool is_expired() const { return expired; }
+		
+		// Force expire the projectile
+		void expire();  // Implementation in .cpp file
 
 	private:
-		Texture barfront;
-		Texture barmid;
-		Texture barend;
-		int16_t maximum;
-
-		float percentage;
-		float target;
-		float step;
-
-		Type type;
+		Animation animation;
+		Linear<float> x;
+		Linear<float> y;
+		Point<int16_t> target;
+		float speed;
+		int32_t mob_oid;
+		bool expired;
+		float angle;
+		uint16_t lifetime;
+		
+		static constexpr uint16_t MAX_LIFETIME = 5000; // 5 seconds max
 	};
 }

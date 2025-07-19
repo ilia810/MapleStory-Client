@@ -112,6 +112,7 @@ namespace ms
 		KILL_MOB = 237,
 		SPAWN_MOB_C = 238,
 		MOB_MOVED = 239,
+		APPLY_MONSTER_STATUS = 242,
 		SHOW_MOB_HP = 250,
 		SPAWN_NPC = 257,
 		SPAWN_NPC_C = 259,
@@ -167,6 +168,7 @@ namespace ms
 		emplace<MOB_MOVED, MobMovedHandler>();
 		emplace<SHOW_MOB_HP, ShowMobHpHandler>();
 		emplace<KILL_MOB, KillMobHandler>();
+		emplace<APPLY_MONSTER_STATUS, ApplyMonsterStatusHandler>();
 		emplace<DROP_LOOT, DropLootHandler>();
 		emplace<REMOVE_LOOT, RemoveLootHandler>();
 		emplace<HIT_REACTOR, HitReactorHandler>();

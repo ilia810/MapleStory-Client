@@ -572,7 +572,6 @@ namespace ms
 		{
 			size_t next_char = first + 1;
 			char c = text[next_char];
-
 			switch (text[first])
 			{
 				case '\\':
@@ -867,8 +866,12 @@ namespace ms
 					}
 					else
 					{
-						prev = add(text, prev, first, i);
-						return add(text, prev, i, last);
+						// Ensure we make progress - if i == first, advance by at least 1
+						size_t split = (i > first) ? i : (first + 1);
+						if (split > last) split = last;
+						
+						prev = add(text, prev, first, split);
+						return add(text, prev, split, last);
 					}
 				}
 			}

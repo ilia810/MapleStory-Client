@@ -40,19 +40,23 @@ namespace ms
 	void Icon::draw(Point<int16_t> position) const
 	{
 		float opacity = dragged ? 0.5f : 1.0f;
-		texture.draw(DrawArgument(position, opacity));
+		float scale = 0.85f; // Scale down icons to 85% to fit better
+		texture.draw(DrawArgument(position, scale, scale, opacity));
 
 		if (showcount)
 		{
 			static const Charset countset = Charset(nl::nx::UI["Basic.img"]["ItemNo"], Charset::Alignment::LEFT);
-			countset.draw(std::to_string(count), position + Point<int16_t>(0, 20));
+			countset.draw(std::to_string(count), position + Point<int16_t>(0, 14)); // Adjusted count position for scaled icons
 		}
 	}
 
 	void Icon::dragdraw(Point<int16_t> cursorpos) const
 	{
 		if (dragged)
-			texture.draw(DrawArgument(cursorpos - cursoroffset, 0.5f));
+		{
+			float scale = 0.85f; // Match the scaling used in regular draw
+			texture.draw(DrawArgument(cursorpos - cursoroffset, scale, scale, 0.5f));
+		}
 	}
 
 	void Icon::drop_on_stage() const

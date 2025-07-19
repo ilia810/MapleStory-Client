@@ -47,15 +47,12 @@ namespace ms
 {
 	UIStateGame::UIStateGame() : stats(Stage::get().get_player().get_stats()), dragged(nullptr)
 	{
-		// std::cout << "[STATETRANS] UIStateGame constructor called" << std::endl;
 		
 		// Ensure Stage is loaded - SetFieldHandler might not have loaded it yet
 		// due to fadeout callback timing
 		int32_t mapid = stats.get_mapid();
 		uint8_t portalid = stats.get_portal();
-		// std::cout << "[STATETRANS] UIStateGame: Checking if Stage needs loading for map " << mapid << std::endl;
 		// Always load the stage for the character's map
-		printf("[UIStateGame] Loading stage for map %d (current map: %d)\n", mapid, Stage::get().get_mapid());
 		Stage::get().load(mapid, portalid);
 		
 		focused = UIElement::Type::NONE;
@@ -81,7 +78,6 @@ namespace ms
 		static int draw_count = 0;
 		draw_count++;
 		// if (draw_count < 10 || draw_count % 100 == 0) {
-		//	std::cout << "[STATETRANS] UIStateGame::draw() - call #" << draw_count << ", calling Stage::draw()" << std::endl;
 		// }
 		
 		// Draw the game world first (backgrounds, tiles, characters, etc)
@@ -94,7 +90,6 @@ namespace ms
 
 			if (element && element->is_active()) {
 				if (type == UIElement::Type::ITEMINVENTORY) {
-					LOG(LOG_DEBUG, "[UIStateGame] draw() - Drawing UIItemInventory");
 				}
 				element->draw(inter);
 			}
@@ -135,7 +130,6 @@ namespace ms
 			if (element && element->is_active())
 			{
 				if (type == UIElement::Type::ITEMINVENTORY) {
-					LOG(LOG_DEBUG, "[UIStateGame] update() - Updating UIItemInventory");
 				}
 				element->update();
 
@@ -230,12 +224,10 @@ namespace ms
 							}
 							case KeyAction::Id::ITEMS:
 							{
-								LOG(LOG_DEBUG, "[UIStateGame] KeyAction::ITEMS pressed - calling emplace<UIItemInventory>");
-								emplace<UIItemInventory>(
+									emplace<UIItemInventory>(
 									Stage::get().get_player().get_inventory()
 									);
-								LOG(LOG_DEBUG, "[UIStateGame] emplace<UIItemInventory> returned");
-
+	
 								break;
 							}
 							case KeyAction::Id::STATS:
@@ -407,8 +399,7 @@ namespace ms
 							}
 							default:
 							{
-								LOG(LOG_DEBUG, "Unknown KeyAction::Id action: [" << action << "]");
-								break;
+									break;
 							}
 						}
 					}
@@ -643,29 +634,23 @@ namespace ms
 
 	UIState::Iterator UIStateGame::pre_add(UIElement::Type type, bool is_toggled, bool is_focused)
 	{
-		LOG(LOG_DEBUG, "[UIStateGame] pre_add() START - type=" << (int)type << ", is_toggled=" << is_toggled << ", is_focused=" << is_focused);
 		auto& element = elements[type];
 
 		if (element && is_toggled)
 		{
-			LOG(LOG_DEBUG, "[UIStateGame] pre_add() element exists and is_toggled=true");
 			elementorder.remove(type);
 			elementorder.push_back(type);
 
 			bool was_active = element->is_active();
-			LOG(LOG_DEBUG, "[UIStateGame] pre_add() was_active=" << was_active);
 
 			// Use direct activation/deactivation instead of toggle_active to avoid recursion
 			if (was_active) {
-				LOG(LOG_DEBUG, "[UIStateGame] pre_add() calling deactivate()");
 				element->deactivate();
 			} else {
-				LOG(LOG_DEBUG, "[UIStateGame] pre_add() calling makeactive()");
 				element->makeactive();
 			}
 
 			bool is_active_now = element->is_active();
-			LOG(LOG_DEBUG, "[UIStateGame] pre_add() after toggle: is_active_now=" << is_active_now);
 
 			if (was_active != is_active_now)
 			{
@@ -695,19 +680,16 @@ namespace ms
 				}
 			}
 
-			LOG(LOG_DEBUG, "[UIStateGame] pre_add() END - returning elements.end() (toggled existing)");
 			return elements.end();
 		}
 		else
 		{
-			LOG(LOG_DEBUG, "[UIStateGame] pre_add() creating new element or non-toggled");
 			remove(type);
 			elementorder.push_back(type);
 
 			if (is_focused)
 				focused = type;
 
-			LOG(LOG_DEBUG, "[UIStateGame] pre_add() END - returning elements.find(type) for new element");
 			return elements.find(type);
 		}
 	}

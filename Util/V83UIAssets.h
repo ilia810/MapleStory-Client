@@ -46,19 +46,16 @@ namespace ms
 			// v92 has Title section with buttons, v83 doesn't have Title section
 			nl::node login = nl::nx::UI["Login.img"];
 			if (!login) {
-				LOG(LOG_DEBUG, "[V83UIAssets] isV92Mode: Login.img not found");
 				return false;
 			}
 			
 			nl::node title = login["Title"];
 			if (!title) {
-				LOG(LOG_DEBUG, "[V83UIAssets] isV92Mode: Title section not found - not v92");
 				return false;
 			}
 			
 			// Check if Title section has any children (buttons)
 			if (title.size() > 0) {
-				LOG(LOG_DEBUG, "[V83UIAssets] isV92Mode: Title section has " << title.size() << " children - v92 detected");
 				return true;
 			}
 			
@@ -66,11 +63,9 @@ namespace ms
 			// Sometimes the node exists but reports size 0, so check specific children
 			if (title["BtLogin"] || title["BtQuit"] || title["BtHomePage"] || 
 			    title["BtPasswdLost"] || title["BtEmailLost"] || title["BtEmailSave"]) {
-				LOG(LOG_DEBUG, "[V83UIAssets] isV92Mode: Found v92 buttons in Title section");
 				return true;
 			}
 			
-			LOG(LOG_DEBUG, "[V83UIAssets] isV92Mode: No v92 indicators found");
 			return false;
 		}
 
@@ -128,7 +123,6 @@ namespace ms
 			for (const auto& path : bgCandidates) {
 				nl::node n = resolvePath(path);
 				if (n && n.data_type() == nl::node::type::bitmap) {
-					LOG(LOG_DEBUG, "[V83UIAssets] Found login background at: " << path);
 					return n;
 				}
 			}
@@ -259,7 +253,6 @@ namespace ms
 					if (normal && normal.data_type() == nl::node::type::none && normal.size() > 0) {
 						nl::node normalBitmap = normal["0"];
 						if (normalBitmap && normalBitmap.data_type() == nl::node::type::bitmap) {
-							LOG(LOG_DEBUG, "[V83UIAssets] Found button '" << buttonName << "' at '" << path << "/normal/0'");
 							return btn;  // Return the button container
 						}
 					}
@@ -269,7 +262,6 @@ namespace ms
 					if (disabled && disabled.data_type() == nl::node::type::none && disabled.size() > 0) {
 						nl::node disabledBitmap = disabled["0"];
 						if (disabledBitmap && disabledBitmap.data_type() == nl::node::type::bitmap) {
-							LOG(LOG_DEBUG, "[V83UIAssets] Found button '" << buttonName << "' at '" << path << "/disabled/0'");
 							return btn;  // Return the button container
 						}
 					}
@@ -277,7 +269,6 @@ namespace ms
 				
 				// Direct bitmap fallback
 				if (btn.data_type() == nl::node::type::bitmap) {
-					LOG(LOG_DEBUG, "[V83UIAssets] Found button '" << buttonName << "' as direct bitmap at '" << path << "'");
 					return btn;
 				}
 			}
@@ -305,7 +296,6 @@ namespace ms
 			for (const auto& path : bgCandidates) {
 				nl::node n = resolvePath(path);
 				if (n && n.data_type() == nl::node::type::bitmap) {
-					LOG(LOG_DEBUG, "[V83UIAssets] Found world select background at: " << path);
 					return n;
 				}
 			}
@@ -330,7 +320,6 @@ namespace ms
 				return nl::node();
 			}
 			
-			LOG(LOG_DEBUG, "[V83UIAssets] Found BtWorld with " << btWorld.size() << " world buttons");
 			return btWorld;
 		}
 
@@ -348,7 +337,6 @@ namespace ms
 				}
 				
 				// Fallback: use generic button from Common
-				LOG(LOG_DEBUG, "[V83UIAssets] BtChannel not found for v92, using fallback button");
 				return nl::nx::UI["Login.img"]["Common"]["BtOk"];
 			}
 			else if (isV83Mode())
@@ -382,7 +370,6 @@ namespace ms
 			for (const auto& path : bgCandidates) {
 				nl::node n = resolvePath(path);
 				if (n && n.data_type() == nl::node::type::bitmap) {
-					LOG(LOG_DEBUG, "[V83UIAssets] Found character select background at: " << path);
 					return n;
 				}
 			}
@@ -390,7 +377,6 @@ namespace ms
 			// If no background found, use a default from Login.img
 			nl::node commonFrame = nl::nx::UI["Login.img"]["Common"]["frame"];
 			if (commonFrame && commonFrame.data_type() == nl::node::type::bitmap) {
-				LOG(LOG_DEBUG, "[V83UIAssets] Using Common/frame as character select background fallback");
 				return commonFrame;
 			}
 			
@@ -411,7 +397,6 @@ namespace ms
 			for (const auto& path : bgCandidates) {
 				nl::node n = resolvePath(path);
 				if (n && n.data_type() == nl::node::type::bitmap) {
-					LOG(LOG_DEBUG, "[V83UIAssets] Found inventory background at: " << path);
 					return n;
 				}
 			}
@@ -442,7 +427,6 @@ namespace ms
 				return nl::node();
 			}
 			
-			LOG(LOG_DEBUG, "[V83UIAssets] Found inventory tab " << tabIndex << " (" << state << ")");
 			return tabNode;
 		}
 
@@ -481,7 +465,6 @@ namespace ms
 			// Try Basic.img first - most common location
 			nl::node btn = nl::nx::UI["Basic.img"]["BtClose"];
 			if (btn) {
-				LOG(LOG_DEBUG, "[V83UIAssets] Found close button at Basic.img/BtClose");
 				return btn;
 			}
 			
@@ -491,13 +474,11 @@ namespace ms
 				// v92 uses different naming
 				btn = nl::nx::UI["UIWindow.img"]["BtUIClose"];
 				if (btn) {
-					LOG(LOG_DEBUG, "[V83UIAssets] Found close button at UIWindow.img/BtUIClose");
 					return btn;
 				}
 				
 				btn = nl::nx::UI["UIWindow.img"]["BtUIClose2"];
 				if (btn) {
-					LOG(LOG_DEBUG, "[V83UIAssets] Found close button at UIWindow.img/BtUIClose2");
 					return btn;
 				}
 			}

@@ -567,4 +567,9 @@ namespace ms
 	{
 		return ladder;
 	}
+	
+	bool Player::is_dead() const
+	{
+		return state == Char::State::DIED;
+	}
 }

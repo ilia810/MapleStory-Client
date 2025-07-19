@@ -76,16 +76,16 @@ namespace ms
 			slot_col = 4;
 			slot_pos = Point<int16_t>(11, 51); // Position for first slot in v87
 			slot_row = 6;
-			slot_space_x = 36;
-			slot_space_y = 35;
+			slot_space_x = 36;  // Add back spacing
+			slot_space_y = 35;  // Add back spacing
 		} else if (is_v92) {
 			// V92 uses same defaults as v83/v87 but has tabs
 			LOG(LOG_DEBUG, "[UIItemInventory] Using v92 defaults - similar to v87 but with tabs");
 			slot_col = 4;
 			slot_pos = Point<int16_t>(11, 51); 
 			slot_row = 6;
-			slot_space_x = 36;
-			slot_space_y = 35;
+			slot_space_x = 36;  // Add back spacing
+			slot_space_y = 35;  // Add back spacing
 		} else {
 			// Modern MapleStory layout
 			nl::node pos = Item["pos"];
@@ -1246,21 +1246,21 @@ namespace ms
 		int16_t xoff = cursor_offset.x();
 		int16_t yoff = cursor_offset.y();
 
-		int16_t cur_x = cursorpos.x();
-		int16_t slot_x = slot_pos.x();
-		int16_t xmin = slot_x;
-		int16_t xmax = (icon_width + slot_space_x) * (full_enabled ? slot_col * 4 : slot_col) - (full_enabled ? slot_space_x : 0);
+		int16_t cur_x = cursor_offset.x();  // Use offset from slot_pos
+		int16_t cur_y = cursor_offset.y();  // Use offset from slot_pos
+		
+		int16_t xmin = 0;
+		int16_t xmax = slot_space_x * (full_enabled ? slot_col * 4 : slot_col);
 
-		int16_t cur_y = cursorpos.y();
-		int16_t slot_y = slot_pos.y();
-		int16_t ymin = slot_y;
-		int16_t ymax = (icon_height + slot_space_y) * (full_enabled ? slot_row + 1 : slot_row - 1) - (full_enabled ? slot_space_y : 0);
+		int16_t ymin = 0;
+		int16_t ymax = slot_space_y * (full_enabled ? slot_row + 1 : slot_row - 1);
 
 		int16_t slot = 0;
 		int16_t absslot = full_enabled ? 1 : slotrange.at(tab).first;
 
-		int16_t col = cur_x / (icon_width + slot_space_x);
-		int16_t row = cur_y / (icon_height + slot_space_y) - 1;
+		// Calculate column and row based on slot spacing, not icon dimensions
+		int16_t col = cur_x / slot_space_x;
+		int16_t row = cur_y / slot_space_y;
 
 		div_t div = std::div(col, 4);
 		slot = col + absslot + (4 * row) + (div.quot * 28);
@@ -1296,7 +1296,7 @@ namespace ms
 		int16_t row = div4.quot - (8 * div32.quot);
 		int16_t col = div4.rem + (4 * div32.quot);
 
-		return slot_pos + Point<int16_t>((col * 10) + (col * 32), (row * 10) + (row * 32));
+		return slot_pos + Point<int16_t>(col * slot_space_x, row * slot_space_y);
 	}
 
 	Point<int16_t> UIItemInventory::get_tabpos(InventoryType::Id tb) const

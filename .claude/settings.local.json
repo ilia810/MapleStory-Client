@@ -175,7 +175,11 @@
       "Bash(x64DebugMapleStory.exe)",
       "Bash(./build_fixed.bat)",
       "Bash(./build_fixed.bat)",
-      "Bash(awk:*)"
+      "Bash(awk:*)",
+      "Bash(cmake:*)",
+      "Bash(\"C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\Community\\MSBuild\\Current\\Bin\\MSBuild.exe\" MapleStory.sln /p:Configuration=Debug /p:Platform=x64)",
+      "Bash(\"C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\Community\\MSBuild\\Current\\Bin\\MSBuild.exe\" MapleStory.sln \"/p:Configuration=Debug\" \"/p:Platform=x64\")",
+      "Bash(./../../simple_nx_explorer.exe Mob.nx 4230105)"
     ],
     "deny": []
   }

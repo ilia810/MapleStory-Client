@@ -18,6 +18,7 @@
 #pragma once
 
 #include "MapObjects.h"
+#include "MobProjectile.h"
 
 #include "../Spawn.h"
 
@@ -25,6 +26,8 @@
 #include "../Combat/SpecialMove.h"
 
 #include <queue>
+#include <memory>
+#include <vector>
 
 namespace ms
 {
@@ -50,6 +53,8 @@ namespace ms
 		void send_mobhp(int32_t oid, int8_t percent, uint16_t playerlevel);
 		// Update a mob's movements.
 		void send_movement(int32_t oid, Point<int16_t> start, std::vector<Movement>&& movements);
+		// Trigger a mob skill animation.
+		void send_skill(int32_t oid, int16_t skill_id, int16_t skill_level);
 
 		// Calculate the results of an attack.
 		void send_attack(AttackResult& result, const Attack& attack, const std::vector<int32_t>& targets, uint8_t mobcount);
@@ -68,9 +73,35 @@ namespace ms
 		Point<int16_t> get_mob_head_position(int32_t oid) const;
 		// Return all mob map objects
 		MapObjects* get_mobs();
+		
+		// Spawn a projectile from a mob
+		void spawn_projectile(int32_t mob_oid, int16_t skill_id, Point<int16_t> target);
+		
+		// Update all projectiles
+		void update_projectiles(const Physics& physics);
+		
+		// Draw all projectiles
+		void draw_projectiles(Layer::Id layer, double viewx, double viewy, float alpha) const;
+		
+		// Check projectile collisions with player
+		void check_projectile_collisions(Rectangle<int16_t> player_bounds);
+		
+		// Check if a mob's regular attack has projectiles
+		void check_attack_projectile(int32_t oid, int32_t mob_id);
 
 	private:
+		struct DelayedProjectile {
+			Animation animation;
+			Point<int16_t> origin;
+			Point<int16_t> target;
+			int16_t speed;
+			int32_t mob_oid;
+			int16_t delay_remaining;
+		};
+		
 		MapObjects mobs;
+		std::vector<std::unique_ptr<MobProjectile>> projectiles;
+		std::vector<DelayedProjectile> delayed_projectiles;
 
 		std::queue<MobSpawn> spawns;
 	};

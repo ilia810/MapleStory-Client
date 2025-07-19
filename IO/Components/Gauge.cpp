@@ -54,7 +54,8 @@ namespace ms
 				if (length <= barfront.width())
 				{
 					// Normal case: clip texture to show only the filled portion
-					barfront.draw(args, {}, Range<int16_t>(0, length));
+					// Ensure full opacity by adding 1.0f to the draw arguments
+					barfront.draw(args + 1.0f, {}, Range<int16_t>(0, length));
 				}
 				else
 				{
@@ -64,10 +65,32 @@ namespace ms
 					while (remaining > 0)
 					{
 						int16_t tile_width = (remaining >= barfront.width()) ? barfront.width() : remaining;
-						barfront.draw(args + Point<int16_t>(offset, 0), {}, Range<int16_t>(0, tile_width));
+						barfront.draw(args + Point<int16_t>(offset, 0) + 1.0f, {}, Range<int16_t>(0, tile_width));
 						offset += tile_width;
 						remaining -= tile_width;
 					}
+				}
+			}
+			else if (type == Type::V87_FILL_REVERSE)
+			{
+				// V87_FILL_REVERSE: Draw texture horizontally flipped
+				// The flipped texture fills normally from left to right, but appears to fill right to left
+				if (length <= barfront.width())
+				{
+					// Create a flipped draw argument by using the bool constructor
+					// DrawArgument(position, flip) where flip = true for horizontal flip
+					Point<int16_t> pos = args.getpos();
+					DrawArgument flipped_args(pos, true);
+					
+					// Now draw with clipping to show only the filled portion
+					barfront.draw(flipped_args, {}, Range<int16_t>(0, length));
+				}
+				else
+				{
+					// Edge case: if length exceeds texture width, just draw full texture flipped
+					Point<int16_t> pos = args.getpos();
+					DrawArgument flipped_args(pos, true);
+					barfront.draw(flipped_args);
 				}
 			}
 		}

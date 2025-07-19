@@ -327,24 +327,25 @@ namespace ms
 
 		for (size_t i = 0; i < Buttons::NUM_BUTTONS; i++)
 		{
-			if (buttons[i]->is_active() && buttons[i]->bounds(position).contains(cursorpos))
+			auto it = buttons.find(i);
+			if (it != buttons.end() && it->second && it->second->is_active() && it->second->bounds(position).contains(cursorpos))
 			{
-				if (buttons[i]->get_state() == Button::State::NORMAL)
+				if (it->second->get_state() == Button::State::NORMAL)
 				{
 					if (i >= Buttons::BUY_ITEM && i <= Buttons::EXIT)
 					{
 						Sound(Sound::Name::BUTTONOVER).play();
 
-						buttons[i]->set_state(Button::State::MOUSEOVER);
+						it->second->set_state(Button::State::MOUSEOVER);
 						ret = Cursor::State::CANCLICK;
 					}
 					else
 					{
-						buttons[i]->set_state(Button::State::MOUSEOVER);
+						it->second->set_state(Button::State::MOUSEOVER);
 						ret = Cursor::State::IDLE;
 					}
 				}
-				else if (buttons[i]->get_state() == Button::State::MOUSEOVER)
+				else if (it->second->get_state() == Button::State::MOUSEOVER)
 				{
 					if (clicked)
 					{
@@ -360,13 +361,13 @@ namespace ms
 									Sound(Sound::Name::BUTTONCLICK).play();
 							}
 
-							buttons[i]->set_state(button_pressed(i));
+							it->second->set_state(button_pressed(i));
 
 							ret = Cursor::State::IDLE;
 						}
 						else
 						{
-							buttons[i]->set_state(button_pressed(i));
+							it->second->set_state(button_pressed(i));
 
 							ret = Cursor::State::IDLE;
 						}
@@ -379,7 +380,7 @@ namespace ms
 							ret = Cursor::State::IDLE;
 					}
 				}
-				else if (buttons[i]->get_state() == Button::State::PRESSED)
+				else if (it->second->get_state() == Button::State::PRESSED)
 				{
 					if (clicked)
 					{
@@ -392,9 +393,9 @@ namespace ms
 					}
 				}
 			}
-			else if (buttons[i]->get_state() == Button::State::MOUSEOVER)
+			else if (it != buttons.end() && it->second && it->second->get_state() == Button::State::MOUSEOVER)
 			{
-				buttons[i]->set_state(Button::State::NORMAL);
+				it->second->set_state(Button::State::NORMAL);
 			}
 		}
 
@@ -468,23 +469,35 @@ namespace ms
 		uint16_t oldtab = tabbyinventory(sellstate.tab);
 
 		if (oldtab > 0)
-			buttons[oldtab]->set_state(Button::State::NORMAL);
+		{
+			auto it = buttons.find(oldtab);
+			if (it != buttons.end() && it->second)
+				it->second->set_state(Button::State::NORMAL);
+		}
 
 		uint16_t newtab = tabbyinventory(type);
 
 		if (newtab > 0)
-			buttons[newtab]->set_state(Button::State::PRESSED);
+		{
+			auto it = buttons.find(newtab);
+			if (it != buttons.end() && it->second)
+				it->second->set_state(Button::State::PRESSED);
+		}
 
 		sellstate.change_tab(inventory, type, meso);
 
 		sellslider.setrows(5, sellstate.lastslot);
 
-		for (size_t i = Buttons::SELL0; i < Buttons::SELL8; i++)
+		for (size_t i = Buttons::SELL0; i <= Buttons::SELL8; i++)
 		{
-			if (i - Buttons::SELL0 < sellstate.lastslot)
-				buttons[i]->set_state(Button::State::NORMAL);
-			else
-				buttons[i]->set_state(Button::State::DISABLED);
+			auto it = buttons.find(i);
+			if (it != buttons.end() && it->second)
+			{
+				if (i - Buttons::SELL0 < sellstate.lastslot)
+					it->second->set_state(Button::State::NORMAL);
+				else
+					it->second->set_state(Button::State::DISABLED);
+			}
 		}
 	}
 
@@ -494,10 +507,16 @@ namespace ms
 		npc = nl::nx::Npc[strid + ".img"]["stand"]["0"];
 
 		for (auto& button : buttons)
-			button.second->set_state(Button::State::NORMAL);
+			if (button.second)
+				button.second->set_state(Button::State::NORMAL);
 
-		buttons[Buttons::OVERALL]->set_state(Button::State::PRESSED);
-		buttons[Buttons::EQUIP]->set_state(Button::State::PRESSED);
+		auto overall_it = buttons.find(Buttons::OVERALL);
+		if (overall_it != buttons.end() && overall_it->second)
+			overall_it->second->set_state(Button::State::PRESSED);
+			
+		auto equip_it = buttons.find(Buttons::EQUIP);
+		if (equip_it != buttons.end() && equip_it->second)
+			equip_it->second->set_state(Button::State::PRESSED);
 
 		buystate.reset();
 		sellstate.reset();

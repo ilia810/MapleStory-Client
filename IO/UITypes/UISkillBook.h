@@ -44,6 +44,7 @@ namespace ms
 		void remove_cursor() override;
 		Cursor::State send_cursor(bool clicked, Point<int16_t> cursorpos) override;
 		void send_key(int32_t keycode, bool pressed, bool escape) override;
+		void send_scroll(double yoffset) override;
 
 		UIElement::Type get_type() const override;
 
@@ -93,7 +94,7 @@ namespace ms
 
 		void change_job(uint16_t id);
 		void change_sp();
-		void change_tab(uint16_t new_tab);
+		void change_tab(uint16_t new_tab, int16_t preserve_offset = -1);
 		void change_offset(uint16_t new_offset);
 
 		void show_skill(int32_t skill_id);
@@ -170,6 +171,7 @@ namespace ms
 		uint16_t tab;
 		uint16_t skillcount;
 		uint16_t offset;
+		int16_t visible_rows;
 
 		std::vector<SkillDisplayMeta> skills;
 		bool grabbing;

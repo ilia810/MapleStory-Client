@@ -104,8 +104,21 @@ namespace ms
 				uint16_t value = recv.read_short();
 				if (stat == MapleStat::Id::HP) {
 					LOG(LOG_DEBUG, "[ChangeStatsHandler] Setting HP to: " + std::to_string(value));
+					player.get_stats().set_stat(stat, value);
+					
+					// Check if player died (HP reached 0)
+					if (value == 0 && !player.is_dead()) {
+						LOG(LOG_DEBUG, "[ChangeStatsHandler] HP is 0, setting player state to DIED");
+						player.set_state(Char::State::DIED);
+					}
+					// Check if player was revived (HP increased from 0)
+					else if (value > 0 && player.is_dead()) {
+						LOG(LOG_DEBUG, "[ChangeStatsHandler] HP is " + std::to_string(value) + ", reviving player from DIED state");
+						player.set_state(Char::State::STAND);
+					}
+				} else {
+					player.get_stats().set_stat(stat, value);
 				}
-				player.get_stats().set_stat(stat, value);
 				recalculate = true;
 			}
 			break;

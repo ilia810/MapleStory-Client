@@ -263,6 +263,7 @@ copy /y /d "$(ProjectDir)includes\NoLifeNx\nlnx\includes\lz4_v1_8_2_win$(Platfor
     <ClCompile Include="Gameplay\MapleMap\MapTilesObjs.cpp" />
     <ClCompile Include="Gameplay\MapleMap\MesoDrop.cpp" />
     <ClCompile Include="Gameplay\MapleMap\Mob.cpp" />
+    <ClCompile Include="Gameplay\MapleMap\MobProjectile.cpp" />
     <ClCompile Include="Gameplay\MapleMap\Npc.cpp" />
     <ClCompile Include="Gameplay\MapleMap\Obj.cpp" />
     <ClCompile Include="Gameplay\MapleMap\Portal.cpp" />
@@ -473,6 +474,7 @@ copy /y /d "$(ProjectDir)includes\NoLifeNx\nlnx\includes\lz4_v1_8_2_win$(Platfor
     <ClInclude Include="Gameplay\MapleMap\MapTilesObjs.h" />
     <ClInclude Include="Gameplay\MapleMap\MesoDrop.h" />
     <ClInclude Include="Gameplay\MapleMap\Mob.h" />
+    <ClInclude Include="Gameplay\MapleMap\MobProjectile.h" />
     <ClInclude Include="Gameplay\MapleMap\Npc.h" />
     <ClInclude Include="Gameplay\MapleMap\Obj.h" />
     <ClInclude Include="Gameplay\MapleMap\Portal.h" />
