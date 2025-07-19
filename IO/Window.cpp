@@ -18,6 +18,7 @@
 #include "Window.h"
 
 #include "UI.h"
+#include "../Graphics/GraphicsGL.h"
 
 #include "../Configuration.h"
 #include "../Timer.h"
@@ -145,7 +146,9 @@ namespace ms
 		glfwMakeContextCurrent(context);
 		glfwSetErrorCallback(error_callback);
 		glfwWindowHint(GLFW_VISIBLE, GL_TRUE);
-		glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
+		// Make window resizable in editor mode, non-resizable in game mode
+		bool is_resizable = Configuration::get().get_editor_mode();
+		glfwWindowHint(GLFW_RESIZABLE, is_resizable ? GL_TRUE : GL_FALSE);
 
 		if (Error error = GraphicsGL::get().init())
 			return error;
@@ -240,6 +243,12 @@ namespace ms
 		glfwSetCursorPosCallback(glwnd, cursor_callback);
 		glfwSetWindowFocusCallback(glwnd, focus_callback);
 		glfwSetScrollCallback(glwnd, scroll_callback);
+		
+		// Set window resize callback (only for editor mode)
+		if (Configuration::get().get_editor_mode())
+		{
+			glfwSetWindowSizeCallback(glwnd, window_size_callback);
+		}
 		glfwSetWindowCloseCallback(glwnd, close_callback);
 
 		char buf[256];
@@ -367,5 +376,34 @@ namespace ms
 			initwindow();
 			glfwPollEvents();
 		}
+	}
+	
+	void Window::maximize_window()
+	{
+		if (glwnd && !fullscreen)
+		{
+			glfwMaximizeWindow(glwnd);
+		}
+	}
+	
+	void Window::set_resizable(bool resizable)
+	{
+		if (glwnd)
+		{
+			glfwSetWindowAttrib(glwnd, GLFW_RESIZABLE, resizable ? GL_TRUE : GL_FALSE);
+		}
+	}
+	
+	void Window::window_size_callback(GLFWwindow* window, int width, int height)
+	{
+		// Update the window instance's width and height
+		Window& window_instance = Window::get();
+		window_instance.width = static_cast<int16_t>(width);
+		window_instance.height = static_cast<int16_t>(height);
+		
+		// Update the graphics system
+		GraphicsGL::get().update_screen_size(static_cast<int16_t>(width), static_cast<int16_t>(height));
+		
+		LOG(LOG_DEBUG, "[Window] Resized to " << width << "x" << height);
 	}
 }

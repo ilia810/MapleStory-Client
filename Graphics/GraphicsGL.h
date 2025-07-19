@@ -43,6 +43,8 @@ namespace ms
 		Error init();
 		// Re-initialize after changing screen modes
 		void reinit();
+		// Update screen size for window resizing
+		void update_screen_size(int16_t width, int16_t height);
 
 		// Clear all bitmaps if most of the space is used up
 		void clear();

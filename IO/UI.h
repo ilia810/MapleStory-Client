@@ -31,7 +31,8 @@ namespace ms
 		{
 			LOGIN,
 			GAME,
-			CASHSHOP
+			CASHSHOP,
+			MAPEDITOR
 		};
 
 		UI();

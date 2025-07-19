@@ -22,9 +22,11 @@
 #include "Net/Session.h"
 #include "Util/HardwareInfo.h"
 #include "Util/ScreenResolution.h"
+#include "Configuration.h"
 
 #include <iostream>
 #include <fstream>
+#include <cstring>
 
 #ifdef USE_NX
 #include "Util/NxFiles.h"
@@ -38,8 +40,12 @@ namespace ms
 {
 	Error init()
 	{
-		if (Error error = Session::get().init())
-			return error;
+		// Skip session initialization in editor mode
+		if (!Configuration::get().get_editor_mode())
+		{
+			if (Error error = Session::get().init())
+				return error;
+		}
 
 #ifdef USE_NX
 		if (Error error = NxFiles::init())
@@ -73,7 +79,12 @@ namespace ms
 		Window::get().update();
 		Stage::get().update();
 		UI::get().update();
-		Session::get().read();
+		
+		// Only read from session if not in editor mode
+		if (!Configuration::get().get_editor_mode())
+		{
+			Session::get().read();
+		}
 	}
 
 	void draw(float alpha)
@@ -159,7 +170,7 @@ namespace ms
 				LOG(LOG_ERROR, message);
 
 			if (can_retry)
-				LOG(LOG_INFO, "Enter 'retry' to try agC:\HeavenClient\NoLifeWzToNxain.");
+				LOG(LOG_INFO, "Enter 'retry' to try again.");
 
 			std::string command;
 			std::cin >> command;
@@ -204,6 +215,20 @@ int APIENTRY WinMain(HINSTANCE hInst, HINSTANCE hInstPrev, PSTR cmdline, int cmd
 	
 	//std::cout.rdbuf(debug_file.rdbuf());
 	//std::cerr.rdbuf(debug_file.rdbuf());
+	
+	// Parse command line arguments
+	bool editor_mode = false;
+	for (int i = 1; i < argc; i++)
+	{
+		if (strcmp(argv[i], "--editor") == 0)
+		{
+			editor_mode = true;
+			LOG(LOG_INFO, "[MapleStory] Starting in Map Editor mode");
+		}
+	}
+	
+	// Set editor mode in configuration
+	ms::Configuration::get().set_editor_mode(editor_mode);
 	
 	ms::HardwareInfo();
 	ms::ScreenResolution();

@@ -1,0 +1,45 @@
+# MapleStory Map Editor Format
+name: "Test Map"
+size: [30, 20]
+return_map: 100000000
+
+palette:
+  G : { id: 100450, name: "Grass_mid" }
+  S : { id: 100451, name: "Stone" }
+  D : { id: 100452, name: "Dirt" }
+  W : { id: 100453, name: "Water" }
+  T : { id: 100454, name: "Tree" }
+
+grid: |
+  SSSSSSSSSSSSSSSSSSSSSSSSSSSSSS
+  S                            S
+  S  GGGGGGGGGGGGGGGGGGGGGGGG  S
+  S  GGGGGGGGGGGGGGGGGGGGGGGG  S
+  S  GGTTTTTTTTTTTTTTTTTTTTGG  S
+  S  GGTTTTTTTTTTTTTTTTTTTTGG  S
+  S  GGGGGGGGGGGGGGGGGGGGGGGG  S
+  S  GGGGGGGGGGGGGGGGGGGGGGGG  S
+  S  WWWWWWWWWWWWWWWWWWWWWWGG  S
+  S  WWWWWWWWWWWWWWWWWWWWWWGG  S
+  S  WWWWWWWWWWWWWWWWWWWWWWGG  S
+  S  GGGGGGGGGGGGGGGGGGGGGGGG  S
+  S  GGGGGGGGGGGGGGGGGGGGGGGG  S
+  S  GGDDDDDDDDDDDDDDDDDDDDGG  S
+  S  GGDDDDDDDDDDDDDDDDDDDDGG  S
+  S  GGGGGGGGGGGGGGGGGGGGGGGG  S
+  S  GGGGGGGGGGGGGGGGGGGGGGGG  S
+  S                            S
+  S                            S
+  SSSSSSSSSSSSSSSSSSSSSSSSSSSSSS
+
+objects:
+  player_start: [15, 10]
+  portals:
+    - { pos: [5, 10], dest: "test_map2", type: "regular" }
+    - { pos: [25, 10], dest: "100000000", type: "regular" }
+  npcs:
+    - { id: 1012000, pos: [10, 8], flip: false }
+    - { id: 1012001, pos: [20, 8], flip: true }
+  mob_spawns:
+    - { id: 100100, pos: [15, 5], respawn: 30 }
+    - { id: 100101, pos: [15, 15], respawn: 45 }

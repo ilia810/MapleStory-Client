@@ -1,0 +1,34 @@
+# MapleStory Map Editor Format
+name: "Test Map"
+size: [15, 10]
+return_map: 100000000
+
+palette:
+  G : { id: 100450, name: "Grass_mid" }
+  T : { id: 100451, name: "Tree" }
+  L : { id: 123010, name: "Ladder" }
+  R : { id: 100452, name: "Rock" }
+  W : { id: 100453, name: "Water" }
+
+grid: |
+  GGGGGGLGGGGGGG
+  GGGGGGLGGGGGGG
+  GGGTGGLGGGTGGG
+  GGGGGGLGGGGGGG
+  RRRRRRLRRRRRRR
+  WWWWWWLWWWWWWW
+  WWWWWWLWWWWWWW
+  WWWWWWLWWWWWWW
+  WWWWWWLWWWWWWW
+  WWWWWWWWWWWWWW
+
+objects:
+  player_start: [1, 3]
+  portals:
+    - { pos: [14, 3], dest: "town_square", type: "regular" }
+    - { pos: [7, 0], dest_id: 100000001, type: "hidden" }
+  npcs:
+    - { id: 9010000, pos: [5, 3], flip: false }
+  mob_spawns:
+    - { id: 100100, pos: [10, 3], respawn: 60 }
+    - { id: 100101, pos: [3, 3], respawn: 45 }

@@ -49,9 +49,12 @@ namespace ms
 		std::string getclipboard() const;
 
 		void toggle_fullscreen();
+		void maximize_window();
+		void set_resizable(bool resizable);
 
 	private:
 		void updateopc();
+		static void window_size_callback(GLFWwindow* window, int width, int height);
 
 		GLFWwindow* glwnd;
 		GLFWwindow* context;

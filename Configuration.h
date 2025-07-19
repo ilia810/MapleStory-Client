@@ -124,6 +124,10 @@ namespace ms
 		bool get_caps_lock_enabled();
 		// Set if the Caps Lock key is enabled
 		void set_caps_lock_enabled(int value);
+		// Check if running in map editor mode
+		bool get_editor_mode() const;
+		// Set editor mode
+		void set_editor_mode(bool value);
 
 		// Base class for an entry in the settings file
 		class Entry
@@ -260,6 +264,7 @@ namespace ms
 		uint8_t channelid;
 		bool admin;
 		bool caps_lock_enabled;
+		bool editor_mode;
 		TypeMap<Entry> settings;
 	};
 
@@ -443,6 +448,12 @@ namespace ms
 	struct PosSKILL : public Configuration::PointEntry
 	{
 		PosSKILL() : PointEntry("PosSKILL", "(96,96)") {}
+	};
+
+	// The default position of UITilePalette
+	struct PosTILEPALETTE : public Configuration::PointEntry
+	{
+		PosTILEPALETTE() : PointEntry("PosTILEPALETTE", "(580,100)") {}
 	};
 
 	// The default position of UIQuestLog

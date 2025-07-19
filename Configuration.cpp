@@ -25,6 +25,7 @@ namespace ms
 {
 	Configuration::Configuration()
 	{
+		editor_mode = false;
 		settings.emplace<ServerIP>();
 		settings.emplace<ServerPort>();
 		settings.emplace<Fullscreen>();
@@ -434,5 +435,15 @@ namespace ms
 	void Configuration::set_caps_lock_enabled(int value)
 	{
 		caps_lock_enabled = value;
+	}
+
+	bool Configuration::get_editor_mode() const
+	{
+		return editor_mode;
+	}
+
+	void Configuration::set_editor_mode(bool value)
+	{
+		editor_mode = value;
 	}
 }

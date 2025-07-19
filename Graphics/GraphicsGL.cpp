@@ -222,6 +222,18 @@ namespace ms
 
 		return Error::Code::NONE;
 	}
+	
+	void GraphicsGL::update_screen_size(int16_t width, int16_t height)
+	{
+		VWIDTH = width;
+		VHEIGHT = height;
+		SCREEN = Rectangle<int16_t>(0, VWIDTH, 0, VHEIGHT);
+		
+		// Update the OpenGL viewport
+		glViewport(0, 0, width, height);
+		
+		LOG(LOG_DEBUG, "[GraphicsGL] Screen size updated to " << width << "x" << height);
+	}
 
 	bool GraphicsGL::addfont(const char* name, Text::Font id, FT_UInt pixelw, FT_UInt pixelh)
 	{

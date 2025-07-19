@@ -20,8 +20,10 @@
 #include "UIStateCashShop.h"
 #include "UIStateGame.h"
 #include "UIStateLogin.h"
+#include "UIStateMapEditor.h"
 #include "Window.h"
 #include "../Graphics/GraphicsGL.h"
+#include "../Configuration.h"
 
 #include <iostream>
 
@@ -50,7 +52,15 @@ namespace ms
 	
 		cursor.init();
 
-		change_state(State::LOGIN);
+		// Check if we're in editor mode
+		if (Configuration::get().get_editor_mode())
+		{
+			change_state(State::MAPEDITOR);
+		}
+		else
+		{
+			change_state(State::LOGIN);
+		}
 	}
 
 	void UI::draw(float alpha) const
@@ -94,6 +104,9 @@ namespace ms
 				break;
 			case State::CASHSHOP:
 				state = std::make_unique<UIStateCashShop>();
+				break;
+			case State::MAPEDITOR:
+				state = std::make_unique<UIStateMapEditor>();
 				break;
 		}
 	}
