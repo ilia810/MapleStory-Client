@@ -98,6 +98,22 @@ namespace ms
 
 		virtual UIElement::Type get_type() const = 0;
 
+		// Inspection methods for UI Inspector
+		Point<int16_t> get_position() const { return position; }
+		Point<int16_t> get_dimension() const { return dimension; }
+		size_t get_button_count() const { return buttons.size(); }
+		size_t get_sprite_count() const { return sprites.size(); }
+
+		// Get info about what's at cursor position (for UI Inspector)
+		struct ComponentInfo {
+			enum Type { NONE, BUTTON, SPRITE, BACKGROUND } type = NONE;
+			uint16_t id = 0;
+			Point<int16_t> position;
+			Point<int16_t> dimension;
+			std::string name;
+		};
+		virtual ComponentInfo get_component_at(Point<int16_t> cursor_position) const;
+
 	protected:
 		UIElement(Point<int16_t> position, Point<int16_t> dimension, bool active);
 		UIElement(Point<int16_t> position, Point<int16_t> dimension);

@@ -139,4 +139,47 @@ namespace ms
 
 		return ret;
 	}
+
+	UIElement::ComponentInfo UIElement::get_component_at(Point<int16_t> cursor_position) const
+	{
+		ComponentInfo info;
+
+		// Check buttons first (they're on top)
+		for (const auto& btit : buttons)
+		{
+			if (btit.second && btit.second->is_active())
+			{
+				Rectangle<int16_t> btn_bounds = btit.second->bounds(position);
+				if (btn_bounds.contains(cursor_position))
+				{
+					info.type = ComponentInfo::BUTTON;
+					info.id = btit.first;
+					info.position = Point<int16_t>(btn_bounds.left(), btn_bounds.top());
+					info.dimension = Point<int16_t>(btn_bounds.width(), btn_bounds.height());
+					info.name = "Button #" + std::to_string(btit.first);
+					return info;
+				}
+			}
+		}
+
+		// Check sprites
+		int sprite_idx = 0;
+		for (const auto& sprite : sprites)
+		{
+			// Sprites don't have a simple bounds check, but we can approximate
+			// using their position and the element's position
+			sprite_idx++;
+		}
+
+		// If nothing specific found, it's the background
+		if (is_in_range(cursor_position))
+		{
+			info.type = ComponentInfo::BACKGROUND;
+			info.position = position;
+			info.dimension = dimension;
+			info.name = "Background";
+		}
+
+		return info;
+	}
 }

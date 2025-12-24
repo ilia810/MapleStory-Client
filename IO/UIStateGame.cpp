@@ -451,14 +451,32 @@ namespace ms
 			// If clicked in inspection mode, log the element info
 			if (cursor_state == Cursor::State::CLICKING && hovered)
 			{
-				LOG(LOG_DEBUG, "[UIInspector] CLICKED: " << UIInspector::get_type_name(hovered_type));
-				LOG(LOG_DEBUG, "[UIInspector]   Position: (" << cursor_position.x() << ", " << cursor_position.y() << ")");
-				LOG(LOG_DEBUG, "[UIInspector]   Active: " << (hovered->is_active() ? "Yes" : "No"));
-				LOG(LOG_DEBUG, "[UIInspector]   File: IO/UITypes/UI" << UIInspector::get_type_name(hovered_type).substr(2) << ".cpp");
+				// Get element position and dimension
+				Point<int16_t> elem_pos = hovered->get_position();
+				Point<int16_t> elem_dim = hovered->get_dimension();
 
-				// Update the static inspector with this element
-				static UIInspector inspector;
-				inspector.inspect_element(hovered, hovered_type);
+				// Get component at cursor position
+				UIElement::ComponentInfo comp = hovered->get_component_at(cursor_position);
+
+				std::cout << "\n=== UI INSPECTOR ===" << std::endl;
+				std::cout << "Element: " << UIInspector::get_type_name(hovered_type) << std::endl;
+				std::cout << "  Position: (" << elem_pos.x() << ", " << elem_pos.y() << ")" << std::endl;
+				std::cout << "  Dimension: " << elem_dim.x() << " x " << elem_dim.y() << std::endl;
+				std::cout << "  Buttons: " << hovered->get_button_count() << ", Sprites: " << hovered->get_sprite_count() << std::endl;
+
+				// Show component info
+				if (comp.type != UIElement::ComponentInfo::NONE)
+				{
+					std::cout << "Component: " << comp.name << std::endl;
+					std::cout << "  Position: (" << comp.position.x() << ", " << comp.position.y() << ")" << std::endl;
+					std::cout << "  Dimension: " << comp.dimension.x() << " x " << comp.dimension.y() << std::endl;
+				}
+
+				// Show click position relative to element
+				std::cout << "Click at: (" << cursor_position.x() << ", " << cursor_position.y() << ")" << std::endl;
+				std::cout << "  Relative: (" << (cursor_position.x() - elem_pos.x()) << ", " << (cursor_position.y() - elem_pos.y()) << ")" << std::endl;
+				std::cout << "File: IO/UITypes/" << UIInspector::get_type_name(hovered_type) << ".cpp" << std::endl;
+				std::cout << "===================" << std::endl;
 
 				return Cursor::State::CLICKING;
 			}
