@@ -199,17 +199,6 @@ namespace ms
 
 	void UIStateGame::send_key(KeyType::Id type, int32_t action, bool pressed, bool escape)
 	{
-		// F12 toggles UI Inspector mode (action 123 = F12)
-		if (pressed && action == 123)
-		{
-			InspectorMode::toggle();
-			if (InspectorMode::is_enabled())
-				LOG(LOG_DEBUG, "[UIInspector] Inspection mode ENABLED - click on UI elements to inspect");
-			else
-				LOG(LOG_DEBUG, "[UIInspector] Inspection mode DISABLED");
-			return;
-		}
-
 		if (UIElement* focusedelement = get(focused))
 		{
 			if (focusedelement->is_active())

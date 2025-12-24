@@ -24,7 +24,9 @@
 #include "../Graphics/GraphicsGL.h"
 
 #include <iostream>
+#include <glfw3.h>
 
+#include "UITypes/UIInspector.h"
 #include "UITypes/UIChannel.h"
 #include "UITypes/UIChat.h"
 #include "UITypes/UIChatBar.h"
@@ -188,6 +190,17 @@ namespace ms
 
 	void UI::send_key(int32_t keycode, bool pressed)
 	{
+		// F12 toggles UI Inspector mode (before any other key processing)
+		if (keycode == GLFW_KEY_F12 && pressed)
+		{
+			InspectorMode::toggle();
+			if (InspectorMode::is_enabled())
+				std::cout << "[UI INSPECTOR] Enabled - Click on UI elements to inspect" << std::endl;
+			else
+				std::cout << "[UI INSPECTOR] Disabled" << std::endl;
+			return;
+		}
+
 		if ((is_key_down[GLFW_KEY_LEFT_ALT] || is_key_down[GLFW_KEY_RIGHT_ALT]) && (is_key_down[GLFW_KEY_ENTER] || is_key_down[GLFW_KEY_KP_ENTER]))
 		{
 			Window::get().toggle_fullscreen();
