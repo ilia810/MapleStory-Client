@@ -65,15 +65,6 @@ namespace ms
 			player_pos.y()          // Bottom (at player feet)
 		};
 		
-		// Debug player position occasionally
-		static int player_debug_count = 0;
-		if (player_debug_count++ % 300 == 0)
-		{
-			std::cout << "[DEBUG] Player position: (" << player_pos.x() << ", " << player_pos.y() 
-			          << ") bounds: [" << player_bounds.left() << "-" << player_bounds.right() 
-			          << ", " << player_bounds.top() << "-" << player_bounds.bottom() << "]" << std::endl;
-		}
-		
 		check_projectile_collisions(player_bounds);
 		
 		for (; !spawns.empty(); spawns.pop())
