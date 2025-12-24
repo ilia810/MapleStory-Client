@@ -214,6 +214,7 @@ copy /y /d "$(ProjectDir)includes\NoLifeNx\nlnx\includes\lz4_v1_8_2_win$(Platfor
     <ClCompile Include="Character\Look\BodyDrawInfo.cpp" />
     <ClCompile Include="Character\Look\CharEquips.cpp" />
     <ClCompile Include="Character\Look\CharLook.cpp" />
+    <ClCompile Include="Character\Look\CharacterDebugTrigger.cpp" />
     <ClCompile Include="Character\Look\Clothing.cpp" />
     <ClCompile Include="Character\Look\EquipSlot.cpp" />
     <ClCompile Include="Character\Look\Face.cpp" />
@@ -325,6 +326,7 @@ copy /y /d "$(ProjectDir)includes\NoLifeNx\nlnx\includes\lz4_v1_8_2_win$(Platfor
     <ClCompile Include="IO\UITypes\UIEquipInventory.cpp" />
     <ClCompile Include="IO\UITypes\UIEvent.cpp" />
     <ClCompile Include="IO\UITypes\UIGender.cpp" />
+    <ClCompile Include="IO\UITypes\UIInspector.cpp" />
     <ClCompile Include="IO\UITypes\UIItemInventory.cpp" />
     <ClCompile Include="IO\UITypes\UIJoypad.cpp" />
     <ClCompile Include="IO\UITypes\UIKeyConfig.cpp" />
@@ -549,6 +551,7 @@ copy /y /d "$(ProjectDir)includes\NoLifeNx\nlnx\includes\lz4_v1_8_2_win$(Platfor
     <ClInclude Include="IO\UITypes\UIEvent.h" />
     <ClInclude Include="IO\UITypes\UIExplorerCreation.h" />
     <ClInclude Include="IO\UITypes\UIGender.h" />
+    <ClInclude Include="IO\UITypes\UIInspector.h" />
     <ClInclude Include="IO\UITypes\UIItemInventory.h" />
     <ClInclude Include="IO\UITypes\UIJoypad.h" />
     <ClInclude Include="IO\UITypes\UIKeyConfig.h" />

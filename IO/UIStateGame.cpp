@@ -19,6 +19,7 @@
 
 #include "UI.h"
 
+#include "UITypes/UIInspector.h"
 #include "UITypes/UIBuffList.h"
 #include "UITypes/UIChannel.h"
 #include "UITypes/UICharInfo.h"
@@ -100,6 +101,13 @@ namespace ms
 
 		if (draggedicon)
 			draggedicon->dragdraw(cursor);
+
+		// Draw UI Inspector overlay if active
+		if (InspectorMode::is_enabled())
+		{
+			static UIInspector inspector;
+			inspector.draw(inter);
+		}
 	}
 
 	void UIStateGame::update()
@@ -191,6 +199,17 @@ namespace ms
 
 	void UIStateGame::send_key(KeyType::Id type, int32_t action, bool pressed, bool escape)
 	{
+		// F12 toggles UI Inspector mode (action 123 = F12)
+		if (pressed && action == 123)
+		{
+			InspectorMode::toggle();
+			if (InspectorMode::is_enabled())
+				LOG(LOG_DEBUG, "[UIInspector] Inspection mode ENABLED - click on UI elements to inspect");
+			else
+				LOG(LOG_DEBUG, "[UIInspector] Inspection mode DISABLED");
+			return;
+		}
+
 		if (UIElement* focusedelement = get(focused))
 		{
 			if (focusedelement->is_active())
@@ -420,6 +439,42 @@ namespace ms
 
 	Cursor::State UIStateGame::send_cursor(Point<int16_t> cursor_position, Cursor::State cursor_state)
 	{
+		// UI Inspector mode - track hovered elements and intercept clicks
+		if (InspectorMode::is_enabled())
+		{
+			// Find what element is under the cursor
+			UIElement* hovered = nullptr;
+			UIElement::Type hovered_type = UIElement::Type::NONE;
+
+			for (auto iter = elementorder.rbegin(); iter != elementorder.rend(); ++iter)
+			{
+				auto& element = elements[*iter];
+				if (element && element->is_active() && element->is_in_range(cursor_position))
+				{
+					hovered = element.get();
+					hovered_type = *iter;
+					break;
+				}
+			}
+
+			InspectorMode::set_hovered_element(hovered, hovered_type);
+
+			// If clicked in inspection mode, log the element info
+			if (cursor_state == Cursor::State::CLICKING && hovered)
+			{
+				LOG(LOG_DEBUG, "[UIInspector] CLICKED: " << UIInspector::get_type_name(hovered_type));
+				LOG(LOG_DEBUG, "[UIInspector]   Position: (" << cursor_position.x() << ", " << cursor_position.y() << ")");
+				LOG(LOG_DEBUG, "[UIInspector]   Active: " << (hovered->is_active() ? "Yes" : "No"));
+				LOG(LOG_DEBUG, "[UIInspector]   File: IO/UITypes/UI" << UIInspector::get_type_name(hovered_type).substr(2) << ".cpp");
+
+				// Update the static inspector with this element
+				static UIInspector inspector;
+				inspector.inspect_element(hovered, hovered_type);
+
+				return Cursor::State::CLICKING;
+			}
+		}
+
 		if (draggedicon)
 		{
 			if (cursor_state == Cursor::State::CLICKING)
