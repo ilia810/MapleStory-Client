@@ -1,6 +1,7 @@
 //////////////////////////////////////////////////////////////////////////////////
 //	LegacyUI - Helper functions for v83/v87 UI implementation
 //	Centralizes layout constants and provides safe UI asset loading
+//	Also provides offset corrections for v92 asset origin mismatches
 //////////////////////////////////////////////////////////////////////////////////
 #pragma once
 
@@ -18,15 +19,99 @@
 
 #include <memory>
 #include <string>
+#include <unordered_map>
 
 namespace ms
 {
 	namespace LegacyUI
 	{
+		//////////////////////////////////////////////////////////////////////////////
+		// OFFSET CORRECTION SYSTEM
+		// Compensates for origin differences between v83 and v92 assets
+		// When v92 assets have different origins than v83, UI elements appear
+		// shifted. These corrections are applied at render time.
+		//////////////////////////////////////////////////////////////////////////////
+		namespace OffsetCorrection
+		{
+			// Get offset correction for a specific UI asset
+			// Returns the delta to apply: render_pos = code_pos + delta
+			Point<int16_t> get_offset(const std::string& asset_path);
+
+			// Initialize offset correction tables (called once at startup)
+			void initialize();
+
+			// Check if offset corrections are available
+			bool is_initialized();
+
+			// Apply offset correction to a position
+			inline Point<int16_t> apply(const std::string& asset_path, Point<int16_t> pos)
+			{
+				return pos + get_offset(asset_path);
+			}
+
+			// Known offsets for common UI elements (v92 vs v83 delta)
+			// Positive values shift right/down, negative shift left/up
+			namespace Offsets
+			{
+				// StatusBar offsets
+				static constexpr Point<int16_t> STATUSBAR_HP = Point<int16_t>(0, 0);
+				static constexpr Point<int16_t> STATUSBAR_MP = Point<int16_t>(0, 0);
+				static constexpr Point<int16_t> STATUSBAR_EXP = Point<int16_t>(0, 0);
+
+				// Inventory offsets
+				static constexpr Point<int16_t> INVENTORY_SLOT = Point<int16_t>(0, 0);
+				static constexpr Point<int16_t> INVENTORY_TAB = Point<int16_t>(0, 0);
+
+				// Login screen offsets
+				static constexpr Point<int16_t> LOGIN_BUTTON = Point<int16_t>(0, 0);
+				static constexpr Point<int16_t> LOGIN_BACKGROUND = Point<int16_t>(0, 0);
+			}
+		}
+
+		//////////////////////////////////////////////////////////////////////////////
+		// DYNAMIC POSITIONING
+		// Provides resolution-independent positioning for UI elements
+		//////////////////////////////////////////////////////////////////////////////
+		namespace DynamicPos
+		{
+			// Anchor types for UI positioning
+			enum class Anchor
+			{
+				TOP_LEFT,
+				TOP_CENTER,
+				TOP_RIGHT,
+				CENTER_LEFT,
+				CENTER,
+				CENTER_RIGHT,
+				BOTTOM_LEFT,
+				BOTTOM_CENTER,
+				BOTTOM_RIGHT
+			};
+
+			// Calculate position based on anchor and offset from anchor point
+			Point<int16_t> calculate(Anchor anchor, Point<int16_t> offset, int16_t screen_width, int16_t screen_height);
+
+			// Get position relative to screen edge with padding
+			inline Point<int16_t> from_right(int16_t padding, int16_t y, int16_t screen_width)
+			{
+				return Point<int16_t>(screen_width - padding, y);
+			}
+
+			inline Point<int16_t> from_bottom(int16_t x, int16_t padding, int16_t screen_height)
+			{
+				return Point<int16_t>(x, screen_height - padding);
+			}
+
+			inline Point<int16_t> from_bottom_right(int16_t x_padding, int16_t y_padding, int16_t screen_width, int16_t screen_height)
+			{
+				return Point<int16_t>(screen_width - x_padding, screen_height - y_padding);
+			}
+		}
+
 		// Layout constants for v83/v87 character creation screens
 		namespace Layout
 		{
-			// Screen dimensions
+			// Screen dimensions (base resolution)
 			static constexpr int16_t SCREEN_WIDTH = 800;
 			static constexpr int16_t SCREEN_HEIGHT = 600;
 			

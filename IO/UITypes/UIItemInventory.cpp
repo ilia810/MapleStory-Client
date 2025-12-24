@@ -70,22 +70,28 @@ namespace ms
 		}
 		
 		// Handle position data based on version
+		// Note: slot_space = icon_size + padding between slots
+		// The padding is typically 3-4 pixels between item slots
+		constexpr int16_t SLOT_PADDING = 4;  // Padding between slots (adjustable)
+
 		if (is_v83) {
 			// V83/V87 defaults - no position data in NX files
 			LOG(LOG_DEBUG, "[UIItemInventory] Using v83/v87 defaults - no pos data in NX");
 			slot_col = 4;
 			slot_pos = Point<int16_t>(11, 51); // Position for first slot in v87
 			slot_row = 6;
-			slot_space_x = 36;  // Add back spacing
-			slot_space_y = 35;  // Add back spacing
+			// Will be recalculated below based on actual icon dimensions
+			slot_space_x = 36;
+			slot_space_y = 35;
 		} else if (is_v92) {
 			// V92 uses same defaults as v83/v87 but has tabs
 			LOG(LOG_DEBUG, "[UIItemInventory] Using v92 defaults - similar to v87 but with tabs");
 			slot_col = 4;
-			slot_pos = Point<int16_t>(11, 51); 
+			slot_pos = Point<int16_t>(11, 51);
 			slot_row = 6;
-			slot_space_x = 36;  // Add back spacing
-			slot_space_y = 35;  // Add back spacing
+			// Will be recalculated below based on actual icon dimensions
+			slot_space_x = 36;
+			slot_space_y = 35;
 		} else {
 			// Modern MapleStory layout
 			nl::node pos = Item["pos"];
@@ -185,6 +191,16 @@ namespace ms
 		Point<int16_t> icon_dimensions = disabled.get_dimensions();
 		icon_width = icon_dimensions.x();
 		icon_height = icon_dimensions.y();
+
+		// Adaptive slot spacing: recalculate based on actual icon dimensions if available
+		// This fixes misalignment when v92 assets have different icon sizes than expected
+		if ((is_v83 || is_v92) && icon_width > 0 && icon_height > 0) {
+			// Recalculate slot spacing based on actual icon dimensions + padding (uses SLOT_PADDING from above)
+			slot_space_x = icon_width + SLOT_PADDING;
+			slot_space_y = icon_height + SLOT_PADDING - 1;  // Slight vertical adjustment
+			LOG(LOG_DEBUG, "[UIItemInventory] Adaptive spacing: icon(" << icon_width << "x" << icon_height
+				<< ") -> space(" << slot_space_x << "x" << slot_space_y << ")");
+		}
 
 		// Handle tabs based on version
 		if (is_v92) {

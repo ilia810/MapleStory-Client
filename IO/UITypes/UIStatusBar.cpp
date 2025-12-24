@@ -146,36 +146,23 @@ namespace ms
 		namelabel_pos = Point<int16_t>(160, 35);  // Character name position (moved 150px right)
 		quickslot_pos = Point<int16_t>(VWIDTH - 200, 5); // Quickslot area position (right side)
 
-		// Menu
-		menu_pos = Point<int16_t>(682, -280);
+		// Menu positioning - dynamically calculated based on resolution
+		// Base position for 800x600, then offset for larger resolutions
+		int16_t menu_base_x = VWIDTH - 118;  // 118px from right edge
+		menu_pos = Point<int16_t>(menu_base_x, -280);
 		setting_pos = menu_pos + Point<int16_t>(0, 168);
 		community_pos = menu_pos + Point<int16_t>(-26, 196);
 		character_pos = menu_pos + Point<int16_t>(-61, 168);
 		event_pos = menu_pos + Point<int16_t>(-94, 252);
 
-		// V92: Positioning adjustments for different screen widths
-		if (VWIDTH == 1280) {
-			statset_pos = Point<int16_t>(580, 50);
-			quickslot_pos = Point<int16_t>(VWIDTH - 200, 5);
-			menu_pos += Point<int16_t>(-7, 0);
-			setting_pos += Point<int16_t>(-7, 0);
-			community_pos += Point<int16_t>(-7, 0);
-			character_pos += Point<int16_t>(-7, 0);
-			event_pos += Point<int16_t>(-7, 0);
-		} else if (VWIDTH == 1366) {
-			quickslot_pos = Point<int16_t>(VWIDTH - 200, 5);
-			menu_pos += Point<int16_t>(-5, 0);
-			setting_pos += Point<int16_t>(-5, 0);
-			community_pos += Point<int16_t>(-5, 0);
-			character_pos += Point<int16_t>(-5, 0);
-			event_pos += Point<int16_t>(-5, 0);
-		} else if (VWIDTH == 1920) {
-			quickslot_pos = Point<int16_t>(VWIDTH - 200, 5);
-			menu_pos += Point<int16_t>(272, 0);
-			setting_pos += Point<int16_t>(272, 0);
-			community_pos += Point<int16_t>(272, 0);
-			character_pos += Point<int16_t>(272, 0);
-			event_pos += Point<int16_t>(272, 0);
+		// Quickslot position - always relative to right edge
+		quickslot_pos = Point<int16_t>(VWIDTH - 200, 5);
+
+		// Adjust stat text position for wider resolutions
+		if (VWIDTH > 1024) {
+			// Calculate dynamic offset from base resolution
+			int16_t extra_width = VWIDTH - 800;
+			statset_pos = Point<int16_t>(500 + (extra_width / 10), 32);
 		}
 
 		// V92: No separate HP/MP background sprites needed
@@ -348,32 +335,14 @@ namespace ms
 #pragma endregion
 
 		// V92: Status bar stretches across bottom of screen for all resolutions
-		if (VWIDTH == 800) {
-			position = Point<int16_t>(0, VHEIGHT - 75);
-			position_x = 0;
-			position_y = position.y();
-			dimension = Point<int16_t>(VWIDTH, 75);
-		} else if (VWIDTH == 1024) {
-			position = Point<int16_t>(0, VHEIGHT - 75);
-			position_x = 0;
-			position_y = position.y();
-			dimension = Point<int16_t>(VWIDTH, 75);
-		} else if (VWIDTH == 1280) {
-			position = Point<int16_t>(0, VHEIGHT - 80);
-			position_x = 0;
-			position_y = position.y();
-			dimension = Point<int16_t>(VWIDTH, 80);
-		} else if (VWIDTH == 1366) {
-			position = Point<int16_t>(0, VHEIGHT - 80);
-			position_x = 0;
-			position_y = position.y();
-			dimension = Point<int16_t>(VWIDTH, 80);
-		} else if (VWIDTH == 1920) {
-			position = Point<int16_t>(0, VHEIGHT - 80);
-			position_x = 0;
-			position_y = position.y();
-			dimension = Point<int16_t>(VWIDTH, 80);
-		}
+		// Use dynamic height calculation based on resolution
+		int16_t statusbar_height = (VWIDTH <= 1024) ? 75 : 80;
+
+		// Always position at bottom of screen, stretching full width
+		position = Point<int16_t>(0, VHEIGHT - statusbar_height);
+		position_x = 0;
+		position_y = position.y();
+		dimension = Point<int16_t>(VWIDTH, statusbar_height);
 	}
 
 	void UIStatusBar::draw(float alpha) const

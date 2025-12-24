@@ -1,5 +1,6 @@
 //////////////////////////////////////////////////////////////////////////////////
 //	LegacyUI - Helper functions for v83/v87 UI implementation
+//	Also provides offset corrections for v92 asset origin mismatches
 //////////////////////////////////////////////////////////////////////////////////
 #include "LegacyUI.h"
 #include "Misc.h"
@@ -8,6 +9,7 @@
 #include "../Graphics/Color.h"
 
 #include <unordered_set>
+#include <unordered_map>
 #include <iostream>
 #include <algorithm>
 #include <cctype>
@@ -16,6 +18,124 @@ namespace ms
 {
 	namespace LegacyUI
 	{
+		//////////////////////////////////////////////////////////////////////////////
+		// OFFSET CORRECTION IMPLEMENTATION
+		//////////////////////////////////////////////////////////////////////////////
+		namespace OffsetCorrection
+		{
+			// Static storage for offset corrections
+			static std::unordered_map<std::string, Point<int16_t>> offset_table;
+			static bool initialized = false;
+
+			void initialize()
+			{
+				if (initialized) return;
+
+				// Clear any existing entries
+				offset_table.clear();
+
+				// Populate offset correction table
+				// These offsets are calculated as: v92_expected_pos - v83_code_pos
+				// When an element appears shifted, add the inverse of the shift here
+
+				// StatusBar elements
+				offset_table["StatusBar.img/gauge/hp"] = Point<int16_t>(0, 0);
+				offset_table["StatusBar.img/gauge/mp"] = Point<int16_t>(0, 0);
+				offset_table["StatusBar.img/gauge/exp"] = Point<int16_t>(0, 0);
+				offset_table["StatusBar.img/base/backgrnd"] = Point<int16_t>(0, 0);
+
+				// Inventory elements
+				offset_table["UIWindow.img/Item/backgrnd"] = Point<int16_t>(0, 0);
+				offset_table["UIWindow.img/Item/Tab/enabled"] = Point<int16_t>(0, 0);
+				offset_table["UIWindow.img/Item/Tab/disabled"] = Point<int16_t>(0, 0);
+
+				// Login elements
+				offset_table["Login.img/Title/BtLogin"] = Point<int16_t>(0, 0);
+				offset_table["Login.img/Title/BtQuit"] = Point<int16_t>(0, 0);
+				offset_table["Login.img/Common/frame"] = Point<int16_t>(0, 0);
+
+				// Character Select elements
+				offset_table["Login.img/CharSelect/BtNew"] = Point<int16_t>(0, 0);
+
+				initialized = true;
+			}
+
+			bool is_initialized()
+			{
+				return initialized;
+			}
+
+			Point<int16_t> get_offset(const std::string& asset_path)
+			{
+				if (!initialized)
+				{
+					initialize();
+				}
+
+				auto it = offset_table.find(asset_path);
+				if (it != offset_table.end())
+				{
+					return it->second;
+				}
+
+				// No offset correction needed
+				return Point<int16_t>(0, 0);
+			}
+		}
+
+		//////////////////////////////////////////////////////////////////////////////
+		// DYNAMIC POSITIONING IMPLEMENTATION
+		//////////////////////////////////////////////////////////////////////////////
+		namespace DynamicPos
+		{
+			Point<int16_t> calculate(Anchor anchor, Point<int16_t> offset, int16_t screen_width, int16_t screen_height)
+			{
+				int16_t x = 0, y = 0;
+
+				switch (anchor)
+				{
+					case Anchor::TOP_LEFT:
+						x = offset.x();
+						y = offset.y();
+						break;
+					case Anchor::TOP_CENTER:
+						x = (screen_width / 2) + offset.x();
+						y = offset.y();
+						break;
+					case Anchor::TOP_RIGHT:
+						x = screen_width - offset.x();
+						y = offset.y();
+						break;
+					case Anchor::CENTER_LEFT:
+						x = offset.x();
+						y = (screen_height / 2) + offset.y();
+						break;
+					case Anchor::CENTER:
+						x = (screen_width / 2) + offset.x();
+						y = (screen_height / 2) + offset.y();
+						break;
+					case Anchor::CENTER_RIGHT:
+						x = screen_width - offset.x();
+						y = (screen_height / 2) + offset.y();
+						break;
+					case Anchor::BOTTOM_LEFT:
+						x = offset.x();
+						y = screen_height - offset.y();
+						break;
+					case Anchor::BOTTOM_CENTER:
+						x = (screen_width / 2) + offset.x();
+						y = screen_height - offset.y();
+						break;
+					case Anchor::BOTTOM_RIGHT:
+						x = screen_width - offset.x();
+						y = screen_height - offset.y();
+						break;
+				}
+
+				return Point<int16_t>(x, y);
+			}
+		}
+
 		// Track warned nodes to avoid spam
 		static std::unordered_set<std::string> warned_nodes;
 		
