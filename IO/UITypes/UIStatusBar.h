@@ -52,6 +52,7 @@ namespace ms
 		void send_key(int32_t keycode, bool pressed, bool escape) override;
 
 		UIElement::Type get_type() const override;
+		ComponentInfo get_component_at(Point<int16_t> cursor_position) const override;
 
 		void toggle_qs();
 		void toggle_menu();

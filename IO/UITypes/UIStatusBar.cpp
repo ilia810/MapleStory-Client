@@ -1192,4 +1192,95 @@ namespace ms
 		return static_cast<float>(mp) / maxmp;
 	}
 
+	UIElement::ComponentInfo UIStatusBar::get_component_at(Point<int16_t> cursor_position) const
+	{
+		ComponentInfo info;
+
+		// HP bar area (approximate bounds based on hpmp_pos)
+		Rectangle<int16_t> hp_bounds(
+			position + hpmp_pos,
+			position + hpmp_pos + Point<int16_t>(100, 12)
+		);
+		if (hp_bounds.contains(cursor_position))
+		{
+			info.type = ComponentInfo::SPRITE;
+			info.name = "HP Bar (Gauge)";
+			info.position = position + hpmp_pos;
+			info.dimension = Point<int16_t>(100, 12);
+			return info;
+		}
+
+		// MP bar area (below HP bar)
+		Rectangle<int16_t> mp_bounds(
+			position + mp_pos,
+			position + mp_pos + Point<int16_t>(100, 12)
+		);
+		if (mp_bounds.contains(cursor_position))
+		{
+			info.type = ComponentInfo::SPRITE;
+			info.name = "MP Bar (Gauge)";
+			info.position = position + mp_pos;
+			info.dimension = Point<int16_t>(100, 12);
+			return info;
+		}
+
+		// EXP bar area
+		Rectangle<int16_t> exp_bounds(
+			position + exp_pos,
+			position + exp_pos + Point<int16_t>(VWIDTH, 8)
+		);
+		if (exp_bounds.contains(cursor_position))
+		{
+			info.type = ComponentInfo::SPRITE;
+			info.name = "EXP Bar (Gauge)";
+			info.position = position + exp_pos;
+			info.dimension = Point<int16_t>(VWIDTH, 8);
+			return info;
+		}
+
+		// Level display area
+		Rectangle<int16_t> level_bounds(
+			position + levelset_pos - Point<int16_t>(20, 10),
+			position + levelset_pos + Point<int16_t>(40, 20)
+		);
+		if (level_bounds.contains(cursor_position))
+		{
+			info.type = ComponentInfo::SPRITE;
+			info.name = "Level Display";
+			info.position = position + levelset_pos;
+			info.dimension = Point<int16_t>(40, 20);
+			return info;
+		}
+
+		// Name label area
+		Rectangle<int16_t> name_bounds(
+			position + namelabel_pos - Point<int16_t>(5, 5),
+			position + namelabel_pos + Point<int16_t>(80, 20)
+		);
+		if (name_bounds.contains(cursor_position))
+		{
+			info.type = ComponentInfo::SPRITE;
+			info.name = "Character Name";
+			info.position = position + namelabel_pos;
+			info.dimension = Point<int16_t>(80, 15);
+			return info;
+		}
+
+		// Quickslot area
+		Rectangle<int16_t> qs_bounds(
+			position + quickslot_pos,
+			position + quickslot_pos + Point<int16_t>(200, 40)
+		);
+		if (qs_bounds.contains(cursor_position))
+		{
+			info.type = ComponentInfo::SPRITE;
+			info.name = "Quickslot Area";
+			info.position = position + quickslot_pos;
+			info.dimension = Point<int16_t>(200, 40);
+			return info;
+		}
+
+		// Fall back to button detection from parent
+		return UIElement::get_component_at(cursor_position);
+	}
 }
