@@ -421,11 +421,15 @@ namespace ms
 						}
 					}
 
-					buttons[Buttons::BtWorld0 + worldid]->set_state(Button::State::NORMAL);
+					auto old_btn = buttons.find(Buttons::BtWorld0 + worldid);
+					if (old_btn != buttons.end() && old_btn->second)
+						old_btn->second->set_state(Button::State::NORMAL);
 
 					worldid = static_cast<uint8_t>(selected_world);
 
-					buttons[Buttons::BtWorld0 + worldid]->set_state(Button::State::PRESSED);
+					auto new_btn = buttons.find(Buttons::BtWorld0 + worldid);
+					if (new_btn != buttons.end() && new_btn->second)
+						new_btn->second->set_state(Button::State::PRESSED);
 				}
 				else if (escape)
 				{
@@ -450,19 +454,27 @@ namespace ms
 
 						for (size_t i = Buttons::BtWorld0; i < Buttons::BtChannel0; i++)
 						{
-							auto state = buttons[Buttons::BtWorld0 + i]->get_state();
-
-							if (state == Button::State::PRESSED)
+							auto btn_it = buttons.find(Buttons::BtWorld0 + i);
+							if (btn_it != buttons.end() && btn_it->second)
 							{
-								found = true;
-								break;
+								auto state = btn_it->second->get_state();
+
+								if (state == Button::State::PRESSED)
+								{
+									found = true;
+									break;
+								}
 							}
 						}
 
 						if (found)
 							button_pressed(selected_world + Buttons::BtWorld0);
 						else
-							buttons[Buttons::BtWorld0 + selected_world]->set_state(Button::State::PRESSED);
+						{
+							auto sel_btn = buttons.find(Buttons::BtWorld0 + selected_world);
+							if (sel_btn != buttons.end() && sel_btn->second)
+								sel_btn->second->set_state(Button::State::PRESSED);
+						}
 					}
 				}
 			}
@@ -484,7 +496,10 @@ namespace ms
 			if (world.channel_count < 2)
 				return; // I remove the world if there is only one channel because the graphic for the channel selection is defaulted to at least 2
 
-			buttons[Buttons::BtWorld0 + world.id]->set_active(true);
+			// Null check - button may not exist if UI.nx assets are missing
+			auto btn_it = buttons.find(Buttons::BtWorld0 + world.id);
+			if (btn_it != buttons.end() && btn_it->second)
+				btn_it->second->set_active(true);
 
 			if (channelid >= world.channel_count)
 				channelid = 0;
@@ -539,14 +554,21 @@ namespace ms
 
 	void UIWorldSelect::change_world(World selectedWorld)
 	{
-		buttons[Buttons::BtWorld0 + selectedWorld.id]->set_state(Button::State::PRESSED);
+		// Null check for world button
+		auto world_btn = buttons.find(Buttons::BtWorld0 + selectedWorld.id);
+		if (world_btn != buttons.end() && world_btn->second)
+			world_btn->second->set_state(Button::State::PRESSED);
 
 		for (size_t i = 0; i < selectedWorld.channel_count; ++i)
 		{
-			buttons[Buttons::BtChannel0 + i]->set_active(true);
+			auto ch_btn = buttons.find(Buttons::BtChannel0 + i);
+			if (ch_btn != buttons.end() && ch_btn->second)
+			{
+				ch_btn->second->set_active(true);
 
-			if (i == channelid)
-				buttons[Buttons::BtChannel0 + i]->set_state(Button::State::PRESSED);
+				if (i == channelid)
+					ch_btn->second->set_state(Button::State::PRESSED);
+			}
 
 			channel_gauge[i].update(selectedWorld.channel_capacities[i]);
 		}
@@ -695,14 +717,17 @@ namespace ms
 		}
 		else if (id >= Buttons::BtWorld0 && id < Buttons::BtChannel0)
 		{
-			buttons[Buttons::BtWorld0 + worldid]->set_state(Button::State::NORMAL);
+			auto old_world_btn = buttons.find(Buttons::BtWorld0 + worldid);
+			if (old_world_btn != buttons.end() && old_world_btn->second)
+				old_world_btn->second->set_state(Button::State::NORMAL);
 
 			worldid = id - Buttons::BtWorld0;
 
 			ServerStatusRequestPacket(worldid).dispatch();
 
 			// If no modern channel UI exists (v87), auto-enter world with channel 1
-			if (!channelsrc || !buttons[Buttons::BtGoWorld])
+			auto go_world_btn = buttons.find(Buttons::BtGoWorld);
+			if (!channelsrc || go_world_btn == buttons.end() || !go_world_btn->second)
 			{
 				channelid = 1; // Default to channel 1 for v87
 				enter_world(); // Enter immediately without channel selection
@@ -721,9 +746,13 @@ namespace ms
 
 			if (selectedch != channelid)
 			{
-				buttons[Buttons::BtChannel0 + channelid]->set_state(Button::State::NORMAL);
+				auto old_ch_btn = buttons.find(Buttons::BtChannel0 + channelid);
+				if (old_ch_btn != buttons.end() && old_ch_btn->second)
+					old_ch_btn->second->set_state(Button::State::NORMAL);
 				channelid = static_cast<uint8_t>(id - Buttons::BtChannel0);
-				buttons[Buttons::BtChannel0 + channelid]->set_state(Button::State::PRESSED);
+				auto new_ch_btn = buttons.find(Buttons::BtChannel0 + channelid);
+				if (new_ch_btn != buttons.end() && new_ch_btn->second)
+					new_ch_btn->second->set_state(Button::State::PRESSED);
 				Sound(Sound::Name::WORLDSELECT).play();
 			}
 			else

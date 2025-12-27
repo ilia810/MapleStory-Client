@@ -372,44 +372,56 @@ namespace ms
 	void UIMiniMap::update_buttons()
 	{
 		// Add one pixel for a space to the right of each button
-		bt_min_width = buttons[Buttons::BT_MIN]->width() + 1;
-		bt_max_width = buttons[Buttons::BT_MAX]->width() + 1;
-		bt_map_width = buttons[Buttons::BT_MAP]->width() + 1;
+		auto btn_min = buttons.find(Buttons::BT_MIN);
+		auto btn_max = buttons.find(Buttons::BT_MAX);
+		auto btn_map = buttons.find(Buttons::BT_MAP);
+
+		bt_min_width = (btn_min != buttons.end() && btn_min->second) ? btn_min->second->width() + 1 : 0;
+		bt_max_width = (btn_max != buttons.end() && btn_max->second) ? btn_max->second->width() + 1 : 0;
+		bt_map_width = (btn_map != buttons.end() && btn_map->second) ? btn_map->second->width() + 1 : 0;
 
 		combined_text_width = combined_text.width();
 	}
 
 	void UIMiniMap::toggle_buttons()
 	{
+		// Helper lambda for safe button access
+		auto safe_btn = [this](uint16_t id) -> Button* {
+			auto it = buttons.find(id);
+			return (it != buttons.end() && it->second) ? it->second.get() : nullptr;
+		};
+
 		int16_t bt_min_x;
 
 		if (type == Type::MIN)
 		{
-			buttons[Buttons::BT_MAP]->set_active(true);
-			buttons[Buttons::BT_MAX]->set_active(true);
-			buttons[Buttons::BT_MIN]->set_active(true);
-			buttons[Buttons::BT_NPC]->set_active(false);
-			buttons[Buttons::BT_SMALL]->set_active(false);
-			buttons[Buttons::BT_BIG]->set_active(false);
+			if (auto btn = safe_btn(Buttons::BT_MAP)) btn->set_active(true);
+			if (auto btn = safe_btn(Buttons::BT_MAX)) btn->set_active(true);
+			if (auto btn = safe_btn(Buttons::BT_MIN)) btn->set_active(true);
+			if (auto btn = safe_btn(Buttons::BT_NPC)) btn->set_active(false);
+			if (auto btn = safe_btn(Buttons::BT_SMALL)) btn->set_active(false);
+			if (auto btn = safe_btn(Buttons::BT_BIG)) btn->set_active(false);
 
-			buttons[Buttons::BT_MIN]->set_state(Button::State::DISABLED);
+			if (auto btn = safe_btn(Buttons::BT_MIN)) btn->set_state(Button::State::DISABLED);
 
-			if (has_map)
-				buttons[Buttons::BT_MAX]->set_state(Button::State::NORMAL);
-			else
-				buttons[Buttons::BT_MAX]->set_state(Button::State::DISABLED);
+			if (auto btn = safe_btn(Buttons::BT_MAX)) {
+				if (has_map)
+					btn->set_state(Button::State::NORMAL);
+				else
+					btn->set_state(Button::State::DISABLED);
+			}
 
 			bt_min_x = combined_text_width + 11;
 
-			buttons[Buttons::BT_MIN]->set_position(Point<int16_t>(bt_min_x, BTN_MIN_Y));
+			if (auto btn = safe_btn(Buttons::BT_MIN)) btn->set_position(Point<int16_t>(bt_min_x, BTN_MIN_Y));
 
 			bt_min_x += bt_min_width;
 
-			buttons[Buttons::BT_MAX]->set_position(Point<int16_t>(bt_min_x, BTN_MIN_Y));
+			if (auto btn = safe_btn(Buttons::BT_MAX)) btn->set_position(Point<int16_t>(bt_min_x, BTN_MIN_Y));
 
 			bt_min_x += bt_max_width;
 
-			buttons[Buttons::BT_MAP]->set_position(Point<int16_t>(bt_min_x, BTN_MIN_Y));
+			if (auto btn = safe_btn(Buttons::BT_MAP)) btn->set_position(Point<int16_t>(bt_min_x, BTN_MIN_Y));
 
 			min_dimensions = Point<int16_t>(bt_min_x + bt_map_width + 7, 20);
 
@@ -423,55 +435,61 @@ namespace ms
 		{
 			bool has_npcs = Stage::get().get_npcs().get_npcs()->size() > 0;
 
-			buttons[Buttons::BT_MAP]->set_active(true);
-			buttons[Buttons::BT_MAX]->set_active(true);
-			buttons[Buttons::BT_MIN]->set_active(true);
-			buttons[Buttons::BT_NPC]->set_active(has_npcs);
+			if (auto btn = safe_btn(Buttons::BT_MAP)) btn->set_active(true);
+			if (auto btn = safe_btn(Buttons::BT_MAX)) btn->set_active(true);
+			if (auto btn = safe_btn(Buttons::BT_MIN)) btn->set_active(true);
+			if (auto btn = safe_btn(Buttons::BT_NPC)) btn->set_active(has_npcs);
 
 			if (big_map)
 			{
-				buttons[Buttons::BT_BIG]->set_active(false);
-				buttons[Buttons::BT_SMALL]->set_active(true);
+				if (auto btn = safe_btn(Buttons::BT_BIG)) btn->set_active(false);
+				if (auto btn = safe_btn(Buttons::BT_SMALL)) btn->set_active(true);
 			}
 			else
 			{
-				buttons[Buttons::BT_BIG]->set_active(true);
-				buttons[Buttons::BT_SMALL]->set_active(false);
+				if (auto btn = safe_btn(Buttons::BT_BIG)) btn->set_active(true);
+				if (auto btn = safe_btn(Buttons::BT_SMALL)) btn->set_active(false);
 			}
 
-			buttons[Buttons::BT_MIN]->set_state(Button::State::NORMAL);
+			if (auto btn = safe_btn(Buttons::BT_MIN)) btn->set_state(Button::State::NORMAL);
 
 			// Calculate total button width needed
-			int16_t total_button_width = bt_min_width + buttons[Buttons::BT_SMALL]->width() + 1 + bt_max_width + bt_map_width + (has_npcs ? buttons[Buttons::BT_NPC]->width() : 0);
-			
+			auto btn_small = safe_btn(Buttons::BT_SMALL);
+			auto btn_npc = safe_btn(Buttons::BT_NPC);
+			int16_t small_width = btn_small ? btn_small->width() + 1 : 0;
+			int16_t npc_width = (has_npcs && btn_npc) ? btn_npc->width() : 0;
+			int16_t total_button_width = bt_min_width + small_width + bt_max_width + bt_map_width + npc_width;
+
 			// Position buttons to fit within the window dimensions, leaving some margin
 			// Use the window width from normal_dimensions if available, otherwise use middle_right_x
 			int16_t window_width = (type == Type::NORMAL && normal_dimensions.x() > 0) ? normal_dimensions.x() : middle_right_x + 55;
 			bt_min_x = window_width - total_button_width - 10;
 
-			buttons[Buttons::BT_MIN]->set_position(Point<int16_t>(bt_min_x, BTN_MIN_Y));
+			if (auto btn = safe_btn(Buttons::BT_MIN)) btn->set_position(Point<int16_t>(bt_min_x, BTN_MIN_Y));
 
 			bt_min_x += bt_max_width;
 
-			buttons[Buttons::BT_MAX]->set_position(Point<int16_t>(bt_min_x, BTN_MIN_Y));
+			if (auto btn = safe_btn(Buttons::BT_MAX)) btn->set_position(Point<int16_t>(bt_min_x, BTN_MIN_Y));
 
 			bt_min_x += bt_max_width;
 
-			buttons[Buttons::BT_SMALL]->set_position(Point<int16_t>(bt_min_x, BTN_MIN_Y));
-			buttons[Buttons::BT_BIG]->set_position(Point<int16_t>(bt_min_x, BTN_MIN_Y));
+			if (auto btn = safe_btn(Buttons::BT_SMALL)) btn->set_position(Point<int16_t>(bt_min_x, BTN_MIN_Y));
+			if (auto btn = safe_btn(Buttons::BT_BIG)) btn->set_position(Point<int16_t>(bt_min_x, BTN_MIN_Y));
 
 			bt_min_x += bt_max_width;
 
-			buttons[Buttons::BT_MAP]->set_position(Point<int16_t>(bt_min_x, BTN_MIN_Y));
+			if (auto btn = safe_btn(Buttons::BT_MAP)) btn->set_position(Point<int16_t>(bt_min_x, BTN_MIN_Y));
 
 			bt_min_x += bt_map_width;
 
-			buttons[Buttons::BT_NPC]->set_position(Point<int16_t>(bt_min_x, BTN_MIN_Y));
+			if (auto btn = safe_btn(Buttons::BT_NPC)) btn->set_position(Point<int16_t>(bt_min_x, BTN_MIN_Y));
 
-			if (type == Type::MAX)
-				buttons[Buttons::BT_MAX]->set_state(Button::State::DISABLED);
-			else
-				buttons[Buttons::BT_MAX]->set_state(Button::State::NORMAL);
+			if (auto btn = safe_btn(Buttons::BT_MAX)) {
+				if (type == Type::MAX)
+					btn->set_state(Button::State::DISABLED);
+				else
+					btn->set_state(Button::State::NORMAL);
+			}
 
 			set_npclist_active(listNpc_enabled && has_npcs);
 

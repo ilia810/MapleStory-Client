@@ -103,8 +103,9 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>glew32s.lib;freetype.lib;glfw3.lib;bass.lib;OpenGL32.lib;Iphlpapi.lib;WzLib.lib;liblz4.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>glew32s.lib;freetype.lib;glfw3.lib;bass.lib;OpenGL32.lib;Iphlpapi.lib;liblz4.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(ProjectDir)includes\glew-2.1.0\lib\Release\$(Platform);$(ProjectDir)includes\freetype\win$(PlatformArchitecture);$(ProjectDir)includes\glfw-3.3.2.bin.WIN$(PlatformArchitecture)\lib-vc2015;$(ProjectDir)includes\bass24\c\$(PlatformTarget);$(ProjectDir)includes\WzLib\bin\Win32Release;$(ProjectDir)includes\NoLifeNx\nlnx\includes\lz4_v1_8_2_win$(PlatformArchitecture)\dll;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <LargeAddressAware>true</LargeAddressAware>
     </Link>
     <PostBuildEvent>
       <Command>copy /y /d "$(ProjectDir)includes\freetype\win$(PlatformArchitecture)\freetype.dll" "$(OutDir)"
@@ -147,12 +148,14 @@ copy /y /d "$(ProjectDir)includes\NoLifeNx\nlnx\includes\lz4_v1_8_2_win$(Platfor
       <AdditionalIncludeDirectories>$(ProjectDir)includes\glew-2.1.0\include\GL;$(ProjectDir)includes\freetype\include;$(ProjectDir)includes\glfw-3.3.2.bin.WIN$(PlatformArchitecture)\include\GLFW;$(ProjectDir)includes\stb;$(ProjectDir)includes\bass24\c;$(ProjectDir)includes\NoLifeNx;$(ProjectDir)includes\NoLifeNx\nlnx\includes\lz4_v1_8_2_win$(PlatformArchitecture)\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
-      <SubSystem>Console</SubSystem>
+      <SubSystem>Windows</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>glew32s.lib;freetype.lib;glfw3.lib;bass.lib;OpenGL32.lib;Iphlpapi.lib;WzLib.lib;liblz4.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>glew32s.lib;freetype.lib;glfw3.lib;bass.lib;OpenGL32.lib;Iphlpapi.lib;liblz4.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(ProjectDir)includes\glew-2.1.0\lib\Release\$(Platform);$(ProjectDir)includes\freetype\win$(PlatformArchitecture);$(ProjectDir)includes\glfw-3.3.2.bin.WIN$(PlatformArchitecture)\lib-vc2015;$(ProjectDir)includes\bass24\c\$(PlatformTarget);$(ProjectDir)includes\WzLib\bin\Win32Release;$(ProjectDir)includes\NoLifeNx\nlnx\includes\lz4_v1_8_2_win$(PlatformArchitecture)\dll;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
+      <LargeAddressAware>true</LargeAddressAware>
     </Link>
     <PostBuildEvent>
       <Command>copy /y /d "$(ProjectDir)includes\freetype\win$(PlatformArchitecture)\freetype.dll" "$(OutDir)"

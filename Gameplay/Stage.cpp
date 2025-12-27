@@ -122,8 +122,9 @@ namespace ms
 		if (mapid == -1) {
 			src = nl::nx::UI["CashShopPreview.img"];
 		} else {
+			// Try Map002 first, then Map
 			src = nl::nx::Map002["Map"]["Map" + prefix][strid + ".img"];
-			if (src.name().empty()) {
+			if (src.name().empty() || src.size() == 0) {
 				src = nl::nx::Map["Map"]["Map" + prefix][strid + ".img"];
 			}
 			

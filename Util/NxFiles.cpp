@@ -70,7 +70,42 @@ namespace ms
 			try
 			{
 				nl::nx::load_all();
-				
+
+				// Debug: Check what NX files were loaded
+				{
+					std::ofstream nxlog("nx_load_debug.txt");
+					nxlog << "=== NX LOAD DEBUG ===" << std::endl;
+					nxlog << "After load_all():" << std::endl;
+					nxlog << "  Map.nx: size=" << nl::nx::Map.size() << std::endl;
+					nxlog << "  UI.nx: size=" << nl::nx::UI.size() << std::endl;
+					nxlog << "  Character.nx: size=" << nl::nx::Character.size() << std::endl;
+
+					// Try to manually check Map.nx file
+					nxlog << "\nChecking Map.nx file directly..." << std::endl;
+					std::ifstream mapfile("Map.nx", std::ios::binary);
+					if (mapfile.good()) {
+						mapfile.seekg(0, std::ios::end);
+						auto size = mapfile.tellg();
+						nxlog << "  Map.nx file size: " << size << " bytes" << std::endl;
+						mapfile.seekg(0, std::ios::beg);
+
+						// Read magic number
+						char magic[4];
+						mapfile.read(magic, 4);
+						nxlog << "  Magic bytes: " << std::hex
+							<< (int)(unsigned char)magic[0] << " "
+							<< (int)(unsigned char)magic[1] << " "
+							<< (int)(unsigned char)magic[2] << " "
+							<< (int)(unsigned char)magic[3] << std::dec << std::endl;
+						nxlog << "  Expected: 50 4B 47 34 (PKG4)" << std::endl;
+						mapfile.close();
+					} else {
+						nxlog << "  ERROR: Cannot open Map.nx file!" << std::endl;
+					}
+
+					nxlog.close();
+				}
+
 				// Test Character.nx Hair directory immediately after loading
 				nl::node character_node = nl::nx::Character;
 				if (character_node) {

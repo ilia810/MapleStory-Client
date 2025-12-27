@@ -974,7 +974,9 @@ namespace ms
 
 					if (previous_character != selected_character)
 					{
-						if (previous_character < characters_count)
+						if (previous_character < characters_count &&
+						    previous_character < charlooks.size() &&
+						    previous_character < nametags.size())
 						{
 							charlooks[previous_character].set_stance(Stance::Id::STAND1);
 							nametags[previous_character].set_selected(false);
@@ -1031,7 +1033,9 @@ namespace ms
 	{
 		Sound(Sound::Name::CHARSELECT).play();
 
-		if (charlooks.size() > selected_character)
+		if (charlooks.size() > selected_character &&
+		    nametags.size() > selected_character &&
+		    characters.size() > selected_character)
 		{
 			charlooks[selected_character].set_stance(Stance::Id::WALK1);
 			nametags[selected_character].set_selected(true);

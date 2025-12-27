@@ -1101,6 +1101,19 @@ namespace ms
 		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);  // clear to black instead of white
 		glClear(GL_COLOR_BUFFER_BIT);
 
+		// Ensure shader program is active
+		glUseProgram(shaderProgram);
+
+		// Ensure texture atlas is bound
+		glBindTexture(GL_TEXTURE_2D, atlas);
+
+		// Set all shader uniforms each frame
+		glUniform1i(uniform_texture, 0);  // texture unit 0
+		glUniform1i(uniform_fontregion, fontymax);
+		glUniform2f(uniform_atlassize, ATLASW, ATLASH);
+		glUniform2f(uniform_screensize, VWIDTH, VHEIGHT);
+		glUniform1i(uniform_yoffset, 0);
+
 		// Z-sorting temporarily disabled due to rendering issues
 		// std::stable_sort(quads.begin(), quads.end(), [](const Quad& a, const Quad& b) {
 		//     return a.z < b.z;
@@ -1113,6 +1126,10 @@ namespace ms
 		glEnableVertexAttribArray(attribute_color);
 		glBindBuffer(GL_ARRAY_BUFFER, VBO);
 		glBufferData(GL_ARRAY_BUFFER, csize, quads.data(), GL_STREAM_DRAW);
+
+		// Set vertex attribute pointers after buffer data upload
+		glVertexAttribPointer(attribute_coord, 4, GL_SHORT, GL_FALSE, sizeof(Quad::Vertex), 0);
+		glVertexAttribPointer(attribute_color, 4, GL_FLOAT, GL_FALSE, sizeof(Quad::Vertex), (const void*)8);
 
 		glDrawArrays(GL_QUADS, 0, fsize);
 
