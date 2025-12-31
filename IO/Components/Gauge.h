@@ -29,8 +29,9 @@ namespace ms
 			DEFAULT,
 			CASHSHOP,
 			WORLDSELECT,
-			V87_FILL,  // New type for v87 single-texture horizontal fill
-			V87_FILL_REVERSE  // Fill from right to left
+			V87_FILL,        // Clip from left side (0 to length)
+			V87_FILL_REVERSE,// Fill from right to left (flipped)
+			V87_FILL_RIGHT   // Clip from right side (width-length to width)
 		};
 
 		Gauge() {}

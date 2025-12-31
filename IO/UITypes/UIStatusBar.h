@@ -23,6 +23,7 @@
 #include "../Components/Gauge.h"
 
 #include "../../Character/CharStats.h"
+#include "../../Graphics/Animation.h"
 #include "../../Graphics/SpecialText.h"
 
 namespace ms
@@ -50,9 +51,14 @@ namespace ms
 
 		bool is_in_range(Point<int16_t> cursor_position) const override;
 		void send_key(int32_t keycode, bool pressed, bool escape) override;
+		bool send_icon(const Icon& icon, Point<int16_t> cursor_position) override;
+		Cursor::State send_cursor(bool clicked, Point<int16_t> cursorpos) override;
 
 		UIElement::Type get_type() const override;
 		ComponentInfo get_component_at(Point<int16_t> cursor_position) const override;
+
+		// StatusBar is a fixed HUD element - don't scale it
+		bool should_scale() const override { return false; }
 
 		void toggle_qs();
 		void toggle_menu();
@@ -77,6 +83,12 @@ namespace ms
 		void remove_active_menu(MenuType type);
 
 		Point<int16_t> get_quickslot_pos() const;
+		Point<int16_t> get_quickslot_icon_start() const;
+		int16_t quickslot_by_position(Point<int16_t> cursorpos) const;
+		int32_t get_quickslot_keycode(int16_t slot) const;
+		void draw_quickslot_icons(Point<int16_t> qs_pos) const;
+		Texture get_item_texture(int32_t item_id) const;
+		Texture get_skill_texture(int32_t skill_id) const;
 
 		enum Buttons : uint16_t
 		{
@@ -86,6 +98,10 @@ namespace ms
 			BT_CHARACTER,
 			BT_COMMUNITY,
 			BT_EVENT,
+			BT_WHISPER,
+			BT_KEYSET,
+			BT_QUICKSLOT,
+			BT_QUICKSLOT_D,
 			BT_FOLD_QS,
 			BT_EXTEND_QS,
 			BT_EQUIP,
@@ -126,15 +142,36 @@ namespace ms
 		Gauge expbar;
 		Gauge hpbar;
 		Gauge mpbar;
+		Animation hpflash_anim;   // HP flash animation (for invincibility)
+		Animation mpflash_anim;   // MP flash animation (for invincibility)
 		Charset statset;
 		Charset hpmpset;
-		Charset levelset;
+		Texture level_digits[10];  // Level digit textures from PartySearch2/Level
+		Charset numset;           // White numbers for HP/MP/EXP values
+		// Special character textures (green)
+		Texture green_lbracket;
+		Texture green_rbracket;
+		// Special character textures (white)
+		Texture white_slash;
+		Texture white_percent;
+		Texture white_dot;
+		// Base textures
+		Texture base_box;
+		Texture base_chatTarget;
+		Texture base_iconBlue;
+		Texture base_iconRed;
+		Texture base_iconMemo;
+		Texture base_quickSlot;
+		// Quickslot key textures (Shift, Ins, Hm, Pup, Ctrl, Del, End, Pdn)
+		Texture quickslot_keys[8];
+		Charset quickslot_count_set;  // For drawing item counts on quickslots
+		// Gauge textures
+		Texture gauge_gray;
 		Texture quickslot[2];
 		Texture menutitle[5];
 		Texture menubackground[3];
-		OutlinedText namelabel;
-		mutable Text hp_text;
-		mutable Text mp_text;
+		OutlinedText classlabel;  // Class/job name (e.g., "Paladin")
+		OutlinedText namelabel;   // Player name (e.g., "Admin")
 		std::vector<Sprite> hpmp_sprites;
 
 		Point<int16_t> exp_pos;
@@ -153,13 +190,16 @@ namespace ms
 		Point<int16_t> community_pos;
 		Point<int16_t> character_pos;
 		Point<int16_t> event_pos;
+		Point<int16_t> hotkey_box_pos;  // Position to draw base_box texture
 		int16_t quickslot_min;
 		int16_t position_x;
 		int16_t position_y;
+		int16_t base_width;  // Width of base texture for centering
 
 		bool quickslot_active;
 		int16_t VWIDTH;
 		int16_t VHEIGHT;
+		mutable Point<int16_t> cached_qs_icon_start;  // Cached quickslot icon start position for hit detection
 
 		bool menu_active;
 		bool setting_active;

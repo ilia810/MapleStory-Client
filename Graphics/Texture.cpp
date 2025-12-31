@@ -169,7 +169,7 @@ namespace ms
 			return;
 		}
 
-		// Drawing texture 
+		// Drawing texture
 
 		GraphicsGL::get().draw(
 			bitmap,

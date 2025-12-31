@@ -17,6 +17,7 @@
 //////////////////////////////////////////////////////////////////////////////////
 #include "UI.h"
 
+#include "Cursor.h"
 #include "UIStateCashShop.h"
 #include "UIStateGame.h"
 #include "UIStateLogin.h"
@@ -198,6 +199,17 @@ namespace ms
 				std::cout << "[UI INSPECTOR] Enabled - Click on UI elements to inspect" << std::endl;
 			else
 				std::cout << "[UI INSPECTOR] Disabled" << std::endl;
+			return;
+		}
+
+		// F11 toggles cursor debug mode (crosshair with coordinates)
+		if (keycode == GLFW_KEY_F11 && pressed)
+		{
+			Cursor::debug_mode = !Cursor::debug_mode;
+			if (Cursor::debug_mode)
+				std::cout << "[CURSOR DEBUG] Enabled - Crosshair with coordinates" << std::endl;
+			else
+				std::cout << "[CURSOR DEBUG] Disabled" << std::endl;
 			return;
 		}
 
@@ -482,5 +494,10 @@ namespace ms
 		focusedtextfield = {};
 
 		state->remove(type);
+	}
+
+	void UI::bring_to_front(UIElement::Type type)
+	{
+		state->bring_to_front(type);
 	}
 }

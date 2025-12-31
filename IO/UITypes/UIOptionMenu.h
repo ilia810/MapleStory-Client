@@ -18,8 +18,10 @@
 #pragma once
 
 #include "../UIDragElement.h"
+#include "../UIScale.h"
 
 #include "../Components/MapleComboBox.h"
+#include "../../Graphics/Text.h"
 
 namespace ms
 {
@@ -55,10 +57,12 @@ namespace ms
 			CANCEL,
 			OK,
 			UIRESET,
-			SELECT_RES
+			SELECT_RES,
+			SELECT_SCALE
 		};
 
 		uint16_t selected_tab;
 		Texture tab_background[Buttons::CANCEL];
+		Text scale_label;
 	};
 }

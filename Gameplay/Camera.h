@@ -37,7 +37,8 @@ namespace ms
 		// Set the position, changing the view immediately.
 		void set_position(Point<int16_t> position);
 		// Updates the view's boundaries. Determined by mapinfo or footholds.
-		void set_view(Range<int16_t> hborders, Range<int16_t> vborders);
+		void set_view(Range<int16_t> hborders, Range<int16_t> vborders,
+		              int16_t platform_left, int16_t platform_right, int16_t platform_bottom);
 		// Return the current position.
 		Point<int16_t> position() const;
 		// Return the interpolated position.
@@ -53,6 +54,9 @@ namespace ms
 		// View limits.
 		Range<int16_t> hbounds;
 		Range<int16_t> vbounds;
+		int16_t leftmost_platform;  // Leftmost non-wall foothold X
+		int16_t rightmost_platform; // Rightmost non-wall foothold X
+		int16_t lowest_platform;    // Lowest non-wall foothold Y
 
 		int16_t VWIDTH;
 		int16_t VHEIGHT;

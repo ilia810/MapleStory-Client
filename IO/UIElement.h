@@ -80,8 +80,8 @@ namespace ms
 		virtual void update();
 		virtual void update_screen(int16_t new_width, int16_t new_height) {}
 
-		void makeactive();
-		void deactivate();
+		virtual void makeactive();
+		virtual void deactivate();
 		bool is_active() const;
 
 		virtual void toggle_active();
@@ -103,6 +103,13 @@ namespace ms
 		Point<int16_t> get_dimension() const { return dimension; }
 		size_t get_button_count() const { return buttons.size(); }
 		size_t get_sprite_count() const { return sprites.size(); }
+
+		// Clamp position to keep window on screen (virtual so subclasses can override)
+		virtual void clamp_position_to_screen();
+
+		// Returns true if this UI element should be scaled. Override to return false
+		// for fixed HUD elements like StatusBar that should stay anchored.
+		virtual bool should_scale() const { return true; }
 
 		// Get info about what's at cursor position (for UI Inspector)
 		struct ComponentInfo {

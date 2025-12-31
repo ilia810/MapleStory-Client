@@ -27,18 +27,21 @@ namespace ms
 {
 	UIUserList::UIUserList(uint16_t t) : UIDragElement<PosUSERLIST>(Point<int16_t>(260, 20)), tab(t)
 	{
-		nl::node close = nl::nx::UI["Basic.img"]["BtClose3"];
-		
-		// v92 compatibility: Check if UIWindow2.img exists
-		UserList = nl::nx::UI["UIWindow2.img"]["UserList"];
+		// v92 compatibility: Try UIWindow.img first, then UIWindow2.img
+		UserList = nl::nx::UI["UIWindow.img"]["UserList"];
+		if (!UserList) UserList = nl::nx::UI["UIWindow2.img"]["UserList"];
+
+		// Close button - try window-specific first, then fallback
+		nl::node close = UserList["BtClose"];
+		if (!close) close = nl::nx::UI["Basic.img"]["BtClose3"];
+
 		if (!UserList) {
-			// v92: This UI might not exist or be in different location
-			// Create minimal UI
+			// UI might not exist - create minimal UI
 			dimension = Point<int16_t>(260, 350);
 			if (close) buttons[Buttons::BT_CLOSE] = std::make_unique<MapleButton>(close, Point<int16_t>(244, 7));
 			return;
 		}
-		
+
 		nl::node Main = UserList["Main"];
 		if (!Main) {
 			dimension = Point<int16_t>(260, 350);
@@ -49,7 +52,7 @@ namespace ms
 		// Only load main background if it exists
 		if (Main["backgrnd"]) sprites.emplace_back(Main["backgrnd"]);
 
-		buttons[Buttons::BT_CLOSE] = std::make_unique<MapleButton>(close, Point<int16_t>(244, 7));
+		if (close) buttons[Buttons::BT_CLOSE] = std::make_unique<MapleButton>(close, Point<int16_t>(244, 7));
 
 		nl::node taben = Main["Tab"]["enabled"];
 		nl::node tabdis = Main["Tab"]["disabled"];
@@ -345,7 +348,17 @@ namespace ms
 		// Validate tab ID
 		if (tabid > Tab::BLACKLIST)
 			return;
-			
+
+		// Helper lambdas for safe button access
+		auto safe_set_active = [this](uint16_t id, bool active) {
+			if (buttons.count(id) && buttons[id])
+				buttons[id]->set_active(active);
+		};
+		auto safe_set_state = [this](uint16_t id, Button::State state) {
+			if (buttons.count(id) && buttons[id])
+				buttons[id]->set_state(state);
+		};
+
 		uint8_t oldtab = tab;
 		tab = tabid;
 
@@ -354,98 +367,96 @@ namespace ms
 		if (oldtab != tab && oldtab <= Tab::BLACKLIST)
 		{
 			uint16_t oldbtn_id = Buttons::BT_TAB_FRIEND + oldtab;
-			if (buttons.count(oldbtn_id) && buttons[oldbtn_id])
-				buttons[oldbtn_id]->set_state(Button::State::NORMAL);
+			safe_set_state(oldbtn_id, Button::State::NORMAL);
 		}
 
 		uint16_t newbtn_id = Buttons::BT_TAB_FRIEND + tab;
-		if (buttons.count(newbtn_id) && buttons[newbtn_id])
-			buttons[newbtn_id]->set_state(Button::State::PRESSED);
+		safe_set_state(newbtn_id, Button::State::PRESSED);
 
 		if (tab == Buttons::BT_TAB_PARTY)
 		{
-			buttons[Buttons::BT_PARTY_CREATE]->set_active(true);
-			buttons[Buttons::BT_PARTY_INVITE]->set_active(true);
-			buttons[Buttons::BT_TAB_PARTY_MINE]->set_active(true);
-			buttons[Buttons::BT_TAB_PARTY_SEARCH]->set_active(true);
+			safe_set_active(Buttons::BT_PARTY_CREATE, true);
+			safe_set_active(Buttons::BT_PARTY_INVITE, true);
+			safe_set_active(Buttons::BT_TAB_PARTY_MINE, true);
+			safe_set_active(Buttons::BT_TAB_PARTY_SEARCH, true);
 
 			change_party_tab(Tab::PARTY_MINE);
 		}
 		else
 		{
-			buttons[Buttons::BT_PARTY_CREATE]->set_active(false);
-			buttons[Buttons::BT_PARTY_INVITE]->set_active(false);
-			buttons[Buttons::BT_TAB_PARTY_MINE]->set_active(false);
-			buttons[Buttons::BT_TAB_PARTY_SEARCH]->set_active(false);
-			buttons[Buttons::BT_PARTY_SEARCH_LEVEL]->set_active(false);
+			safe_set_active(Buttons::BT_PARTY_CREATE, false);
+			safe_set_active(Buttons::BT_PARTY_INVITE, false);
+			safe_set_active(Buttons::BT_TAB_PARTY_MINE, false);
+			safe_set_active(Buttons::BT_TAB_PARTY_SEARCH, false);
+			safe_set_active(Buttons::BT_PARTY_SEARCH_LEVEL, false);
 		}
 
 		if (tab == Buttons::BT_TAB_FRIEND)
 		{
-			buttons[Buttons::BT_FRIEND_ADD]->set_active(true);
-			buttons[Buttons::BT_FRIEND_ADD_GROUP]->set_active(true);
-			buttons[Buttons::BT_FRIEND_EXPAND]->set_active(true);
-			buttons[Buttons::BT_TAB_FRIEND_ALL]->set_active(true);
-			buttons[Buttons::BT_TAB_FRIEND_ONLINE]->set_active(true);
-			buttons[Buttons::BT_FRIEND_GROUP_0]->set_active(true);
+			safe_set_active(Buttons::BT_FRIEND_ADD, true);
+			safe_set_active(Buttons::BT_FRIEND_ADD_GROUP, true);
+			safe_set_active(Buttons::BT_FRIEND_EXPAND, true);
+			safe_set_active(Buttons::BT_TAB_FRIEND_ALL, true);
+			safe_set_active(Buttons::BT_TAB_FRIEND_ONLINE, true);
+			safe_set_active(Buttons::BT_FRIEND_GROUP_0, true);
 
 			change_friend_tab(Tab::FRIEND_ALL);
 		}
 		else
 		{
-			buttons[Buttons::BT_FRIEND_ADD]->set_active(false);
-			buttons[Buttons::BT_FRIEND_ADD_GROUP]->set_active(false);
-			buttons[Buttons::BT_FRIEND_EXPAND]->set_active(false);
-			buttons[Buttons::BT_TAB_FRIEND_ALL]->set_active(false);
-			buttons[Buttons::BT_TAB_FRIEND_ONLINE]->set_active(false);
-			buttons[Buttons::BT_FRIEND_GROUP_0]->set_active(false);
+			safe_set_active(Buttons::BT_FRIEND_ADD, false);
+			safe_set_active(Buttons::BT_FRIEND_ADD_GROUP, false);
+			safe_set_active(Buttons::BT_FRIEND_EXPAND, false);
+			safe_set_active(Buttons::BT_TAB_FRIEND_ALL, false);
+			safe_set_active(Buttons::BT_TAB_FRIEND_ONLINE, false);
+			safe_set_active(Buttons::BT_FRIEND_GROUP_0, false);
 		}
 
 		if (tab == Buttons::BT_TAB_BOSS)
 		{
-			buttons[Buttons::BT_BOSS_0]->set_active(true);
-			buttons[Buttons::BT_BOSS_1]->set_active(true);
-			buttons[Buttons::BT_BOSS_2]->set_active(true);
-			buttons[Buttons::BT_BOSS_3]->set_active(true);
-			buttons[Buttons::BT_BOSS_4]->set_active(true);
-			buttons[Buttons::BT_BOSS_L]->set_active(true);
-			buttons[Buttons::BT_BOSS_R]->set_active(true);
-			buttons[Buttons::BT_BOSS_DIFF_L]->set_active(true);
-			buttons[Buttons::BT_BOSS_DIFF_R]->set_active(true);
-			buttons[Buttons::BT_BOSS_GO]->set_active(true);
-			buttons[Buttons::BT_BOSS_L]->set_state(Button::State::DISABLED);
-			buttons[Buttons::BT_BOSS_R]->set_state(Button::State::DISABLED);
-			buttons[Buttons::BT_BOSS_GO]->set_state(Button::State::DISABLED);
-			buttons[Buttons::BT_BOSS_DIFF_L]->set_state(Button::State::DISABLED);
-			buttons[Buttons::BT_BOSS_DIFF_R]->set_state(Button::State::DISABLED);
+			safe_set_active(Buttons::BT_BOSS_0, true);
+			safe_set_active(Buttons::BT_BOSS_1, true);
+			safe_set_active(Buttons::BT_BOSS_2, true);
+			safe_set_active(Buttons::BT_BOSS_3, true);
+			safe_set_active(Buttons::BT_BOSS_4, true);
+			safe_set_active(Buttons::BT_BOSS_L, true);
+			safe_set_active(Buttons::BT_BOSS_R, true);
+			safe_set_active(Buttons::BT_BOSS_DIFF_L, true);
+			safe_set_active(Buttons::BT_BOSS_DIFF_R, true);
+			safe_set_active(Buttons::BT_BOSS_GO, true);
+			safe_set_state(Buttons::BT_BOSS_L, Button::State::DISABLED);
+			safe_set_state(Buttons::BT_BOSS_R, Button::State::DISABLED);
+			safe_set_state(Buttons::BT_BOSS_GO, Button::State::DISABLED);
+			safe_set_state(Buttons::BT_BOSS_DIFF_L, Button::State::DISABLED);
+			safe_set_state(Buttons::BT_BOSS_DIFF_R, Button::State::DISABLED);
 		}
 		else
 		{
-			buttons[Buttons::BT_BOSS_0]->set_active(false);
-			buttons[Buttons::BT_BOSS_1]->set_active(false);
-			buttons[Buttons::BT_BOSS_2]->set_active(false);
-			buttons[Buttons::BT_BOSS_3]->set_active(false);
-			buttons[Buttons::BT_BOSS_4]->set_active(false);
-			buttons[Buttons::BT_BOSS_L]->set_active(false);
-			buttons[Buttons::BT_BOSS_R]->set_active(false);
-			buttons[Buttons::BT_BOSS_DIFF_L]->set_active(false);
-			buttons[Buttons::BT_BOSS_DIFF_R]->set_active(false);
-			buttons[Buttons::BT_BOSS_GO]->set_active(false);
+			safe_set_active(Buttons::BT_BOSS_0, false);
+			safe_set_active(Buttons::BT_BOSS_1, false);
+			safe_set_active(Buttons::BT_BOSS_2, false);
+			safe_set_active(Buttons::BT_BOSS_3, false);
+			safe_set_active(Buttons::BT_BOSS_4, false);
+			safe_set_active(Buttons::BT_BOSS_L, false);
+			safe_set_active(Buttons::BT_BOSS_R, false);
+			safe_set_active(Buttons::BT_BOSS_DIFF_L, false);
+			safe_set_active(Buttons::BT_BOSS_DIFF_R, false);
+			safe_set_active(Buttons::BT_BOSS_GO, false);
 		}
 
 		if (tab == Buttons::BT_TAB_BLACKLIST)
 		{
-			buttons[Buttons::BT_BLACKLIST_ADD]->set_active(true);
-			buttons[Buttons::BT_BLACKLIST_DELETE]->set_active(true);
-			buttons[Buttons::BT_TAB_BLACKLIST_INDIVIDUAL]->set_active(true);
-			buttons[Buttons::BT_TAB_BLACKLIST_GUILD]->set_active(true);
+			safe_set_active(Buttons::BT_BLACKLIST_ADD, true);
+			safe_set_active(Buttons::BT_BLACKLIST_DELETE, true);
+			safe_set_active(Buttons::BT_TAB_BLACKLIST_INDIVIDUAL, true);
+			safe_set_active(Buttons::BT_TAB_BLACKLIST_GUILD, true);
 		}
 		else
 		{
-			buttons[Buttons::BT_BLACKLIST_ADD]->set_active(false);
-			buttons[Buttons::BT_BLACKLIST_DELETE]->set_active(false);
-			buttons[Buttons::BT_TAB_BLACKLIST_INDIVIDUAL]->set_active(false);
-			buttons[Buttons::BT_TAB_BLACKLIST_GUILD]->set_active(false);
+			safe_set_active(Buttons::BT_BLACKLIST_ADD, false);
+			safe_set_active(Buttons::BT_BLACKLIST_DELETE, false);
+			safe_set_active(Buttons::BT_TAB_BLACKLIST_INDIVIDUAL, false);
+			safe_set_active(Buttons::BT_TAB_BLACKLIST_GUILD, false);
 		}
 	}
 
@@ -459,15 +470,21 @@ namespace ms
 		uint8_t oldtab = party_tab;
 		party_tab = tabid;
 
-		if (oldtab != party_tab)
-			buttons[Buttons::BT_TAB_FRIEND + oldtab]->set_state(Button::State::NORMAL);
+		uint16_t old_id = Buttons::BT_TAB_FRIEND + oldtab;
+		uint16_t new_id = Buttons::BT_TAB_FRIEND + party_tab;
 
-		buttons[Buttons::BT_TAB_FRIEND + party_tab]->set_state(Button::State::PRESSED);
+		if (oldtab != party_tab && buttons.count(old_id) && buttons[old_id])
+			buttons[old_id]->set_state(Button::State::NORMAL);
 
-		if (party_tab == Buttons::BT_TAB_PARTY_SEARCH)
-			buttons[Buttons::BT_PARTY_SEARCH_LEVEL]->set_active(true);
-		else
-			buttons[Buttons::BT_PARTY_SEARCH_LEVEL]->set_active(false);
+		if (buttons.count(new_id) && buttons[new_id])
+			buttons[new_id]->set_state(Button::State::PRESSED);
+
+		if (buttons.count(Buttons::BT_PARTY_SEARCH_LEVEL) && buttons[Buttons::BT_PARTY_SEARCH_LEVEL]) {
+			if (party_tab == Buttons::BT_TAB_PARTY_SEARCH)
+				buttons[Buttons::BT_PARTY_SEARCH_LEVEL]->set_active(true);
+			else
+				buttons[Buttons::BT_PARTY_SEARCH_LEVEL]->set_active(false);
+		}
 	}
 
 	void UIUserList::change_friend_tab(uint8_t tabid)
@@ -475,10 +492,14 @@ namespace ms
 		uint8_t oldtab = friend_tab;
 		friend_tab = tabid;
 
-		if (oldtab != friend_tab)
-			buttons[Buttons::BT_TAB_FRIEND + oldtab]->set_state(Button::State::NORMAL);
+		uint16_t old_id = Buttons::BT_TAB_FRIEND + oldtab;
+		uint16_t new_id = Buttons::BT_TAB_FRIEND + friend_tab;
 
-		buttons[Buttons::BT_TAB_FRIEND + friend_tab]->set_state(Button::State::PRESSED);
+		if (oldtab != friend_tab && buttons.count(old_id) && buttons[old_id])
+			buttons[old_id]->set_state(Button::State::NORMAL);
+
+		if (buttons.count(new_id) && buttons[new_id])
+			buttons[new_id]->set_state(Button::State::PRESSED);
 	}
 
 	void UIUserList::change_blacklist_tab(uint8_t tabid)
@@ -486,10 +507,14 @@ namespace ms
 		uint8_t oldtab = blacklist_tab;
 		blacklist_tab = tabid;
 
-		if (oldtab != blacklist_tab)
-			buttons[Buttons::BT_TAB_FRIEND + oldtab]->set_state(Button::State::NORMAL);
+		uint16_t old_id = Buttons::BT_TAB_FRIEND + oldtab;
+		uint16_t new_id = Buttons::BT_TAB_FRIEND + blacklist_tab;
 
-		buttons[Buttons::BT_TAB_FRIEND + blacklist_tab]->set_state(Button::State::PRESSED);
+		if (oldtab != blacklist_tab && buttons.count(old_id) && buttons[old_id])
+			buttons[old_id]->set_state(Button::State::NORMAL);
+
+		if (buttons.count(new_id) && buttons[new_id])
+			buttons[new_id]->set_state(Button::State::PRESSED);
 	}
 
 	std::string UIUserList::get_cur_location()

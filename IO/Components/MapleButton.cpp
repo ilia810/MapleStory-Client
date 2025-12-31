@@ -49,6 +49,25 @@ namespace ms
 		}
 	}
 
+	void MapleButton::draw(Point<int16_t> parentpos, const DrawArgument& scale_args) const
+	{
+		if (active)
+		{
+			// Apply scale to position and draw with scaled DrawArgument
+			Point<int16_t> scaled_pos = Point<int16_t>(
+				static_cast<int16_t>(position.x() * scale_args.get_xscale()),
+				static_cast<int16_t>(position.y() * scale_args.get_yscale())
+			);
+			Point<int16_t> scaled_parentpos = Point<int16_t>(
+				static_cast<int16_t>(parentpos.x() * scale_args.get_xscale()),
+				static_cast<int16_t>(parentpos.y() * scale_args.get_yscale())
+			);
+			DrawArgument draw_args = scale_args + (scaled_pos + scaled_parentpos);
+			textures[state].draw(draw_args);
+			animations[state].draw(draw_args, 1.0f);
+		}
+	}
+
 	void MapleButton::update()
 	{
 		if (active)

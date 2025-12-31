@@ -40,7 +40,12 @@
 #include "../../Gameplay/Stage.h"
 
 #include "../../Net/Packets/GameplayPackets.h"
-// Console.h not available - removed debug logging
+#include "../../Net/Packets/PlayerPackets.h"
+#include "../../Data/ItemData.h"
+#include "../../Data/SkillData.h"
+#include "../../Character/Inventory/Inventory.h"
+#include "../Keyboard.h"
+#include "../KeyConfig.h"
 
 #ifdef USE_NX
 #include <nlnx/nx.hpp>
@@ -50,7 +55,7 @@ namespace ms
 {
 	UIStatusBar::UIStatusBar(const CharStats& st) : stats(st)
 	{
-		quickslot_active = false;
+		quickslot_active = true;
 		quickslot_adj = Point<int16_t>(QUICKSLOT_MAX, 0);
 		VWIDTH = Constants::Constants::get().get_viewwidth();
 		VHEIGHT = Constants::Constants::get().get_viewheight();
@@ -77,26 +82,28 @@ namespace ms
 		// v92: Load status bar background components
 		// Add main background if found - v92 uses canvas type for textures
 		nl::node background = base["backgrnd"];
+		base_width = 0;
 		if (background) {
+			Texture base_tex(background);
+			base_width = base_tex.width();
 			sprites.emplace_back(background, DrawArgument(Point<int16_t>(0, 0)));
 		}
 		
 		// Add backgrnd2 - secondary background element
 		nl::node background2 = base["backgrnd2"];
 		if (background2) {
-			sprites.emplace_back(background2, DrawArgument(Point<int16_t>(0, 0)));
+			sprites.emplace_back(background2, DrawArgument(Point<int16_t>(1, 0)));
 		}
 
 		// Add gauge.bar - the bar texture that goes under graduation
 		nl::node bar = gauge["bar"];
 		if (bar) {
-			sprites.emplace_back(bar, Point<int16_t>(215, 35)); // Same position as graduation
+			sprites.emplace_back(bar, Point<int16_t>(217, 38)); // +1 y
 		}
-		// Add gauge.graduation - shows the empty bar outlines for HP/MP/XP (positioned lower)
+		// Add gauge.graduation - shows the empty bar outlines for HP/MP/XP
 		nl::node graduation = gauge["graduation"];
 		if (graduation) {
-			// Flip horizontally and move 370px to the right (was 170px, now +200px more)
-			sprites.emplace_back(graduation, DrawArgument(Point<int16_t>(215, 35))); // Position moved right by 370px total, flipped horizontally
+			sprites.emplace_back(graduation, DrawArgument(Point<int16_t>(217, 37))); // -1 y
 		}
 		
 		// Add base.chat - chat interface element
@@ -105,7 +112,31 @@ namespace ms
 			sprites.emplace_back(chat, DrawArgument(Point<int16_t>(0, 0)));
 		}
 
-	
+		// Load additional base textures
+		if (base["box"])
+			base_box = Texture(base["box"]);
+		if (base["chatTarget"])
+			base_chatTarget = Texture(base["chatTarget"]);
+		if (base["iconBlue"])
+			base_iconBlue = Texture(base["iconBlue"]);
+		if (base["iconRed"])
+			base_iconRed = Texture(base["iconRed"]);
+		if (base["iconMemo"])
+			base_iconMemo = Texture(base["iconMemo"]);
+		if (base["quickSlot"])
+			base_quickSlot = Texture(base["quickSlot"]);
+
+		// Load quickslot key textures (Shift, Ins, Hm, Pup, Ctrl, Del, End, Pdn)
+		nl::node key_node = statusBar["key"];
+		for (int i = 0; i < 8; i++) {
+			if (key_node[std::to_string(i)])
+				quickslot_keys[i] = Texture(key_node[std::to_string(i)]);
+		}
+
+		// Load gauge gray texture
+		if (gauge["gray"])
+			gauge_gray = Texture(gauge["gray"]);
+
 		int16_t exp_max = VWIDTH - 20; 
 
 		// v92: Use dedicated tempExp texture for EXP gauge (yellow-gold color)
@@ -137,13 +168,13 @@ namespace ms
 			quickslot_min = 0;
 
 		// V92: Different layout with HP/MP on the left, full-width status bar
-		hpmp_pos = Point<int16_t>(215, 49);     // HP bar position (moved 5px left from 220)
-		mp_pos = Point<int16_t>(215, 49);       // MP bar position (moved 5px left from 220) 
-		hpset_pos = Point<int16_t>(230, 32);    // HP value position (20px left, 3px up)
-		mpset_pos = Point<int16_t>(350, 32);   // MP value position (aligned Y with HP) 
-		statset_pos = Point<int16_t>(500, 32); // EXP text position (aligned Y with HP)
-		levelset_pos = Point<int16_t>(60, 50);  // Level position (moved 50px right)
-		namelabel_pos = Point<int16_t>(160, 35);  // Character name position (moved 150px right)
+		hpmp_pos = Point<int16_t>(217, 51);     // HP flash position (+28 y)
+		mp_pos = Point<int16_t>(217, 51);       // MP flash position (+28 y)
+		hpset_pos = Point<int16_t>(236, 41);    // HP value position (-1, -1)
+		mpset_pos = Point<int16_t>(348, 42);   // MP value position (0, +8)
+		statset_pos = Point<int16_t>(464, 41); // EXP text position (-26, -28 from 490,69)
+		levelset_pos = Point<int16_t>(58, 45);  // Level position (-2, -5 from 60, 50)
+		namelabel_pos = Point<int16_t>(86, 31);  // Class/player name position (-2, -10 from 88, 41)
 		quickslot_pos = Point<int16_t>(VWIDTH - 200, 5); // Quickslot area position (right side)
 
 		// Menu positioning - dynamically calculated based on resolution
@@ -158,12 +189,8 @@ namespace ms
 		// Quickslot position - always relative to right edge
 		quickslot_pos = Point<int16_t>(VWIDTH - 200, 5);
 
-		// Adjust stat text position for wider resolutions
-		if (VWIDTH > 1024) {
-			// Calculate dynamic offset from base resolution
-			int16_t extra_width = VWIDTH - 800;
-			statset_pos = Point<int16_t>(500 + (extra_width / 10), 32);
-		}
+		// EXP text position is now fixed relative to the centered status bar
+		// No dynamic adjustment needed since status bar is centered
 
 		// V92: No separate HP/MP background sprites needed
 		// The base background is already drawn, gauges render directly over it
@@ -175,38 +202,68 @@ namespace ms
 
 		// Create HP/MP gauges with v92 compatibility
 		// V92: Use correct dedicated gauge textures as identified by researcher
-			
+
 		// Verify textures exist before creating gauges
+		// Use V87_FILL_RIGHT to clip from right side (shows missing HP/MP portion)
 		if (gauge["hpFlash"] && gauge["hpFlash"]["0"]) {
-			// Use frame 0 of hpFlash/mpFlash for static display (avoid blinking)
 			Texture hpTexture(gauge["hpFlash"]["0"]);
-			hpbar = Gauge(Gauge::Type::V87_FILL, hpTexture, hpmp_max, 1.0f); 
-		} 
-			
+			hpbar = Gauge(Gauge::Type::V87_FILL_RIGHT, hpTexture, hpmp_max, 1.0f);
+			// Also load animation for invincibility effect
+			hpflash_anim = Animation(gauge["hpFlash"]);
+		}
+
 		if (gauge["mpFlash"] && gauge["mpFlash"]["0"]) {
 			Texture mpTexture(gauge["mpFlash"]["0"]);
-			mpbar = Gauge(Gauge::Type::V87_FILL, mpTexture, hpmp_max, 1.0f);
+			mpbar = Gauge(Gauge::Type::V87_FILL_RIGHT, mpTexture, hpmp_max, 1.0f);
+			// Also load animation for invincibility effect
+			mpflash_anim = Animation(gauge["mpFlash"]);
 		} 
 
 		// Create character sets with v92 compatibility
 		// V92: Use StatusBar number sprites for proper display
 		nl::node numbers = statusBar["number"];
-			
+
 		if (numbers) {
 			// Create charsets for HP/MP/EXP display using StatusBar number sprites
 			statset = Charset(numbers, Charset::Alignment::LEFT);
 			hpmpset = Charset(numbers, Charset::Alignment::LEFT);
-			levelset = Charset(numbers, Charset::Alignment::LEFT);
+
+			// Load numbers from StatusBar/number children
+			numset = Charset(numbers, Charset::Alignment::LEFT);
+
+			// Load special character textures directly from StatusBar/number
+			// Brackets (green)
+			if (numbers["Lbracket"])
+				green_lbracket = Texture(numbers["Lbracket"]);
+			if (numbers["Rbracket"])
+				green_rbracket = Texture(numbers["Rbracket"]);
+
+			// Slash and percent
+			if (numbers["slash"])
+				white_slash = Texture(numbers["slash"]);
+			if (numbers["percent"])
+				white_percent = Texture(numbers["percent"]);
+
+			// Dot - may not exist, will just skip if not present
+			if (numbers["dot"])
+				white_dot = Texture(numbers["dot"]);
 		} else {
 			// Fallback to default charsets if no number textures exist
 			statset = Charset();
 			hpmpset = Charset();
-			levelset = Charset();
+			numset = Charset();
 		}
 
-		namelabel = OutlinedText(Text::Font::A13M, Text::Alignment::LEFT, Color::Name::GALLERY, Color::Name::TUNA);
-		hp_text = Text(Text::Font::A11M, Text::Alignment::LEFT, Color::Name::WHITE);
-		mp_text = Text(Text::Font::A11M, Text::Alignment::LEFT, Color::Name::WHITE);
+		// Load level digit textures from Basic.img/LevelNo (has background)
+		nl::node level_node = nl::nx::UI["Basic.img"]["LevelNo"];
+		for (int i = 0; i < 10; i++) {
+			level_digits[i] = Texture(level_node[std::to_string(i)]);
+		}
+
+		// Class name label (first line) and player name label (second line)
+		// Using A12M font for smaller text, white color
+		classlabel = OutlinedText(Text::Font::A12M, Text::Alignment::LEFT, Color::Name::WHITE, Color::Name::MINESHAFT);
+		namelabel = OutlinedText(Text::Font::A12M, Text::Alignment::LEFT, Color::Name::WHITE, Color::Name::MINESHAFT);
 
 		// Set quickslot textures with v87 compatibility
 		// V87: Use empty textures to avoid wrong quickslot textures
@@ -225,56 +282,114 @@ namespace ms
 			buttonPos += Point<int16_t>(310, 0);
 
 		// V92: Create buttons from available assets with proper spacing
-		// Position buttons on the right side of status bar
-		Point<int16_t> v92ButtonPos = Point<int16_t>(VWIDTH - 350, 20); // Start position for buttons
-			
-		// Menu button
-		if (statusBar["BtMenu"]) {
-			buttons[Buttons::BT_MENU] = std::make_unique<MapleButton>(statusBar["BtMenu"], v92ButtonPos);
-		}
-			
-		// Shop button
+		// Order: Shop, Trade, Menu, Shortcut - all at same y with 2 pixel spacing
+		Point<int16_t> v92ButtonPos = Point<int16_t>(VWIDTH - 350, 36);
+		int16_t v92_btn_spacing = 56;
+
 		if (statusBar["BtShop"]) {
-			buttons[Buttons::BT_CASHSHOP] = std::make_unique<MapleButton>(statusBar["BtShop"], v92ButtonPos + Point<int16_t>(60, 0));
+			buttons[Buttons::BT_CASHSHOP] = std::make_unique<MapleButton>(statusBar["BtShop"], v92ButtonPos);
+		}
+		if (statusBar["BtNPT"]) {
+			buttons[Buttons::BT_OPTIONS] = std::make_unique<MapleButton>(statusBar["BtNPT"], v92ButtonPos + Point<int16_t>(v92_btn_spacing, 0));
+		}
+		if (statusBar["BtMenu"]) {
+			buttons[Buttons::BT_MENU] = std::make_unique<MapleButton>(statusBar["BtMenu"], v92ButtonPos + Point<int16_t>(v92_btn_spacing * 2, 0));
+		}
+		if (statusBar["BtShort"]) {
+			buttons[Buttons::BT_FOLD_QS] = std::make_unique<MapleButton>(statusBar["BtShort"], v92ButtonPos + Point<int16_t>(v92_btn_spacing * 3, 0));
 		}
 			
-		// Claim button
+		// Add hotkey buttons starting at (572, 10), with 2px spacing between each
+		// Order: box (with BtClaim inside), EquipKey, InvenKey, StatKey, SkillKey, KeySet, QuickSlot (slides down)
+		Point<int16_t> hotkey_start = Point<int16_t>(572, 10);
+		int16_t x_offset = 0;
+		const int16_t SPACING = 2;
+
+		// base->box setup (texture drawn in draw(), buttons created here)
+		// Store the hotkey start position for drawing base_box
+		hotkey_box_pos = hotkey_start;
+
+		// BtClaim button - created independently, drawn near iconMemo in draw()
 		if (statusBar["BtClaim"]) {
-			buttons[Buttons::BT_EVENT] = std::make_unique<MapleButton>(statusBar["BtClaim"], v92ButtonPos + Point<int16_t>(120, 0));
-		}
-			
-		// Add hotkey buttons (on the left side)
-		Point<int16_t> v92HotkeyPos = Point<int16_t>(300, 20); // Position for hotkey buttons
-			
-		// Equipment inventory key
-		if (statusBar["EquipKey"]) {
-			buttons[Buttons::BT_EQUIP] = std::make_unique<MapleButton>(statusBar["EquipKey"], v92HotkeyPos);
-		}
-			
-		// Item inventory key
-		if (statusBar["InvenKey"]) {
-			buttons[Buttons::BT_ITEM] = std::make_unique<MapleButton>(statusBar["InvenKey"], v92HotkeyPos + Point<int16_t>(40, 0));
-		}
-			
-		// Stats key
-		if (statusBar["StatKey"]) {
-			buttons[Buttons::BT_STAT] = std::make_unique<MapleButton>(statusBar["StatKey"], v92HotkeyPos + Point<int16_t>(80, 0));
-		}
-			
-		// Skills key
-		if (statusBar["SkillKey"]) {
-			buttons[Buttons::BT_SKILL] = std::make_unique<MapleButton>(statusBar["SkillKey"], v92HotkeyPos + Point<int16_t>(120, 0));
+			buttons[Buttons::BT_EVENT] = std::make_unique<MapleButton>(statusBar["BtClaim"], hotkey_start + Point<int16_t>(1, 1));
 		}
 
-		if (quickslot_active && VWIDTH > 800)
-		{
-			if (buttons[Buttons::BT_CASHSHOP]) buttons[Buttons::BT_CASHSHOP]->set_active(false);
-			if (buttons[Buttons::BT_MENU]) buttons[Buttons::BT_MENU]->set_active(false);
-			if (buttons[Buttons::BT_OPTIONS]) buttons[Buttons::BT_OPTIONS]->set_active(false);
-			if (buttons[Buttons::BT_CHARACTER]) buttons[Buttons::BT_CHARACTER]->set_active(false);
-			if (buttons[Buttons::BT_COMMUNITY]) buttons[Buttons::BT_COMMUNITY]->set_active(false);
-			if (buttons[Buttons::BT_EVENT]) buttons[Buttons::BT_EVENT]->set_active(false);
+		if (base_box.is_valid()) {
+			x_offset += base_box.get_dimensions().x() + SPACING;
 		}
+
+		// Helper lambda to get button width from node
+		auto get_button_width = [](nl::node btn_node) -> int16_t {
+			// Try different possible texture locations
+			nl::node tex_node;
+			if (btn_node["normal"]["0"])
+				tex_node = btn_node["normal"]["0"];
+			else if (btn_node["normal"])
+				tex_node = btn_node["normal"];
+			else if (btn_node["0"])
+				tex_node = btn_node["0"];
+
+			if (tex_node) {
+				Texture temp(tex_node);
+				if (temp.is_valid())
+					return temp.get_dimensions().x();
+			}
+			return 24;  // fallback width
+		};
+
+		// EquipKey button
+		if (statusBar["EquipKey"]) {
+			buttons[Buttons::BT_EQUIP] = std::make_unique<MapleButton>(statusBar["EquipKey"], hotkey_start + Point<int16_t>(x_offset, 0));
+			x_offset += get_button_width(statusBar["EquipKey"]) + SPACING;
+		}
+
+		// InvenKey button
+		if (statusBar["InvenKey"]) {
+			buttons[Buttons::BT_ITEM] = std::make_unique<MapleButton>(statusBar["InvenKey"], hotkey_start + Point<int16_t>(x_offset, 0));
+			x_offset += get_button_width(statusBar["InvenKey"]) + SPACING;
+		}
+
+		// StatKey button
+		if (statusBar["StatKey"]) {
+			buttons[Buttons::BT_STAT] = std::make_unique<MapleButton>(statusBar["StatKey"], hotkey_start + Point<int16_t>(x_offset, 0));
+			x_offset += get_button_width(statusBar["StatKey"]) + SPACING;
+		}
+
+		// SkillKey button
+		if (statusBar["SkillKey"]) {
+			buttons[Buttons::BT_SKILL] = std::make_unique<MapleButton>(statusBar["SkillKey"], hotkey_start + Point<int16_t>(x_offset, 0));
+			x_offset += get_button_width(statusBar["SkillKey"]) + SPACING;
+		}
+
+		// KeySet button
+		if (statusBar["KeySet"]) {
+			buttons[Buttons::BT_KEYSET] = std::make_unique<MapleButton>(statusBar["KeySet"], hotkey_start + Point<int16_t>(x_offset, 0));
+			x_offset += get_button_width(statusBar["KeySet"]) + SPACING;
+		}
+
+		// QuickSlot toggle button - both textures at same position, visibility depends on quickslot_active
+		// When quickslot is hidden: show QuickSlot button (to show quickslot)
+		// When quickslot is shown: show QuickSlotD button (to hide quickslot)
+		Point<int16_t> qs_btn_pos = hotkey_start + Point<int16_t>(x_offset, 0);
+		if (statusBar["QuickSlot"]) {
+			buttons[Buttons::BT_QUICKSLOT] = std::make_unique<MapleButton>(statusBar["QuickSlot"], qs_btn_pos);
+			buttons[Buttons::BT_QUICKSLOT]->set_active(!quickslot_active);  // Show when quickslot hidden
+		}
+		if (statusBar["QuickSlotD"]) {
+			buttons[Buttons::BT_QUICKSLOT_D] = std::make_unique<MapleButton>(statusBar["QuickSlotD"], qs_btn_pos);
+			buttons[Buttons::BT_QUICKSLOT_D]->set_active(quickslot_active);  // Show when quickslot shown
+		}
+		// Only increment x_offset once since both buttons occupy the same space
+		if (statusBar["QuickSlot"] || statusBar["QuickSlotD"]) {
+			int16_t qs_width = statusBar["QuickSlot"] ? get_button_width(statusBar["QuickSlot"]) : get_button_width(statusBar["QuickSlotD"]);
+			x_offset += qs_width + SPACING;
+		}
+
+		// Whisper button
+		// commented out as not sure what it does
+		//if (statusBar["BtWhisper"]) {
+		//	buttons[Buttons::BT_WHISPER] = std::make_unique<MapleButton>(statusBar["BtWhisper"], hotkey_start + Point<int16_t>(x_offset, 0));
+		//}
 
 		std::string fold = "button:Fold";
 		std::string extend = "button:Extend";
@@ -302,15 +417,25 @@ namespace ms
 		menubackground[2] = Texture();
 
 		// Create menu buttons based on version
-			
+		// Order: Shop, Trade, Menu, Shortcut - all at same y with 2 pixel spacing
+		constexpr int16_t btn_y = 36;
+		constexpr int16_t btn_spacing = 56;  // button width + 2 pixel gap
+		int16_t btn_x = 572;  // Shop at (-6, 1) from original
+
 		if (statusBar["BtShop"]) {
-			buttons[Buttons::BT_CASHSHOP] = std::make_unique<MapleButton>(statusBar["BtShop"], Point<int16_t>(580, 3));
-		}
-		if (statusBar["BtMenu"]) {
-			buttons[Buttons::BT_MENU] = std::make_unique<MapleButton>(statusBar["BtMenu"], Point<int16_t>(633, 3));
+			buttons[Buttons::BT_CASHSHOP] = std::make_unique<MapleButton>(statusBar["BtShop"], Point<int16_t>(btn_x, btn_y));
+			btn_x += btn_spacing;
 		}
 		if (statusBar["BtNPT"]) {
-			buttons[Buttons::BT_OPTIONS] = std::make_unique<MapleButton>(statusBar["BtNPT"], Point<int16_t>(687, 3));
+			buttons[Buttons::BT_OPTIONS] = std::make_unique<MapleButton>(statusBar["BtNPT"], Point<int16_t>(btn_x, btn_y));
+			btn_x += btn_spacing;
+		}
+		if (statusBar["BtMenu"]) {
+			buttons[Buttons::BT_MENU] = std::make_unique<MapleButton>(statusBar["BtMenu"], Point<int16_t>(btn_x, btn_y));
+			btn_x += btn_spacing;
+		}
+		if (statusBar["BtShort"]) {
+			buttons[Buttons::BT_FOLD_QS] = std::make_unique<MapleButton>(statusBar["BtShort"], Point<int16_t>(btn_x, btn_y));
 		}
 			
 		if (statusBar["EquipKey"]) {
@@ -325,7 +450,7 @@ namespace ms
 		if (statusBar["SkillKey"]) {
 			buttons[Buttons::BT_CHARACTER_SKILL] = std::make_unique<MapleButton>(statusBar["SkillKey"], Point<int16_t>(334, 3));
 		}
-			
+
 		// v92: Create empty textures for menu titles
 		menutitle[0] = Texture();
 		menutitle[1] = Texture();
@@ -338,29 +463,34 @@ namespace ms
 		// Use dynamic height calculation based on resolution
 		int16_t statusbar_height = (VWIDTH <= 1024) ? 75 : 80;
 
-		// Always position at bottom of screen, stretching full width
-		position = Point<int16_t>(0, VHEIGHT - statusbar_height);
-		position_x = 0;
+		// Center the status bar horizontally based on base texture width
+		int16_t center_x = (VWIDTH - base_width) / 2;
+		position = Point<int16_t>(center_x, VHEIGHT - statusbar_height + 9);
+		position_x = position.x();
 		position_y = position.y();
-		dimension = Point<int16_t>(VWIDTH, statusbar_height);
+		dimension = Point<int16_t>(base_width, statusbar_height);
 	}
 
 	void UIStatusBar::draw(float alpha) const
 	{
 		UIElement::draw_sprites(alpha);
 
-		// Draw all main buttons (including v92 hotkeys)
+		// Draw all main buttons (including v92 hotkeys), except BT_EVENT which is drawn after base_box
 		for (size_t i = 0; i <= Buttons::BT_SKILL; i++)
-			if (buttons.find(i) != buttons.end() && buttons.at(i))
+			if (i != Buttons::BT_EVENT && buttons.find(i) != buttons.end() && buttons.at(i))
 				buttons.at(i)->draw(position);
 
 		// V92: No HP/MP background sprites needed - they're part of the main background
 
-		// Draw gauges (both v87 and modern) - only if they're valid
-		if (hpbar.is_valid())
+		// Draw HP/MP flash gauges at fixed positions
+		// Flash shows MISSING HP/MP - V87_FILL_RIGHT clips from left to show only missing portion
+		// No position offset needed - just draw at fixed position and let clipping handle it
+		if (hpbar.is_valid()) {
 			hpbar.draw(DrawArgument(position + hpmp_pos, 1.0f));
-		if (mpbar.is_valid())
-			mpbar.draw(DrawArgument(position + mp_pos, 1.0f));
+		}
+		if (mpbar.is_valid()) {
+			mpbar.draw(DrawArgument(position + mp_pos + Point<int16_t>(111, 0), 1.0f));  // MP bar is 111px right of HP
+		}
 		if (expbar.is_valid())
 			expbar.draw(position + exp_pos);
 
@@ -369,44 +499,139 @@ namespace ms
 		int16_t mp = stats.get_stat(MapleStat::Id::MP);
 		int32_t maxhp = stats.get_total(EquipStat::Id::HP);
 		int32_t maxmp = stats.get_total(EquipStat::Id::MP);
-		
-		// Debug logging for HP display
-		static int debug_counter = 0;
-		if (debug_counter % 60 == 0) { // Log every 60 frames (~1 second)
-		}
-		debug_counter++;
 		int64_t exp = stats.get_exp();
 
+		// Format: [ currenthp/maxhp ] with green brackets
+		// Draw HP: green [ + white hp + white / + white maxhp + green ]
+		// HP numbers offset by (0, 1), brackets at base position
+		Point<int16_t> hp_draw_pos = position + hpset_pos;
+		Point<int16_t> hp_num_offset = Point<int16_t>(0, 1);  // HP text only offset
+		int16_t hp_offset = 0;
+		green_lbracket.draw(hp_draw_pos + Point<int16_t>(hp_offset, 0));
+		hp_offset += green_lbracket.width() + 1;
+		hp_offset += numset.draw(std::to_string(hp), hp_draw_pos + Point<int16_t>(hp_offset, 0) + hp_num_offset);
+		white_slash.draw(hp_draw_pos + Point<int16_t>(hp_offset, 0) + hp_num_offset);
+		hp_offset += white_slash.width() + 1;  // space after slash
+		hp_offset += numset.draw(std::to_string(maxhp), hp_draw_pos + Point<int16_t>(hp_offset, 0) + hp_num_offset);
+		hp_offset += 1;
+		green_rbracket.draw(hp_draw_pos + Point<int16_t>(hp_offset, 0));
+
+		// Format: [ currentMp/maxMp ] with green brackets
+		// MP brackets offset by (0, -1), MP numbers offset by (1, 0)
+		Point<int16_t> mp_draw_pos = position + mpset_pos;
+		Point<int16_t> mp_bracket_offset = Point<int16_t>(0, -1);  // MP brackets -1 y
+		Point<int16_t> mp_num_offset = Point<int16_t>(1, 0);  // MP text only offset
+		int16_t mp_offset = 0;
+		green_lbracket.draw(mp_draw_pos + Point<int16_t>(mp_offset, 0) + mp_bracket_offset);
+		mp_offset += green_lbracket.width() + 1;
+		mp_offset += numset.draw(std::to_string(mp), mp_draw_pos + Point<int16_t>(mp_offset, 0) + mp_num_offset);
+		white_slash.draw(mp_draw_pos + Point<int16_t>(mp_offset, 0) + mp_num_offset);
+		mp_offset += white_slash.width() + 1;  // space after slash
+		mp_offset += numset.draw(std::to_string(maxmp), mp_draw_pos + Point<int16_t>(mp_offset, 0) + mp_num_offset);
+		mp_offset += 1;
+		green_rbracket.draw(mp_draw_pos + Point<int16_t>(mp_offset, 0) + mp_bracket_offset);
+
+		// Format: currentXp[2.54%] with green brackets
+		// Text parts offset by (0, 1), brackets at base position
 		std::string expstring = std::to_string(100 * getexppercent());
-
-		statset.draw(
-			std::to_string(exp) + "[" + expstring.substr(0, expstring.find('.') + 3) + "%]",
-			position + statset_pos
-		);
-
-		hp_text.change_text("[" + std::to_string(hp) + "/" + std::to_string(maxhp) + "]");
-		hp_text.draw(position + hpset_pos);
-		mp_text.change_text("[" + std::to_string(mp) + "/" + std::to_string(maxmp) + "]");
-		mp_text.draw(position + mpset_pos);
-
-		levelset.draw(
-			std::to_string(level),
-			position + levelset_pos
-		);
-
-		namelabel.draw(position + namelabel_pos);
-
-		// V92: No quickslot buttons to draw
-
-		if (VWIDTH > 800 && VWIDTH < 1366)
-		{
-			quickslot[0].draw(position + quickslot_pos + Point<int16_t>(-1, 0) + quickslot_adj);
-			quickslot[1].draw(position + quickslot_pos + Point<int16_t>(-1, 0) + quickslot_adj);
+		std::string exp_percent = expstring.substr(0, expstring.find('.') + 3); // e.g., "2.54"
+		Point<int16_t> exp_draw_pos = position + statset_pos;
+		Point<int16_t> exp_num_offset = Point<int16_t>(0, 1);  // text only offset
+		int16_t exp_offset = 0;
+		exp_offset += numset.draw(std::to_string(exp), exp_draw_pos + Point<int16_t>(exp_offset, 0) + exp_num_offset);
+		exp_offset += 1;  // space before [
+		green_lbracket.draw(exp_draw_pos + Point<int16_t>(exp_offset, 0));
+		exp_offset += green_lbracket.width() + 1;  // space after [
+		// Draw percentage - if dot texture exists, split and draw with dot; otherwise just draw digits
+		size_t dot_pos = exp_percent.find('.');
+		if (dot_pos != std::string::npos && white_dot.is_valid()) {
+			// Draw digits before dot
+			exp_offset += numset.draw(exp_percent.substr(0, dot_pos), exp_draw_pos + Point<int16_t>(exp_offset, 0) + exp_num_offset);
+			// Draw dot with tight spacing
+			exp_offset -= 1;  // less spacing before dot
+			white_dot.draw(exp_draw_pos + Point<int16_t>(exp_offset, 0) + exp_num_offset);
+			exp_offset += white_dot.width() - 1;  // less spacing after dot
+			// Draw digits after dot
+			exp_offset += numset.draw(exp_percent.substr(dot_pos + 1), exp_draw_pos + Point<int16_t>(exp_offset, 0) + exp_num_offset);
+		} else if (dot_pos != std::string::npos) {
+			// No dot texture - just show integer percentage
+			exp_offset += numset.draw(exp_percent.substr(0, dot_pos), exp_draw_pos + Point<int16_t>(exp_offset, 0) + exp_num_offset);
+		} else {
+			exp_offset += numset.draw(exp_percent, exp_draw_pos + Point<int16_t>(exp_offset, 0) + exp_num_offset);
 		}
-		else
-		{
-			quickslot[0].draw(position + quickslot_pos + quickslot_adj);
-			quickslot[1].draw(position + quickslot_pos + quickslot_adj);
+		white_percent.draw(exp_draw_pos + Point<int16_t>(exp_offset, 0) + exp_num_offset);
+		exp_offset += white_percent.width() + 1;  // space before ]
+		green_rbracket.draw(exp_draw_pos + Point<int16_t>(exp_offset, 0));
+
+		// Draw level using Basic.img/LevelNo digit textures (with background)
+		std::string level_str = std::to_string(level);
+		Point<int16_t> level_draw_pos = position + levelset_pos + Point<int16_t>(-15, 2);
+		int16_t level_x_offset = 0;
+		for (char c : level_str) {
+			int digit = c - '0';
+			if (digit >= 0 && digit <= 9) {
+				level_digits[digit].draw(level_draw_pos + Point<int16_t>(level_x_offset, 0));
+				level_x_offset += level_digits[digit].width();
+			}
+		}
+
+		// Draw class name (first line) and player name (second line)
+		classlabel.draw(position + namelabel_pos);
+		namelabel.draw(position + namelabel_pos + Point<int16_t>(0, 13));  // 13px below class name (smaller font)
+
+		// Draw hotkey box (base->box texture) at hotkey_box_pos
+		if (base_box.is_valid()) {
+			base_box.draw(DrawArgument(position + hotkey_box_pos));
+		}
+
+		// Draw BtClaim button ON TOP of base_box
+		if (buttons.count(Buttons::BT_EVENT) && buttons.at(Buttons::BT_EVENT)) {
+			buttons.at(Buttons::BT_EVENT)->draw(position);
+
+			// Draw iconMemo to the right of BtClaim
+			if (base_iconMemo.is_valid()) {
+				Rectangle<int16_t> claim_bounds = buttons.at(Buttons::BT_EVENT)->bounds(position);
+				Point<int16_t> memo_pos = Point<int16_t>(
+					claim_bounds.right() + 4 - position.x(),  // 4px to the right of BtClaim
+					hotkey_box_pos.y() + 5                     // 5px from top of box
+				);
+				base_iconMemo.draw(DrawArgument(position + memo_pos));
+			}
+		}
+
+		// V92: Draw quickslot (only when active)
+		// Get BtShort button bounds to position quickslot relative to it
+		if (quickslot_active && base_quickSlot.is_valid() && buttons.count(Buttons::BT_FOLD_QS) && buttons.at(Buttons::BT_FOLD_QS)) {
+			Rectangle<int16_t> btn_bounds = buttons.at(Buttons::BT_FOLD_QS)->bounds(position);
+
+			// Quickslot starts 6px right of button, bottom aligned
+			// Account for texture origin when calculating position
+			Point<int16_t> qs_dims = base_quickSlot.get_dimensions();
+			Point<int16_t> qs_origin = base_quickSlot.get_origin();
+			Point<int16_t> qs_pos = Point<int16_t>(
+				btn_bounds.right() + 6 - position.x() + qs_origin.x() + 0,
+				btn_bounds.bottom() - qs_dims.y() - position.y() + qs_origin.y() + 3
+			);
+
+			// Draw quickslot background
+			base_quickSlot.draw(DrawArgument(position + qs_pos));
+
+			// Draw skill/item icons on quickslots FIRST (so they appear behind key labels)
+			draw_quickslot_icons(qs_pos);
+
+			// Draw key labels ON TOP: 4 columns x 2 rows, each slot is 35x35
+			// Labels start at offset (10, 9) from quickslot top-left
+			int16_t slot_size = 35;
+			Point<int16_t> key_start = qs_pos + Point<int16_t>(10, 9);
+
+			for (int i = 0; i < 8; i++) {
+				if (quickslot_keys[i].is_valid()) {
+					int row = i / 4;
+					int col = i % 4;
+					Point<int16_t> key_pos = key_start + Point<int16_t>(col * slot_size, row * slot_size);
+					quickslot_keys[i].draw(DrawArgument(position + key_pos));
+				}
+			}
 		}
 
 #pragma region Menu
@@ -428,7 +653,7 @@ namespace ms
 			pos = character_pos;
 			button_count = 5;
 			menutitle_index = 0;
-		}
+		} 
 		else if (community_active)
 		{
 			pos = community_pos;
@@ -489,11 +714,13 @@ namespace ms
 		// Only update valid gauges
 		if (expbar.is_valid())
 			expbar.update(getexppercent());
+		// Flash shows MISSING HP/MP, so invert the percentage
 		if (hpbar.is_valid())
-			hpbar.update(gethppercent());
+			hpbar.update(1.0f - gethppercent());
 		if (mpbar.is_valid())
-			mpbar.update(getmppercent());
+			mpbar.update(1.0f - getmppercent());
 
+		classlabel.change_text(stats.get_jobname());
 		namelabel.change_text(stats.get_name());
 
 		Point<int16_t> pos_adj = get_quickslot_pos();
@@ -589,7 +816,11 @@ namespace ms
 			}
 			case Buttons::BT_FOLD_QS:
 			{
-				toggle_qs(false);
+				// V92: BT_FOLD_QS is BtShort (Shortcut button) - opens key config
+				UI::get().emplace<UIKeyConfig>(
+					Stage::get().get_player().get_inventory(),
+					Stage::get().get_player().get_skills()
+				);
 				break;
 			}
 			case Buttons::BT_EXTEND_QS:
@@ -624,6 +855,20 @@ namespace ms
 					Stage::get().get_player().get_stats(),
 					Stage::get().get_player().get_skills()
 				);
+				break;
+			}
+			case Buttons::BT_KEYSET:
+			{
+				UI::get().emplace<UIKeyConfig>(
+					Stage::get().get_player().get_inventory(),
+					Stage::get().get_player().get_skills()
+				);
+				break;
+			}
+			case Buttons::BT_QUICKSLOT:
+		case Buttons::BT_QUICKSLOT_D:
+			{
+				toggle_qs();
 				break;
 			}
 			case Buttons::BT_MENU_QUEST:
@@ -953,24 +1198,12 @@ namespace ms
 			return;
 
 		quickslot_active = quick_slot_active;
-		
-		// V92: No quickslot buttons to manage
 
-		if (VWIDTH > 800)
-		{
-			if (buttons.find(Buttons::BT_CASHSHOP) != buttons.end())
-				buttons[Buttons::BT_CASHSHOP]->set_active(!quickslot_active);
-			if (buttons.find(Buttons::BT_MENU) != buttons.end())
-				buttons[Buttons::BT_MENU]->set_active(!quickslot_active);
-			if (buttons.find(Buttons::BT_OPTIONS) != buttons.end())
-				buttons[Buttons::BT_OPTIONS]->set_active(!quickslot_active);
-			if (buttons.find(Buttons::BT_CHARACTER) != buttons.end())
-				buttons[Buttons::BT_CHARACTER]->set_active(!quickslot_active);
-			if (buttons.find(Buttons::BT_COMMUNITY) != buttons.end())
-				buttons[Buttons::BT_COMMUNITY]->set_active(!quickslot_active);
-			if (buttons.find(Buttons::BT_EVENT) != buttons.end())
-				buttons[Buttons::BT_EVENT]->set_active(!quickslot_active);
-		}
+		// Toggle quickslot button visibility (same position, swap which is shown)
+		if (buttons.find(Buttons::BT_QUICKSLOT) != buttons.end())
+			buttons[Buttons::BT_QUICKSLOT]->set_active(!quickslot_active);  // Show when qs hidden
+		if (buttons.find(Buttons::BT_QUICKSLOT_D) != buttons.end())
+			buttons[Buttons::BT_QUICKSLOT_D]->set_active(quickslot_active);  // Show when qs shown
 	}
 
 	void UIStatusBar::toggle_menu()
@@ -1252,17 +1485,17 @@ namespace ms
 			return info;
 		}
 
-		// Name label area
+		// Class/Name label area (two lines: class name + player name)
 		Rectangle<int16_t> name_bounds(
 			position + namelabel_pos - Point<int16_t>(5, 5),
-			position + namelabel_pos + Point<int16_t>(80, 20)
+			position + namelabel_pos + Point<int16_t>(80, 35)  // Taller to accommodate two lines
 		);
 		if (name_bounds.contains(cursor_position))
 		{
 			info.type = ComponentInfo::SPRITE;
-			info.name = "Character Name";
+			info.name = "Class & Player Name";
 			info.position = position + namelabel_pos;
-			info.dimension = Point<int16_t>(80, 15);
+			info.dimension = Point<int16_t>(80, 32);
 			return info;
 		}
 
@@ -1282,5 +1515,250 @@ namespace ms
 
 		// Fall back to button detection from parent
 		return UIElement::get_component_at(cursor_position);
+	}
+
+	void UIStatusBar::draw_quickslot_icons(Point<int16_t> qs_pos) const
+	{
+		// Quickslot key codes for binding lookup
+		// Row 0: Shift(42), Ins(82), Home(71), PageUp(73)
+		// Row 1: Ctrl(29), Del(83), End(79), PageDown(81)
+		static const int32_t QUICKSLOT_KEYCODES[8] = {
+			KeyConfig::LEFT_SHIFT, KeyConfig::INSERT, KeyConfig::HOME, KeyConfig::PAGE_UP,
+			KeyConfig::LEFT_CONTROL, KeyConfig::DELETE, KeyConfig::END, KeyConfig::PAGE_DOWN
+		};
+
+		// Get keyboard for key mappings
+		Keyboard& keyboard = UI::get().get_keyboard();
+
+		// Get inventory for item counts
+		const Inventory& inventory = Stage::get().get_player().get_inventory();
+
+		// Slot layout: 4 columns x 2 rows, each slot is 35x35
+		// Icons should be centered in each slot
+		int16_t slot_size = 35;
+		int16_t icon_size = 32;  // Standard icon size
+		int16_t icon_offset = (slot_size - icon_size) / 2;
+
+		// Icon start position (relative to quickslot top-left, below the key labels)
+		// Offset by (-1, 6) to position icons below key labels
+		Point<int16_t> icon_start = qs_pos + Point<int16_t>(10 + icon_offset - 4, 13 + icon_offset + 25);
+
+		for (int i = 0; i < 8; i++)
+		{
+			int32_t keycode = QUICKSLOT_KEYCODES[i];
+			Keyboard::Mapping mapping = keyboard.get_maple_mapping(keycode);
+
+			if (mapping.type == KeyType::Id::NONE)
+				continue;
+
+			int row = i / 4;
+			int col = i % 4;
+			Point<int16_t> icon_pos = position + icon_start + Point<int16_t>(col * slot_size, row * slot_size);
+
+			if (mapping.type == KeyType::Id::ITEM && mapping.action > 0)
+			{
+				// Draw item icon
+				Texture icon = get_item_texture(mapping.action);
+				if (icon.is_valid())
+				{
+					icon.draw(DrawArgument(icon_pos));
+
+					// Draw item count using ItemNo charset (same as Icon.cpp)
+					// Account for icon origin to position count correctly relative to visual icon
+					// Always show count (including 0) so player knows when items run out
+					int16_t count = inventory.get_total_item_count(mapping.action);
+					static const Charset countset = Charset(nl::nx::UI["Basic.img"]["ItemNo"], Charset::Alignment::LEFT);
+					Point<int16_t> origin = icon.get_origin();
+					Point<int16_t> count_pos = icon_pos - origin + Point<int16_t>(2, icon.get_dimensions().y() - 12);
+					countset.draw(std::to_string(count), count_pos);
+				}
+			}
+			else if (mapping.type == KeyType::Id::SKILL && mapping.action > 0)
+			{
+				// Draw skill icon
+				Texture icon = get_skill_texture(mapping.action);
+				if (icon.is_valid())
+				{
+					icon.draw(DrawArgument(icon_pos));
+				}
+			}
+		}
+	}
+
+	Texture UIStatusBar::get_item_texture(int32_t item_id) const
+	{
+		const ItemData& data = ItemData::get(item_id);
+		return data.get_icon(false);
+	}
+
+	Texture UIStatusBar::get_skill_texture(int32_t skill_id) const
+	{
+		const SkillData& data = SkillData::get(skill_id);
+		return data.get_icon(SkillData::Icon::NORMAL);
+	}
+
+	Point<int16_t> UIStatusBar::get_quickslot_icon_start() const
+	{
+		// Calculate quickslot icon start position based on BtShort button bounds
+		if (base_quickSlot.is_valid() && buttons.count(Buttons::BT_FOLD_QS) && buttons.at(Buttons::BT_FOLD_QS)) {
+			Rectangle<int16_t> btn_bounds = buttons.at(Buttons::BT_FOLD_QS)->bounds(position);
+
+			Point<int16_t> qs_dims = base_quickSlot.get_dimensions();
+			Point<int16_t> qs_origin = base_quickSlot.get_origin();
+			Point<int16_t> qs_pos = Point<int16_t>(
+				btn_bounds.right() + 6 - position.x() + qs_origin.x() + 0,
+				btn_bounds.bottom() - qs_dims.y() - position.y() + qs_origin.y() + 3
+			);
+
+			// Icon layout constants (matching draw_quickslot_icons)
+			int16_t slot_size = 35;
+			int16_t icon_size = 32;
+			int16_t icon_offset = (slot_size - icon_size) / 2;
+
+			return qs_pos + Point<int16_t>(10 + icon_offset, 9 + icon_offset);
+		}
+		return Point<int16_t>(0, 0);
+	}
+
+	int16_t UIStatusBar::quickslot_by_position(Point<int16_t> cursorpos) const
+	{
+		Point<int16_t> icon_start = get_quickslot_icon_start();
+		if (icon_start.x() == 0 && icon_start.y() == 0)
+			return -1;
+
+		Point<int16_t> abs_icon_start = position + icon_start;
+
+		// Slot layout: 4 columns x 2 rows, each slot is 35x35
+		int16_t slot_size = 35;
+		int16_t icon_size = 32;
+
+		// Calculate relative position from icon start
+		int16_t rel_x = cursorpos.x() - abs_icon_start.x();
+		int16_t rel_y = cursorpos.y() - abs_icon_start.y();
+
+		// Check bounds
+		if (rel_x < 0 || rel_y < 0)
+			return -1;
+		if (rel_x >= 4 * slot_size || rel_y >= 2 * slot_size)
+			return -1;
+
+		// Calculate row and column
+		int col = rel_x / slot_size;
+		int row = rel_y / slot_size;
+
+		if (col >= 4 || row >= 2)
+			return -1;
+
+		// Return slot index (0-7)
+		return static_cast<int16_t>(row * 4 + col);
+	}
+
+	int32_t UIStatusBar::get_quickslot_keycode(int16_t slot) const
+	{
+		// Quickslot key codes:
+		// Row 0: Shift(42), Ins(82), Home(71), PageUp(73)
+		// Row 1: Ctrl(29), Del(83), End(79), PageDown(81)
+		static const int32_t QUICKSLOT_KEYCODES[8] = {
+			KeyConfig::LEFT_SHIFT, KeyConfig::INSERT, KeyConfig::HOME, KeyConfig::PAGE_UP,
+			KeyConfig::LEFT_CONTROL, KeyConfig::DELETE, KeyConfig::END, KeyConfig::PAGE_DOWN
+		};
+
+		if (slot >= 0 && slot < 8)
+			return QUICKSLOT_KEYCODES[slot];
+
+		return -1;
+	}
+
+	bool UIStatusBar::send_icon(const Icon& icon, Point<int16_t> cursor_position)
+	{
+		// Check if cursor is over a quickslot
+		int16_t slot = quickslot_by_position(cursor_position);
+
+		if (slot >= 0 && slot < 8)
+		{
+			// Get the keycode for this quickslot
+			int32_t keycode = get_quickslot_keycode(slot);
+
+			if (keycode >= 0)
+			{
+				// Get icon type to determine what kind of binding to create
+				Icon::IconType icon_type = const_cast<Icon&>(icon).get_type();
+
+				if (icon_type == Icon::IconType::ITEM || icon_type == Icon::IconType::SKILL)
+				{
+					// Get the action ID from the icon
+					int32_t action_id = icon.get_action_id();
+
+					if (action_id > 0)
+					{
+						// Block targeted consumables (scrolls) from quickslots
+						// Scrolls have item prefix 204xxxx (item_id / 10000 == 204)
+						if (icon_type == Icon::IconType::ITEM)
+						{
+							int32_t item_prefix = action_id / 10000;
+							// 204: Upgrade scrolls, 261: Potential scrolls, 206: Arrows (not usable directly)
+							if (item_prefix == 204 || item_prefix == 261)
+							{
+								// Play error sound and reject
+								Sound(Sound::Name::DLGNOTICE).play();
+								return true;  // Consume the icon but don't bind
+							}
+						}
+
+						// Determine the key type based on icon type
+						KeyType::Id key_type = (icon_type == Icon::IconType::SKILL) ?
+							KeyType::Id::SKILL : KeyType::Id::ITEM;
+
+						// Update the keyboard binding locally
+						Keyboard& keyboard = UI::get().get_keyboard();
+						keyboard.assign(static_cast<uint8_t>(keycode), static_cast<uint8_t>(key_type), action_id);
+
+						// Send packet to server to persist the binding
+						KeyConfig::Key config_key = static_cast<KeyConfig::Key>(keycode);
+						std::vector<std::tuple<KeyConfig::Key, KeyType::Id, int32_t>> updated_actions;
+						updated_actions.emplace_back(std::make_tuple(config_key, key_type, action_id));
+						ChangeKeyMapPacket(updated_actions).dispatch();
+
+						// Play drop sound
+						Sound(Sound::Name::DRAGEND).play();
+
+						return true;  // Icon consumed
+					}
+				}
+			}
+		}
+
+		return true;  // Always consume to prevent falling through
+	}
+
+	Cursor::State UIStatusBar::send_cursor(bool clicked, Point<int16_t> cursorpos)
+	{
+		// Check for hover/click on quickslots (future: could implement drag-out)
+		int16_t slot = quickslot_by_position(cursorpos);
+
+		if (slot >= 0 && slot < 8)
+		{
+			// If there's a binding on this slot, show grab cursor
+			int32_t keycode = get_quickslot_keycode(slot);
+			if (keycode >= 0)
+			{
+				Keyboard& keyboard = UI::get().get_keyboard();
+				Keyboard::Mapping mapping = keyboard.get_maple_mapping(keycode);
+
+				if (mapping.type != KeyType::Id::NONE && mapping.action > 0)
+				{
+					// Has a binding - show can grab cursor
+					if (clicked)
+					{
+						// Future: implement drag-out to remove binding
+						return Cursor::State::CLICKING;
+					}
+					return Cursor::State::CANGRAB;
+				}
+			}
+		}
+
+		// Default behavior
+		return UIElement::send_cursor(clicked, cursorpos);
 	}
 }

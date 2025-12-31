@@ -284,13 +284,13 @@ namespace ms
 	// The width of the screen
 	struct Width : public Configuration::ShortEntry
 	{
-		Width() : ShortEntry("Width", "800") {}
+		Width() : ShortEntry("Width", "1920") {}
 	};
 
 	// The height of the screen
 	struct Height : public Configuration::ShortEntry
 	{
-		Height() : ShortEntry("Height", "600") {}
+		Height() : ShortEntry("Height", "1080") {}
 	};
 
 	// Whether to use VSync
@@ -545,6 +545,13 @@ namespace ms
 	struct MiniMapDefaultHelpers : public Configuration::BoolEntry
 	{
 		MiniMapDefaultHelpers() : BoolEntry("MiniMapDefaultHelpers", "false") {}
+	};
+
+	// UI Scale setting (75-200, default 100)
+	// Controls global UI scaling for in-game elements
+	struct UIScaleSetting : public Configuration::ByteEntry
+	{
+		UIScaleSetting() : ByteEntry("UIScale", "100") {}
 	};
 
 	template <typename T>

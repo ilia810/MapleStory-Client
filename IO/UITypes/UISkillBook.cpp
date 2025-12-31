@@ -217,10 +217,11 @@ namespace ms
 			buttons[Buttons::BT_MACRO_OK]->set_state(Button::State::DISABLED);
 		}
 
-		nl::node close = nl::nx::UI["Basic.img"]["BtClose3"];
-
+		// Close button - try window-specific first, then fallback
+		nl::node close = Skill["BtClose"];
+		if (!close) close = nl::nx::UI["Basic.img"]["BtClose3"];
 		if (close) {
-			buttons[Buttons::BT_CLOSE] = std::make_unique<MapleButton>(close, Point<int16_t>(bg_dimensions.x() - 23, 6));
+			buttons[Buttons::BT_CLOSE] = std::make_unique<MapleButton>(close, Point<int16_t>(bg_dimensions.x() - 18, 5));
 		}
 
 		nl::node Tab = Skill["Tab"];

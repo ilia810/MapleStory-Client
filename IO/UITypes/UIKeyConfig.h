@@ -100,6 +100,7 @@ namespace ms
 			void drop_on_bindings(Point<int16_t> cursorposition, bool remove) const override;
 			void set_count(int16_t count) override;
 			Icon::IconType get_type() override;
+			int32_t get_action_id() const override { return mapping.action; }
 
 		private:
 			int16_t count;

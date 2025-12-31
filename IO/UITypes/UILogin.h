@@ -59,8 +59,8 @@ namespace ms
 			BtNew,
 			BtHomePage,
 			BtPasswdLost,
-			BtEmailLost,
-			BtEmailSave,
+			BtLoginIDLost,
+			BtLoginIDSave,
 			BtQuit,
 			BtMapleID,
 			BtNexonID,
@@ -71,13 +71,16 @@ namespace ms
 		Point<int16_t> version_pos;
 		Textfield account;
 		Point<int16_t> account_src_dim;
-		BoolPair<Texture> account_bg;
+		Texture id_texture;
+		Texture pw_texture;
+		Point<int16_t> id_texture_pos;
+		Point<int16_t> pw_texture_pos;
 		Textfield password;
 		Point<int16_t> password_src_dim;
-		Texture password_bg;
 		BoolPair<Texture> check;
 		Texture capslock;
-		ColorBox background;
+		Texture frame;
+		Point<int16_t> frame_stretch;
 		Point<int16_t> title_pos;
 
 		bool saveid;

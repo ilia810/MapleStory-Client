@@ -42,6 +42,12 @@ namespace ms
 		Range<int16_t> get_walls() const;
 		// Returns the topmost and bottommost platform positions of the map
 		Range<int16_t> get_borders() const;
+		// Returns the raw bottom Y (max Y of all non-wall footholds)
+		int16_t get_bottom() const;
+		// Returns the leftmost X of all non-wall footholds
+		int16_t get_left() const;
+		// Returns the rightmost X of all non-wall footholds
+		int16_t get_right() const;
 
 	private:
 		uint16_t get_fhid_below(double fx, double fy) const;
@@ -55,5 +61,8 @@ namespace ms
 		Foothold nullfh;
 		Range<int16_t> walls;
 		Range<int16_t> borders;
+		int16_t bottom;  // Raw max Y of non-wall footholds
+		int16_t left;    // Raw min X of non-wall footholds
+		int16_t right;   // Raw max X of non-wall footholds
 	};
 }

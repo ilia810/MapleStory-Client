@@ -109,6 +109,11 @@ namespace ms
 		return type->get_type();
 	}
 
+	int32_t Icon::get_action_id() const
+	{
+		return type->get_action_id();
+	}
+
 	int16_t Icon::get_count() const
 	{
 		return count;

@@ -98,6 +98,7 @@ namespace ms
 		}
 
 		void remove(UIElement::Type type);
+		void bring_to_front(UIElement::Type type);
 
 	private:
 		std::unique_ptr<UIState> state;

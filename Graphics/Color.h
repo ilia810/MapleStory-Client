@@ -89,6 +89,7 @@ namespace ms
 			CREAM,
 			PERSIANGREEN,
 			SILVER,
+			CHATGRAY,		// #757676 for collapsed chat background
 			NUM_COLORS
 		};
 
@@ -135,7 +136,8 @@ namespace ms
 			{ 0.94f, 0.00f, 0.20f }, // Torch Red
 			{ 1.00f, 1.00f, 0.80f }, // Cream
 			{ 0.00f, 0.67f, 0.67f }, // Persian Green
-			{ 0.80f, 0.80f, 0.80f }  // Silver
+			{ 0.80f, 0.80f, 0.80f }, // Silver
+			{ 0.459f, 0.463f, 0.463f } // Chat Gray (#757676)
 		};
 
 		// Create a color by an array of real numbers [0.0f, 1.0f]

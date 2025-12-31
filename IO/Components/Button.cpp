@@ -2,6 +2,14 @@
 
 namespace ms
 {
+	void Button::draw(Point<int16_t> parentpos, const DrawArgument& scale_args) const
+	{
+		// Default implementation: ignore scale and call unscaled draw
+		// Override in derived classes for proper scaled rendering
+		(void)scale_args;  // Unused in base implementation
+		draw(parentpos);
+	}
+
 	bool Button::in_combobox(Point<int16_t>)
 	{
 		return false;

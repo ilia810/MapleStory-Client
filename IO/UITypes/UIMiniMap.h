@@ -77,7 +77,9 @@ namespace ms
 			BT_SMALL,
 			BT_BIG,
 			BT_MAP,
-			BT_NPC
+			BT_NPC,
+			BT_PLUS,	// Expand minimap mode
+			BT_MINUS	// Collapse minimap mode
 		};
 
 		enum Type
@@ -105,6 +107,8 @@ namespace ms
 		int16_t bt_min_width;
 		int16_t bt_max_width;
 		int16_t bt_map_width;
+		int16_t bt_plus_width;
+		int16_t bt_minus_width;
 		std::vector<Sprite> min_sprites;
 		std::vector<Sprite> normal_sprites;
 		std::vector<Sprite> max_sprites;
@@ -114,12 +118,21 @@ namespace ms
 		Point<int16_t> min_dimensions;
 		Point<int16_t> normal_dimensions;
 		Point<int16_t> max_dimensions;
+
+		// Viewport for large maps - limits max size and centers on player
+		static constexpr int16_t MAX_MINIMAP_WIDTH = 300;
+		static constexpr int16_t MAX_MINIMAP_HEIGHT = 240;
+		bool use_viewport;           // True if map is larger than max viewport
+		Point<int16_t> viewport_size;  // Size of the visible viewport
+		Point<int16_t> full_map_size;  // Full size of the scaled minimap
+		mutable Point<int16_t> viewport_offset;  // Current offset based on player position
 		int16_t left_border_width;
 		int16_t right_border_width;
 		int16_t total_border_width;
 		Text combined_text;
 		Text region_text;
 		Text town_text;
+		Text title_text;  // "Minimap" title for MIN mode
 
 		bool listNpc_enabled;
 		nl::node listNpc;

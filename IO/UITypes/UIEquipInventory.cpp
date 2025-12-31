@@ -31,212 +31,130 @@
 #ifdef USE_NX
 #include <nlnx/nx.hpp>
 #endif
+namespace EquipGrid {
+	const int16_t StartX = 5;
+	const int16_t StartY = 34;
+	const int16_t SlotSize = 33;
+}
 
 namespace ms
 {
-	UIEquipInventory::UIEquipInventory(const Inventory& invent) : UIDragElement<PosEQINV>(), inventory(invent), tab(Buttons::BT_TAB1), hasPendantSlot(false), hasPocketSlot(false)
+	UIEquipInventory::UIEquipInventory(const Inventory& invent) : UIDragElement<PosEQINV>(), inventory(invent), tab(Buttons::BT_TAB1), hasPendantSlot(false), hasPocketSlot(false), pet_active(true)
 	{
-		// Column 1
-		iconpositions[EquipSlot::Id::RING1] = Point<int16_t>(14, 50);
-		iconpositions[EquipSlot::Id::RING2] = Point<int16_t>(14, 91);
-		iconpositions[EquipSlot::Id::RING3] = Point<int16_t>(14, 132);
-		iconpositions[EquipSlot::Id::RING4] = Point<int16_t>(14, 173);
-		iconpositions[EquipSlot::Id::POCKET] = Point<int16_t>(14, 214);
-		iconpositions[EquipSlot::Id::BOOK] = Point<int16_t>(14, 255);
+		// Grid Configuration
+		
 
-		// Column 2
-		//iconpositions[EquipSlot::Id::NONE] = Point<int16_t>(55, 50);
-		iconpositions[EquipSlot::Id::PENDANT2] = Point<int16_t>(55, 91);
-		iconpositions[EquipSlot::Id::PENDANT1] = Point<int16_t>(55, 132);
-		iconpositions[EquipSlot::Id::WEAPON] = Point<int16_t>(55, 173);
-		iconpositions[EquipSlot::Id::BELT] = Point<int16_t>(55, 214);
-		//iconpositions[EquipSlot::Id::NONE] = Point<int16_t>(55, 255);
+		// Coordinate calculation helper
+		auto getPos = [] (int col, int row) {
+			return Point<int16_t>(
+				EquipGrid::StartX + (col * EquipGrid::SlotSize),
+				EquipGrid::StartY + (row * EquipGrid::SlotSize)
+			);
+			};
 
-		// Column 3
-		iconpositions[EquipSlot::Id::HAT] = Point<int16_t>(96, 50);
-		iconpositions[EquipSlot::Id::FACE] = Point<int16_t>(96, 91);
-		iconpositions[EquipSlot::Id::EYEACC] = Point<int16_t>(96, 132);
-		iconpositions[EquipSlot::Id::TOP] = Point<int16_t>(96, 173);
-		iconpositions[EquipSlot::Id::BOTTOM] = Point<int16_t>(96, 214);
-		iconpositions[EquipSlot::Id::SHOES] = Point<int16_t>(96, 255);
+		// Row 0
+		iconpositions[EquipSlot::Id::HAT] = getPos(1, 0); // CAP
 
-		// Column 4
-		//iconpositions[EquipSlot::Id::NONE] = Point<int16_t>(137, 50);
-		//iconpositions[EquipSlot::Id::NONE] = Point<int16_t>(137, 91);
-		iconpositions[EquipSlot::Id::EARACC] = Point<int16_t>(137, 132);
-		iconpositions[EquipSlot::Id::SHOULDER] = Point<int16_t>(137, 173);
-		iconpositions[EquipSlot::Id::GLOVES] = Point<int16_t>(137, 214);
-		iconpositions[EquipSlot::Id::ANDROID] = Point<int16_t>(137, 255);
+		// Row 1
+		iconpositions[EquipSlot::Id::MEDAL] = getPos(0, 1); // MEDAL
+		iconpositions[EquipSlot::Id::FACE] = getPos(1, 1); // FOREHEAD
+		iconpositions[EquipSlot::Id::RING1] = getPos(3, 1); // RING
+		iconpositions[EquipSlot::Id::RING2] = getPos(4, 1); // RING
 
-		// Column 5
-		iconpositions[EquipSlot::Id::EMBLEM] = Point<int16_t>(178, 50);
-		iconpositions[EquipSlot::Id::BADGE] = Point<int16_t>(178, 91);
-		iconpositions[EquipSlot::Id::MEDAL] = Point<int16_t>(178, 132);
-		iconpositions[EquipSlot::Id::SUBWEAPON] = Point<int16_t>(178, 173);
-		iconpositions[EquipSlot::Id::CAPE] = Point<int16_t>(178, 214);
-		iconpositions[EquipSlot::Id::HEART] = Point<int16_t>(178, 255);
+		// Row 2
+		iconpositions[EquipSlot::Id::EYEACC] = getPos(2, 2); // EYE ACC
+		iconpositions[EquipSlot::Id::EARACC] = getPos(3, 2); // EAR ACC
+		iconpositions[EquipSlot::Id::SHOULDER] = getPos(4, 2); // SHOULDER
 
-		//iconpositions[EquipSlot::Id::SHIELD] = Point<int16_t>(142, 124);
-		//iconpositions[EquipSlot::Id::TAMEDMOB] = Point<int16_t>(142, 91);
-		//iconpositions[EquipSlot::Id::SADDLE] = Point<int16_t>(76, 124);
+		// Row 3
+		iconpositions[EquipSlot::Id::CAPE] = getPos(0, 3); // MANTLE
+		iconpositions[EquipSlot::Id::TOP] = getPos(1, 3); // CLOTHES
+		iconpositions[EquipSlot::Id::PENDANT1] = getPos(2, 3); // PENDANT
+		iconpositions[EquipSlot::Id::WEAPON] = getPos(3, 3); // WEAPON
+		iconpositions[EquipSlot::Id::SUBWEAPON] = getPos(4, 3); // WEAPON (Sub)
+
+		// Row 4
+		iconpositions[EquipSlot::Id::GLOVES] = getPos(0, 4); // GLOVES
+		iconpositions[EquipSlot::Id::BOTTOM] = getPos(1, 4); // PANTS
+		iconpositions[EquipSlot::Id::BELT] = getPos(2, 4); // BELT
+		iconpositions[EquipSlot::Id::RING3] = getPos(3, 4); // RING
+		iconpositions[EquipSlot::Id::RING4] = getPos(4, 4); // RING
+
+		// Row 5
+		iconpositions[EquipSlot::Id::SHOES] = getPos(2, 5); // SHOES
+
+		// Row 6
+		iconpositions[EquipSlot::Id::TAMEDMOB] = getPos(0, 6); // TAMING MOB
+		//iconpositions[EquipSlot::Id::PETMP] = getPos(4, 5); // PET MP
+		//iconpositions[EquipSlot::Id::MOBEQUIP] = getPos(2, 6); // MOB EQUIP
+		//iconpositions[EquipSlot::Id::PETHP] = getPos(4, 6); // PET HP
+
+		// Row 7
+		iconpositions[EquipSlot::Id::SADDLE] = getPos(1, 7); // SADDLE
 
 		tab_source[Buttons::BT_TAB0] = "Equip";
 		tab_source[Buttons::BT_TAB1] = "Cash";
 		tab_source[Buttons::BT_TAB2] = "Pet";
 		tab_source[Buttons::BT_TAB3] = "Android";
 
-		nl::node close = nl::nx::UI["Basic.img"]["BtClose3"];
-		
-		// Use simplified approach - only UI.UIWindow.backgrnd
-		nl::node main_bg = nl::nx::UI["UIWindow.img"]["backgrnd"];
-		
-		// Use the same background for all tabs
-		background[Buttons::BT_TAB0] = main_bg;
-		background[Buttons::BT_TAB1] = main_bg;
-		background[Buttons::BT_TAB2] = main_bg;
-		background[Buttons::BT_TAB3] = main_bg;
-		
-		// Still need to load the Equip node for other UI elements
+		// Equip inventory is at UIWindow.img/Equip
 		nl::node Equip = nl::nx::UI["UIWindow.img"]["Equip"];
-		nl::node EquipGL = Equip; // Fallback to same node
-		bool is_legacy = true; // Simplified mode
 
-		// Load slots if available
-		for (uint16_t i = Buttons::BT_TAB0; i < Buttons::BT_TABE; i++) {
-			nl::node slots_node = Equip[tab_source[i]]["Slots"];
-			if (!slots_node.name().empty()) {
-				for (auto slot : slots_node) {
-					if (slot.name().find("_") == std::string::npos) {
-						Slots[i].emplace_back(slot);
-					}
-				}
+		// Load background from Equip node (backgrnd is 175x291)
+		nl::node main_bg = Equip["backgrnd"];
+
+		// Get dimensions from background texture
+		Point<int16_t> bg_dimensions = Point<int16_t>(175, 291);
+		if (main_bg) {
+			Texture bg_tex(main_bg);
+			if (bg_tex.is_valid()) {
+				bg_dimensions = bg_tex.get_dimensions();
 			}
+			// Add background to sprites - this is how other UI windows work
+			sprites.emplace_back(main_bg, Point<int16_t>(0, 0));
 		}
 
-		// Use the already loaded main_bg for dimensions
-		Point<int16_t> bg_dimensions = Texture(main_bg).get_dimensions();
-		totem_dimensions = bg_dimensions; // Use same dimensions
-		totem_adj = Point<int16_t>(0, 0); // No adjustment needed
+		totem_dimensions = bg_dimensions;
+		totem_adj = Point<int16_t>(0, 0);
 
-		// Don't add any background sprites - the background[tab] will handle all drawing
+		nl::node close_node = Equip["BtClose"];
 
-		// Legacy: May not have tabbar, use fallback or skip
-		nl::node tabbar_node = Equip["tabbar"];
-		if (!tabbar_node.name().empty()) {
-			tabbar = tabbar_node;
-		}
-		
-		// Load disabled states from Equip node
-		nl::node disabled_node = Equip["disabled"];
-		nl::node disabled2_node = Equip["disabled2"];
-		
-		if (!disabled_node.name().empty()) {
-			disabled = disabled_node;
-		} else {
-			// Fallback: use main background as placeholder
-			disabled = main_bg;
-		}
-		
-		if (!disabled2_node.name().empty()) {
-			disabled2 = disabled2_node;
-		} else {
-			// Fallback: use disabled if it exists, otherwise use background
-			disabled2 = !disabled_node.name().empty() ? disabled_node : main_bg;
-		}
+		// Close button using BtDetail texture at top right
+		buttons[Buttons::BT_CLOSE] = std::make_unique<MapleButton>(close_node, Point<int16_t>(bg_dimensions.x() - 18, 5));
 
-		buttons[Buttons::BT_CLOSE] = std::make_unique<MapleButton>(close, Point<int16_t>(bg_dimensions.x() - 19, 5));
-		
-		// Simplified button loading - use available buttons from Equip node
-		nl::node btSlot = Equip["BtDetail"];
-		if (btSlot.name().empty()) {
-			btSlot = Equip["BtSlot"];
-			if (btSlot.name().empty()) {
-				btSlot = close; // Fallback to close button style
-			}
-		}
-		buttons[Buttons::BT_SLOT] = std::make_unique<MapleButton>(btSlot);
-		
-		// These buttons may not exist in older versions, use fallbacks
-		buttons[Buttons::BT_EFFECT] = std::make_unique<MapleButton>(close);
-		buttons[Buttons::BT_SALON] = std::make_unique<MapleButton>(close);
-		
-		// Pet-related buttons
-		nl::node btConsume = Equip["BtPet1"];
-		if (btConsume.name().empty()) btConsume = close;
-		buttons[Buttons::BT_CONSUMESETTING] = std::make_unique<MapleButton>(btConsume);
-		
-		nl::node btException = Equip["BtPet2"];
-		if (btException.name().empty()) btException = close;
-		buttons[Buttons::BT_EXCEPTION] = std::make_unique<MapleButton>(btException);
-		
-		nl::node btShop = Equip["BtCashshop"];
-		if (btShop.name().empty()) btShop = close;
-		buttons[Buttons::BT_SHOP] = std::make_unique<MapleButton>(btShop);
+		// Load pet window texture - try with ["0"] child
+		pet_window = Texture(Equip["pet"]["0"]);
 
-		buttons[Buttons::BT_CONSUMESETTING]->set_state(Button::State::DISABLED);
-		buttons[Buttons::BT_EXCEPTION]->set_state(Button::State::DISABLED);
-		buttons[Buttons::BT_SHOP]->set_state(Button::State::DISABLED);
-
-		// Simplified tab creation
-		nl::node Tab = Equip["Tab"];
-		if (!Tab.name().empty()) {
-			// Use Tab structure if available
-			for (uint16_t i = Buttons::BT_TAB0; i < Buttons::BT_TABE; i++) {
-				nl::node disabled = Tab["disabled"][i];
-				nl::node enabled = Tab["enabled"][i];
-				if (!disabled.name().empty() && !enabled.name().empty()) {
-					buttons[Buttons::BT_TAB0 + i] = std::make_unique<TwoSpriteButton>(disabled, enabled, Point<int16_t>(0, 3));
-				} else {
-					// Fallback if tab sprites are missing
-					buttons[Buttons::BT_TAB0 + i] = std::make_unique<MapleButton>(close, Point<int16_t>(i * 30, 3));
-				}
-			}
-		} else {
-			// No Tab structure, use fallback
-			for (uint16_t i = Buttons::BT_TAB0; i < Buttons::BT_TABE; i++) {
-				buttons[Buttons::BT_TAB0 + i] = std::make_unique<MapleButton>(close, Point<int16_t>(i * 30, 3));
-			}
-		}
+		// BtDetail button at bottom right of equip window (opens pet equipment)
+		buttons[Buttons::BT_DETAIL] = std::make_unique<MapleButton>(Equip["BtDetail"], Point<int16_t>(bg_dimensions.x() - 60, bg_dimensions.y() - 24));
 
 		dimension = bg_dimensions;
 		dragarea = Point<int16_t>(bg_dimensions.x(), 20);
 
 		load_icons();
-		change_tab(Buttons::BT_TAB0);
+		// V92: No tabs, just show equip tab
+		tab = Buttons::BT_TAB0;
 	}
 
 	void UIEquipInventory::draw(float alpha) const
 	{
+		// Draw sprites (background) and buttons
 		UIElement::draw(alpha);
 
-		// Only draw the current tab's background, not all of them
-		background[tab].draw(position);
-		
-		// Only draw tabbar if it exists (legacy versions might not have it)
-		if (tabbar.is_valid()) {
-			tabbar.draw(position);
-		}
+		// Draw equipped items on the equip tab
+		for (auto iter : icons)
+			if (iter.second)
+				iter.second->draw(position + iconpositions[iter.first] + Point<int16_t>(4, 4));
 
-		for (auto slot : Slots[tab])
-			slot.draw(position);
-
-		if (tab == Buttons::BT_TAB0)
-		{
-			if (!hasPendantSlot)
-				disabled.draw(position + iconpositions[EquipSlot::Id::PENDANT2]);
-
-			if (!hasPocketSlot)
-				disabled.draw(position + iconpositions[EquipSlot::Id::POCKET]);
-
-			for (auto iter : icons)
-				if (iter.second)
-					iter.second->draw(position + iconpositions[iter.first] + Point<int16_t>(4, 4));
-		}
-		else if (tab == Buttons::BT_TAB2)
-		{
-			disabled2.draw(position + Point<int16_t>(113, 57));
-			disabled2.draw(position + Point<int16_t>(113, 106));
-			disabled2.draw(position + Point<int16_t>(113, 155));
+		// Draw pet window if active
+		// Position: right of equip window, bottoms aligned
+		if (pet_active) {
+			// Test: draw at fixed position to the right
+			Point<int16_t> pet_pos = Point<int16_t>(
+				position.x() + dimension.x(),
+				position.y()
+			);
+			pet_window.draw(DrawArgument(pet_pos));
 		}
 	}
 
@@ -254,6 +172,9 @@ namespace ms
 			change_tab(id);
 
 			return Button::State::IDENTITY;
+		case Buttons::BT_DETAIL:
+			pet_active = !pet_active;
+			return Button::State::NORMAL;
 		default:
 			break;
 		}
@@ -370,7 +291,21 @@ namespace ms
 		Rectangle<int16_t> totem_bounds = Rectangle<int16_t>(position, position + totem_dimensions);
 		totem_bounds.shift(totem_adj);
 
-		return bounds.contains(cursorpos) || totem_bounds.contains(cursorpos);
+		bool in_main = bounds.contains(cursorpos) || totem_bounds.contains(cursorpos);
+
+		// Check pet window bounds if active
+		if (pet_active && pet_window.is_valid()) {
+			Point<int16_t> pet_dims = pet_window.get_dimensions();
+			Point<int16_t> pet_pos = Point<int16_t>(
+				position.x() + dimension.x(),
+				position.y() + dimension.y() - pet_dims.y()
+			);
+			Rectangle<int16_t> pet_bounds = Rectangle<int16_t>(pet_pos, pet_pos + pet_dims);
+			if (pet_bounds.contains(cursorpos))
+				return true;
+		}
+
+		return in_main;
 	}
 
 	bool UIEquipInventory::send_icon(const Icon& icon, Point<int16_t> cursorpos)
@@ -384,6 +319,7 @@ namespace ms
 	void UIEquipInventory::toggle_active()
 	{
 		clear_tooltip();
+		pet_active = false;
 
 		UIElement::toggle_active();
 	}
@@ -444,29 +380,40 @@ namespace ms
 		{
 			clear_tooltip();
 
-			buttons[oldtab]->set_state(Button::State::NORMAL);
-			buttons[tab]->set_state(Button::State::PRESSED);
+			// V92: Tab buttons may not exist
+			if (buttons.count(oldtab) && buttons[oldtab])
+				buttons[oldtab]->set_state(Button::State::NORMAL);
+			if (buttons.count(tab) && buttons[tab])
+				buttons[tab]->set_state(Button::State::PRESSED);
 
-			if (tab == Buttons::BT_TAB0)
-				buttons[Buttons::BT_SLOT]->set_active(true);
-			else
-				buttons[Buttons::BT_SLOT]->set_active(false);
+			if (buttons.count(Buttons::BT_SLOT) && buttons[Buttons::BT_SLOT]) {
+				if (tab == Buttons::BT_TAB0)
+					buttons[Buttons::BT_SLOT]->set_active(true);
+				else
+					buttons[Buttons::BT_SLOT]->set_active(false);
+			}
 
 			if (tab == Buttons::BT_TAB2)
 			{
-				buttons[Buttons::BT_CONSUMESETTING]->set_active(true);
-				buttons[Buttons::BT_EXCEPTION]->set_active(true);
+				if (buttons.count(Buttons::BT_CONSUMESETTING) && buttons[Buttons::BT_CONSUMESETTING])
+					buttons[Buttons::BT_CONSUMESETTING]->set_active(true);
+				if (buttons.count(Buttons::BT_EXCEPTION) && buttons[Buttons::BT_EXCEPTION])
+					buttons[Buttons::BT_EXCEPTION]->set_active(true);
 			}
 			else
 			{
-				buttons[Buttons::BT_CONSUMESETTING]->set_active(false);
-				buttons[Buttons::BT_EXCEPTION]->set_active(false);
+				if (buttons.count(Buttons::BT_CONSUMESETTING) && buttons[Buttons::BT_CONSUMESETTING])
+					buttons[Buttons::BT_CONSUMESETTING]->set_active(false);
+				if (buttons.count(Buttons::BT_EXCEPTION) && buttons[Buttons::BT_EXCEPTION])
+					buttons[Buttons::BT_EXCEPTION]->set_active(false);
 			}
 
-			if (tab == Buttons::BT_TAB3)
-				buttons[Buttons::BT_SHOP]->set_active(true);
-			else
-				buttons[Buttons::BT_SHOP]->set_active(false);
+			if (buttons.count(Buttons::BT_SHOP) && buttons[Buttons::BT_SHOP]) {
+				if (tab == Buttons::BT_TAB3)
+					buttons[Buttons::BT_SHOP]->set_active(true);
+				else
+					buttons[Buttons::BT_SHOP]->set_active(false);
+			}
 		}
 	}
 

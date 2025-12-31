@@ -62,11 +62,11 @@ namespace ms
 			// v92: No KeyConfig assets found - create minimal UI
 			dimension = Point<int16_t>(600, 400);
 			dragarea = Point<int16_t>(600, 20);
-			
+
 			// Add close button if available
 			nl::node BtClose3 = nl::nx::UI["Basic.img"]["BtClose3"];
 			if (BtClose3) {
-				buttons[Buttons::CLOSE] = std::make_unique<MapleButton>(BtClose3, Point<int16_t>(580, 3));
+				buttons[Buttons::CLOSE] = std::make_unique<MapleButton>(BtClose3, Point<int16_t>(580, 5));
 			}
 			return;
 		}
@@ -102,9 +102,11 @@ namespace ms
 		// sprites.emplace_back(KeyConfig["backgrnd2"]);
 		// sprites.emplace_back(KeyConfig["backgrnd3"]);
 
-		nl::node BtClose3 = nl::nx::UI["Basic.img"]["BtClose3"];
-		if (BtClose3) {
-			buttons[Buttons::CLOSE] = std::make_unique<MapleButton>(BtClose3, Point<int16_t>(bg_dimensions.x() - 18, 3));
+		// Close button - try window-specific first, then fallback
+		nl::node close = KeyConfig["BtClose"];
+		if (!close) close = nl::nx::UI["Basic.img"]["BtClose3"];
+		if (close) {
+			buttons[Buttons::CLOSE] = std::make_unique<MapleButton>(close, Point<int16_t>(bg_dimensions.x() - 18, 5));
 		}
 		
 		// Load buttons with fallback for v92

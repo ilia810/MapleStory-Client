@@ -29,6 +29,7 @@
 #include <nlnx/nx.hpp>
 #endif
 
+
 namespace ms
 {
 	UIMiniMap::UIMiniMap(const CharStats& stats) : UIDragElement<PosMINIMAP>(Point<int16_t>(128, 20)), stats(stats)
@@ -75,11 +76,19 @@ namespace ms
 			buttons[Buttons::BT_BIG] = std::make_unique<MapleButton>(MiniMap["BtBig"], Point<int16_t>(223, -6));
 			buttons[Buttons::BT_MAP] = std::make_unique<MapleButton>(MiniMap["BtMap"], Point<int16_t>(237, -6));
 			buttons[Buttons::BT_NPC] = std::make_unique<MapleButton>(MiniMap["BtNpc"], Point<int16_t>(276, -6));
+
+			// +/- buttons using SoftKeyboard textures (same as chat box)
+			nl::node softkey_btns = nl::nx::UI["UIWindow.img"]["SoftKeyboard"]["Bt"]["0"];
+			if (softkey_btns["BtMin"] && softkey_btns["BtMax"]) {
+				buttons[Buttons::BT_MINUS] = std::make_unique<MapleButton>(softkey_btns["BtMin"], Point<int16_t>(195, -6));
+				buttons[Buttons::BT_PLUS] = std::make_unique<MapleButton>(softkey_btns["BtMax"], Point<int16_t>(209, -6));
+			}
 		}
 
-		region_text = Text(Text::Font::A12B, Text::Alignment::LEFT, Color::Name::WHITE);
-		town_text = Text(Text::Font::A12B, Text::Alignment::LEFT, Color::Name::WHITE);
-		combined_text = Text(Text::Font::A12M, Text::Alignment::LEFT, Color::Name::WHITE);
+		region_text = Text(Text::Font::A12B, Text::Alignment::LEFT, Color::Name::BLACK);
+		town_text = Text(Text::Font::A12B, Text::Alignment::LEFT, Color::Name::BLACK);
+		combined_text = Text(Text::Font::A12M, Text::Alignment::LEFT, Color::Name::BLACK);
+		title_text = Text(Text::Font::A12M, Text::Alignment::LEFT, Color::Name::BLACK, "Minimap");
 
 		// Use the correct UIWindow reference for marker
 		nl::node markerWindow = nl::nx::UI["UIWindow2.img"];
@@ -103,17 +112,82 @@ namespace ms
 		}
 		else if (type == Type::NORMAL)
 		{
-			for (Sprite sprite : normal_sprites)
-				sprite.draw(position, alpha);
+			// Draw border sprites (but not canvas when using viewport)
+			for (size_t i = 0; i < normal_sprites.size(); i++)
+			{
+				// Skip canvas sprite (index 1) when using viewport - we'll draw it manually with clipping
+				if (use_viewport && has_map && i == 1)
+					continue;
+				normal_sprites[i].draw(position, alpha);
+			}
+
+			// Draw map name in title area
+			combined_text.draw(position + Point<int16_t>(7, -3));
 
 			if (has_map)
 			{
-				Animation portal_marker = Animation(marker["portal"]);
+				// Calculate viewport offset to center on player
+				if (use_viewport)
+				{
+					Point<int16_t> player_pos = Stage::get().get_player().get_position();
+					Point<int16_t> player_map_pos = (player_pos + center_offset) / scale;
 
-				for (auto& sprite : static_marker_info)
-					portal_marker.draw(position + sprite.second, alpha);
+					// Calculate offset to center the player in the viewport
+					viewport_offset = Point<int16_t>(
+						std::max<int16_t>(0, std::min<int16_t>(full_map_size.x() - viewport_size.x(),
+							player_map_pos.x() - viewport_size.x() / 2)),
+						std::max<int16_t>(0, std::min<int16_t>(full_map_size.y() - viewport_size.y(),
+							player_map_pos.y() - viewport_size.y() / 2))
+					);
 
-				draw_movable_markers(position, alpha);
+					// Use Range parameters to crop the canvas texture
+					// horizontal: first() = crop from left, second() = crop from right
+					// vertical: first() = crop from top, second() = crop from bottom
+					// Add 2px padding on the right side
+					Range<int16_t> h_range(viewport_offset.x(),
+						full_map_size.x() - viewport_offset.x() - viewport_size.x() + 2);
+					Range<int16_t> v_range(viewport_offset.y(),
+						full_map_size.y() - viewport_offset.y() - viewport_size.y());
+
+					// Range parameters shift the draw position, so compensate by subtracting viewport_offset
+					// This way: final_pos = (draw_pos - viewport_offset) + viewport_offset = draw_pos
+					Point<int16_t> canvas_draw_pos = position + Point<int16_t>(map_draw_origin_x, map_draw_origin_y) - viewport_offset;
+					map_sprite.draw(DrawArgument(canvas_draw_pos), v_range, h_range);
+
+					// Base position for markers within the viewport window
+					Point<int16_t> marker_base = position + Point<int16_t>(map_draw_origin_x, map_draw_origin_y);
+
+					// Draw portal markers - only if within viewport bounds (minus 2px right padding)
+					Animation portal_marker = Animation(marker["portal"]);
+					for (auto& sprite : static_marker_info)
+					{
+						// sprite.second contains the marker position relative to map_draw_origin
+						Point<int16_t> marker_map_pos = sprite.second - Point<int16_t>(map_draw_origin_x, map_draw_origin_y);
+
+						// Check if marker is within viewport bounds (with 2px right padding)
+						if (marker_map_pos.x() >= viewport_offset.x() &&
+							marker_map_pos.x() < viewport_offset.x() + viewport_size.x() - 2 &&
+							marker_map_pos.y() >= viewport_offset.y() &&
+							marker_map_pos.y() < viewport_offset.y() + viewport_size.y())
+						{
+							// Draw at screen position: base + (marker_pos - viewport_offset)
+							Point<int16_t> screen_pos = marker_base + marker_map_pos - viewport_offset;
+							portal_marker.draw(screen_pos, alpha);
+						}
+					}
+
+					// Draw movable markers with viewport info
+					draw_movable_markers(position, alpha);
+				}
+				else
+				{
+					Animation portal_marker = Animation(marker["portal"]);
+
+					for (auto& sprite : static_marker_info)
+						portal_marker.draw(position + sprite.second, alpha);
+
+					draw_movable_markers(position, alpha);
+				}
 
 				if (listNpc_enabled)
 					draw_npclist(normal_dimensions, alpha);
@@ -121,20 +195,78 @@ namespace ms
 		}
 		else
 		{
-			for (Sprite sprite : max_sprites)
-				sprite.draw(position, alpha);
+			// Draw border sprites (but not canvas when using viewport)
+			for (size_t i = 0; i < max_sprites.size(); i++)
+			{
+				// Skip canvas sprite (index 1) when using viewport - we'll draw it manually with clipping
+				if (use_viewport && has_map && i == 1)
+					continue;
+				max_sprites[i].draw(position, alpha);
+			}
 
 			region_text.draw(position + Point<int16_t>(48, 14));
 			town_text.draw(position + Point<int16_t>(48, 28));
 
 			if (has_map)
 			{
-				Animation portal_marker(marker["portal"]);
+				// Calculate viewport offset to center on player
+				if (use_viewport)
+				{
+					Point<int16_t> player_pos = Stage::get().get_player().get_position();
+					Point<int16_t> player_map_pos = (player_pos + center_offset) / scale;
 
-				for (auto& sprite : static_marker_info)
-					portal_marker.draw(position + sprite.second + Point<int16_t>(0, MAX_ADJ), alpha);
+					// Calculate offset to center the player in the viewport
+					viewport_offset = Point<int16_t>(
+						std::max<int16_t>(0, std::min<int16_t>(full_map_size.x() - viewport_size.x(),
+							player_map_pos.x() - viewport_size.x() / 2)),
+						std::max<int16_t>(0, std::min<int16_t>(full_map_size.y() - viewport_size.y(),
+							player_map_pos.y() - viewport_size.y() / 2))
+					);
 
-				draw_movable_markers(position + Point<int16_t>(0, MAX_ADJ), alpha);
+					// Use Range parameters to crop the canvas texture
+					// Add 2px padding on the right side
+					Range<int16_t> h_range(viewport_offset.x(),
+						full_map_size.x() - viewport_offset.x() - viewport_size.x() + 2);
+					Range<int16_t> v_range(viewport_offset.y(),
+						full_map_size.y() - viewport_offset.y() - viewport_size.y());
+
+					// Range parameters shift the draw position, so compensate by subtracting viewport_offset
+					Point<int16_t> canvas_draw_pos = position + Point<int16_t>(map_draw_origin_x, map_draw_origin_y + MAX_ADJ) - viewport_offset;
+					map_sprite.draw(DrawArgument(canvas_draw_pos), v_range, h_range);
+
+					// Base position for markers within the viewport window
+					Point<int16_t> marker_base = position + Point<int16_t>(map_draw_origin_x, map_draw_origin_y + MAX_ADJ);
+
+					// Draw portal markers - only if within viewport bounds (minus 2px right padding)
+					Animation portal_marker(marker["portal"]);
+					for (auto& sprite : static_marker_info)
+					{
+						Point<int16_t> marker_map_pos = sprite.second - Point<int16_t>(map_draw_origin_x, map_draw_origin_y);
+
+						// Check if marker is within viewport bounds (with 2px right padding)
+						if (marker_map_pos.x() >= viewport_offset.x() &&
+							marker_map_pos.x() < viewport_offset.x() + viewport_size.x() - 2 &&
+							marker_map_pos.y() >= viewport_offset.y() &&
+							marker_map_pos.y() < viewport_offset.y() + viewport_size.y())
+						{
+							// Draw at screen position: base + (marker_pos - viewport_offset)
+							Point<int16_t> screen_pos = marker_base + marker_map_pos - viewport_offset;
+							portal_marker.draw(screen_pos, alpha);
+						}
+					}
+
+					// Draw movable markers with viewport info
+					draw_movable_markers(position + Point<int16_t>(0, MAX_ADJ), alpha);
+				}
+				else
+				{
+					Animation portal_marker(marker["portal"]);
+
+					for (auto& sprite : static_marker_info)
+						portal_marker.draw(position + sprite.second + Point<int16_t>(0, MAX_ADJ), alpha);
+
+					draw_movable_markers(position + Point<int16_t>(0, MAX_ADJ), alpha);
+				}
 
 				if (listNpc_enabled)
 					draw_npclist(max_dimensions, alpha);
@@ -359,6 +491,26 @@ namespace ms
 				set_npclist_active(!listNpc_enabled);
 				break;
 			}
+			case BT_MINUS:
+			{
+				// Collapse minimap mode (same as BT_MIN)
+				if (type > Type::MIN)
+				{
+					type -= 1;
+					toggle_buttons();
+				}
+				return type == Type::MIN ? Button::State::DISABLED : Button::State::NORMAL;
+			}
+			case BT_PLUS:
+			{
+				// Expand minimap mode (same as BT_MAX)
+				if (type < Type::MAX)
+				{
+					type += 1;
+					toggle_buttons();
+				}
+				return type == Type::MAX ? Button::State::DISABLED : Button::State::NORMAL;
+			}
 		}
 
 		return Button::State::NORMAL;
@@ -375,10 +527,14 @@ namespace ms
 		auto btn_min = buttons.find(Buttons::BT_MIN);
 		auto btn_max = buttons.find(Buttons::BT_MAX);
 		auto btn_map = buttons.find(Buttons::BT_MAP);
+		auto btn_plus = buttons.find(Buttons::BT_PLUS);
+		auto btn_minus = buttons.find(Buttons::BT_MINUS);
 
 		bt_min_width = (btn_min != buttons.end() && btn_min->second) ? btn_min->second->width() + 1 : 0;
 		bt_max_width = (btn_max != buttons.end() && btn_max->second) ? btn_max->second->width() + 1 : 0;
 		bt_map_width = (btn_map != buttons.end() && btn_map->second) ? btn_map->second->width() + 1 : 0;
+		bt_plus_width = (btn_plus != buttons.end() && btn_plus->second) ? btn_plus->second->width() + 1 : 15;  // fallback 15px
+		bt_minus_width = (btn_minus != buttons.end() && btn_minus->second) ? btn_minus->second->width() + 1 : 15;  // fallback 15px
 
 		combined_text_width = combined_text.width();
 	}
@@ -391,8 +547,6 @@ namespace ms
 			return (it != buttons.end() && it->second) ? it->second.get() : nullptr;
 		};
 
-		int16_t bt_min_x;
-
 		if (type == Type::MIN)
 		{
 			if (auto btn = safe_btn(Buttons::BT_MAP)) btn->set_active(true);
@@ -401,8 +555,13 @@ namespace ms
 			if (auto btn = safe_btn(Buttons::BT_NPC)) btn->set_active(false);
 			if (auto btn = safe_btn(Buttons::BT_SMALL)) btn->set_active(false);
 			if (auto btn = safe_btn(Buttons::BT_BIG)) btn->set_active(false);
+			// +/- buttons active next to world button
+			if (auto btn = safe_btn(Buttons::BT_MINUS)) btn->set_active(true);
+			if (auto btn = safe_btn(Buttons::BT_PLUS)) btn->set_active(true);
 
 			if (auto btn = safe_btn(Buttons::BT_MIN)) btn->set_state(Button::State::DISABLED);
+			// Minus disabled at MIN mode
+			if (auto btn = safe_btn(Buttons::BT_MINUS)) btn->set_state(Button::State::DISABLED);
 
 			if (auto btn = safe_btn(Buttons::BT_MAX)) {
 				if (has_map)
@@ -410,20 +569,40 @@ namespace ms
 				else
 					btn->set_state(Button::State::DISABLED);
 			}
+			// Plus enabled (can expand from MIN)
+			if (auto btn = safe_btn(Buttons::BT_PLUS)) {
+				if (has_map)
+					btn->set_state(Button::State::NORMAL);
+				else
+					btn->set_state(Button::State::DISABLED);
+			}
 
-			bt_min_x = combined_text_width + 11;
+			// Position buttons from right edge: MAP, -, +, MIN, MAX
+			int16_t total_btn_width = bt_map_width + bt_minus_width + bt_plus_width + bt_min_width + bt_max_width;
+			int16_t min_width = combined_text_width + 11 + total_btn_width + 7 + 100;  // Add 100px extra width
+			int16_t btn_x = min_width - 7;
 
-			if (auto btn = safe_btn(Buttons::BT_MIN)) btn->set_position(Point<int16_t>(bt_min_x, BTN_MIN_Y));
+			// MAP button (world) - rightmost
+			btn_x -= bt_map_width;
+			if (auto btn = safe_btn(Buttons::BT_MAP)) btn->set_position(Point<int16_t>(btn_x, BTN_MIN_Y));
 
-			bt_min_x += bt_min_width;
+			// MINUS button (-) - to the left of MAP
+			btn_x -= bt_minus_width;
+			if (auto btn = safe_btn(Buttons::BT_MINUS)) btn->set_position(Point<int16_t>(btn_x, BTN_MIN_Y));
 
-			if (auto btn = safe_btn(Buttons::BT_MAX)) btn->set_position(Point<int16_t>(bt_min_x, BTN_MIN_Y));
+			// PLUS button (+) - to the left of MINUS
+			btn_x -= bt_plus_width;
+			if (auto btn = safe_btn(Buttons::BT_PLUS)) btn->set_position(Point<int16_t>(btn_x, BTN_MIN_Y));
 
-			bt_min_x += bt_max_width;
+			// MAX button (expand window) - next
+			btn_x -= bt_max_width;
+			if (auto btn = safe_btn(Buttons::BT_MAX)) btn->set_position(Point<int16_t>(btn_x, BTN_MIN_Y));
 
-			if (auto btn = safe_btn(Buttons::BT_MAP)) btn->set_position(Point<int16_t>(bt_min_x, BTN_MIN_Y));
+			// MIN button (minimize window) - leftmost
+			btn_x -= bt_min_width;
+			if (auto btn = safe_btn(Buttons::BT_MIN)) btn->set_position(Point<int16_t>(btn_x, BTN_MIN_Y));
 
-			min_dimensions = Point<int16_t>(bt_min_x + bt_map_width + 7, 20);
+			min_dimensions = Point<int16_t>(min_width, 20);
 
 			update_dimensions();
 
@@ -439,6 +618,9 @@ namespace ms
 			if (auto btn = safe_btn(Buttons::BT_MAX)) btn->set_active(true);
 			if (auto btn = safe_btn(Buttons::BT_MIN)) btn->set_active(true);
 			if (auto btn = safe_btn(Buttons::BT_NPC)) btn->set_active(has_npcs);
+			// +/- buttons active next to world button
+			if (auto btn = safe_btn(Buttons::BT_MINUS)) btn->set_active(true);
+			if (auto btn = safe_btn(Buttons::BT_PLUS)) btn->set_active(true);
 
 			if (big_map)
 			{
@@ -452,39 +634,66 @@ namespace ms
 			}
 
 			if (auto btn = safe_btn(Buttons::BT_MIN)) btn->set_state(Button::State::NORMAL);
+			// Minus always enabled in NORMAL/MAX mode (can always collapse)
+			if (auto btn = safe_btn(Buttons::BT_MINUS)) btn->set_state(Button::State::NORMAL);
 
-			// Calculate total button width needed
+			// Get button widths
 			auto btn_small = safe_btn(Buttons::BT_SMALL);
 			auto btn_npc = safe_btn(Buttons::BT_NPC);
 			int16_t small_width = btn_small ? btn_small->width() + 1 : 0;
-			int16_t npc_width = (has_npcs && btn_npc) ? btn_npc->width() : 0;
-			int16_t total_button_width = bt_min_width + small_width + bt_max_width + bt_map_width + npc_width;
+			int16_t npc_width = (has_npcs && btn_npc) ? btn_npc->width() + 1 : 0;
 
-			// Position buttons to fit within the window dimensions, leaving some margin
-			// Use the window width from normal_dimensions if available, otherwise use middle_right_x
-			int16_t window_width = (type == Type::NORMAL && normal_dimensions.x() > 0) ? normal_dimensions.x() : middle_right_x + 55;
-			bt_min_x = window_width - total_button_width - 10;
+			// Position buttons from right edge inside title area
+			// Order: NPC (if any), SMALL/BIG, MIN, MAX, +, -, MAP
+			int16_t window_width;
+			if (type == Type::MAX && max_dimensions.x() > 0)
+				window_width = max_dimensions.x();
+			else if (type == Type::NORMAL && normal_dimensions.x() > 0)
+				window_width = normal_dimensions.x();
+			else
+				window_width = middle_right_x + 55;
+			int16_t btn_x = window_width - 5;  // Start from right edge with 5px margin
 
-			if (auto btn = safe_btn(Buttons::BT_MIN)) btn->set_position(Point<int16_t>(bt_min_x, BTN_MIN_Y));
+			// MAP button (world) - rightmost, offset by (1, 2)
+			btn_x -= bt_map_width;
+			if (auto btn = safe_btn(Buttons::BT_MAP)) btn->set_position(Point<int16_t>(btn_x + 1, BTN_MIN_Y + 2));
 
-			bt_min_x += bt_max_width;
+			// MINUS button (-) - to the left of MAP
+			btn_x -= bt_minus_width;
+			if (auto btn = safe_btn(Buttons::BT_MINUS)) btn->set_position(Point<int16_t>(btn_x, BTN_MIN_Y));
 
-			if (auto btn = safe_btn(Buttons::BT_MAX)) btn->set_position(Point<int16_t>(bt_min_x, BTN_MIN_Y));
+			// PLUS button (+) - to the left of MINUS
+			btn_x -= bt_plus_width;
+			if (auto btn = safe_btn(Buttons::BT_PLUS)) btn->set_position(Point<int16_t>(btn_x, BTN_MIN_Y));
 
-			bt_min_x += bt_max_width;
+			// MAX button (expand window) - next
+			btn_x -= bt_max_width;
+			if (auto btn = safe_btn(Buttons::BT_MAX)) btn->set_position(Point<int16_t>(btn_x, BTN_MIN_Y));
 
-			if (auto btn = safe_btn(Buttons::BT_SMALL)) btn->set_position(Point<int16_t>(bt_min_x, BTN_MIN_Y));
-			if (auto btn = safe_btn(Buttons::BT_BIG)) btn->set_position(Point<int16_t>(bt_min_x, BTN_MIN_Y));
+			// MIN button (minimize window) - next
+			btn_x -= bt_min_width;
+			if (auto btn = safe_btn(Buttons::BT_MIN)) btn->set_position(Point<int16_t>(btn_x, BTN_MIN_Y));
 
-			bt_min_x += bt_max_width;
+			// SMALL/BIG button - next
+			btn_x -= small_width;
+			if (auto btn = safe_btn(Buttons::BT_SMALL)) btn->set_position(Point<int16_t>(btn_x, BTN_MIN_Y));
+			if (auto btn = safe_btn(Buttons::BT_BIG)) btn->set_position(Point<int16_t>(btn_x, BTN_MIN_Y));
 
-			if (auto btn = safe_btn(Buttons::BT_MAP)) btn->set_position(Point<int16_t>(bt_min_x, BTN_MIN_Y));
-
-			bt_min_x += bt_map_width;
-
-			if (auto btn = safe_btn(Buttons::BT_NPC)) btn->set_position(Point<int16_t>(bt_min_x, BTN_MIN_Y));
+			// NPC button - leftmost (if active)
+			if (has_npcs)
+			{
+				btn_x -= npc_width;
+				if (auto btn = safe_btn(Buttons::BT_NPC)) btn->set_position(Point<int16_t>(btn_x, BTN_MIN_Y));
+			}
 
 			if (auto btn = safe_btn(Buttons::BT_MAX)) {
+				if (type == Type::MAX)
+					btn->set_state(Button::State::DISABLED);
+				else
+					btn->set_state(Button::State::NORMAL);
+			}
+			// Plus disabled at MAX mode
+			if (auto btn = safe_btn(Buttons::BT_PLUS)) {
 				if (type == Type::MAX)
 					btn->set_state(Button::State::DISABLED);
 				else
@@ -529,21 +738,42 @@ namespace ms
 		// Load minimap data from the NX file
 		nl::node miniMapNode = Map["miniMap"];
 		map_sprite = Texture(miniMapNode["canvas"]);
-		
+
 		// Get canvas dimensions first
 		Point<int16_t> map_dimensions = map_sprite.get_dimensions();
-		
+
+		// Store full map size for viewport calculations
+		full_map_size = map_dimensions;
+
+		// Check if map is larger than max viewport size
+		use_viewport = (map_dimensions.x() > MAX_MINIMAP_WIDTH || map_dimensions.y() > MAX_MINIMAP_HEIGHT);
+
+		// Calculate viewport size (clamped to max dimensions)
+		viewport_size = Point<int16_t>(
+			std::min(map_dimensions.x(), MAX_MINIMAP_WIDTH),
+			std::min(map_dimensions.y(), MAX_MINIMAP_HEIGHT)
+		);
+
+		// Initialize viewport offset to center
+		viewport_offset = Point<int16_t>(0, 0);
+
 		// Check if width/height are specified in the minimap node
 		int16_t minimap_width = miniMapNode["width"];
 		int16_t minimap_height = miniMapNode["height"];
-		
+
 		// The width/height in the minimap node might be world coordinates, not pixel dimensions
 		// If they're unreasonably large or not specified, use canvas dimensions
-		if (minimap_width <= 0 || minimap_width > 500) {
-			minimap_width = map_dimensions.x();
-		}
-		if (minimap_height <= 0 || minimap_height > 500) {
-			minimap_height = map_dimensions.y();
+		// When using viewport, limit the displayed size
+		if (use_viewport) {
+			minimap_width = viewport_size.x();
+			minimap_height = viewport_size.y();
+		} else {
+			if (minimap_width <= 0 || minimap_width > 500) {
+				minimap_width = map_dimensions.x();
+			}
+			if (minimap_height <= 0 || minimap_height > 500) {
+				minimap_height = map_dimensions.y();
+			}
 		}
 		
 		// Get actual border sprite dimensions instead of using hardcoded values
@@ -585,9 +815,9 @@ namespace ms
 		// Calculate the middle section stretch to accommodate the minimap
 		// We need the canvas to fit within the border area
 		// The content area starts at ML_MR_Y and we need space for the actual canvas
-		int16_t canvas_height = map_dimensions.y(); // Use actual canvas height
+		// Use minimap_height (which is viewport_size when use_viewport is true)
 		int16_t padding = 10; // Padding above and below the canvas
-		int16_t required_middle_height = canvas_height + padding - (ML_MR_Y - top_border_height);
+		int16_t required_middle_height = minimap_height + padding - (ML_MR_Y - top_border_height);
 		m_stretch = std::max<int16_t>(required_middle_height, 5);
 		
 		// Calculate where the bottom border should be positioned
@@ -596,7 +826,8 @@ namespace ms
 		
 		// Position minimap canvas within the window borders
 		// Place it so it doesn't overflow the bottom
-		map_draw_origin_y = down_y_offset - canvas_height - 5; // 5 pixels padding from bottom
+		// Use minimap_height (which is viewport_size when use_viewport is true)
+		map_draw_origin_y = down_y_offset - minimap_height - 5; // 5 pixels padding from bottom
 
 		// Get the actual middle right border width
 		Texture middleRightBorder(Normal[simpleMode ? "MiddleRight" : "e"]);
@@ -624,8 +855,8 @@ namespace ms
 
 		int16_t dl_dr_y = std::max(minimap_height, (int16_t)10);
 
-		// combined_text_width + 14 (7px buffer on both sides) + 4 (buffer between name and buttons) + 3 buttons' widths - total border width
-		int16_t min_c_stretch = combined_text_width + 18 + bt_min_width + bt_max_width + bt_map_width - total_border_width;
+		// combined_text_width + 14 (7px buffer on both sides) + 4 (buffer between name and buttons) + all buttons' widths + 100px extra - total border width
+		int16_t min_c_stretch = combined_text_width + 18 + bt_min_width + bt_max_width + bt_map_width + bt_plus_width + bt_minus_width + 100 - total_border_width;
 
 		// Min sprites queue
 		min_sprites.emplace_back(Min[Center], DrawArgument(WINDOW_UL_POS + Point<int16_t>(left_border_width, 0), Point<int16_t>(min_c_stretch, 0)));
@@ -679,6 +910,27 @@ namespace ms
 		Animation marker_sprite;
 		Point<int16_t> sprite_offset;
 
+		// Helper lambda to check if a marker is within viewport bounds (with 2px right padding)
+		auto is_in_viewport = [this](Point<int16_t> map_pos) -> bool {
+			if (!use_viewport)
+				return true;
+			return map_pos.x() >= viewport_offset.x() &&
+				   map_pos.x() < viewport_offset.x() + viewport_size.x() - 2 &&
+				   map_pos.y() >= viewport_offset.y() &&
+				   map_pos.y() < viewport_offset.y() + viewport_size.y();
+		};
+
+		// Helper lambda to calculate screen position for a marker
+		auto get_screen_pos = [this, &init_pos](Point<int16_t> world_pos, Point<int16_t> sprite_off) -> Point<int16_t> {
+			Point<int16_t> map_pos = (world_pos + center_offset) / scale;
+			if (use_viewport)
+			{
+				// Position relative to viewport: map_pos - viewport_offset
+				return init_pos + Point<int16_t>(map_draw_origin_x, map_draw_origin_y) + map_pos - viewport_offset - sprite_off;
+			}
+			return map_pos - sprite_off + Point<int16_t>(map_draw_origin_x, map_draw_origin_y) + init_pos;
+		};
+
 		/// NPCs
 		MapObjects* npcs = Stage::get().get_npcs().get_npcs();
 		marker_sprite = Animation(marker["npc"]);
@@ -687,7 +939,11 @@ namespace ms
 		for (auto npc = npcs->begin(); npc != npcs->end(); ++npc)
 		{
 			Point<int16_t> npc_pos = npc->second.get()->get_position();
-			marker_sprite.draw((npc_pos + center_offset) / scale - sprite_offset + Point<int16_t>(map_draw_origin_x, map_draw_origin_y) + init_pos, alpha);
+			Point<int16_t> map_pos = (npc_pos + center_offset) / scale;
+			if (is_in_viewport(map_pos))
+			{
+				marker_sprite.draw(get_screen_pos(npc_pos, sprite_offset), alpha);
+			}
 		}
 
 		/// Other characters
@@ -698,13 +954,21 @@ namespace ms
 		for (auto chr = chars->begin(); chr != chars->end(); ++chr)
 		{
 			Point<int16_t> chr_pos = chr->second.get()->get_position();
-			marker_sprite.draw((chr_pos + center_offset) / scale - sprite_offset + Point<int16_t>(map_draw_origin_x, map_draw_origin_y) + init_pos, alpha);
+			Point<int16_t> map_pos = (chr_pos + center_offset) / scale;
+			if (is_in_viewport(map_pos))
+			{
+				marker_sprite.draw(get_screen_pos(chr_pos, sprite_offset), alpha);
+			}
 		}
 
 		/// Player
 		Point<int16_t> player_pos = Stage::get().get_player().get_position();
 		sprite_offset = player_marker.get_dimensions() / Point<int16_t>(2, 0);
-		player_marker.draw((player_pos + center_offset) / scale - sprite_offset + Point<int16_t>(map_draw_origin_x, map_draw_origin_y) + init_pos, alpha);
+		Point<int16_t> player_map_pos = (player_pos + center_offset) / scale;
+		if (is_in_viewport(player_map_pos))
+		{
+			player_marker.draw(get_screen_pos(player_pos, sprite_offset), alpha);
+		}
 	}
 
 	void UIMiniMap::update_static_markers()

@@ -18,6 +18,7 @@
 #pragma once
 
 #include "../Graphics/Animation.h"
+#include "../Graphics/Text.h"
 #include "../Template/EnumMap.h"
 
 namespace ms
@@ -26,6 +27,8 @@ namespace ms
 	class Cursor
 	{
 	public:
+		// Debug mode - shows crosshair with coordinates
+		static bool debug_mode;
 		// Maple cursor states that are linked to the cursor's animation
 		enum State
 		{
@@ -69,6 +72,9 @@ namespace ms
 		State state;
 		Point<int16_t> position;
 		int32_t hide_counter;
+
+		mutable Text coord_text;      // For debug screen coordinate display
+		mutable Text map_coord_text;  // For debug map coordinate display
 
 		static constexpr int64_t HIDE_TIME = 15'000;
 	};

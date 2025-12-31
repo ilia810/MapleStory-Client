@@ -49,6 +49,13 @@ namespace ms
 		animation.draw(absargs, alpha);
 	}
 
+	void Sprite::draw(Point<int16_t> parentpos, float alpha, const DrawArgument& extra_args) const
+	{
+		// Combine state args with extra args (for scaling), then add parent position
+		auto absargs = stateargs + extra_args + parentpos;
+		animation.draw(absargs, alpha);
+	}
+
 	bool Sprite::update(uint16_t timestep)
 	{
 		return animation.update(timestep);

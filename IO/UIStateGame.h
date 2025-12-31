@@ -57,6 +57,7 @@ namespace ms
 		UIElement* get(UIElement::Type type) override;
 		UIElement* get_front(std::list<UIElement::Type> types) override;
 		UIElement* get_front(Point<int16_t> cursor_position) override;
+		void bring_to_front(UIElement::Type type) override;
 
 	private:
 		const CharStats& stats;

@@ -18,6 +18,7 @@
 #pragma once
 
 #include "UIElement.h"
+#include "UIScale.h"
 
 #include "../Configuration.h"
 
@@ -36,23 +37,37 @@ namespace ms
 			{
 				dragged = false;
 
+				// Clamp position to keep window on screen before saving
+				clamp_position_to_screen();
 				Setting<T>::get().save(position);
 			}
 		}
 
+		void makeactive() override
+		{
+			UIElement::makeactive();
+			// Clamp position when window becomes active (handles off-screen saved positions)
+			clamp_position_to_screen();
+		}
+
 		Cursor::State send_cursor(bool clicked, Point<int16_t> cursorpos) override
 		{
+			// Transform cursor from screen space to UI space for scaled dragging
+			Point<int16_t> ui_cursor = UIScale::get().screen_to_ui(cursorpos);
+
 			if (clicked)
 			{
 				if (dragged)
 				{
-					position = cursorpos - cursoroffset;
+					// Update position in UI space (unscaled coordinates)
+					position = ui_cursor - cursoroffset;
 
 					return Cursor::State::CLICKING;
 				}
-				else if (indragrange(cursorpos))
+				else if (indragrange(ui_cursor))
 				{
-					cursoroffset = cursorpos - position;
+					// Store offset in UI space
+					cursoroffset = ui_cursor - position;
 					dragged = true;
 
 					return UIElement::send_cursor(clicked, cursorpos);
@@ -64,6 +79,8 @@ namespace ms
 				{
 					dragged = false;
 
+					// Clamp position to keep window on screen before saving
+					clamp_position_to_screen();
 					Setting<T>::get().save(position);
 				}
 			}
@@ -86,6 +103,7 @@ namespace ms
 	private:
 		virtual bool indragrange(Point<int16_t> cursorpos) const
 		{
+			// cursorpos is already in UI space (transformed in send_cursor)
 			auto bounds = Rectangle<int16_t>(position, position + dragarea);
 
 			return bounds.contains(cursorpos);

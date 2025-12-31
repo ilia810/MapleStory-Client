@@ -68,6 +68,7 @@ namespace ms
 			void set_count(int16_t) override {}
 			void set_state(StatefulIcon::State) override {}
 			Icon::IconType get_type() override;
+			int32_t get_action_id() const override { return skill_id; }
 
 		private:
 			int32_t skill_id;

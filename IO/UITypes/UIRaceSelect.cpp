@@ -52,6 +52,19 @@ namespace ms
 		nl::node Common = Login["Common"];
 		nl::node RaceSelect = Login["RaceSelect"];
 
+		// Helper lambda to add sprite at absolute top-left position (accounting for origin)
+		auto add_sprite_abs = [&](nl::node node, Point<int16_t> topleft) {
+			if (node) {
+				Point<int16_t> origin(node["origin"]);
+				sprites.emplace_back(node, topleft + origin);
+			}
+		};
+
+		// Frame/border from Common - stretched to fill 800x600
+		if (Common["frame"]) {
+			frame = Texture(Common["frame"]);
+			frame_stretch = Point<int16_t>(808, 608);
+		}
 
 		// Load textures for Explorer (normal state = Explorer class)
 		if (RaceSelect["normal"]) {
@@ -142,6 +155,16 @@ namespace ms
 	void UIRaceSelect::draw(float inter) const
 	{
 		UIElement::draw_sprites(inter);
+
+		// Draw frame stretched to fill 800x600
+		if (frame.is_valid()) {
+			frame.draw(DrawArgument(
+				position + frame.get_origin(),
+				Point<int16_t>(0, 0),
+				frame_stretch,
+				1.0f, 1.0f, 1.0f, 0.0f
+			));
+		}
 
 		// Draw version text
 		version.draw(position + version_pos - Point<int16_t>(0, 5));

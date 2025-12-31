@@ -4,6 +4,7 @@
 #include "../Util/Misc.h"
 #include <algorithm>
 #include <cmath>
+#include <vector>
 
 namespace ms
 {
@@ -1069,6 +1070,120 @@ namespace ms
 		drawrectangle(0, 0, VWIDTH, VHEIGHT, red, green, blue, alpha);
 	}
 
+	void GraphicsGL::draw_magnifier(int16_t center_x, int16_t center_y, int16_t source_size, int16_t zoom_factor, int16_t draw_x, int16_t draw_y)
+	{
+		if (locked)
+			return;
+
+		// First, flush current quads (scene without cursor) to the back buffer
+		// This renders the clean game scene before any cursor elements
+		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+		glClear(GL_COLOR_BUFFER_BIT);
+
+		glUseProgram(shaderProgram);
+		glBindTexture(GL_TEXTURE_2D, atlas);
+		glUniform1i(uniform_texture, 0);
+		glUniform1i(uniform_fontregion, fontymax);
+		glUniform2f(uniform_atlassize, ATLASW, ATLASH);
+		glUniform2f(uniform_screensize, VWIDTH, VHEIGHT);
+		glUniform1i(uniform_yoffset, 0);
+
+		if (!quads.empty())
+		{
+			GLsizeiptr csize = quads.size() * sizeof(Quad);
+			GLsizeiptr fsize = quads.size() * Quad::LENGTH;
+
+			glEnableVertexAttribArray(attribute_coord);
+			glEnableVertexAttribArray(attribute_color);
+			glBindBuffer(GL_ARRAY_BUFFER, VBO);
+			glBufferData(GL_ARRAY_BUFFER, csize, quads.data(), GL_STREAM_DRAW);
+			glVertexAttribPointer(attribute_coord, 4, GL_SHORT, GL_FALSE, sizeof(Quad::Vertex), 0);
+			glVertexAttribPointer(attribute_color, 4, GL_FLOAT, GL_FALSE, sizeof(Quad::Vertex), (const void*)8);
+			glDrawArrays(GL_QUADS, 0, fsize);
+			glDisableVertexAttribArray(attribute_coord);
+			glDisableVertexAttribArray(attribute_color);
+			glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+			// Clear scene quads now that they're drawn (cursor quads will be added after)
+			quads.clear();
+		}
+
+		// Calculate source region bounds (clamped to screen)
+		int16_t half_size = source_size / 2;
+		int16_t src_left = std::max<int16_t>(0, center_x - half_size);
+		int16_t src_bottom = std::max<int16_t>(0, center_y - half_size);
+		int16_t src_right = std::min<int16_t>(VWIDTH, center_x + half_size);
+		int16_t src_top = std::min<int16_t>(VHEIGHT, center_y + half_size);
+
+		int16_t capture_width = src_right - src_left;
+		int16_t capture_height = src_top - src_bottom;
+
+		if (capture_width <= 0 || capture_height <= 0)
+			return;
+
+		// Allocate buffer for pixel data
+		std::vector<GLubyte> pixels(capture_width * capture_height * 4);
+
+		// Read pixels from the BACK buffer (current frame's clean scene, no cursor yet)
+		glReadBuffer(GL_BACK);
+		glReadPixels(src_left, VHEIGHT - src_top, capture_width, capture_height, GL_RGBA, GL_UNSIGNED_BYTE, pixels.data());
+
+		// Flip the image vertically (OpenGL reads with Y=0 at bottom, but we draw with Y=0 at top)
+		int row_size = capture_width * 4;
+		std::vector<GLubyte> temp_row(row_size);
+		for (int y = 0; y < capture_height / 2; y++) {
+			int top_row = y * row_size;
+			int bottom_row = (capture_height - 1 - y) * row_size;
+			// Swap rows
+			memcpy(temp_row.data(), &pixels[top_row], row_size);
+			memcpy(&pixels[top_row], &pixels[bottom_row], row_size);
+			memcpy(&pixels[bottom_row], temp_row.data(), row_size);
+		}
+
+		// Mark that we've pre-rendered the scene (flush should not clear again)
+		magnifier_pre_rendered = true;
+
+		// Calculate destination size
+		int16_t dest_width = capture_width * zoom_factor;
+		int16_t dest_height = capture_height * zoom_factor;
+
+		// Draw the magnifier using the batched quad system (border)
+		int16_t border = 2;
+		drawrectangle(draw_x - border, draw_y - border, dest_width + border * 2, dest_height + border * 2, 0.0f, 0.0f, 0.0f, 0.9f);
+
+		// For the actual magnified content, we need to upload to atlas and draw as a quad
+		// Find a spot in the atlas for our captured pixels
+		// Use a simple approach: upload to a fixed location in the atlas (we'll use a reserved area)
+
+		// Upload captured pixels to atlas at a reserved location
+		GLshort atlas_x = ATLASW - capture_width - 1;  // Top-right corner of atlas
+		GLshort atlas_y = fontymax + 1;  // Below font region
+
+		glBindTexture(GL_TEXTURE_2D, atlas);
+		glTexSubImage2D(GL_TEXTURE_2D, 0, atlas_x, atlas_y, capture_width, capture_height, GL_RGBA, GL_UNSIGNED_BYTE, pixels.data());
+
+		// Create offset for the uploaded region
+		Offset mag_offset(atlas_x, atlas_y, capture_width, capture_height);
+
+		// Draw the magnified quad (scaled up)
+		quads.emplace_back(
+			draw_x, draw_x + dest_width,
+			draw_y, draw_y + dest_height,
+			mag_offset, Color(1.0f, 1.0f, 1.0f, 1.0f), 0.0f
+		);
+
+		// Draw crosshair in center of magnifier (using colored rectangles)
+		int16_t mag_center_x = draw_x + dest_width / 2;
+		int16_t mag_center_y = draw_y + dest_height / 2;
+		int16_t cross_size = 6;
+		int16_t cross_thickness = 1;
+
+		// Horizontal line
+		drawrectangle(mag_center_x - cross_size, mag_center_y, cross_size * 2, cross_thickness, 1.0f, 0.0f, 0.0f, 1.0f);
+		// Vertical line
+		drawrectangle(mag_center_x, mag_center_y - cross_size, cross_thickness, cross_size * 2, 1.0f, 0.0f, 0.0f, 1.0f);
+	}
+
 	void GraphicsGL::lock()
 	{
 		locked = true;
@@ -1098,8 +1213,12 @@ namespace ms
 		}
 		
 
-		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);  // clear to black instead of white
-		glClear(GL_COLOR_BUFFER_BIT);
+		// Skip glClear if magnifier already rendered the scene
+		if (!magnifier_pre_rendered) {
+			glClearColor(0.0f, 0.0f, 0.0f, 1.0f);  // clear to black instead of white
+			glClear(GL_COLOR_BUFFER_BIT);
+		}
+		magnifier_pre_rendered = false;  // Reset flag for next frame
 
 		// Ensure shader program is active
 		glUseProgram(shaderProgram);

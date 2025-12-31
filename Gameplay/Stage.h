@@ -101,6 +101,9 @@ namespace ms
 		// Get the current map ID being loaded/active
 		int32_t get_current_mapid() const;
 
+		// Get current camera position (for coordinate conversion)
+		Point<int16_t> get_camera_position() const;
+
 	private:
 		void load_map(int32_t mapid);
 		void respawn(int8_t portalid);

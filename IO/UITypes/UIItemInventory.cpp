@@ -266,9 +266,10 @@ namespace ms
 			LOG(LOG_DEBUG, "[UIItemInventory] V83/V87 mode - no tabs");
 		}
 
-		// Close button exists in both versions
-		nl::node close = nl::nx::UI["Basic.img"]["BtClose3"];
-		buttons[Buttons::BT_CLOSE] = std::make_unique<MapleButton>(close);
+		// Close button - try window-specific first, then fallback
+		nl::node close = Item["BtClose"];
+		if (!close) close = nl::nx::UI["Basic.img"]["BtClose3"];
+		if (close) buttons[Buttons::BT_CLOSE] = std::make_unique<MapleButton>(close, Point<int16_t>(dimension.x() - 18, 5));
 
 		// V83/V87 and V92 don't have these AutoBuild buttons
 		if (!is_v83 && !is_v92) {

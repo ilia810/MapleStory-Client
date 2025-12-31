@@ -18,6 +18,7 @@
 #include "UIStateGame.h"
 
 #include "UI.h"
+#include "UIScale.h"
 
 #include "UITypes/UIInspector.h"
 #include "UITypes/UIBuffList.h"
@@ -48,7 +49,14 @@ namespace ms
 {
 	UIStateGame::UIStateGame() : stats(Stage::get().get_player().get_stats()), dragged(nullptr)
 	{
-		
+		// Initialize UI scaling from saved settings
+		uint8_t saved_scale = Setting<UIScaleSetting>::get().load();
+		if (saved_scale >= 75 && saved_scale <= 200)
+		{
+			UIScale::get().set_scale_percent(saved_scale);
+		}
+		UIScale::get().set_enabled(true);
+
 		// Ensure Stage is loaded - SetFieldHandler might not have loaded it yet
 		// due to fadeout callback timing
 		int32_t mapid = stats.get_mapid();
@@ -558,8 +566,24 @@ namespace ms
 
 						if (drag_element_type != UIElement::Type::NONE)
 						{
-							elementorder.remove(drag_element_type);
-							elementorder.push_back(drag_element_type);
+							// Don't bring status bar to front - it stays at bottom and shouldn't cover chat
+							if (drag_element_type != UIElement::Type::STATUSBAR)
+							{
+								elementorder.remove(drag_element_type);
+								elementorder.push_back(drag_element_type);
+							}
+
+							// Keep chat bar on top when it has active input
+							auto& chatbar = elements[UIElement::Type::CHATBAR];
+							if (chatbar && chatbar->is_active())
+							{
+								auto* chat = dynamic_cast<UIChatBar*>(chatbar.get());
+								if (chat && chat->has_input())
+								{
+									elementorder.remove(UIElement::Type::CHATBAR);
+									elementorder.push_back(UIElement::Type::CHATBAR);
+								}
+							}
 						}
 					}
 
@@ -811,5 +835,20 @@ namespace ms
 		}
 
 		return nullptr;
+	}
+
+	void UIStateGame::bring_to_front(UIElement::Type type)
+	{
+		auto& element = elements[type];
+		if (element)
+		{
+			elementorder.remove(type);
+			elementorder.push_back(type);
+			std::cout << "[DEBUG] bring_to_front: Moved type " << static_cast<int>(type) << " to front (active=" << (element->is_active() ? "yes" : "no") << ")" << std::endl;
+		}
+		else
+		{
+			std::cout << "[DEBUG] bring_to_front: Failed for type " << static_cast<int>(type) << " (element is null)" << std::endl;
+		}
 	}
 }

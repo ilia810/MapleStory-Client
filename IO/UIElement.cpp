@@ -16,8 +16,10 @@
 //	along with this program.  If not, see <https://www.gnu.org/licenses/>.		//
 //////////////////////////////////////////////////////////////////////////////////
 #include "UIElement.h"
+#include "UIScale.h"
 
 #include "../Audio/Audio.h"
+#include "../Constants.h"
 #include <iostream>
 
 namespace ms
@@ -34,19 +36,49 @@ namespace ms
 
 	void UIElement::draw_sprites(float alpha) const
 	{
-		// Drawing sprites
-		for (const Sprite& sprite : sprites)
+		float scale = UIScale::get().get_scale();
+
+		// If scale is 1.0, scaling disabled, or element opts-out, use unscaled drawing
+		if (scale == 1.0f || !should_scale())
 		{
-			// Drawing sprite
-			sprite.draw(position, alpha);
+			for (const Sprite& sprite : sprites)
+			{
+				sprite.draw(position, alpha);
+			}
+		}
+		else
+		{
+			// Apply scaling: scale both position and sprite size
+			DrawArgument scale_args = UIScale::get().get_scale_args();
+			Point<int16_t> scaled_pos = UIScale::get().ui_to_screen(position);
+
+			for (const Sprite& sprite : sprites)
+			{
+				sprite.draw(scaled_pos, alpha, scale_args);
+			}
 		}
 	}
 
 	void UIElement::draw_buttons(float) const
 	{
-		for (auto& iter : buttons)
-			if (const Button* button = iter.second.get())
-				button->draw(position);
+		float scale = UIScale::get().get_scale();
+
+		// If scale is 1.0, scaling disabled, or element opts-out, use unscaled drawing
+		if (scale == 1.0f || !should_scale())
+		{
+			for (auto& iter : buttons)
+				if (const Button* button = iter.second.get())
+					button->draw(position);
+		}
+		else
+		{
+			// Apply scaling
+			DrawArgument scale_args = UIScale::get().get_scale_args();
+
+			for (auto& iter : buttons)
+				if (const Button* button = iter.second.get())
+					button->draw(position, scale_args);
+		}
 	}
 
 	void UIElement::update()
@@ -84,9 +116,11 @@ namespace ms
 
 	bool UIElement::is_in_range(Point<int16_t> cursor_position) const
 	{
+		// Transform cursor from screen space to UI space if scaling is active and element scales
+		Point<int16_t> ui_cursor = should_scale() ? UIScale::get().screen_to_ui(cursor_position) : cursor_position;
 		auto bounds = Rectangle<int16_t>(position, position + dimension);
 
-		return bounds.contains(cursor_position);
+		return bounds.contains(ui_cursor);
 	}
 
 	void UIElement::remove_cursor()
@@ -102,11 +136,14 @@ namespace ms
 
 	Cursor::State UIElement::send_cursor(bool clicked, Point<int16_t> cursor_position)
 	{
+		// Transform cursor from screen space to UI space if scaling is active and element scales
+		Point<int16_t> ui_cursor = should_scale() ? UIScale::get().screen_to_ui(cursor_position) : cursor_position;
+
 		Cursor::State ret = clicked ? Cursor::State::CLICKING : Cursor::State::IDLE;
 
 		for (auto& btit : buttons)
 		{
-			if (btit.second && btit.second->is_active() && btit.second->bounds(position).contains(cursor_position))
+			if (btit.second && btit.second->is_active() && btit.second->bounds(position).contains(ui_cursor))
 			{
 				if (btit.second->get_state() == Button::State::NORMAL)
 				{
@@ -142,6 +179,9 @@ namespace ms
 
 	UIElement::ComponentInfo UIElement::get_component_at(Point<int16_t> cursor_position) const
 	{
+		// Transform cursor from screen space to UI space if scaling is active and element scales
+		Point<int16_t> ui_cursor = should_scale() ? UIScale::get().screen_to_ui(cursor_position) : cursor_position;
+
 		ComponentInfo info;
 
 		// Check buttons first (they're on top)
@@ -150,7 +190,7 @@ namespace ms
 			if (btit.second && btit.second->is_active())
 			{
 				Rectangle<int16_t> btn_bounds = btit.second->bounds(position);
-				if (btn_bounds.contains(cursor_position))
+				if (btn_bounds.contains(ui_cursor))
 				{
 					info.type = ComponentInfo::BUTTON;
 					info.id = btit.first;
@@ -181,5 +221,14 @@ namespace ms
 		}
 
 		return info;
+	}
+
+	void UIElement::clamp_position_to_screen()
+	{
+		int16_t screen_width = Constants::Constants::get().get_viewwidth();
+		int16_t screen_height = Constants::Constants::get().get_viewheight();
+
+		// Use UIScale to clamp position, taking scaling into account
+		position = UIScale::get().clamp_to_screen(position, dimension, screen_width, screen_height);
 	}
 }

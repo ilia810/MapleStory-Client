@@ -35,8 +35,6 @@ namespace ms
 {
 	UIStatsInfo::UIStatsInfo(const CharStats& st) : UIDragElement<PosSTATS>(Point<int16_t>(212, 20)), stats(st)
 	{
-		nl::node close = nl::nx::UI["Basic.img"]["BtClose3"];
-		
 		// Use UIWindow.img/Stat structure
 		nl::node Stat = nl::nx::UI["UIWindow.img"]["Stat"];
 		
@@ -81,32 +79,34 @@ namespace ms
 		if (metierLine["activated"] && metierLine["activated"]["0"]) inner_ability[true] = metierLine["activated"]["0"];
 		if (metierLine["disabled"] && metierLine["disabled"]["0"]) inner_ability[false] = metierLine["disabled"]["0"];
 
-		// Create buttons
-		if (close) buttons[Buttons::BT_CLOSE] = std::make_unique<MapleButton>(close, Point<int16_t>(190, 6));
+		// Close button - try window-specific first, then fallback
+		nl::node close = Stat["BtClose"];
+		if (!close) close = nl::nx::UI["Basic.img"]["BtClose3"];
+		if (close) buttons[Buttons::BT_CLOSE] = std::make_unique<MapleButton>(close, Point<int16_t>(153, 5));
 		
-		// AP up buttons - try different names
+		// AP up buttons - positioned based on JSON layout
+		// Button x=150, aligned with stat rows
 		nl::node btApUp = Stat["BtApUp"];
 		if (!btApUp) btApUp = Stat["BtHpUp"]; // Fallback for older versions
-		
+
 		if (btApUp) {
-			buttons[Buttons::BT_HP] = std::make_unique<MapleButton>(btApUp);
-			buttons[Buttons::BT_MP] = std::make_unique<MapleButton>(btApUp);
-			buttons[Buttons::BT_STR] = std::make_unique<MapleButton>(btApUp);
-			buttons[Buttons::BT_DEX] = std::make_unique<MapleButton>(btApUp);
-			buttons[Buttons::BT_INT] = std::make_unique<MapleButton>(btApUp);
-			buttons[Buttons::BT_LUK] = std::make_unique<MapleButton>(btApUp);
+			buttons[Buttons::BT_HP] = std::make_unique<MapleButton>(btApUp, Point<int16_t>(150, 113));
+			buttons[Buttons::BT_MP] = std::make_unique<MapleButton>(btApUp, Point<int16_t>(150, 131));
+			buttons[Buttons::BT_STR] = std::make_unique<MapleButton>(btApUp, Point<int16_t>(150, 246));
+			buttons[Buttons::BT_DEX] = std::make_unique<MapleButton>(btApUp, Point<int16_t>(150, 264));
+			buttons[Buttons::BT_INT] = std::make_unique<MapleButton>(btApUp, Point<int16_t>(150, 282));
+			buttons[Buttons::BT_LUK] = std::make_unique<MapleButton>(btApUp, Point<int16_t>(150, 300));
 		}
 		
-		// Auto button
+		// Auto button - positioned based on JSON layout
 		nl::node btAuto = Stat["BtAuto"];
-		if (btAuto) buttons[Buttons::BT_AUTO] = std::make_unique<MapleButton>(btAuto);
-		
-		// Detail button - position at bottom right
+		if (btAuto) buttons[Buttons::BT_AUTO] = std::make_unique<MapleButton>(btAuto, Point<int16_t>(94, 200));
+
+		// Detail button - position at bottom of the window
 		nl::node btDetail = Stat["BtDetail"];
 		if (btDetail) {
-			// Position the detail button at bottom right of the window
-			buttons[Buttons::BT_DETAILOPEN] = std::make_unique<MapleButton>(btDetail, Point<int16_t>(165, 290));
-			buttons[Buttons::BT_DETAILCLOSE] = std::make_unique<MapleButton>(btDetail, Point<int16_t>(165, 290));
+			buttons[Buttons::BT_DETAILOPEN] = std::make_unique<MapleButton>(btDetail, Point<int16_t>(119, 324));
+			buttons[Buttons::BT_DETAILCLOSE] = std::make_unique<MapleButton>(btDetail, Point<int16_t>(119, 324));
 		}
 		
 		// Hyper stat buttons (may not exist in older versions)
@@ -159,25 +159,22 @@ namespace ms
 
 		statlabels[StatLabel::AP] = Text(Text::Font::A11M, Text::Alignment::RIGHT, Color::Name::EMPEROR);
 
-		// Adjust text positions for better alignment
-		Point<int16_t> statoffset = Point<int16_t>(73, 27);
-		int16_t statoffset_y = 18;
+		// Text positions based on UI Screen Editor JSON layout
+		statoffsets[StatLabel::NAME] = Point<int16_t>(58, 31);
+		statoffsets[StatLabel::JOB] = Point<int16_t>(58, 48);
+		statoffsets[StatLabel::FAME] = Point<int16_t>(59, 76);
+		statoffsets[StatLabel::GUILD] = Point<int16_t>(59, 95);
+		statoffsets[StatLabel::HP] = Point<int16_t>(58, 113);
+		statoffsets[StatLabel::MP] = Point<int16_t>(58, 131);
+		statoffsets[StatLabel::AP] = Point<int16_t>(59, 151);
+		statoffsets[StatLabel::MIN_DAMAGE] = Point<int16_t>(58, 169);
+		statoffsets[StatLabel::MAX_DAMAGE] = Point<int16_t>(100, 169);
+		statoffsets[StatLabel::STR] = Point<int16_t>(59, 243);
+		statoffsets[StatLabel::DEX] = Point<int16_t>(59, 262);
+		statoffsets[StatLabel::INT] = Point<int16_t>(59, 280);
+		statoffsets[StatLabel::LUK] = Point<int16_t>(59, 297);
 
-		statoffsets[StatLabel::NAME] = statoffset;
-		statoffsets[StatLabel::JOB] = statoffset + Point<int16_t>(1, statoffset_y * 1);
-		statoffsets[StatLabel::GUILD] = statoffset + Point<int16_t>(1, statoffset_y * 2);
-		statoffsets[StatLabel::FAME] = statoffset + Point<int16_t>(1, statoffset_y * 3);
-		statoffsets[StatLabel::MIN_DAMAGE] = statoffset + Point<int16_t>(1, statoffset_y * 4);
-		statoffsets[StatLabel::MAX_DAMAGE] = statoffset + Point<int16_t>(80, statoffset_y * 4);
-		statoffsets[StatLabel::HP] = statoffset + Point<int16_t>(1, statoffset_y * 6);
-		statoffsets[StatLabel::MP] = statoffset + Point<int16_t>(1, statoffset_y * 7);
-		statoffsets[StatLabel::AP] = statoffset + Point<int16_t>(19, 167);
-		statoffsets[StatLabel::STR] = statoffset + Point<int16_t>(1, 196);
-		statoffsets[StatLabel::DEX] = statoffset + Point<int16_t>(1, 214);
-		statoffsets[StatLabel::INT] = statoffset + Point<int16_t>(1, 232);
-		statoffsets[StatLabel::LUK] = statoffset + Point<int16_t>(1, 250);
-
-		// Detailed
+		// Detailed stats labels
 		statlabels[StatLabel::MIN_DAMAGE_DETAILED] = Text(Text::Font::A11M, Text::Alignment::RIGHT, Color::Name::EMPEROR);
 		statlabels[StatLabel::MAX_DAMAGE_DETAILED] = Text(Text::Font::A11M, Text::Alignment::RIGHT, Color::Name::EMPEROR);
 		statlabels[StatLabel::DAMAGE_BONUS] = Text(Text::Font::A11M, Text::Alignment::RIGHT, Color::Name::EMPEROR);
@@ -196,36 +193,39 @@ namespace ms
 		statlabels[StatLabel::JUMP] = Text(Text::Font::A11M, Text::Alignment::RIGHT, Color::Name::EMPEROR);
 		statlabels[StatLabel::HONOR] = Text(Text::Font::A11M, Text::Alignment::LEFT, Color::Name::EMPEROR);
 
-		Point<int16_t> statoffset_detailed = Point<int16_t>(0, 77);
-		int16_t statoffset_detailed_lx = 116;
-		int16_t statoffset_detailed_rx = 227;
+		// Detailed stat positions based on UI Screen Editor JSON layout
+		// Detail panel at (172, 143), draw shifts by (172, 143)
+		// statoffsets[i].x = JSON.x - 172, statoffsets[i].y = JSON.y - 143
+		statoffsets[StatLabel::MIN_DAMAGE_DETAILED] = Point<int16_t>(79, 7);   // Damage: x=251-172=79, y=150-143=7
+		statoffsets[StatLabel::MAX_DAMAGE_DETAILED] = Point<int16_t>(79, 25);  // Damage line 2
 
-		statoffsets[StatLabel::MIN_DAMAGE_DETAILED] = Point<int16_t>(94, 41);
-		statoffsets[StatLabel::MAX_DAMAGE_DETAILED] = Point<int16_t>(105, 59);
+		// Row positions for detailed stats (relative to detail window)
+		int16_t detail_col_left = 79;   // Left column x (251 - 172 = 79)
+		int16_t detail_col_right = 130; // Right column x
 
-		statoffsets[StatLabel::DAMAGE_BONUS] = statoffset_detailed + Point<int16_t>(statoffset_detailed_lx, statoffset_y * 0);
-		statoffsets[StatLabel::BOSS_DAMAGE] = statoffset_detailed + Point<int16_t>(statoffset_detailed_rx, statoffset_y * 0);
+		statoffsets[StatLabel::DAMAGE_BONUS] = Point<int16_t>(detail_col_left, 43);
+		statoffsets[StatLabel::BOSS_DAMAGE] = Point<int16_t>(detail_col_left, 79);     // y=222-143=79
 
-		statoffsets[StatLabel::FINAL_DAMAGE] = statoffset_detailed + Point<int16_t>(statoffset_detailed_lx, statoffset_y * 1);
-		statoffsets[StatLabel::BUFF_DURATION] = statoffset_detailed + Point<int16_t>(statoffset_detailed_rx, statoffset_y * 1);
+		statoffsets[StatLabel::FINAL_DAMAGE] = Point<int16_t>(detail_col_left, 61);
+		statoffsets[StatLabel::BUFF_DURATION] = Point<int16_t>(detail_col_right, 61);
 
-		statoffsets[StatLabel::IGNORE_DEFENSE] = statoffset_detailed + Point<int16_t>(statoffset_detailed_lx, statoffset_y * 2);
-		statoffsets[StatLabel::ITEM_DROP_RATE] = statoffset_detailed + Point<int16_t>(statoffset_detailed_rx, statoffset_y * 2);
+		statoffsets[StatLabel::IGNORE_DEFENSE] = Point<int16_t>(detail_col_left, 95);  // y=238-143=95
+		statoffsets[StatLabel::ITEM_DROP_RATE] = Point<int16_t>(detail_col_right, 95);
 
-		statoffsets[StatLabel::CRITICAL_RATE] = statoffset_detailed + Point<int16_t>(statoffset_detailed_lx, statoffset_y * 3);
-		statoffsets[StatLabel::MESOS_OBTAINED] = statoffset_detailed + Point<int16_t>(statoffset_detailed_rx, statoffset_y * 3);
+		statoffsets[StatLabel::CRITICAL_RATE] = Point<int16_t>(detail_col_left, 133);  // y=276-143=133
+		statoffsets[StatLabel::MESOS_OBTAINED] = Point<int16_t>(detail_col_right, 133);
 
-		statoffsets[StatLabel::CRITICAL_DAMAGE] = statoffset_detailed + Point<int16_t>(statoffset_detailed_lx + 3, statoffset_y * 4);
+		statoffsets[StatLabel::CRITICAL_DAMAGE] = Point<int16_t>(detail_col_left, 115);
 
-		statoffsets[StatLabel::STATUS_RESISTANCE] = statoffset_detailed + Point<int16_t>(statoffset_detailed_lx, statoffset_y * 5);
-		statoffsets[StatLabel::KNOCKBACK_RESISTANCE] = statoffset_detailed + Point<int16_t>(statoffset_detailed_rx, statoffset_y * 5);
+		statoffsets[StatLabel::STATUS_RESISTANCE] = Point<int16_t>(detail_col_left, 151);  // y=294-143=151
+		statoffsets[StatLabel::KNOCKBACK_RESISTANCE] = Point<int16_t>(detail_col_right, 151);
 
-		statoffsets[StatLabel::DEFENSE] = statoffset_detailed + Point<int16_t>(statoffset_detailed_lx, statoffset_y * 6);
+		statoffsets[StatLabel::DEFENSE] = Point<int16_t>(detail_col_left, 169);
 
-		statoffsets[StatLabel::SPEED] = statoffset_detailed + Point<int16_t>(statoffset_detailed_lx, statoffset_y * 7);
-		statoffsets[StatLabel::JUMP] = statoffset_detailed + Point<int16_t>(statoffset_detailed_lx, statoffset_y * 8);
+		statoffsets[StatLabel::SPEED] = Point<int16_t>(detail_col_left, 187);
+		statoffsets[StatLabel::JUMP] = Point<int16_t>(detail_col_left, 205);
 
-		statoffsets[StatLabel::HONOR] = statoffset_detailed + Point<int16_t>(73, 263);
+		statoffsets[StatLabel::HONOR] = Point<int16_t>(79, 223);
 
 		update_all_stats();
 		update_stat(MapleStat::Id::JOB);
@@ -241,12 +241,9 @@ namespace ms
 
 		if (showdetail && !textures_detail.empty())
 		{
-			// Calculate detail window position to align bottom with main window
-			int16_t detail_height = textures_detail[0].get_dimensions().y();
-			int16_t main_height = dimension.y();
-			int16_t y_offset = main_height - detail_height;
-			
-			Point<int16_t> detail_pos(position + Point<int16_t>(212, y_offset));
+			// Calculate detail window position based on JSON layout
+			// backgrnd2 is at (172, 143) relative to main window
+			Point<int16_t> detail_pos(position + Point<int16_t>(172, 143));
 
 			// Draw the extended stats background (backgrnd2)
 			textures_detail[0].draw(detail_pos);
@@ -264,15 +261,10 @@ namespace ms
 		{
 			Point<int16_t> labelpos = position + statoffsets[i];
 
+			// Detail stats are offset by the detail panel position (172, 143)
 			if (i >= StatLabel::NUM_NORMAL) {
-				labelpos.shift_x(213);
-				// Adjust for detail window vertical offset
-				if (!textures_detail.empty()) {
-					int16_t detail_height = textures_detail[0].get_dimensions().y();
-					int16_t main_height = dimension.y();
-					int16_t y_offset = main_height - detail_height;
-					labelpos.shift_y(y_offset);
-				}
+				labelpos.shift_x(172);
+				labelpos.shift_y(143);
 			}
 
 			if (jobId == Job::Level::BEGINNER)
@@ -300,7 +292,8 @@ namespace ms
 		Point<int16_t> pos_adj;
 
 		if (showdetail)
-			pos_adj = Point<int16_t>(211, 25);
+			// Detail panel adds 177 width at x=172, so total extends to 172+177=349
+			pos_adj = Point<int16_t>(172, 0);
 		else
 			pos_adj = Point<int16_t>(0, 0);
 
@@ -537,18 +530,16 @@ namespace ms
 		if (buttons[Buttons::BT_DETAILOPEN]) buttons[Buttons::BT_DETAILOPEN]->set_active(!enabled);
 		if (buttons[Buttons::BT_DETAILCLOSE]) buttons[Buttons::BT_DETAILCLOSE]->set_active(enabled);
 		
-		// Update positions of detail window buttons based on detail window position
+		// Update positions of detail window buttons based on JSON layout
+		// Detail panel at (172, 143)
 		if (enabled && !textures_detail.empty()) {
-			int16_t detail_height = textures_detail[0].get_dimensions().y();
-			int16_t main_height = dimension.y();
-			int16_t y_offset = main_height - detail_height;
-			
 			if (buttons[Buttons::BT_ABILITY]) {
-				buttons[Buttons::BT_ABILITY]->set_position(Point<int16_t>(212, y_offset));
+				buttons[Buttons::BT_ABILITY]->set_position(Point<int16_t>(172, 143));
 				buttons[Buttons::BT_ABILITY]->set_active(enabled);
 			}
 			if (buttons[Buttons::BT_DETAIL_DETAILCLOSE]) {
-				buttons[Buttons::BT_DETAIL_DETAILCLOSE]->set_position(Point<int16_t>(212 + 165, y_offset + 290));
+				// Position close button at bottom of detail panel
+				buttons[Buttons::BT_DETAIL_DETAILCLOSE]->set_position(Point<int16_t>(172 + 119, 143 + 181));
 				buttons[Buttons::BT_DETAIL_DETAILCLOSE]->set_active(enabled);
 			}
 		} else {

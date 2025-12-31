@@ -18,6 +18,7 @@
 #include "UIOptionMenu.h"
 
 #include "../KeyAction.h"
+#include "../UIScale.h"
 
 #include "../Components/MapleButton.h"
 #include "../Components/TwoSpriteButton.h"
@@ -111,6 +112,37 @@ namespace ms
 
 		buttons[Buttons::SELECT_RES] = std::make_unique<MapleComboBox>(type, resolutions, default_option, position, lt, combobox_width);
 
+		// UI Scale combo box - placed below resolution
+		std::vector<std::string> scale_options =
+		{
+			"75%",
+			"100%",
+			"125%",
+			"150%",
+			"175%",
+			"200%"
+		};
+
+		// Determine current scale selection
+		uint8_t current_scale = UIScale::get().get_scale_percent();
+		uint16_t scale_default = 1; // Default to 100%
+		switch (current_scale)
+		{
+		case 75: scale_default = 0; break;
+		case 100: scale_default = 1; break;
+		case 125: scale_default = 2; break;
+		case 150: scale_default = 3; break;
+		case 175: scale_default = 4; break;
+		case 200: scale_default = 5; break;
+		}
+
+		// Position scale combo box below resolution (offset Y by ~25 pixels)
+		Point<int16_t> scale_lt = lt + Point<int16_t>(0, 28);
+		buttons[Buttons::SELECT_SCALE] = std::make_unique<MapleComboBox>(type, scale_options, scale_default, position, scale_lt, combobox_width);
+
+		// Create label for UI Scale
+		scale_label = Text(Text::Font::A11M, Text::Alignment::LEFT, Color::Name::WHITE, "UI Scale");
+
 		Point<int16_t> bg_dimensions = Texture(backgrnd).get_dimensions();
 
 		dimension = bg_dimensions;
@@ -124,6 +156,13 @@ namespace ms
 		UIElement::draw_sprites(inter);
 
 		tab_background[selected_tab].draw(position);
+
+		// Draw scale label when on Graphics tab
+		if (selected_tab == Buttons::TAB0)
+		{
+			// Draw label to the left of the combo box
+			scale_label.draw(position + Point<int16_t>(25, 95));
+		}
 
 		UIElement::draw_buttons(inter);
 	}
@@ -147,6 +186,7 @@ namespace ms
 			{
 			case Buttons::TAB0:
 			{
+				// Apply resolution setting
 				uint16_t selected_value = buttons[Buttons::SELECT_RES]->get_selected();
 
 				int16_t width = Constants::Constants::get().get_viewwidth();
@@ -185,6 +225,21 @@ namespace ms
 
 				Constants::Constants::get().set_viewwidth(width);
 				Constants::Constants::get().set_viewheight(height);
+
+				// Apply UI scale setting
+				uint16_t scale_selected = buttons[Buttons::SELECT_SCALE]->get_selected();
+				uint8_t scale_percent = 100;
+				switch (scale_selected)
+				{
+				case 0: scale_percent = 75; break;
+				case 1: scale_percent = 100; break;
+				case 2: scale_percent = 125; break;
+				case 3: scale_percent = 150; break;
+				case 4: scale_percent = 175; break;
+				case 5: scale_percent = 200; break;
+				}
+				UIScale::get().set_scale_percent(scale_percent);
+				Setting<UIScaleSetting>::get().save(scale_percent);
 			}
 			break;
 			case Buttons::TAB1:
@@ -202,6 +257,9 @@ namespace ms
 		case Buttons::SELECT_RES:
 			buttons[Buttons::SELECT_RES]->toggle_pressed();
 			return Button::State::NORMAL;
+		case Buttons::SELECT_SCALE:
+			buttons[Buttons::SELECT_SCALE]->toggle_pressed();
+			return Button::State::NORMAL;
 		default:
 			return Button::State::DISABLED;
 		}
@@ -214,13 +272,28 @@ namespace ms
 		if (dragged)
 			return dstate;
 
-		auto& button = buttons[Buttons::SELECT_RES];
-
-		if (button->is_pressed())
+		// Handle resolution combo box
+		auto& res_button = buttons[Buttons::SELECT_RES];
+		if (res_button->is_pressed())
 		{
-			if (button->in_combobox(cursorpos))
+			if (res_button->in_combobox(cursorpos))
 			{
-				if (Cursor::State new_state = button->send_cursor(clicked, cursorpos))
+				if (Cursor::State new_state = res_button->send_cursor(clicked, cursorpos))
+					return new_state;
+			}
+			else
+			{
+				remove_cursor();
+			}
+		}
+
+		// Handle scale combo box
+		auto& scale_button = buttons[Buttons::SELECT_SCALE];
+		if (scale_button->is_pressed())
+		{
+			if (scale_button->in_combobox(cursorpos))
+			{
+				if (Cursor::State new_state = scale_button->send_cursor(clicked, cursorpos))
 					return new_state;
 			}
 			else
@@ -259,12 +332,14 @@ namespace ms
 		{
 		case Buttons::TAB0:
 			buttons[Buttons::SELECT_RES]->set_active(true);
+			buttons[Buttons::SELECT_SCALE]->set_active(true);
 			break;
 		case Buttons::TAB1:
 		case Buttons::TAB2:
 		case Buttons::TAB3:
 		case Buttons::TAB4:
 			buttons[Buttons::SELECT_RES]->set_active(false);
+			buttons[Buttons::SELECT_SCALE]->set_active(false);
 			break;
 		default:
 			break;

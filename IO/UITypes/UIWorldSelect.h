@@ -19,7 +19,6 @@
 
 #include "../UIElement.h"
 
-#include "../Components/ChatBalloon.h"
 #include "../Components/Gauge.h"
 
 #include "../../Net/Login.h"
@@ -53,14 +52,12 @@ namespace ms
 		Button::State button_pressed(uint16_t buttonid) override;
 
 	private:
-		static constexpr uint8_t COLUMNS = 5U;
+		static constexpr uint8_t COLUMNS = 6U;
 		static constexpr uint8_t FLAG_SIZE = 3U;
-		// This is from the server in ServerConstants
 		static constexpr int32_t CHANNEL_LOAD = 100;
 
 		void enter_world();
 		void clear_selected_world();
-		uint16_t get_next_world(uint16_t id, bool upward);
 
 		enum Buttons : uint16_t
 		{
@@ -69,13 +66,23 @@ namespace ms
 			BtWorld2,
 			BtWorld3,
 			BtWorld4,
-			BtChannel0,
-			BtGoWorld = 35U,
-			BtRegion,
+			BtWorld5,
+			BtWorld6,
+			BtWorld7,
+			BtWorld8,
+			BtWorld9,
+			BtWorld10,
+			BtWorld11,
+			BtWorld12,
+			BtWorld13,
+			BtWorld14,
+			BtWorld15,
+			BtChannel0 = 20U,
+			BtGoWorld = 40U,
+			BtViewAll,
 			BtExit
 		};
 
-		/// If ever changing order, check the WZ file.
 		enum Worlds : uint16_t
 		{
 			SCANIA,
@@ -112,31 +119,45 @@ namespace ms
 			TESPIA = 100
 		};
 
+		// Frame (stretched to 808x608)
+		Texture frame;
+		Point<int16_t> frame_stretch;
+
+		// Background panel (601x241)
+		Texture chBackgrn;
+		Point<int16_t> chBackgrn_pos;
+		Point<int16_t> chBackgrn_stretch;
+
+		// Version text
 		Text version;
 		Point<int16_t> version_pos;
-		Texture worlds_background;
-		Texture channels_background;
-		Point<int16_t> worldsrc_pos;
-		Point<int16_t> channelsrc_pos;
-		ChatBalloonHorizontal chatballoon;
 
+		// Channel selection
+		Texture channels_background;
+		Point<int16_t> channelsrc_pos;
+		Point<int16_t> worldsrc_pos;
+
+		// World data
 		uint8_t worldid;
 		uint8_t channelid;
 		uint8_t worldcount;
 
 		std::vector<World> worlds;
 		std::vector<Texture> world_textures;
-		std::map<uint16_t, uint16_t> world_map;
 
+		// World notice
 		std::vector<Sprite> flag_sprites;
 		Texture worldNotice;
 		Texture rebootNotice;
 		Text worldNoticeMessage;
-		Gauge channel_gauge[Buttons::BtGoWorld - Buttons::BtChannel0];
+
+		// Channel gauges
+		Gauge channel_gauge[BtGoWorld - BtChannel0];
 
 		bool world_selected;
 
-		nl::node worldsrc;
+		// NX nodes for dynamic button creation
+		nl::node BtWorld;
 		nl::node channelsrc;
 	};
 }

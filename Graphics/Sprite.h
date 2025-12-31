@@ -31,6 +31,7 @@ namespace ms
 		Sprite();
 
 		void draw(Point<int16_t> parentpos, float alpha) const;
+		void draw(Point<int16_t> parentpos, float alpha, const DrawArgument& extra_args) const;
 		bool update(uint16_t timestep);
 		bool update();
 

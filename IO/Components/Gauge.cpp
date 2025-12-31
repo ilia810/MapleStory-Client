@@ -81,7 +81,7 @@ namespace ms
 					// DrawArgument(position, flip) where flip = true for horizontal flip
 					Point<int16_t> pos = args.getpos();
 					DrawArgument flipped_args(pos, true);
-					
+
 					// Now draw with clipping to show only the filled portion
 					barfront.draw(flipped_args, {}, Range<int16_t>(0, length));
 				}
@@ -92,6 +92,20 @@ namespace ms
 					DrawArgument flipped_args(pos, true);
 					barfront.draw(flipped_args);
 				}
+			}
+			else if (type == Type::V87_FILL_RIGHT)
+			{
+				// V87_FILL_RIGHT: Clip from the right side of the texture
+				// Range is (left_crop, right_crop) - crop left side to show only right portion
+				int16_t tex_width = barfront.width();
+				int16_t clip_length = static_cast<int16_t>(percentage * tex_width);
+				if (clip_length > 0 && clip_length <= tex_width)
+				{
+					int16_t left_crop = tex_width - clip_length;
+					// Crop left_crop pixels from left, 0 from right - use full opacity
+					barfront.draw(args, {}, Range<int16_t>(left_crop, 0));
+				}
+				// Don't draw anything if clip_length is 0 (nothing missing)
 			}
 		}
 		else

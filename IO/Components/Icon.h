@@ -49,6 +49,7 @@ namespace ms
 			virtual void drop_on_bindings(Point<int16_t> cursorposition, bool remove) const = 0;
 			virtual void set_count(int16_t) = 0;
 			virtual IconType get_type() = 0;
+			virtual int32_t get_action_id() const { return 0; }  // Returns action ID (skill ID, item ID, etc.)
 		};
 
 		class NullType : public Type
@@ -70,6 +71,7 @@ namespace ms
 		void drop_on_bindings(Point<int16_t> cursorposition, bool remove) const;
 		void set_count(int16_t count);
 		IconType get_type();
+		int32_t get_action_id() const;
 
 		void draw(Point<int16_t> position) const;
 		void dragdraw(Point<int16_t> cursorpos) const;

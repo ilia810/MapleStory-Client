@@ -249,6 +249,11 @@ namespace ms
 		return nullptr;
 	}
 
+	void UIStateLogin::bring_to_front(UIElement::Type)
+	{
+		// Login state doesn't use elementorder, so no reordering needed
+	}
+
 	void UIStateLogin::remove_cursor(UIElement::Type type)
 	{
 		for (auto iter : elements)

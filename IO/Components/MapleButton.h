@@ -29,8 +29,9 @@ namespace ms
 		MapleButton(nl::node src, int16_t x, int16_t y);
 		MapleButton(nl::node src);
 
-		void draw(Point<int16_t> position) const;
-		void update();
+		void draw(Point<int16_t> position) const override;
+		void draw(Point<int16_t> position, const DrawArgument& scale_args) const override;
+		void update() override;
 		Rectangle<int16_t> bounds(Point<int16_t> parentpos) const;
 		int16_t width() const;
 		Point<int16_t> origin() const;

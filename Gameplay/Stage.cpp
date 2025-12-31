@@ -230,13 +230,17 @@ namespace ms
 		// Center camera on player position
 		camera.set_position(startpos);
 		Range<int16_t> walls = mapinfo.get_walls();
-		Range<int16_t> borders = mapinfo.get_borders();
-		
-		LOG(LOG_DEBUG, "[Stage] MAP ID: " << mapid << " - Camera bounds - walls: " << walls.smaller() << " to " << walls.greater() 
-			<< ", borders: " << borders.smaller() << " to " << borders.greater());
-		
-		// Use the VR bounds calculated in MapInfo which handles missing VR nodes
-		camera.set_view(walls, borders);
+		// Use foothold tree borders directly instead of mapinfo (which may have wrong values)
+		Range<int16_t> borders = physics.get_fht().get_borders();
+		int16_t platform_left = physics.get_fht().get_left();
+		int16_t platform_right = physics.get_fht().get_right();
+		int16_t platform_bottom = physics.get_fht().get_bottom();
+
+		LOG(LOG_DEBUG, "[Stage] MAP ID: " << mapid << " - Camera bounds - walls: " << walls.smaller() << " to " << walls.greater()
+			<< ", borders (from footholds): " << borders.smaller() << " to " << borders.greater()
+			<< ", platform bounds: left=" << platform_left << " right=" << platform_right << " bottom=" << platform_bottom);
+
+		camera.set_view(walls, borders, platform_left, platform_right, platform_bottom);
 	}
 
 	void Stage::draw(float alpha) const
@@ -427,13 +431,16 @@ namespace ms
 				playable->send_action(KeyAction::actionbyid(action), down);
 				break;
 			case KeyType::Id::SKILL:
-				combat.use_move(action);
+				if (down)
+					combat.use_move(action);
 				break;
 			case KeyType::Id::ITEM:
-				player.use_item(action);
+				if (down)
+					player.use_item(action);
 				break;
 			case KeyType::Id::FACE:
-				player.set_expression(action);
+				if (down)
+					player.set_expression(action);
 				break;
 		}
 	}
@@ -535,6 +542,11 @@ namespace ms
 	int32_t Stage::get_current_mapid() const
 	{
 		return mapid;
+	}
+
+	Point<int16_t> Stage::get_camera_position() const
+	{
+		return camera.position();
 	}
 
 	void Stage::transfer_player()

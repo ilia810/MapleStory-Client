@@ -197,5 +197,8 @@ namespace ms
 		size_t weaponIndex;
 		Text weaponName;
 		BoolPair<std::vector<int64_t>> weapons;
+
+		Texture frame;
+		Point<int16_t> frame_stretch;
 	};
 }

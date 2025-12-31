@@ -58,6 +58,9 @@ namespace ms
 
 		UIElement::Type get_type() const override;
 
+		// Status messages are fixed overlay elements - don't scale
+		bool should_scale() const override { return false; }
+
 		void show_status(Color::Name color, const std::string& message);
 
 	private:

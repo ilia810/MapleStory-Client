@@ -80,5 +80,8 @@ namespace ms
 		// UI state
 		uint16_t selected_class;
 		bool mouseover[3]; // [Explorer, Knight, Aran]
+
+		Texture frame;
+		Point<int16_t> frame_stretch;
 	};
 }

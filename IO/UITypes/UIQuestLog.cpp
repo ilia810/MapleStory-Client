@@ -31,12 +31,14 @@ namespace ms
 	{
 		tab = Buttons::TAB0;
 
-		nl::node close = nl::nx::UI["Basic.img"]["BtClose3"];
-		
 		// v92: Use UIWindow.img structure directly
 		nl::node quest = nl::nx::UI["UIWindow.img"]["Quest"];
 		nl::node list = quest["list"];
-		
+
+		// Close button - try window-specific first, then fallback
+		nl::node close = quest["BtClose"];
+		if (!close) close = nl::nx::UI["Basic.img"]["BtClose3"];
+
 		if (!quest || !list) {
 			// If no Quest window assets found, create minimal window with defaults
 			dimension = Point<int16_t>(300, 400);

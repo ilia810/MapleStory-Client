@@ -54,6 +54,7 @@ namespace ms
 		virtual UIElement* get(UIElement::Type type) = 0;
 		virtual UIElement* get_front(std::list<UIElement::Type> types) = 0;
 		virtual UIElement* get_front(Point<int16_t> cursor_position) = 0;
+		virtual void bring_to_front(UIElement::Type type) = 0;
 	};
 
 	class UIStateNull : public UIState
@@ -78,5 +79,6 @@ namespace ms
 		UIElement* get(UIElement::Type) override { return nullptr; }
 		UIElement* get_front(std::list<UIElement::Type>) override { return nullptr; }
 		UIElement* get_front(Point<int16_t>) override { return nullptr; }
+		void bring_to_front(UIElement::Type) override {}
 	};
 }

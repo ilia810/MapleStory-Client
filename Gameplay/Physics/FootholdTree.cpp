@@ -28,6 +28,9 @@ namespace ms
 		int16_t rightw = -30000;
 		int16_t botb = -30000;
 		int16_t topb = 30000;
+		int16_t platform_botb = -30000;  // Track only non-wall footholds
+		int16_t platform_leftw = 30000;   // Track only non-wall footholds
+		int16_t platform_rightw = -30000; // Track only non-wall footholds
 
 		for (auto basef : src)
 		{
@@ -80,6 +83,14 @@ namespace ms
 					if (foothold.is_wall())
 						continue;
 
+					// Track bounds of non-wall footholds only
+					if (foothold.b() > platform_botb)
+						platform_botb = foothold.b();
+					if (foothold.l() < platform_leftw)
+						platform_leftw = foothold.l();
+					if (foothold.r() > platform_rightw)
+						platform_rightw = foothold.r();
+
 					int16_t start = foothold.l();
 					int16_t end = foothold.r();
 
@@ -88,6 +99,11 @@ namespace ms
 				}
 			}
 		}
+
+		// Store raw platform bounds for camera clamping
+		bottom = platform_botb;
+		left = platform_leftw;
+		right = platform_rightw;
 
 		// Validate foothold data and provide safe defaults
 		bool hasValidFootholds = !footholds.empty();
@@ -136,7 +152,7 @@ namespace ms
 		
 	}
 
-	FootholdTree::FootholdTree() {}
+	FootholdTree::FootholdTree() : bottom(0), left(0), right(0) {}
 
 	void FootholdTree::limit_movement(PhysicsObject& phobj) const
 	{
@@ -401,5 +417,20 @@ namespace ms
 	Range<int16_t> FootholdTree::get_borders() const
 	{
 		return borders;
+	}
+
+	int16_t FootholdTree::get_bottom() const
+	{
+		return bottom;
+	}
+
+	int16_t FootholdTree::get_left() const
+	{
+		return left;
+	}
+
+	int16_t FootholdTree::get_right() const
+	{
+		return right;
 	}
 }

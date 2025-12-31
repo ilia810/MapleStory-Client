@@ -62,6 +62,16 @@ namespace ms
 		// Fill the screen with the specified color
 		void drawscreenfill(float red, float green, float blue, float alpha);
 
+		// Draw a magnified view of a screen region (for cursor debug mode)
+		// center_x, center_y: center of the region to magnify
+		// source_size: size of the source region to capture (will be drawn at source_size * zoom_factor)
+		// zoom_factor: magnification level (e.g., 3 for 3x zoom)
+		// draw_x, draw_y: where to draw the magnified view
+		void draw_magnifier(int16_t center_x, int16_t center_y, int16_t source_size, int16_t zoom_factor, int16_t draw_x, int16_t draw_y);
+
+		// Flag indicating magnifier already rendered scene (skip glClear in flush)
+		bool magnifier_pre_rendered = false;
+
 		// Camera controls for debugging
 		void move_camera(int16_t dx, int16_t dy);
 		void reset_camera();

@@ -85,7 +85,8 @@ namespace ms
 			BT_SALON,
 			BT_CONSUMESETTING,
 			BT_EXCEPTION,
-			BT_SHOP
+			BT_SHOP,
+			BT_DETAIL
 		};
 
 		const Inventory& inventory;
@@ -106,5 +107,9 @@ namespace ms
 
 		bool hasPendantSlot;
 		bool hasPocketSlot;
+
+		// Pet equipment window
+		Texture pet_window;
+		bool pet_active;
 	};
 }

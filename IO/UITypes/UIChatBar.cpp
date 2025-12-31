@@ -21,7 +21,11 @@
 
 #include "../Components/MapleButton.h"
 
+#include "../../Graphics/Geometry.h"
+#include "../../Graphics/DrawArgument.h"
 #include "../../Net/Packets/MessagingPackets.h"
+
+#include <iostream>
 
 #ifdef USE_NX
 #include <nlnx/nx.hpp>
@@ -191,11 +195,19 @@ namespace ms
 			buttons[Buttons::BtChat]->set_active(false);
 		}
 
+		// Initialize chat target selector early (before input_text) since get_input_text_position() depends on it
+		nl::node channel_node = nl::nx::UI["UIWindow.img"]["Channel"];
+		if (channel_node["channel2"])
+			channel_texture = Texture(channel_node["channel2"]);
+
+		current_chat_target = MessageGroup::ALL;
+		channel_text = Text(Text::Font::A11M, Text::Alignment::LEFT, Color::Name::WHITE, get_chat_target_text());
+
 		int16_t input_text_limit = 70;
 		int16_t input_text_marker_height = 11;
 
 		input_text = Textfield(
-			Text::Font::A11M, Text::Alignment::LEFT, Color::Name::WHITE,
+			Text::Font::A11M, Text::Alignment::LEFT, Color::Name::BLACK,  // Black text in typing area
 			Rectangle<int16_t>(get_input_text_position(), get_input_text_position() + Point<int16_t>(283, INPUT_TEXT_HEIGHT)),
 			input_text_limit, input_text_marker_height
 		);
@@ -233,7 +245,66 @@ namespace ms
 
 		dragarea = drag.get_dimensions();
 
-		toggle_view(Setting<ChatViewMax>::get().load(), false);
+		// Initialize scroll offset
+		chat_scroll_offset = 0;
+
+		// Load VScr4 textures for scroll arrows and scrollbar
+		nl::node vscr4 = nl::nx::UI["Basic.img"]["VScr4"];
+		nl::node vscr4_enabled = vscr4["enabled"];
+		nl::node vscr4_disabled = vscr4["disabled"];
+
+		// Load scrollbar textures (base from disabled, thumb from enabled)
+		scrollbar_base = vscr4_disabled["base"];
+		scrollbar_thumb = vscr4_enabled["thumb0"];
+
+		// Load arrow textures (0 = normal state)
+		arrow_up_tex = vscr4_enabled["prev0"];
+		arrow_down_tex = vscr4_enabled["next0"];
+		int16_t arrow_width = arrow_up_tex.width();
+		int16_t arrow_height = arrow_up_tex.height();
+
+		// Button positions for collapsed view (565x26 box):
+		// - Scroll arrows at right edge, inside the box, up on top, down below
+		// - Expand button 5px to the left of arrows
+		// Arrows will be drawn manually, not as MapleButtons
+
+		// Expand button 5px to the left of arrows
+		nl::node softkey_btns = nl::nx::UI["UIWindow.img"]["SoftKeyboard"]["Bt"]["0"];
+		Texture expand_tex = softkey_btns["BtMax"]["normal"]["0"];
+		int16_t expand_width = expand_tex.width();
+		int16_t arrow_x = CHAT_WIDTH - arrow_width;
+		int16_t expand_x = arrow_x - expand_width - CHAT_PADDING;
+		int16_t expand_y = -CHAT_COLLAPSED_HEIGHT + (CHAT_COLLAPSED_HEIGHT - expand_tex.height()) / 2;
+
+		if (softkey_btns["BtMax"]) {
+			buttons[Buttons::BtExpand] = std::make_unique<MapleButton>(softkey_btns["BtMax"], Point<int16_t>(expand_x, expand_y));
+		}
+		if (softkey_btns["BtMin"]) {
+			// Collapse button at same position as expand
+			buttons[Buttons::BtCollapse] = std::make_unique<MapleButton>(softkey_btns["BtMin"], Point<int16_t>(expand_x, expand_y));
+		}
+
+		toggle_view(false, false);  // Always start collapsed
+
+		// Position chat relative to centered statusbar
+		int16_t VWIDTH = Constants::Constants::get().get_viewwidth();
+		int16_t VHEIGHT = Constants::Constants::get().get_viewheight();
+		int16_t statusbar_height = (VWIDTH <= 1024) ? 75 : 80;
+		int16_t statusbar_y = VHEIGHT - statusbar_height + 9;
+
+		// Calculate centered status bar position (same as UIStatusBar)
+		nl::node statusBar = nl::nx::UI["StatusBar.img"];
+		nl::node base = statusBar["base"];
+		int16_t base_width = 0;
+		if (base["backgrnd"]) {
+			Texture base_tex(base["backgrnd"]);
+			base_width = base_tex.width();
+		}
+		int16_t statusbar_x = (VWIDTH - base_width) / 2;
+
+		// Position is the BOTTOM-LEFT of the chat box
+		// Chat position relative to centered statusbar: (statusbar_x + 4, statusbar_y + 30)
+		position = Point<int16_t>(statusbar_x + 4, statusbar_y + 30);
 
 #if LOG_LEVEL >= LOG_UI
 		dragarea_box = ColorBox(dragarea.x(), dragarea.y(), Color::Name::BLUE, 0.5f);
@@ -245,114 +316,137 @@ namespace ms
 
 	void UIChatBar::draw(float inter) const
 	{
+		// Chat box top-left position (position is bottom-left of collapsed chat)
+		Point<int16_t> box_top_left = position - Point<int16_t>(0, CHAT_COLLAPSED_HEIGHT);
+
 		if (view_max)
 		{
-			Range<int16_t> vertical = Range<int16_t>(0, 0);
+			// Expanded view: background + messages + scrollbar
+			// The expanded background sits ABOVE the collapsed chat area
+			// Its bottom border touches the top border of the collapsed area
+			Point<int16_t> expanded_top_left = box_top_left - Point<int16_t>(0, CHAT_EXPANDED_HEIGHT);
 
-			max_textures[0].draw(position - Point<int16_t>(0, center_y + user_view_y), vertical, Range<int16_t>(0, max_x - user_view_x + 5));
-			max_textures[0].draw(position - Point<int16_t>(max_x - user_view_x, center_y + user_view_y), vertical, Range<int16_t>(max_x - 5, 0));
+			// Draw semi-transparent black background for expanded view only
+			ColorBox background(CHAT_WIDTH, CHAT_EXPANDED_HEIGHT, Color::Name::BLACK, 0.7f);
+			background.draw(expanded_top_left);
 
-			max_textures[1].draw(DrawArgument(position - Point<int16_t>(0, center_y + user_view_y), Point<int16_t>(0, user_view_y + 1)), vertical, Range<int16_t>(0, max_x - user_view_x + 2));
-			max_textures[1].draw(DrawArgument(position - Point<int16_t>(max_x - user_view_x, center_y + user_view_y), Point<int16_t>(0, user_view_y + 1)), vertical, Range<int16_t>(max_x - 2, 0));
+			// Draw messages
+			int16_t message_line_height = 13;
+			int16_t text_area_height = CHAT_EXPANDED_HEIGHT - 10;
+			int16_t max_visible_lines = text_area_height / message_line_height;
 
-			max_textures[2].draw(position, vertical, Range<int16_t>(0, max_x - user_view_x + 5));
-			max_textures[2].draw(position - Point<int16_t>(max_x - user_view_x, 0), vertical, Range<int16_t>(max_x - 5, 0));
+			int16_t message_y = CHAT_EXPANDED_HEIGHT - CHAT_PADDING - message_line_height;
 
-			drag.draw(position - Point<int16_t>(0, top_y + center_y + user_view_y));
+			int start_index = static_cast<int>(message_history.size()) - 1 - chat_scroll_offset;
+			int lines_drawn = 0;
 
-			int16_t message_y = 0;
-
-			for (int i = message_history.size() - 1; i >= 0; i--)
+			for (int i = start_index; i >= 0 && lines_drawn < max_visible_lines; i--)
 			{
-				if (message_y <= center_y + user_view_y)
-				{
-					message_history[i].text.draw(position - Point<int16_t>(drag.get_origin().x() - 2, 5) - Point<int16_t>(0, message_y));
-
-					message_y += 13;
-				}
+				Point<int16_t> msg_pos = expanded_top_left + Point<int16_t>(CHAT_PADDING, message_y);
+				message_history[i].text.draw(msg_pos);
+				message_y -= message_line_height;
+				lines_drawn++;
 			}
 
-			if (view_input)
+			// Draw scrollbar on right side
+			int16_t scrollbar_x = CHAT_WIDTH - 15;
+			int16_t scrollbar_y = CHAT_PADDING;
+
+			// Draw scrollbar base (stretched to fill height)
+			scrollbar_base.draw(expanded_top_left + Point<int16_t>(scrollbar_x, scrollbar_y));
+
+			// Draw scroll arrows at top and bottom of scrollbar area
+			arrow_up_tex.draw(expanded_top_left + Point<int16_t>(scrollbar_x, scrollbar_y));
+			arrow_down_tex.draw(expanded_top_left + Point<int16_t>(scrollbar_x, CHAT_EXPANDED_HEIGHT - CHAT_PADDING - arrow_down_tex.height()));
+
+			// Draw scrollbar thumb
+			if (message_history.size() > 0)
 			{
-				Point<int16_t> pos = get_input_position();
-
-				input_textures[0].draw(pos, vertical, Range<int16_t>(0, input_bg_x - user_view_x + 5));
-				input_textures[0].draw(pos - Point<int16_t>(input_bg_x - user_view_x, 0), vertical, Range<int16_t>(input_bg_x - 5, 0));
-
-				input_textures[1].draw(pos, vertical, Range<int16_t>(0, input_max_x - (input_bg_x - user_view_x) - input_origin_x - 22 + 3));
-				input_textures[1].draw(pos - Point<int16_t>(input_max_x - (input_bg_x - user_view_x) - input_origin_x - 22, 0), vertical, Range<int16_t>(input_max_x - 3, 0));
-
-				input_text.draw(Point<int16_t>(1, -2), Point<int16_t>(1, -3));
-
-#if LOG_LEVEL >= LOG_UI
-				input_box.draw(pos);
-#endif
-			}
-
-			if (dragged)
-			{
-				if (temp_view_y > 0 && temp_view_x == 0)
-				{
-					Point<int16_t> pos = position;
-
-					if (drag_direction == DragDirection::DOWN)
-						pos = temp_position;
-
-					max_textures[0].draw(pos - Point<int16_t>(0, center_y + temp_view_y), vertical, Range<int16_t>(0, max_x - user_view_x + 5));
-					max_textures[0].draw(pos - Point<int16_t>(max_x - user_view_x, center_y + temp_view_y), vertical, Range<int16_t>(max_x - 5, 0));
-
-					max_textures[1].draw(DrawArgument(pos - Point<int16_t>(0, center_y + temp_view_y), Point<int16_t>(0, temp_view_y + 1)), vertical, Range<int16_t>(0, max_x - user_view_x + 2));
-					max_textures[1].draw(DrawArgument(pos - Point<int16_t>(max_x - user_view_x, center_y + temp_view_y), Point<int16_t>(0, temp_view_y + 1)), vertical, Range<int16_t>(max_x - 2, 0));
-
-					max_textures[2].draw(pos, vertical, Range<int16_t>(0, max_x - user_view_x + 5));
-					max_textures[2].draw(pos - Point<int16_t>(max_x - user_view_x, 0), vertical, Range<int16_t>(max_x - 5, 0));
-				}
-				else if (temp_view_y == 0 && temp_view_x > 0)
-				{
-					Point<int16_t> pos = position;
-
-					if (drag_direction == DragDirection::LEFT)
-						pos = temp_position;
-
-					max_textures[0].draw(pos - Point<int16_t>(0, center_y + user_view_y), vertical, Range<int16_t>(0, max_x - temp_view_x + 5));
-					max_textures[0].draw(pos - Point<int16_t>(max_x - temp_view_x, center_y + user_view_y), vertical, Range<int16_t>(max_x - 5, 0));
-
-					max_textures[1].draw(DrawArgument(pos - Point<int16_t>(0, center_y + user_view_y), Point<int16_t>(0, user_view_y + 1)), vertical, Range<int16_t>(0, max_x - temp_view_x + 2));
-					max_textures[1].draw(DrawArgument(pos - Point<int16_t>(max_x - temp_view_x, center_y + user_view_y), Point<int16_t>(0, user_view_y + 1)), vertical, Range<int16_t>(max_x - 2, 0));
-
-					max_textures[2].draw(pos, vertical, Range<int16_t>(0, max_x - temp_view_x + 5));
-					max_textures[2].draw(pos - Point<int16_t>(max_x - temp_view_x, 0), vertical, Range<int16_t>(max_x - 5, 0));
-				}
-				else if (temp_view_y > 0 && temp_view_x > 0)
-				{
-					Point<int16_t> pos = position;
-
-					if (drag_direction == DragDirection::DOWN || drag_direction == DragDirection::LEFT || drag_direction == DragDirection::DOWNLEFT)
-						pos = temp_position;
-
-					max_textures[0].draw(pos - Point<int16_t>(0, center_y + temp_view_y), vertical, Range<int16_t>(0, max_x - temp_view_x + 5));
-					max_textures[0].draw(pos - Point<int16_t>(max_x - temp_view_x, center_y + temp_view_y), vertical, Range<int16_t>(max_x - 5, 0));
-
-					max_textures[1].draw(DrawArgument(pos - Point<int16_t>(0, center_y + temp_view_y), Point<int16_t>(0, temp_view_y + 1)), vertical, Range<int16_t>(0, max_x - temp_view_x + 2));
-					max_textures[1].draw(DrawArgument(pos - Point<int16_t>(max_x - temp_view_x, center_y + temp_view_y), Point<int16_t>(0, temp_view_y + 1)), vertical, Range<int16_t>(max_x - 2, 0));
-
-					max_textures[2].draw(pos, vertical, Range<int16_t>(0, max_x - temp_view_x + 5));
-					max_textures[2].draw(pos - Point<int16_t>(max_x - temp_view_x, 0), vertical, Range<int16_t>(max_x - 5, 0));
-				}
+				int16_t scrollbar_height = CHAT_EXPANDED_HEIGHT - 2 * CHAT_PADDING - arrow_up_tex.height() - arrow_down_tex.height();
+				float scroll_ratio = static_cast<float>(chat_scroll_offset) / static_cast<float>(message_history.size());
+				int16_t thumb_y = scrollbar_y + arrow_up_tex.height() + static_cast<int16_t>(scroll_ratio * (scrollbar_height - scrollbar_thumb.height()));
+				scrollbar_thumb.draw(expanded_top_left + Point<int16_t>(scrollbar_x, thumb_y));
 			}
 		}
 		else
 		{
-			min_textures[0].draw(position - Point<int16_t>(0, center_y));
-			min_textures[1].draw(position - Point<int16_t>(0, center_y));
-			min_textures[2].draw(position);
-
-			drag.draw(position - Point<int16_t>(0, top_y + center_y));
+			// Collapsed view: gray background (#757676) with message text and arrows
+			ColorBox collapsed_bg(CHAT_WIDTH, CHAT_COLLAPSED_HEIGHT, Color::Name::CHATGRAY, 1.0f);
+			collapsed_bg.draw(box_top_left);
 
 			const size_t size = message_history.size();
 
 			if (size > 0)
-				message_history[size - 1].text.draw(position - Point<int16_t>(0, top_y + center_y) + Point<int16_t>(drag.get_origin().abs().x(), drag.height()) + Point<int16_t>(2, 7));
+			{
+				int msg_index = static_cast<int>(size) - 1 - chat_scroll_offset;
+				if (msg_index >= 0 && msg_index < static_cast<int>(size))
+				{
+					// Center text vertically in the 26px height box
+					int16_t text_y = (CHAT_COLLAPSED_HEIGHT - 13) / 2 - 3;
+					Point<int16_t> text_pos = box_top_left + Point<int16_t>(CHAT_PADDING, text_y);
+					message_history[msg_index].text.draw(text_pos);
+				}
+			}
+
+			// Draw scroll arrows at right edge (up arrow on top, down arrow below)
+			int16_t arrow_width = arrow_up_tex.width();
+			int16_t arrow_height = arrow_up_tex.height();
+			int16_t arrow_x = CHAT_WIDTH - arrow_width;
+			int16_t arrow_up_y = (CHAT_COLLAPSED_HEIGHT - arrow_height * 2) / 2;
+			int16_t arrow_down_y = arrow_up_y + arrow_height;
+
+			arrow_up_tex.draw(box_top_left + Point<int16_t>(arrow_x, arrow_up_y));
+			arrow_down_tex.draw(box_top_left + Point<int16_t>(arrow_x, arrow_down_y));
+		}
+
+		// Draw input area at the collapsed chat position when typing is active
+		if (view_input)
+		{
+			// Draw white background for the input area
+			ColorBox input_bg(CHAT_WIDTH, CHAT_COLLAPSED_HEIGHT, Color::Name::WHITE, 1.0f);
+			input_bg.draw(box_top_left);
+
+			// Draw channel selector texture at left, vertically centered
+			int16_t channel_tex_height = channel_texture.height();
+			int16_t channel_tex_width = channel_texture.width();
+			int16_t channel_y = (CHAT_COLLAPSED_HEIGHT - channel_tex_height) / 2;
+			Point<int16_t> channel_pos = box_top_left + Point<int16_t>(CHAT_PADDING, channel_y);
+			channel_texture.draw(channel_pos);
+
+			// Draw channel text centered inside the texture
+			int16_t text_x = CHAT_PADDING + (channel_tex_width - channel_text.width()) / 2;
+			int16_t text_y = (CHAT_COLLAPSED_HEIGHT - 13) / 2 - 3;
+			channel_text.draw(box_top_left + Point<int16_t>(text_x, text_y));
+
+			// Draw the text cursor/input (bounds are already set correctly in update())
+			// Cursor adjusted by (1, -3) relative to text
+			input_text.draw(Point<int16_t>(0, 0), Point<int16_t>(1, -3));
+
+			// Draw disabled scroll arrows at right edge
+			int16_t arrow_width = arrow_up_tex.width();
+			int16_t arrow_height = arrow_up_tex.height();
+			int16_t arrow_x = CHAT_WIDTH - arrow_width;
+			int16_t arrow_up_y = (CHAT_COLLAPSED_HEIGHT - arrow_height * 2) / 2;
+			int16_t arrow_down_y = arrow_up_y + arrow_height;
+
+			// Draw with reduced opacity (0.3) to indicate disabled state
+			arrow_up_tex.draw(DrawArgument(box_top_left + Point<int16_t>(arrow_x, arrow_up_y), 0.3f));
+			arrow_down_tex.draw(DrawArgument(box_top_left + Point<int16_t>(arrow_x, arrow_down_y), 0.3f));
+		}
+
+		// Draw channel selector in expanded view as well (at the collapsed chat position)
+		if (view_max && !view_input)
+		{
+			int16_t channel_tex_height = channel_texture.height();
+			int16_t channel_tex_width = channel_texture.width();
+			int16_t channel_y = (CHAT_COLLAPSED_HEIGHT - channel_tex_height) / 2;
+			Point<int16_t> channel_pos = box_top_left + Point<int16_t>(CHAT_PADDING, channel_y);
+			channel_texture.draw(channel_pos);
+
+			// Draw channel text centered inside the texture
+			int16_t text_x = CHAT_PADDING + (channel_tex_width - channel_text.width()) / 2;
+			int16_t text_y = (CHAT_COLLAPSED_HEIGHT - 13) / 2 - 3;
+			channel_text.draw(box_top_left + Point<int16_t>(text_x, text_y));
 		}
 
 		UIElement::draw(inter);
@@ -373,7 +467,17 @@ namespace ms
 
 	void UIChatBar::update()
 	{
-		input_text.update(get_input_text_position(), Point<int16_t>(input_max_x - (input_bg_x - user_view_x) - 22, INPUT_TEXT_HEIGHT));
+		// Update text field to span most of the collapsed chat width (minus channel selector, arrows and padding)
+		int16_t channel_tex_width = channel_texture.width();
+		int16_t text_width = CHAT_WIDTH - CHAT_PADDING * 3 - channel_tex_width - 50;  // Leave room for channel selector, arrows and expand button
+
+		// Input text starts after the channel selector
+		// Adjusted by (0, -5) for vertical alignment
+		Point<int16_t> box_top_left = position - Point<int16_t>(0, CHAT_COLLAPSED_HEIGHT);
+		int16_t input_offset_x = CHAT_PADDING + channel_tex_width + CHAT_PADDING;
+		Point<int16_t> input_pos = box_top_left + Point<int16_t>(input_offset_x, (CHAT_COLLAPSED_HEIGHT - 11) / 2 - 5);
+
+		input_text.update(input_pos, Point<int16_t>(text_width, INPUT_TEXT_HEIGHT));
 	}
 
 	Button::State UIChatBar::button_pressed(uint16_t buttonid)
@@ -392,6 +496,20 @@ namespace ms
 
 				return Button::State::NORMAL;
 			}
+			case ms::UIChatBar::BtExpand:
+			{
+				// Expand the chat
+				toggle_view(true, true);
+
+				return Button::State::NORMAL;
+			}
+			case ms::UIChatBar::BtCollapse:
+			{
+				// Collapse the chat
+				toggle_view(false, true);
+
+				return Button::State::NORMAL;
+			}
 			default:
 			{
 				return Button::State::DISABLED;
@@ -403,10 +521,20 @@ namespace ms
 	{
 		if (temp_view_y == 0 && temp_view_x == 0)
 		{
-			Rectangle<int16_t> bounds = Rectangle<int16_t>(get_position(), get_position() + dimension);
-			Rectangle<int16_t> input_bounds = Rectangle<int16_t>(get_input_position(), get_input_position() + Point<int16_t>(user_view_x, input_bg_y));
+			// Collapsed area bounds
+			Point<int16_t> collapsed_top_left = position - Point<int16_t>(0, CHAT_COLLAPSED_HEIGHT);
+			Rectangle<int16_t> collapsed_bounds = Rectangle<int16_t>(collapsed_top_left, collapsed_top_left + Point<int16_t>(CHAT_WIDTH, CHAT_COLLAPSED_HEIGHT));
 
-			return bounds.contains(cursor_position) || input_bounds.contains(cursor_position);
+			if (view_max)
+			{
+				// Expanded area is ABOVE the collapsed area
+				Point<int16_t> expanded_top_left = collapsed_top_left - Point<int16_t>(0, CHAT_EXPANDED_HEIGHT);
+				Rectangle<int16_t> expanded_bounds = Rectangle<int16_t>(expanded_top_left, expanded_top_left + Point<int16_t>(CHAT_WIDTH, CHAT_EXPANDED_HEIGHT));
+
+				return collapsed_bounds.contains(cursor_position) || expanded_bounds.contains(cursor_position);
+			}
+
+			return collapsed_bounds.contains(cursor_position);
 		}
 		else
 		{
@@ -427,6 +555,62 @@ namespace ms
 		if (view_input && temp_view_y == 0 && temp_view_x == 0)
 			if (Cursor::State new_state = input_text.send_cursor(cursor_position, clicked))
 				return new_state;
+
+		// Handle channel selector clicks (when typing or expanded)
+		if (clicked && (view_input || view_max))
+		{
+			Point<int16_t> box_top_left = position - Point<int16_t>(0, CHAT_COLLAPSED_HEIGHT);
+			int16_t channel_tex_height = channel_texture.height();
+			int16_t channel_tex_width = channel_texture.width();
+			int16_t channel_y = (CHAT_COLLAPSED_HEIGHT - channel_tex_height) / 2;
+			Point<int16_t> channel_pos = box_top_left + Point<int16_t>(CHAT_PADDING, channel_y);
+
+			Rectangle<int16_t> channel_bounds(
+				channel_pos,
+				channel_pos + Point<int16_t>(channel_tex_width, channel_tex_height)
+			);
+
+			if (channel_bounds.contains(cursor_position))
+			{
+				cycle_chat_target();
+				return Cursor::State::CLICKING;
+			}
+		}
+
+		// Handle scroll arrow clicks in collapsed view
+		if (clicked && !view_max)
+		{
+			int16_t current_height = CHAT_COLLAPSED_HEIGHT;
+			Point<int16_t> box_top_left = position - Point<int16_t>(0, current_height);
+
+			int16_t arrow_width = arrow_up_tex.width();
+			int16_t arrow_height = arrow_up_tex.height();
+			int16_t arrow_x = CHAT_WIDTH - arrow_width;
+			int16_t arrow_up_y = (CHAT_COLLAPSED_HEIGHT - arrow_height * 2) / 2;
+			int16_t arrow_down_y = arrow_up_y + arrow_height;
+
+			// Check up arrow
+			Rectangle<int16_t> up_bounds(
+				box_top_left + Point<int16_t>(arrow_x, arrow_up_y),
+				box_top_left + Point<int16_t>(arrow_x + arrow_width, arrow_up_y + arrow_height)
+			);
+			if (up_bounds.contains(cursor_position))
+			{
+				scroll_chat(true);
+				return Cursor::State::CLICKING;
+			}
+
+			// Check down arrow
+			Rectangle<int16_t> down_bounds(
+				box_top_left + Point<int16_t>(arrow_x, arrow_down_y),
+				box_top_left + Point<int16_t>(arrow_x + arrow_width, arrow_down_y + arrow_height)
+			);
+			if (down_bounds.contains(cursor_position))
+			{
+				scroll_chat(false);
+				return Cursor::State::CLICKING;
+			}
+		}
 
 		if (clicked)
 		{
@@ -955,6 +1139,22 @@ namespace ms
 		toggle_view(!view_max, true);
 	}
 
+	void UIChatBar::scroll_chat(bool up)
+	{
+		if (up)
+		{
+			// Scroll up (show older messages)
+			if (chat_scroll_offset < static_cast<int16_t>(message_history.size()) - 1)
+				chat_scroll_offset++;
+		}
+		else
+		{
+			// Scroll down (show newer messages)
+			if (chat_scroll_offset > 0)
+				chat_scroll_offset--;
+		}
+	}
+
 	void UIChatBar::show_message(const char* message, MessageType type)
 	{
 		Color::Name color = Color::Name::RED;
@@ -1078,33 +1278,30 @@ namespace ms
 
 	Point<int16_t> UIChatBar::get_input_text_position()
 	{
-		Point<int16_t> adjust = Point<int16_t>(57, 20);
-
-		return position + adjust;
+		// Input text should appear at the collapsed chat location, after the channel selector
+		// box_top_left = position - (0, CHAT_COLLAPSED_HEIGHT)
+		// text_pos = box_top_left + (CHAT_PADDING + channel_width + CHAT_PADDING, centered vertically)
+		// Adjusted by (0, -5) for vertical alignment
+		Point<int16_t> box_top_left = position - Point<int16_t>(0, CHAT_COLLAPSED_HEIGHT);
+		int16_t channel_tex_width = channel_texture.width();
+		int16_t input_offset_x = CHAT_PADDING + channel_tex_width + CHAT_PADDING;
+		return box_top_left + Point<int16_t>(input_offset_x, (CHAT_COLLAPSED_HEIGHT - 11) / 2 - 5);
 	}
 
 	void UIChatBar::toggle_input(bool enabled)
 	{
 		view_input = enabled;
 
-		if (view_input && !view_max)
+		// Bring chat to front when enabling input to ensure it renders above statusbar
+		if (view_input)
 		{
-			view_adjusted = true;
-
-			toggle_view(true, true);
+			std::cout << "[DEBUG] UIChatBar::toggle_input - enabling input, calling bring_to_front" << std::endl;
+			UI::get().bring_to_front(TYPE);
+			input_text.set_state(Textfield::State::FOCUSED);
 		}
 		else
 		{
-			if (view_adjusted)
-			{
-				view_adjusted = false;
-
-				toggle_view(false, true);
-			}
-			else
-			{
-				update_view(true);
-			}
+			input_text.set_state(Textfield::State::DISABLED);
 		}
 
 		if (buttons[Buttons::BtChat]) buttons[Buttons::BtChat]->set_active(view_input);
@@ -1117,6 +1314,12 @@ namespace ms
 	void UIChatBar::toggle_view(bool max, bool pressed)
 	{
 		view_max = max;
+
+		// Bring chat to front when expanding to ensure it renders above other elements
+		if (view_max)
+		{
+			UI::get().bring_to_front(TYPE);
+		}
 
 		if (!view_max)
 		{
@@ -1135,6 +1338,12 @@ namespace ms
 		if (buttons[Buttons::BtMax]) buttons[Buttons::BtMax]->set_active(!view_max);
 		if (buttons[Buttons::BtMin]) buttons[Buttons::BtMin]->set_active(view_max);
 
+		// Toggle expand/collapse buttons
+		if (buttons[Buttons::BtExpand]) buttons[Buttons::BtExpand]->set_active(!view_max);
+		if (buttons[Buttons::BtCollapse]) buttons[Buttons::BtCollapse]->set_active(view_max);
+
+		// Scroll arrows are drawn manually, not as buttons
+
 		update_view(pressed);
 	}
 
@@ -1145,38 +1354,13 @@ namespace ms
 		else
 			input_text.set_state(Textfield::State::DISABLED);
 
-		if (pressed)
-		{
-			if (position_adjusted)
-			{
-				position_adjusted = false;
-
-				if (position.y() >= min_view_y - input_bg_y)
-					position.shift_y(input_bg_y);
-			}
-			else
-			{
-				if (view_input && position.y() >= min_view_y)
-				{
-					position_adjusted = true;
-					position.shift_y(-input_bg_y);
-				}
-			}
-		}
-
-		int16_t y = position.y() - center_y - user_view_y;
-
-		if (y < 0)
-		{
-			position.shift_y(-y);
-			position.shift_y(15);
-		}
-
+		// Chat box position is fixed - no shifting based on view state
 		Point<int16_t> btMin_padding = Point<int16_t>(-4, 3);
 
 		if (view_max)
 		{
-			dimension = Point<int16_t>(user_view_x, top_y + center_y + bottom_y) + Point<int16_t>(0, user_view_y);
+			// Expanded view: 565x150
+			dimension = Point<int16_t>(CHAT_WIDTH, CHAT_EXPANDED_HEIGHT);
 
 			if (buttons[Buttons::BtMin]) buttons[Buttons::BtMin]->set_position(Point<int16_t>(user_view_x - btMin_x, -top_y - center_y - user_view_y) + btMin_padding);
 
@@ -1190,7 +1374,8 @@ namespace ms
 		}
 		else
 		{
-			dimension = Point<int16_t>(min_x, top_y + center_y + bottom_y);
+			// Collapsed view: 565x26
+			dimension = Point<int16_t>(CHAT_WIDTH, CHAT_COLLAPSED_HEIGHT);
 
 			if (buttons[Buttons::BtMin]) buttons[Buttons::BtMin]->set_position(Point<int16_t>(min_x - btMin_x, -top_y - center_y - user_view_y) + btMin_padding);
 		}
@@ -1247,5 +1432,51 @@ namespace ms
 
 			input_text.change_text(user_message_history[user_message_history_index - 1]);
 		}
+	}
+
+	std::string UIChatBar::get_chat_target_text() const
+	{
+		switch (current_chat_target)
+		{
+			case MessageGroup::ALL:
+				return "To All";
+			case MessageGroup::PARTY:
+				return "To Party";
+			case MessageGroup::GUILD:
+				return "To Guild";
+			case MessageGroup::FRIEND:
+				return "To Buddy";
+			case MessageGroup::WHISPER:
+				return "To Whisper";
+			default:
+				return "To All";
+		}
+	}
+
+	void UIChatBar::cycle_chat_target()
+	{
+		// Cycle through: ALL -> PARTY -> GUILD -> FRIEND -> WHISPER -> ALL
+		switch (current_chat_target)
+		{
+			case MessageGroup::ALL:
+				current_chat_target = MessageGroup::PARTY;
+				break;
+			case MessageGroup::PARTY:
+				current_chat_target = MessageGroup::GUILD;
+				break;
+			case MessageGroup::GUILD:
+				current_chat_target = MessageGroup::FRIEND;
+				break;
+			case MessageGroup::FRIEND:
+				current_chat_target = MessageGroup::WHISPER;
+				break;
+			case MessageGroup::WHISPER:
+			default:
+				current_chat_target = MessageGroup::ALL;
+				break;
+		}
+
+		// Update the display text
+		channel_text.change_text(get_chat_target_text());
 	}
 }

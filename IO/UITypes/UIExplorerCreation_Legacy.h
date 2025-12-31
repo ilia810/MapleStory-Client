@@ -97,5 +97,8 @@ namespace ms
 		std::vector<int32_t> available_hairs_m;
 		std::vector<int32_t> available_hairs_f;
 		std::vector<int32_t> available_skins;
+
+		Texture frame;
+		Point<int16_t> frame_stretch;
 	};
 }

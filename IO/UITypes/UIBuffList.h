@@ -60,6 +60,9 @@ namespace ms
 
 		UIElement::Type get_type() const override;
 
+		// Buff list is a fixed HUD element - don't scale
+		bool should_scale() const override { return false; }
+
 		void add_buff(int32_t buffid, int32_t duration);
 
 	private:

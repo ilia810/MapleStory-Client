@@ -50,6 +50,7 @@ namespace ms
 		UIElement* get_front();
 		UIElement* get_front(std::list<UIElement::Type>) override { return nullptr; }
 		UIElement* get_front(Point<int16_t>) override { return nullptr; }
+		void bring_to_front(UIElement::Type) override {}
 
 	private:
 		void remove_cursor(UIElement::Type type);

@@ -31,20 +31,25 @@ namespace ms
 {
 	UICharInfo::UICharInfo(int32_t cid) : UIDragElement<PosCHARINFO>(), is_loading(true), timestep(Constants::TIMESTEP), personality_enabled(false), collect_enabled(false), damage_enabled(false), item_enabled(false)
 	{
-		nl::node close = nl::nx::UI["Basic.img"]["BtClose3"];
-		nl::node UserInfo = nl::nx::UI["UIWindow2.img"]["UserInfo"];
+		// Try UIWindow.img first for v92 compatibility
+		nl::node UserInfo = nl::nx::UI["UIWindow.img"]["UserInfo"];
+		if (!UserInfo) UserInfo = nl::nx::UI["UIWindow2.img"]["UserInfo"];
 		nl::node character = UserInfo["character"];
 		nl::node backgrnd = character["backgrnd"];
 
+		// Close button - try window-specific first, then fallback
+		nl::node close = UserInfo["BtClose"];
+		if (!close) close = nl::nx::UI["Basic.img"]["BtClose3"];
+
 		/// Main Window
-		sprites.emplace_back(backgrnd);
-		sprites.emplace_back(character["backgrnd2"]);
-		sprites.emplace_back(character["name"]);
+		if (backgrnd) sprites.emplace_back(backgrnd);
+		if (character["backgrnd2"]) sprites.emplace_back(character["backgrnd2"]);
+		if (character["name"]) sprites.emplace_back(character["name"]);
 
-		Point<int16_t> backgrnd_dim = Texture(backgrnd).get_dimensions();
-		Point<int16_t> close_dimensions = Point<int16_t>(backgrnd_dim.x() - 21, 6);
+		Point<int16_t> backgrnd_dim = backgrnd ? Texture(backgrnd).get_dimensions() : Point<int16_t>(200, 300);
+		Point<int16_t> close_dimensions = Point<int16_t>(backgrnd_dim.x() - 18, 5);
 
-		buttons[Buttons::BtClose] = std::make_unique<MapleButton>(close, close_dimensions);
+		if (close) buttons[Buttons::BtClose] = std::make_unique<MapleButton>(close, close_dimensions);
 		buttons[Buttons::BtCollect] = std::make_unique<MapleButton>(character["BtCollect"]);
 		buttons[Buttons::BtDamage] = std::make_unique<MapleButton>(character["BtDamage"]);
 		buttons[Buttons::BtFamily] = std::make_unique<MapleButton>(character["BtFamily"]);

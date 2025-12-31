@@ -56,6 +56,7 @@ namespace ms
 			ALLIANCE,
 			SPOUSE,
 			GROUP,
+			WHISPER,
 			LENGTH
 		};
 
@@ -80,6 +81,12 @@ namespace ms
 		static constexpr int16_t MIN_HEIGHT = 12;
 		static constexpr int16_t MAX_HEIGHT = 467;
 
+		// New chat box dimensions
+		static constexpr int16_t CHAT_WIDTH = 565;
+		static constexpr int16_t CHAT_COLLAPSED_HEIGHT = 26;
+		static constexpr int16_t CHAT_EXPANDED_HEIGHT = 150;
+		static constexpr int16_t CHAT_PADDING = 5;
+
 		bool indragrange(Point<int16_t> cursor_position) const override;
 		bool intoprange(Point<int16_t> cursor_position) const;
 		bool inbottomrange(Point<int16_t> cursor_position) const;
@@ -100,6 +107,9 @@ namespace ms
 		void input_text_enter_callback(std::string message);
 		void input_text_escape_callback();
 		void change_message(bool up);
+		void scroll_chat(bool up);  // Scroll chat messages up or down
+		std::string get_chat_target_text() const;  // Get display text for current chat target
+		void cycle_chat_target();  // Cycle to next chat target
 
 		enum Buttons
 		{
@@ -109,7 +119,11 @@ namespace ms
 			BtHelp,
 			BtItemLink,
 			BtChatEmoticon,
-			BtOutChat
+			BtOutChat,
+			BtExpand,    // Expand button (shown when collapsed)
+			BtCollapse,  // Collapse button (shown when expanded)
+			BtScrollUp,  // Scroll up arrow (collapsed view)
+			BtScrollDown // Scroll down arrow (collapsed view)
 		};
 
 		enum DragDirection
@@ -124,6 +138,15 @@ namespace ms
 		std::vector<Texture> max_textures;
 		std::vector<Texture> min_textures;
 		std::vector<Texture> input_textures;
+
+		// Scrollbar/scroll arrow textures (VScr4)
+		Texture scrollbar_base;
+		Texture scrollbar_thumb;
+		Texture arrow_up_tex;
+		Texture arrow_down_tex;
+
+		// Chat box background (simple colored box)
+		int16_t chat_scroll_offset;  // Current scroll position in message history
 
 		int16_t min_x;
 		int16_t max_x;
@@ -166,6 +189,11 @@ namespace ms
 		std::vector<Message> message_history;
 		std::vector<std::string> user_message_history;
 		size_t user_message_history_index;
+
+		// Chat target selector (channel2 texture)
+		Texture channel_texture;
+		Text channel_text;
+		MessageGroup current_chat_target;
 
 #if LOG_LEVEL >= LOG_UI
 		ColorBox dimension_box;

@@ -18,6 +18,9 @@
 #include "Cursor.h"
 
 #include "../Constants.h"
+#include "../Gameplay/Stage.h"
+#include "../Graphics/Geometry.h"
+#include "../Graphics/GraphicsGL.h"
 
 #ifdef USE_NX
 #include <nlnx/nx.hpp>
@@ -25,7 +28,12 @@
 
 namespace ms
 {
-	Cursor::Cursor()
+	// Static debug mode flag - toggle with F11
+	bool Cursor::debug_mode = false;
+
+	Cursor::Cursor() :
+		coord_text(Text::Font::A18B, Text::Alignment::LEFT, Color::Name::WHITE, Text::Background::NAMETAG),
+		map_coord_text(Text::Font::A18B, Text::Alignment::LEFT, Color::Name::YELLOW, Text::Background::NAMETAG)
 	{
 		state = Cursor::State::IDLE;
 		hide_counter = 0;
@@ -43,8 +51,78 @@ namespace ms
 	{
 		constexpr int64_t HIDE_AFTER = HIDE_TIME / Constants::TIMESTEP;
 
-		if (hide_counter < HIDE_AFTER)
+		if (debug_mode) {
+			int16_t x = position.x();
+			int16_t y = position.y();
+
+			// Magnifier settings
+			constexpr int16_t SOURCE_SIZE = 128;   // Capture 128x128 pixels around cursor
+			constexpr int16_t ZOOM_FACTOR = 3;     // 3x zoom
+			constexpr int16_t MAG_SIZE = SOURCE_SIZE * ZOOM_FACTOR;  // 384x384 output
+			constexpr int16_t MAG_OFFSET = 25;     // Distance from cursor to magnifier
+			constexpr int16_t BORDER = 2;
+
+			// Get screen dimensions
+			int16_t screen_width = Constants::Constants::get().get_viewwidth();
+			int16_t screen_height = Constants::Constants::get().get_viewheight();
+
+			// Calculate dynamic magnifier position
+			// Default: bottom-right of cursor
+			int16_t mag_x = x + MAG_OFFSET;
+			int16_t mag_y = y + MAG_OFFSET;
+
+			// Check if magnifier would go off right edge
+			if (mag_x + MAG_SIZE + BORDER > screen_width) {
+				// Place on left side of cursor
+				mag_x = x - MAG_OFFSET - MAG_SIZE;
+			}
+
+			// Check if magnifier would go off bottom edge
+			if (mag_y + MAG_SIZE + BORDER > screen_height) {
+				// Place above cursor
+				mag_y = y - MAG_OFFSET - MAG_SIZE;
+			}
+
+			// Check if magnifier would go off left edge
+			if (mag_x - BORDER < 0) {
+				mag_x = BORDER;
+			}
+
+			// Check if magnifier would go off top edge
+			if (mag_y - BORDER < 0) {
+				mag_y = BORDER;
+			}
+
+			// Draw the magnifier
+			GraphicsGL::get().draw_magnifier(x, y, SOURCE_SIZE, ZOOM_FACTOR, mag_x, mag_y);
+
+			// Draw crosshair lines
+			int16_t line_length = 15;
+
+			// Horizontal line (size = length * 2, not vertical)
+			ColorLine hline(line_length * 2, Color::Name::RED, 1.0f, false);
+			hline.draw(DrawArgument(Point<int16_t>(x - line_length, y)));
+
+			// Vertical line (size = length * 2, vertical)
+			ColorLine vline(line_length * 2, Color::Name::RED, 1.0f, true);
+			vline.draw(DrawArgument(Point<int16_t>(x, y - line_length)));
+
+			// Draw coordinates text (screen and map positions)
+			Point<int16_t> cam_pos = Stage::get().get_camera_position();
+			int16_t map_x = x - cam_pos.x();
+			int16_t map_y = y - cam_pos.y();
+
+			std::string screen_coords = "Screen: (" + std::to_string(x) + ", " + std::to_string(y) + ")";
+			std::string map_coords = "Map: (" + std::to_string(map_x) + ", " + std::to_string(map_y) + ")";
+
+			coord_text.change_text(screen_coords);
+			coord_text.draw(position + Point<int16_t>(10, 10));
+
+			map_coord_text.change_text(map_coords);
+			map_coord_text.draw(position + Point<int16_t>(10, 30));
+		} else if (hide_counter < HIDE_AFTER) {
 			animations[state].draw(position, alpha);
+		}
 	}
 
 	void Cursor::update()

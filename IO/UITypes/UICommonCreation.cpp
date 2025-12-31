@@ -50,6 +50,20 @@ namespace ms
 		nl::node Common = Login["Common"];
 		version_pos = Common["version"]["pos"];
 
+		// Helper lambda to add sprite at absolute top-left position (accounting for origin)
+		auto add_sprite_abs = [&](nl::node node, Point<int16_t> topleft) {
+			if (node) {
+				Point<int16_t> origin(node["origin"]);
+				sprites.emplace_back(node, topleft + origin);
+			}
+		};
+
+		// Frame/border from Common - stretched to fill 800x600
+		if (Common["frame"]) {
+			frame = Texture(Common["frame"]);
+			frame_stretch = Point<int16_t>(808, 608);
+		}
+
 		nl::node createLimit = Login["NewChar"]["createLimit"];
 		nl::node CustomizeChar = Login["CustomizeChar"][classType];
 		nl::node board = CustomizeChar["board"];
@@ -319,6 +333,16 @@ namespace ms
 	{
 		for (const Sprite& sprite : sprites_background)
 			sprite.draw(position, inter);
+
+		// Draw frame stretched to fill 800x600
+		if (frame.is_valid()) {
+			frame.draw(DrawArgument(
+				position + frame.get_origin(),
+				Point<int16_t>(0, 0),
+				frame_stretch,
+				1.0f, 1.0f, 1.0f, 0.0f
+			));
+		}
 
 		if (!genderSelected)
 		{

@@ -465,6 +465,9 @@
     <ClCompile Include="IO\UIElement.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="IO\UIScale.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="IO\UIStateCashShop.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -1080,6 +1083,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="IO\UIElement.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="IO\UIScale.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="IO\UIState.h">
